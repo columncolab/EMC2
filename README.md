@@ -1,2 +1,2 @@
 # EMC2
-Earth Model Column Collabratory
+Earth Model Column Collaboratory

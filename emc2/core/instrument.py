@@ -1,3 +1,10 @@
+"""
+====================
+emc2.core.instrument
+====================
+
+This module stores the Instrument class.
+"""
 import numpy as np
 
 class Instrument(object):
@@ -5,7 +12,7 @@ class Instrument(object):
     This is the base class which holds the information needed to contain the instrument parameters for the
     simulator.
 
-    Parameters
+    Attributes
     ----------
     instrument_str: str
         The name of the instrument.

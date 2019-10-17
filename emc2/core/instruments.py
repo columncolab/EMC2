@@ -1,3 +1,10 @@
+"""
+=====================
+emc2.core.instruments
+=====================
+
+This module stores example instruments.
+"""
 import numpy as np
 from .instrument import Instrument
 

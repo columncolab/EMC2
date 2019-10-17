@@ -46,7 +46,13 @@ def calc_radar_atm_attenuation(instrument, column_ds,
     gamma_l = gamma_0 * (column_ds[p_field]/1013) * (three_hundred_t)**0.85
     column_ds['kappa_o2'] = (1.1e-2*instrument.freq**2) * (column_ds[p_field] / 1013.) * three_hundred_t**2 * \
         gamma_l * (1./((instrument.freq - f0)**2 + gamma_l**2) + 1./(instrument.freq**2 + gamma_l**2))
+    column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
+    column_ds['kappa_o2'].attrs["units"] = "dB/km"
+    column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
+    column_ds['kappa_wv'].attrs["units"] = "dB/km"
     column_ds['kappa_att'] = column_ds['kappa_wv'] + column_ds['kappa_o2']
+    column_ds['kappa_att'].attrs["long_name"] = "Gaseous attenuation due to O2 and water vapor"
+    column_ds['kappa_att'].attrs["units"] = "dB/km"
     return column_ds
 
 

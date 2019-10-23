@@ -1,0 +1,2 @@
+recursive-include emc2 *.dat
+recursive-include doc *

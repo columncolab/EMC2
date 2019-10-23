@@ -4,6 +4,7 @@ import numpy as np
 from ..core import hydrometeor_info
 from scipy.special import gamma
 
+
 def calc_mu_lambda(column_ds, q_name="q", N_name="N", hyd_type="cl",
                    calc_dispersion=True, dispersion_mu_bounds=(2, 15)):
 
@@ -53,8 +54,8 @@ def calc_mu_lambda(column_ds, q_name="q", N_name="N", hyd_type="cl",
 
     if hyd_type == "cl":
         if calc_dispersion:
-            mus = 0.0005714*(column_ds[N_name].values/1e6 * hydrometeor_info.Rho_hyd["cl"]) + 0.2714
-            mus = 1/mus**2 - 1
+            mus = 0.0005714 * (column_ds[N_name].values / 1e6 * hydrometeor_info.Rho_hyd["cl"]) + 0.2714
+            mus = 1 / mus**2 - 1
             mus = np.where(mus < dispersion_mu_bounds[0], dispersion_mu_bounds[0], mus)
             mus = np.where(mus > dispersion_mu_bounds[1], dispersion_mu_bounds[1], mus)
             column_ds["mu"] = xr.DataArray(mus, dims=column_ds[q_name].dims)
@@ -70,17 +71,16 @@ def calc_mu_lambda(column_ds, q_name="q", N_name="N", hyd_type="cl",
 
     d = 3.0
     c = np.pi * hydrometeor_info.Rho_hyd[hyd_type] / 6.0
-    fit_lambda = (c * column_ds[N_name] * gamma(column_ds["mu"] + d + 1) / \
-                 (column_ds[q_name] * gamma(column_ds["mu"] + 1)))**(1 / d)
+    fit_lambda = (c * column_ds[N_name] * gamma(column_ds["mu"] + d + 1) /
+                  (column_ds[q_name] * gamma(column_ds["mu"] + 1)))**(1 / d)
 
     # Eventually need to make this unit aware, pint as a dependency?
     column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0)
     column_ds["lambda"].attrs["long_name"] = "Slope of gamma distribution fit"
     column_ds["lambda"].attrs["units"] = "cm-1"
-    column_ds["N_0"] = column_ds[N_name] * column_ds["lambda"]**(column_ds["mu"] + 1.) / gamma(column_ds["mu"] + 1.)
+    column_ds["N_0"] = column_ds[N_name] * column_ds["lambda"]**(column_ds["mu"] + 1.) \
+        / gamma(column_ds["mu"] + 1.)
     column_ds["N_0"].attrs["long_name"] = "Intercept of gamma fit"
     column_ds["N_0"].attrs["units"] = "cm-4"
 
     return column_ds
-
-

@@ -2,10 +2,11 @@ import emc2
 import xarray as xr
 import numpy as np
 
+
 def test_convective_reflectivity():
     instrument = emc2.core.instruments.KAZR('nsa')
     heights = xr.DataArray(np.linspace(0, 11000., 1000))
-    temp = 15.04 - 0.00649*heights + 273.15
+    temp = 15.04 - 0.00649 * heights + 273.15
     q = np.linspace(0, 0.5, len(temp))
     p = 101.29 * (temp / 288.08) ** 5.256
     my_ds = xr.Dataset({'q': q, 't': temp, 'p_3d': p})

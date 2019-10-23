@@ -1,6 +1,7 @@
 import emc2
 import numpy as np
 
+
 def test_mie_file():
     KAZR = emc2.core.instruments.KAZR('nsa')
     assert "cl" in KAZR.mie_table.keys()

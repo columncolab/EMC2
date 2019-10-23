@@ -9,4 +9,4 @@ cd doc
 make clean
 make html
 cd ..
-doctr deploy . --built-docs doc/build
+doctr deploy . 

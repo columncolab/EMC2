@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def load_mie_file(filename):
     """
     Loads the Mie parameters from a file.
@@ -22,6 +23,5 @@ def load_mie_file(filename):
     my_df["alpha_p"] = my_df["alpha_p"] * 1e-12
     my_df["beta_p"] = my_df["beta_p"] * 1e-12
     my_df["p_diam"] = 2e-6 * my_df["p_diam"]
-
 
     return my_df

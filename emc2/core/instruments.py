@@ -7,6 +7,8 @@ This module stores example instruments.
 """
 import numpy as np
 from .instrument import Instrument
+from ..io import load_mie_file
+import os
 
 """ Example instruments are down here."""
 class HSRL(Instrument):
@@ -30,6 +32,12 @@ class HSRL(Instrument):
         self.tau_ge = np.nan
         self.tau_md = np.nan
 
+        # Load mie tables
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        self.mie_table["cl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
+        self.mie_table["pl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
 
 class KAZR(Instrument):
     def __init__(self, site):
@@ -69,6 +77,12 @@ class KAZR(Instrument):
             self.pr_noise_md = np.nan
             self.tau_ge = np.nan
             self.tau_md = np.nan
+        # Load mie tables
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
+        self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
 
 class Ten64nm(Instrument):
     def __init__(self):
@@ -90,4 +104,10 @@ class Ten64nm(Instrument):
         self.pr_noise_md = np.nan
         self.tau_ge = np.nan
         self.tau_md = np.nan
+        # Load mie tables
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
+        self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
 

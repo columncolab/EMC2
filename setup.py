@@ -24,7 +24,7 @@ setup(
 
     description="An open source framework for atmospheric model and observational column comparison.",
     long_description=read("README.rst"),
-
+    include_package_data=True,
     packages=find_packages(exclude=('tests',)),
 
     install_requires=[],

@@ -46,27 +46,28 @@ class Instrument(object):
     tau_md: float
         Pulse width in mus.
     """
-    instrument_str = ""
-    instrument_class = ""
-    freq = np.nan
-    wavelength = np.nan
-    ext_OD = np.nan
-    K_w = np.nan
-    eps_liq = np.nan
-    location_code = ""
-    pt = np.nan
-    theta = np.nan
-    gain = np.nan
-    Z_min_1km = np.nan
-    lr = np.nan
-    pr_noise_ge = np.nan
-    pr_noise_md = np.nan
-    tau_ge = np.nan
-    tau_md = np.nan
-    c = 299792458.0
-    R_d = 287.058
+
 
     def __init__(self, frequency=None, wavelength=None):
+        self.instrument_str = ""
+        self.instrument_class = ""
+        self.freq = np.nan
+        self.wavelength = np.nan
+        self.ext_OD = np.nan
+        self.K_w = np.nan
+        self.eps_liq = np.nan
+        self.location_code = ""
+        self.pt = np.nan
+        self.theta = np.nan
+        self.gain = np.nan
+        self.Z_min_1km = np.nan
+        self.lr = np.nan
+        self.pr_noise_ge = np.nan
+        self.pr_noise_md = np.nan
+        self.tau_ge = np.nan
+        self.tau_md = np.nan
+        self.c = 299792458.0
+        self.R_d = 287.058
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")
         if frequency is None:
@@ -79,5 +80,6 @@ class Instrument(object):
             self.freq = frequency
             self.wavelength = wavelength
 
+        self.mie_table = {}
 
 

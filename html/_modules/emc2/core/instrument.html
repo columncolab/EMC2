@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>emc2.core.instrument &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>emc2.core.instrument</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for emc2.core.instrument</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">====================</span>
+<span class="sd">emc2.core.instrument</span>
+<span class="sd">====================</span>
+
+<span class="sd">This module stores the Instrument class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../../API/generated/emc2.core.Instrument.html#emc2.core.Instrument">[docs]</a><span class="k">class</span> <span class="nc">Instrument</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base class which holds the information needed to contain the instrument parameters for the</span>
+<span class="sd">    simulator.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    instrument_str: str</span>
+<span class="sd">        The name of the instrument.</span>
+<span class="sd">    instrument_class: str</span>
+<span class="sd">        The class of the instrument. Currently must be one of &#39;radar,&#39; or &#39;lidar&#39;.</span>
+<span class="sd">    freq: float</span>
+<span class="sd">        The frequency of the instrument.</span>
+<span class="sd">    wavelength: float</span>
+<span class="sd">        The wavelength of the instrument</span>
+<span class="sd">    ext_OD: float</span>
+<span class="sd">        The optical depth where we have full extinction of the lidar signal.</span>
+<span class="sd">    K_w: float</span>
+<span class="sd">        The index of refraction of water used for Ze calculation.</span>
+<span class="sd">        See the ARM KAZR handbook (Widener et al. 2012)</span>
+<span class="sd">    eps_liq: float</span>
+<span class="sd">        The complex dielectric constant for liquid water.</span>
+<span class="sd">    pt: float</span>
+<span class="sd">        Transmitting power in Watts.</span>
+<span class="sd">    theta: float</span>
+<span class="sd">        3 dB beam width in degrees</span>
+<span class="sd">    gain: float</span>
+<span class="sd">        The antenna gain in linear units.</span>
+<span class="sd">    Z_min_1km: float</span>
+<span class="sd">        The minimum detectable signal at 1 km in dBZ</span>
+<span class="sd">    lr: float</span>
+<span class="sd">        Attenuation based on the the general attributes in the spectra files.</span>
+<span class="sd">    pr_noise_ge: float</span>
+<span class="sd">        Minimum detectable signal in mW.</span>
+<span class="sd">    tau_ge: float</span>
+<span class="sd">        Pulse width in mus.</span>
+<span class="sd">    tau_md: float</span>
+<span class="sd">        Pulse width in mus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Instrument.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.Instrument.html#emc2.core.Instrument.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="mf">299792458.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">R_d</span> <span class="o">=</span> <span class="mf">287.058</span>
+        <span class="k">if</span> <span class="n">frequency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wavelength</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Your instrument must have a frequency or wavelength!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="n">wavelength</span> <span class="o">*</span> <span class="mf">1e-3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">wavelength</span>
+        <span class="k">elif</span> <span class="n">wavelength</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">frequency</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="n">frequency</span> <span class="o">*</span> <span class="mf">1e-3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">frequency</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">wavelength</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span> <span class="o">=</span> <span class="p">{}</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

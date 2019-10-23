@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>emc2.simulator.psd.calc_mu_lambda &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="emc2.simulator.reflectivity.calc_radar_reflectivity_conv" href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html" />
+    <link rel="prev" title="emc2.simulator.attenuation.calc_radar_atm_attenuation" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_mu_lambda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html">emc2.simulator.reflectivity.calc_radar_reflectivity_conv</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../simulator.html">emc2.simulator (emc2.simulator)</a> &raquo;</li>
+        
+      <li>emc2.simulator.psd.calc_mu_lambda</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/API/generated/emc2.simulator.psd.calc_mu_lambda.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="emc2-simulator-psd-calc-mu-lambda">
+<h1>emc2.simulator.psd.calc_mu_lambda<a class="headerlink" href="#emc2-simulator-psd-calc-mu-lambda" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="emc2.simulator.psd.calc_mu_lambda">
+<code class="sig-prename descclassname">emc2.simulator.psd.</code><code class="sig-name descname">calc_mu_lambda</code><span class="sig-paren">(</span><em class="sig-param">column_ds</em>, <em class="sig-param">q_name='q'</em>, <em class="sig-param">N_name='N'</em>, <em class="sig-param">hyd_type='cl'</em>, <em class="sig-param">calc_dispersion=True</em>, <em class="sig-param">dispersion_mu_bounds=(2</em>, <em class="sig-param">15)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
+The gamma size distribution takes the form:</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">math</dt>
+<dd class="field-odd"><p>‘N(D) = N_{0}e^{-lambdaD}D^{mu}</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Where <span class="math notranslate nohighlight">\(N_{0}\)</span> is the intercept, <span class="math notranslate nohighlight">\(\lambda\)</span> is the slope, and
+<span class="math notranslate nohighlight">\(\mu\)</span> is the dispersion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>column_ds: xarray Dataset</strong></dt><dd><p>The xarray dataset containing the column parameters.</p>
+</dd>
+<dt><strong>q_name: str</strong></dt><dd><p>The name of the variable containing the liquid water mixing ratio.</p>
+</dd>
+<dt><strong>N_name: str</strong></dt><dd><p>The name of the variable containing the cloud particle number concentration.</p>
+</dd>
+<dt><strong>hyd_type: str</strong></dt><dd><p>The assumed hydrometeor type. Must be one of:
+‘cl’ (cloud liquid), ‘ci’ (cloud ice),
+‘pl’ (liquid precipitation), ‘pi’ (ice precipitation).</p>
+</dd>
+<dt><strong>calc_dispersion: bool</strong></dt><dd><p>If False, the <span class="math notranslate nohighlight">\(\mu\)</span> parameter will be fixed at 1/0.09. If True and
+the hydrometeor type is “cl”, then the Martin et al. (1994) method
+will be used to calculate <span class="math notranslate nohighlight">\(\mu\)</span>.</p>
+</dd>
+<dt><strong>dispersion_mu_bounds: 2-tuple</strong></dt><dd><p>The lower and upper bounds for the <span class="math notranslate nohighlight">\(\mu\)</span> parameter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>column_ds: xarray Dataset</dt><dd><p>The dataset with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Ulbrich, C. W., 1983: Natural variations in the analytical form of the raindrop size
+distribution: J. Climate Appl. Meteor., 22, 1764-1775</p>
+<p>Martin, G.M., D.W. Johnson, and A. Spice, 1994: The Measurement and Parameterization
+of Effective Radius of Droplets in Warm Stratocumulus Clouds.
+J. Atmos. Sci., 51, 1823–1842, <a class="reference external" href="https://doi.org/10.1175/1520-0469(1994">https://doi.org/10.1175/1520-0469(1994</a>)051&lt;1823:TMAPOE&gt;2.0.CO;2</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html" class="btn btn-neutral float-right" title="emc2.simulator.reflectivity.calc_radar_reflectivity_conv" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html" class="btn btn-neutral float-left" title="emc2.simulator.attenuation.calc_radar_atm_attenuation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

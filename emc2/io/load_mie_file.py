@@ -16,11 +16,12 @@ def load_mie_file(filename):
     """
 
     my_df = pd.read_csv(filename, delim_whitespace=True,
-                        names=["wavelength", "p_diam", "col3", "col4",
-                               "col5", "col6", "alpha_p", "beta_p", "col9",
-                               "col10", "col11"])
+                        names=["wavelength", "p_diam", "size_parameter", "compre_real",
+                               "compre_im", "scat_p", "alpha_p", "beta_p", "scat_eff",
+                               "ext_eff", "backscat_p"])
     my_df["alpha_p"] = my_df["alpha_p"] * 1e-12
     my_df["beta_p"] = my_df["beta_p"] * 1e-12
-    my_df["p_diam"] = 2e-6*my_df["p_diam"]
+    my_df["p_diam"] = 2e-6 * my_df["p_diam"]
+
 
     return my_df

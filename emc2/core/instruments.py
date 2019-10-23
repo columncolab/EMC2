@@ -10,7 +10,7 @@ from .instrument import Instrument
 from ..io import load_mie_file
 import os
 
-""" Example instruments are down here."""
+
 class HSRL(Instrument):
     def __init__(self):
         """
@@ -21,7 +21,7 @@ class HSRL(Instrument):
         self.instrument_str = "HSRL"
         self.ext_OD = 4
         self.K_w = np.nan
-        self.eps_liq = (1.337273+1.7570744e-9j)**2
+        self.eps_liq = (1.337273 + 1.7570744e-9j)**2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -39,6 +39,7 @@ class HSRL(Instrument):
         self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
         self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
 
+
 class KAZR(Instrument):
     def __init__(self, site):
         """
@@ -50,7 +51,7 @@ class KAZR(Instrument):
         self.instrument_class = "radar"
         self.ext_OD = np.nan
         self.K_w = 0.88
-        self.eps_liq = (5.489262+2.8267679j)**2
+        self.eps_liq = (5.489262 + 2.8267679j)**2
         self.pt = 2000.
         if site.lower() == "sgp":
             self.theta = 0.19
@@ -84,6 +85,7 @@ class KAZR(Instrument):
         self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
         self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
 
+
 class Ten64nm(Instrument):
     def __init__(self):
         """
@@ -94,7 +96,7 @@ class Ten64nm(Instrument):
         self.instrument_name = "1064nm"
         self.ext_OD = 4
         self.K_w = np.nan
-        self.eps_liq = (1.320416+1.2588968e-6j)**2
+        self.eps_liq = (1.320416 + 1.2588968e-6j)**2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -110,4 +112,3 @@ class Ten64nm(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
         self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
-

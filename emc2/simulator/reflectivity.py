@@ -5,6 +5,7 @@ from ..core import Instrument, hydrometeor_info
 from .attenuation import calc_radar_atm_attenuation
 from .psd import calc_mu_lambda
 
+
 def calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
                                  p_field="p_3d", t_field="t",
                                  q_field="q"):
@@ -40,11 +41,11 @@ def calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
     if hyd_type.lower() not in ['cl', 'ci', 'pl', 'pi']:
         raise ValueError("%s is not a valid hydrometeor type. Valid choices are cl, ci, pl, and pi." % hyd_type)
 
-    WC = column_ds[q_field]*1e3*column_ds[p_field]/(instrument.R_d*column_ds[t_field])
+    WC = column_ds[q_field] * 1e3 * column_ds[p_field] / (instrument.R_d * column_ds[t_field])
     if hyd_type.lower() == "cl":
-        column_ds['Ze'] = 0.031*WC**1.56
+        column_ds['Ze'] = 0.031 * WC**1.56
     elif hyd_type.lower() == "pl":
-        column_ds['Ze'] = ((WC * 1e3)/ 3.4)**1.75
+        column_ds['Ze'] = ((WC * 1e3) / 3.4)**1.75
     else:
         Tc = column_ds[t_field] - 273.15
         if instrument.freq >= 2 and instrument.freq < 4:
@@ -52,17 +53,19 @@ def calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
         elif instrument.freq >= 27 and instrument.freq < 40:
             column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.699)) / 10.)
         elif instrument.freq >= 75 and instrument.freq < 110:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) /10.)
+            column_ds['Ze'] = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) / 10.)
         else:
             column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.0699)) / 10.)
-    column_ds['Ze'] = 10*np.log10(column_ds["Ze"])
+    column_ds['Ze'] = 10 * np.log10(column_ds["Ze"])
     column_ds['Ze'].attrs["long_name"] = "Radar reflectivity factor"
     column_ds['Ze'].attrs["units"] = "dBZ"
     return column_ds
 
+
 def calc_reflectivity(instrument, column_ds, is_conv,
                       N_field="N", p_field="p", t_field="t",
-                      OD_from_sfc=True, z_field="z", **kwargs):
+                      OD_from_sfc=True, z_field="z",
+                      q_names=None, **kwargs):
     """
     Calculates the reflectivity in a given column for the given radar.
 
@@ -119,33 +122,26 @@ def calc_reflectivity(instrument, column_ds, is_conv,
                 column_ds["sub_col_Ze_tot_conv"] = column_ds[var_name]
         kappa_ds = calc_radar_atm_attenuation(instrument, column_ds,
                                               p_field=p_field, t_field=t_field, **kwargs)
-        kappa_f = 6*np.pi / instrument.wavelength*1e-6*hydrometeor_info.Rho_hyd["cl"]
+        kappa_f = 6 * np.pi / instrument.wavelength * 1e-6 * hydrometeor_info.Rho_hyd["cl"]
         WC = column_ds[q_names["cl"]] + column_ds[q_names["pl"]] * 1e3 * \
-             column_ds[p_field] / (instrument.R_d * column_ds[t_field])
+            column_ds[p_field] / (instrument.R_d * column_ds[t_field])
         dz = np.diff(column_ds[z_field].values, axis=1)
 
         if OD_from_sfc:
             WC_new = np.zeros_like(WC)
             WC_new[:, 1:, :, :] = WC[:, :-1, :, :]
-            liq_ext = np.cumsum(kappa_f*dz*WC_new, axis=1)
-            atm_ext = np.cumsum(kappa_ds["kappa_att"]*dz, axis=1)
+            liq_ext = np.cumsum(kappa_f * dz * WC_new, axis=1)
+            atm_ext = np.cumsum(kappa_ds["kappa_att"] * dz, axis=1)
         else:
             WC_new = np.zeros_like(WC)
             WC_new[:, :-1, :, :] = WC[:, 1:, :, :]
             liq_ext = np.flip(np.cumsum(kappa_f * dz * WC_new, axis=1), axis=1)
             atm_ext = np.flip(np.cumsum(kappa_ds["kappa_att"] * dz, axis=1), axis=1)
 
-        column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"]/10**(2*liq_ext/10.)/10**(2*atm_ext/10.)
-        column_ds["sub_col_Ze_tot_conv"] = column_ds["sub_col_Ze_tot_conv"].where(column_ds["sub_col_Ze_tot_conv"] != 0)
+        column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"] / \
+            10**(2 * liq_ext / 10.) / 10**(2 * atm_ext / 10.)
+        column_ds["sub_col_Ze_tot_conv"] = column_ds["sub_col_Ze_tot_conv"].where(
+            column_ds["sub_col_Ze_tot_conv"] != 0)
         return column_ds
 
-    dims = column_ds[q_names["cl"]].shape
-    moment_denom_tot = np.zeros(dims)
-    V_d_numer_tot = np.zeros(dims)
-    sigma_d_numer_tot = np.zeros(dims)
-    od_tot = np.zeros(dims)
-
-    for hyd_type in ['pi', 'pl', 'ci', 'cl']:
-        column_ds = calc_mu_lambda(column_ds, q_name=q_names[hyd_type], **kwargs)
-
-
+    return

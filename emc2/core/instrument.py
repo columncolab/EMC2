@@ -7,6 +7,7 @@ This module stores the Instrument class.
 """
 import numpy as np
 
+
 class Instrument(object):
     """
     This is the base class which holds the information needed to contain the instrument parameters for the
@@ -47,7 +48,6 @@ class Instrument(object):
         Pulse width in mus.
     """
 
-
     def __init__(self, frequency=None, wavelength=None):
         self.instrument_str = ""
         self.instrument_class = ""
@@ -71,15 +71,13 @@ class Instrument(object):
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")
         if frequency is None:
-            self.freq = self.c/wavelength*1e-3
+            self.freq = self.c / wavelength * 1e-3
             self.wavelength = wavelength
         elif wavelength is None:
             self.freq = frequency
-            self.wavelength = self.c/frequency*1e-3
+            self.wavelength = self.c / frequency * 1e-3
         else:
             self.freq = frequency
             self.wavelength = wavelength
 
         self.mie_table = {}
-
-

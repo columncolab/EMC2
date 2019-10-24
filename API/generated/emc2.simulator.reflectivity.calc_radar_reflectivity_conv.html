@@ -166,7 +166,7 @@
 <h1>emc2.simulator.reflectivity.calc_radar_reflectivity_conv<a class="headerlink" href="#emc2-simulator-reflectivity-calc-radar-reflectivity-conv" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="emc2.simulator.reflectivity.calc_radar_reflectivity_conv">
-<code class="sig-prename descclassname">emc2.simulator.reflectivity.</code><code class="sig-name descname">calc_radar_reflectivity_conv</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">column_ds</em>, <em class="sig-param">hyd_type</em>, <em class="sig-param">p_field='p_3d'</em>, <em class="sig-param">t_field='t'</em>, <em class="sig-param">q_field='q'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/reflectivity.html#calc_radar_reflectivity_conv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.reflectivity.calc_radar_reflectivity_conv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.reflectivity.</code><code class="sig-name descname">calc_radar_reflectivity_conv</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">model</em>, <em class="sig-param">hyd_type</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/reflectivity.html#calc_radar_reflectivity_conv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.reflectivity.calc_radar_reflectivity_conv" title="Permalink to this definition">¶</a></dt>
 <dd><p>This estimates the radar reflectivity given a profile of liquid water mixing ratio.
 Convective DSDs are assumed.</p>
 <dl class="field-list simple">
@@ -174,23 +174,17 @@ Convective DSDs are assumed.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>instrument: :func:`emc2.core.Instrument` class</strong></dt><dd><p>The instrument to calculate the reflectivity parameters for.</p>
 </dd>
-<dt><strong>column_ds: xarray Dataset</strong></dt><dd><p>The dataset to calculate the derived reflectivity from.</p>
+<dt><strong>model: :func:`emc2.core.Model` class</strong></dt><dd><p>The model to calculate the parameters for.</p>
 </dd>
 <dt><strong>hyd_type: str</strong></dt><dd><p>The assumed hydrometeor type. Must be one of:
 ‘cl’ (cloud liquid), ‘ci’ (cloud ice),
 ‘pl’ (liquid precipitation), ‘pi’ (ice precipitation).</p>
 </dd>
-<dt><strong>p_field: str</strong></dt><dd><p>The name of the pressure field.</p>
-</dd>
-<dt><strong>t_field: str</strong></dt><dd><p>The name of the temperature field.</p>
-</dd>
-<dt><strong>q_field: str</strong></dt><dd><p>The name of the liquid water mixing ratio field.</p>
-</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>column_ds: xarray Dataset</dt><dd><p>Returns a dataset with an added reflectivity field.</p>
+<dt>model: <code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.core.Model()</span></code></dt><dd><p>Returns a Model with an added reflectivity field.</p>
 </dd>
 </dl>
 </dd>

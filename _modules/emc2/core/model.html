@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>emc2.core.model &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>emc2.core.model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for emc2.core.model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">===============</span>
+<span class="sd">emc2.core.Model</span>
+<span class="sd">===============</span>
+
+<span class="sd">This module contains the Model class and example Models for your use.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.Model.html#emc2.core.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class stores the model specific parameters for the radar simulator.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Rho_hyd: dict</span>
+<span class="sd">       A dictionary whose keys are the names of the model&#39;s hydrometeor classes and</span>
+<span class="sd">       whose values are the density of said hydrometeors in :math:`kg\ m^{-3}`</span>
+<span class="sd">    lidar_ratio: dict</span>
+<span class="sd">       A dictionary whose keys are the names of the model&#39;s hydrometeor classes and</span>
+<span class="sd">       whose values are the lidar_ratio of said hydrometeors.</span>
+<span class="sd">    vel_param_a: dict</span>
+<span class="sd">       A dictionary whose keys are the names of the model&#39;s hydrometeor classes and</span>
+<span class="sd">       whose values are the :math:`a` parameters to the equation :math:`V = aD^b` used to</span>
+<span class="sd">       calculate terminal velocity corresponding to each hydrometeor.</span>
+<span class="sd">    vel_param_b: dict</span>
+<span class="sd">       A dictionary whose keys are the names of the model&#39;s hydrometeor classes and</span>
+<span class="sd">       whose values are the :math:`b` parameters to the equation :math:`V = aD^b` used to</span>
+<span class="sd">       calculate terminal velocity corresponding to each hydrometeor.</span>
+<span class="sd">    N_field: dict</span>
+<span class="sd">       A dictionary whose keys are the names of the model&#39;s hydrometeor classes and</span>
+<span class="sd">       whose values are the number concentrations in :math:`cm^{-3}` corresponding to</span>
+<span class="sd">       each hydrometeor class.</span>
+<span class="sd">    T_field: str</span>
+<span class="sd">       A string containing the name of the temperature field in the model.</span>
+<span class="sd">    q_field: str</span>
+<span class="sd">       A string containing the name of the water vapor mixing ratio field (in kg/kg) in the model.</span>
+<span class="sd">    p_field: str</span>
+<span class="sd">       A string containing the name of the pressure field (in mbar) in the model.</span>
+<span class="sd">    z_field: str</span>
+<span class="sd">       A string containing the name of the height field (in m) in the model.</span>
+<span class="sd">    conv_frac_names: dict</span>
+<span class="sd">       A dictionary containing the names of the convective fraction corresponding to each</span>
+<span class="sd">       hydrometeor class in the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Model.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.Model.html#emc2.core.model.Model.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Rho_hyd</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lidar_ratio</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LDR_per_hyd</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_a</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_b</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_names_convective</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_names_stratiform</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_field</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T_field</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_field</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_field</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_field</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qp_field</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_frac_names</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hydrometeor_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The list of hydrometeor classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_field</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_hydrometeor_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The number of hydrometeor classes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_field</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="ModelE"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE">[docs]</a><span class="k">class</span> <span class="nc">ModelE</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelE.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            Path to a ModelE simulation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Rho_hyd</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">1000.</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">5000.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">1000.</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">250.</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lidar_ratio</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">18.</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">24.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">5.5</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">24.0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LDR_per_hyd</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">0.40</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">3e-7</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">700.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">841.997</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">11.72</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_b</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">0.41</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_names</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;qcl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;qci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;qpl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;qpi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_field</span> <span class="o">=</span> <span class="s2">&quot;q&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_field</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;ncl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;nci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;npl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;npi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_field</span> <span class="o">=</span> <span class="s2">&quot;p_3d&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_field</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T_field</span> <span class="o">=</span> <span class="s2">&quot;t&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_frac_names</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmccl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmcci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmcpl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmcpi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsscl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;cldssci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Check to make sure we are loading a single column</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not an SCM run. EMC^2 will only work with SCM runs.&quot;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+
+        <span class="c1"># No need for lat and lon dimensions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="TestModel"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestModel.html#emc2.core.model.TestModel">[docs]</a><span class="k">class</span> <span class="nc">TestModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a test Model structure used only for unit testing. It is not recommended for end users.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestModel.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestModel.html#emc2.core.model.TestModel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">100.</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">11000.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="mf">15.04</span> <span class="o">-</span> <span class="mf">0.00649</span> <span class="o">*</span> <span class="n">heights</span> <span class="o">+</span> <span class="mf">273.15</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="mf">101.29</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">/</span> <span class="mf">288.08</span><span class="p">)</span> <span class="o">**</span> <span class="mf">5.256</span>
+        <span class="n">es</span> <span class="o">=</span> <span class="mf">0.6112</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">17.67</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">/</span> <span class="p">(</span><span class="n">temp</span> <span class="o">+</span> <span class="mf">243.5</span><span class="p">))</span>
+        <span class="n">qv</span> <span class="o">=</span> <span class="mf">0.622</span> <span class="o">*</span> <span class="n">es</span> <span class="o">/</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="n">es</span><span class="p">)</span>
+        <span class="n">my_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">({</span><span class="s1">&#39;p_3d&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">qv</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="n">temp</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">heights</span><span class="p">,</span>
+                            <span class="s1">&#39;qcl&#39;</span><span class="p">:</span> <span class="n">q</span><span class="p">,</span> <span class="s1">&#39;ncl&#39;</span><span class="p">:</span> <span class="n">N</span><span class="p">,</span> <span class="s1">&#39;qpl&#39;</span><span class="p">:</span> <span class="n">q</span><span class="p">,</span> <span class="s1">&#39;qci&#39;</span><span class="p">:</span> <span class="n">q</span><span class="p">,</span> <span class="s1">&#39;qpi&#39;</span><span class="p">:</span> <span class="n">q</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Rho_hyd</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">1000.</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">5000.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">1000.</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">250.</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lidar_ratio</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">18.</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">24.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">5.5</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">24.0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LDR_per_hyd</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">0.40</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">3e-7</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">700.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">841.997</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">11.72</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_b</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="mf">0.41</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_names_convective</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;qcl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;qci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;qpl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;qpi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_names_stratiform</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;qcl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;qci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;qpl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;qpi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_field</span> <span class="o">=</span> <span class="s2">&quot;q&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_field</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;ncl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;nci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;npl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;npi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_field</span> <span class="o">=</span> <span class="s2">&quot;p_3d&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_field</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T_field</span> <span class="o">=</span> <span class="s2">&quot;t&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_frac_names</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmccl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmcci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmcpl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;cldmcpi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsscl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;cldssci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspi&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">my_ds</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+emc2.core.model.Model
+=====================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: Model
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Model.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Model.hydrometeor_classes
+      ~Model.num_hydrometeor_classes
+   
+   

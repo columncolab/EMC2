@@ -167,27 +167,21 @@
 <h1>emc2.simulator.attenuation.calc_radar_atm_attenuation<a class="headerlink" href="#emc2-simulator-attenuation-calc-radar-atm-attenuation" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="emc2.simulator.attenuation.calc_radar_atm_attenuation">
-<code class="sig-prename descclassname">emc2.simulator.attenuation.</code><code class="sig-name descname">calc_radar_atm_attenuation</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">column_ds</em>, <em class="sig-param">p_field='p_3d'</em>, <em class="sig-param">t_field='t'</em>, <em class="sig-param">q_field='q'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/attenuation.html#calc_radar_atm_attenuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.attenuation.calc_radar_atm_attenuation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.attenuation.</code><code class="sig-name descname">calc_radar_atm_attenuation</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/attenuation.html#calc_radar_atm_attenuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.attenuation.calc_radar_atm_attenuation" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function calculates atmospheric attenuation due to water vapor and CO2
 for a given model column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>instrument: EMC2.core.Instrument</strong></dt><dd><p>The Instrument class that you wish to calculate the attenuation parameters for.</p>
+<dt><strong>instrument: :py:mod:`emc2.core.Instrument`</strong></dt><dd><p>The Instrument class that you wish to calculate the attenuation parameters for.</p>
 </dd>
-<dt><strong>column_ds: xarray Dataset</strong></dt><dd><p>The model column dataset containing the temperature, pressure, and water vapor mixing ratio.</p>
-</dd>
-<dt><strong>p_field: str</strong></dt><dd><p>The name of the pressure field in the model.</p>
-</dd>
-<dt><strong>t_field: str</strong></dt><dd><p>The name of the temperature field in the model.</p>
-</dd>
-<dt><strong>q_field: str</strong></dt><dd><p>The name of the water vapor mixing ratio field in the model.</p>
+<dt><strong>model: :py:mod:`emc2.core.Model`</strong></dt><dd><p>The Model class that you wish to calculate the attenuation parameters for.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>column_ds: xarray Dataset</dt><dd><p>The dataset with the atmospheric attenuation added.</p>
+<dt>model: <code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></dt><dd><p>The Model class that will store the attenuation parameters.</p>
 </dd>
 </dl>
 </dd>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>emc2.core.hydrometeor_info &mdash; EMC^2  documentation</title>
+  <title>emc2.core.model.ModelE &mdash; EMC^2  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.core.instruments.KAZR" href="emc2.core.instruments.KAZR.html" />
-    <link rel="prev" title="emc2.core.Instrument" href="emc2.core.Instrument.html" /> 
+    <link rel="next" title="emc2.core.model.TestModel" href="emc2.core.model.TestModel.html" />
+    <link rel="prev" title="emc2.core.model.Model" href="emc2.core.model.Model.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -88,13 +88,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.Instrument.html">emc2.core.Instrument</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.hydrometeor_info</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">emc2.core.hydrometeor_info</a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.Model.html">emc2.core.model.Model</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.model.ModelE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
@@ -149,13 +148,13 @@
         
           <li><a href="../core.html">emc2.core (emc2.core)</a> &raquo;</li>
         
-      <li>emc2.core.hydrometeor_info</li>
+      <li>emc2.core.model.ModelE</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/API/generated/emc2.core.hydrometeor_info.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.core.model.ModelE.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -168,54 +167,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-emc2.core.hydrometeor_info">
-<span id="emc2-core-hydrometeor-info"></span><h1>emc2.core.hydrometeor_info<a class="headerlink" href="#module-emc2.core.hydrometeor_info" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2>emc2.core.hydrometeor_info<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>This stores the hydrometeor fit information that is used for the radar simulator.
-These dictionaries provide global constants for the following four hydrometeor
-types:</p>
-<blockquote>
-<div><p>‘cl’: Cloud liquid water</p>
-<p>‘ci’: Cloud ice</p>
-<p>‘pl’: Liquid precipitation</p>
-<p>‘pi’: Ice precipitation</p>
-</div></blockquote>
-<table class="docutils align-default">
+  <div class="section" id="emc2-core-model-modele">
+<h1>emc2.core.model.ModelE<a class="headerlink" href="#emc2-core-model-modele" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="emc2.core.model.ModelE">
+<em class="property">class </em><code class="sig-prename descclassname">emc2.core.model.</code><code class="sig-name descname">ModelE</code><span class="sig-paren">(</span><em class="sig-param">file_path</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="emc2.core.model.ModelE.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">file_path</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_path: str</strong></dt><dd><p>Path to a ModelE simulation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 67%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Variable name</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
 <tbody>
-<tr class="row-even"><td><p>Rho_hyd</p></td>
-<td><p>density in <span class="math notranslate nohighlight">\(kg m^{-3}\)</span></p></td>
-</tr>
-<tr class="row-odd"><td><p>lidar_ratio</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>LDR_per_hyd</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>vel_param_a</p></td>
-<td><p>The <span class="math notranslate nohighlight">\(a\)</span> coefficient in
-the assumed terminal
-velocity relationship
-<span class="math notranslate nohighlight">\(V = aD^b\)</span>.</p></td>
-</tr>
-<tr class="row-even"><td><p>vel_param_b</p></td>
-<td><p>The <span class="math notranslate nohighlight">\(b\)</span> coefficient in
-the assumed terminal
-velocity relationship
-<span class="math notranslate nohighlight">\(V = aD^b\)</span>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.ModelE.__init__" title="emc2.core.model.ModelE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, file_path)</p></td>
+<td><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrometeor_classes</span></code></p></td>
+<td><p>The list of hydrometeor classes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_hydrometeor_classes</span></code></p></td>
+<td><p>The number of hydrometeor classes</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -226,10 +225,10 @@ velocity relationship
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="emc2.core.instruments.KAZR.html" class="btn btn-neutral float-right" title="emc2.core.instruments.KAZR" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="emc2.core.model.TestModel.html" class="btn btn-neutral float-right" title="emc2.core.model.TestModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="emc2.core.Instrument.html" class="btn btn-neutral float-left" title="emc2.core.Instrument" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.core.model.Model.html" class="btn btn-neutral float-left" title="emc2.core.model.Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

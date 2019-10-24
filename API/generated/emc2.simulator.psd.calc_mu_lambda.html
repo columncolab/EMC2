@@ -167,30 +167,19 @@
 <h1>emc2.simulator.psd.calc_mu_lambda<a class="headerlink" href="#emc2-simulator-psd-calc-mu-lambda" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="emc2.simulator.psd.calc_mu_lambda">
-<code class="sig-prename descclassname">emc2.simulator.psd.</code><code class="sig-name descname">calc_mu_lambda</code><span class="sig-paren">(</span><em class="sig-param">column_ds</em>, <em class="sig-param">q_name='q'</em>, <em class="sig-param">N_name='N'</em>, <em class="sig-param">hyd_type='cl'</em>, <em class="sig-param">calc_dispersion=True</em>, <em class="sig-param">dispersion_mu_bounds=(2</em>, <em class="sig-param">15)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.psd.</code><code class="sig-name descname">calc_mu_lambda</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">hyd_type='cl'</em>, <em class="sig-param">calc_dispersion=True</em>, <em class="sig-param">dispersion_mu_bounds=(2</em>, <em class="sig-param">15)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
 The gamma size distribution takes the form:</p>
-<blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">math</dt>
-<dd class="field-odd"><p>‘N(D) = N_{0}e^{-lambdaD}D^{mu}</p>
-</dd>
-</dl>
-</div></blockquote>
+<div class="math notranslate nohighlight">
+\[N(D) = N_{0}e^{-\lambda D}D^{\mu}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(N_{0}\)</span> is the intercept, <span class="math notranslate nohighlight">\(\lambda\)</span> is the slope, and
 <span class="math notranslate nohighlight">\(\mu\)</span> is the dispersion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>column_ds: xarray Dataset</strong></dt><dd><p>The xarray dataset containing the column parameters.</p>
+<dt><strong>model: :py:mod:`emc2.core.Model`</strong></dt><dd><p>The model to generate the parameters for.</p>
 </dd>
-<dt><strong>q_name: str</strong></dt><dd><p>The name of the variable containing the liquid water mixing ratio.</p>
-</dd>
-<dt><strong>N_name: str</strong></dt><dd><p>The name of the variable containing the cloud particle number concentration.</p>
-</dd>
-<dt><strong>hyd_type: str</strong></dt><dd><p>The assumed hydrometeor type. Must be one of:
-‘cl’ (cloud liquid), ‘ci’ (cloud ice),
-‘pl’ (liquid precipitation), ‘pi’ (ice precipitation).</p>
+<dt><strong>hyd_type: str</strong></dt><dd><p>The assumed hydrometeor type. Must be a hydrometeor type in Model.</p>
 </dd>
 <dt><strong>calc_dispersion: bool</strong></dt><dd><p>If False, the <span class="math notranslate nohighlight">\(\mu\)</span> parameter will be fixed at 1/0.09. If True and
 the hydrometeor type is “cl”, then the Martin et al. (1994) method
@@ -202,7 +191,7 @@ will be used to calculate <span class="math notranslate nohighlight">\(\mu\)</sp
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>column_ds: xarray Dataset</dt><dd><p>The dataset with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
+<dt>model: <code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></dt><dd><p>The Model with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
 </dd>
 </dl>
 </dd>

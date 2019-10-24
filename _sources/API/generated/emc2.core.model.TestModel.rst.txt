@@ -1,0 +1,29 @@
+emc2.core.model.TestModel
+=========================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: TestModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TestModel.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TestModel.hydrometeor_classes
+      ~TestModel.num_hydrometeor_classes
+   
+   

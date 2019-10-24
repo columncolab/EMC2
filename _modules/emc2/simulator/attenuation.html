@@ -152,34 +152,31 @@
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Instrument</span>
 
 
-<div class="viewcode-block" id="calc_radar_atm_attenuation"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html#emc2.simulator.attenuation.calc_radar_atm_attenuation">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_atm_attenuation</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">column_ds</span><span class="p">,</span>
-                               <span class="n">p_field</span><span class="o">=</span><span class="s2">&quot;p_3d&quot;</span><span class="p">,</span> <span class="n">t_field</span><span class="o">=</span><span class="s2">&quot;t&quot;</span><span class="p">,</span>
-                               <span class="n">q_field</span><span class="o">=</span><span class="s2">&quot;q&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_radar_atm_attenuation"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html#emc2.simulator.attenuation.calc_radar_atm_attenuation">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_atm_attenuation</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function calculates atmospheric attenuation due to water vapor and CO2</span>
 <span class="sd">    for a given model column.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    instrument: EMC2.core.Instrument</span>
+<span class="sd">    instrument: :py:mod:`emc2.core.Instrument`</span>
 <span class="sd">        The Instrument class that you wish to calculate the attenuation parameters for.</span>
-<span class="sd">    column_ds: xarray Dataset</span>
-<span class="sd">        The model column dataset containing the temperature, pressure, and water vapor mixing ratio.</span>
-<span class="sd">    p_field: str</span>
-<span class="sd">        The name of the pressure field in the model.</span>
-<span class="sd">    t_field: str</span>
-<span class="sd">        The name of the temperature field in the model.</span>
-<span class="sd">    q_field: str</span>
-<span class="sd">        The name of the water vapor mixing ratio field in the model.</span>
+<span class="sd">    model: :py:mod:`emc2.core.Model`</span>
+<span class="sd">        The Model class that you wish to calculate the attenuation parameters for.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    column_ds: xarray Dataset</span>
-<span class="sd">        The dataset with the atmospheric attenuation added.</span>
+<span class="sd">    model: :py:mod:`emc2.core.Model`</span>
+<span class="sd">        The Model class that will store the attenuation parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">Instrument</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; is not an Instrument!&#39;</span><span class="p">)</span>
+
+    <span class="n">q_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_field</span>
+    <span class="n">p_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_field</span>
+    <span class="n">t_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">T_field</span>
+    <span class="n">column_ds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span>
 
     <span class="n">rho_wv</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">q_field</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">R_d</span> <span class="o">*</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">t_field</span><span class="p">])</span>
     <span class="n">three_hundred_t</span> <span class="o">=</span> <span class="mf">300.</span> <span class="o">/</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">t_field</span><span class="p">]</span>
@@ -193,7 +190,7 @@
     <span class="n">gamma_0</span> <span class="o">=</span> <span class="mf">0.59</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">3.1e-3</span> <span class="o">*</span> <span class="p">(</span><span class="mi">333</span> <span class="o">-</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
     <span class="n">gamma_0</span><span class="p">[</span><span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="mi">333</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.59</span>
     <span class="n">gamma_0</span><span class="p">[</span><span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&lt;</span> <span class="mf">25.</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.18</span>
-    <span class="n">gamma_l</span> <span class="o">=</span> <span class="n">gamma_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1013.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">three_hundred_t</span><span class="p">)</span><span class="o">**</span><span class="mf">0.85</span>
+    <span class="n">gamma_l</span> <span class="o">=</span> <span class="n">gamma_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1013.</span><span class="p">)</span> <span class="o">*</span> <span class="n">three_hundred_t</span><span class="o">**</span><span class="mf">0.85</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_o2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.1e-2</span> <span class="o">*</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1013.</span><span class="p">)</span> <span class="o">*</span> <span class="n">three_hundred_t</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> \
         <span class="n">gamma_l</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">((</span><span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">-</span> <span class="n">f0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">gamma_l</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">freq</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">gamma_l</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_o2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Gaseous attenuation due to O2&quot;</span>
@@ -203,7 +200,9 @@
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_att&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_wv&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_o2&#39;</span><span class="p">]</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_att&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Gaseous attenuation due to O2 and water vapor&quot;</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_att&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dB/km&quot;</span>
-    <span class="k">return</span> <span class="n">column_ds</span></div>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">column_ds</span>
+    <span class="k">return</span> <span class="n">model</span></div>
 </pre></div>
 
            </div>

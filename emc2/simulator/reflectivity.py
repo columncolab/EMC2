@@ -1,14 +1,12 @@
 import xarray as xr
 import numpy as np
 
-from ..core import Instrument, hydrometeor_info
+from ..core import Instrument, Model
 from .attenuation import calc_radar_atm_attenuation
 from .psd import calc_mu_lambda
 
 
-def calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
-                                 p_field="p_3d", t_field="t",
-                                 q_field="q"):
+def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     """
     This estimates the radar reflectivity given a profile of liquid water mixing ratio.
     Convective DSDs are assumed.
@@ -17,29 +15,27 @@ def calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
     ----------
     instrument: :func:`emc2.core.Instrument` class
         The instrument to calculate the reflectivity parameters for.
-    column_ds: xarray Dataset
-        The dataset to calculate the derived reflectivity from.
+    model: :func:`emc2.core.Model` class
+        The model to calculate the parameters for.
     hyd_type: str
         The assumed hydrometeor type. Must be one of:
         'cl' (cloud liquid), 'ci' (cloud ice),
         'pl' (liquid precipitation), 'pi' (ice precipitation).
-    p_field: str
-        The name of the pressure field.
-    t_field: str
-        The name of the temperature field.
-    q_field: str
-        The name of the liquid water mixing ratio field.
 
     Returns
     -------
-    column_ds: xarray Dataset
-        Returns a dataset with an added reflectivity field.
+    model: :func:`emc2.core.Model`
+        Returns a Model with an added reflectivity field.
     """
     if not instrument.instrument_class.lower() == "radar":
         raise ValueError("Reflectivity can only be derived from a radar!")
 
     if hyd_type.lower() not in ['cl', 'ci', 'pl', 'pi']:
         raise ValueError("%s is not a valid hydrometeor type. Valid choices are cl, ci, pl, and pi." % hyd_type)
+    q_field = model.q_names_convective[hyd_type]
+    p_field = model.p_field
+    t_field = model.T_field
+    column_ds = model.ds
 
     WC = column_ds[q_field] * 1e3 * column_ds[p_field] / (instrument.R_d * column_ds[t_field])
     if hyd_type.lower() == "cl":
@@ -59,13 +55,12 @@ def calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
     column_ds['Ze'] = 10 * np.log10(column_ds["Ze"])
     column_ds['Ze'].attrs["long_name"] = "Radar reflectivity factor"
     column_ds['Ze'].attrs["units"] = "dBZ"
-    return column_ds
+    model.ds = column_ds
+    return model
 
 
-def calc_reflectivity(instrument, column_ds, is_conv,
-                      N_field="N", p_field="p", t_field="t",
-                      OD_from_sfc=True, z_field="z",
-                      q_names=None, **kwargs):
+def calc_reflectivity(instrument, model, is_conv,
+                      OD_from_sfc=True, **kwargs):
     """
     Calculates the reflectivity in a given column for the given radar.
 
@@ -73,23 +68,13 @@ def calc_reflectivity(instrument, column_ds, is_conv,
     ----------
     instrument: Instrument
         The instrument to simulate.
-    column_ds: xarray Dataset
-        The xarray Dataset containing the model data.
+    model: Model
+        The model to generate the parameters for.
     is_conv: bool
         True if the cell is convective
-    N_field: str
-        The name of the number concentration variable to use.
-    p_field: str
-        The name of the pressure field to use.
-    t_field: str
-        The name of the temperature field to use.
     z_field: str
         The name of the altitude field to use.
-    q_names: None or dict
-        If None, use the default names for the mixing ratio fields for
-        each hydrometeor type. If a dict, it is a dictionary with 4 keys
-        labeled 'cl', 'ci', 'pl', and 'pi' whose values are the name of the
-        variable corresponding to the mixing ratio of the given hydrometeor type.
+
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     Additional keyword arguments are passed into
@@ -98,7 +83,7 @@ def calc_reflectivity(instrument, column_ds, is_conv,
 
     Returns
     -------
-    column_ds: xarray Dataset
+    model: :func:`emc2.core.Model`
         The xarray Dataset containing the calculated reflectivities
     """
 
@@ -106,10 +91,13 @@ def calc_reflectivity(instrument, column_ds, is_conv,
     if not instrument.instrument_class.lower() == "radar":
         raise ValueError("Reflectivity can only be derived from a radar!")
 
-    if q_names is None:
-        q_names = hydrometeor_info.q_names
+    p_field = model.P_field
+    t_field = model.T_field
+    z_field = model.z_field
+    column_ds = model.ds
 
     if is_conv:
+        q_names = model.q_names_convective
         for hyd_type in hyd_types:
             temp_ds = calc_radar_reflectivity_conv(instrument, column_ds, hyd_type,
                                                    q_field=q_names[hyd_type], p_field=p_field,
@@ -120,9 +108,10 @@ def calc_reflectivity(instrument, column_ds, is_conv,
                 column_ds["sub_col_Ze_tot_conv"] += column_ds["sub_col_Ze_cl_conv"]
             else:
                 column_ds["sub_col_Ze_tot_conv"] = column_ds[var_name]
+
         kappa_ds = calc_radar_atm_attenuation(instrument, column_ds,
                                               p_field=p_field, t_field=t_field, **kwargs)
-        kappa_f = 6 * np.pi / instrument.wavelength * 1e-6 * hydrometeor_info.Rho_hyd["cl"]
+        kappa_f = 6 * np.pi / instrument.wavelength * 1e-6 * model.Rho_hyd["cl"]
         WC = column_ds[q_names["cl"]] + column_ds[q_names["pl"]] * 1e3 * \
             column_ds[p_field] / (instrument.R_d * column_ds[t_field])
         dz = np.diff(column_ds[z_field].values, axis=1)
@@ -144,4 +133,15 @@ def calc_reflectivity(instrument, column_ds, is_conv,
             column_ds["sub_col_Ze_tot_conv"] != 0)
         return column_ds
 
-    return
+    q_names = model.q_names_stratiform
+    # n_names = model.N_field
+    # frac_names = model.strat_frac_names
+    # Dims = column_ds[q_names["cl"]].values.shape
+    # moment_denom_tot = np.zeros(Dims)
+    # V_d_numer_tot = np.zeros(Dims)
+    # sigma_d_numer_tot = np.zeros(Dims)
+    # od_tot = np.zeros(Dims)
+    for hyd_type in ["pi", "pl", "ci", "cl"]:
+        # dD = np.diff(instrument.mie_table["p_diam"][1:3])
+        column_ds = calc_mu_lambda(column_ds, model, **kwargs)
+        # total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]

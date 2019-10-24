@@ -14,12 +14,15 @@ constants used by EMC^2 are also stored in this module.
     :toctree: generated/
 
     Instrument
-    hydrometeor_info
     instruments.KAZR
     instruments.HSRL
     instruments.Ten64nm
+    model.Model
+    model.ModelE
+    model.TestModel
 """
 
 from . import instruments
 from .instrument import Instrument
-from . import hydrometeor_info
+from . import model
+from .model import Model

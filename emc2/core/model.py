@@ -45,6 +45,10 @@ class Model():
     conv_frac_names: dict
        A dictionary containing the names of the convective fraction corresponding to each
        hydrometeor class in the model.
+    time_dim: str
+       The name of the time dimension in the model.
+    height_dim: str
+       The name of the height dimension in the model.
     """
 
     def __init__(self):
@@ -64,6 +68,8 @@ class Model():
         self.conv_frac_names = {}
         self.strat_frac_names = {}
         self.ds = None
+        self.time_dim = "time"
+        self.height_dim = "height"
 
     @property
     def hydrometeor_classes(self):
@@ -78,6 +84,13 @@ class Model():
         The number of hydrometeor classes
         """
         return len(list(self.N_field.keys()))
+
+    @property
+    def num_subcolumns(self):
+        if 'subcolumn' in self.ds.dims.keys():
+            return ds.dims['subcolumn']
+        else:
+            return None
 
 
 class ModelE(Model):
@@ -101,6 +114,8 @@ class ModelE(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.height_dim = "plm"
+        self.time_time = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = xr.open_dataset(file_path, decode_times=False)

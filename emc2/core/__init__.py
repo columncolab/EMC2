@@ -20,6 +20,7 @@ constants used by EMC^2 are also stored in this module.
     model.Model
     model.ModelE
     model.TestModel
+    model.TestConvection
 """
 
 from . import instruments

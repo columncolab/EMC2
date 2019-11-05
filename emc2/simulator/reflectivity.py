@@ -37,9 +37,9 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     t_field = model.T_field
     column_ds = model.ds
 
-    WC = column_ds[q_field] * 1e3 * column_ds[p_field] / (instrument.R_d * column_ds[t_field])
+    WC = column_ds[q_field] * 1e3 * column_ds[p_field] * 1e2 / (instrument.R_d * column_ds[t_field])
     if hyd_type.lower() == "cl":
-        column_ds['Ze'] = 0.031 * WC**1.56
+        column_ds['Ze'] = 0.031 * WC ** 1.56
     elif hyd_type.lower() == "pl":
         column_ds['Ze'] = ((WC * 1e3) / 3.4)**1.75
     else:

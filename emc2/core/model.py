@@ -138,9 +138,10 @@ class TestModel(Model):
         N = 100 * np.ones_like(q)
         heights = np.linspace(0, 11000., 1000)
         temp = 15.04 - 0.00649 * heights + 273.15
-        p = 101.29 * (temp / 288.08) ** 5.256
-        es = 0.6112 * np.exp(17.67 * temp / (temp + 243.5))
-        qv = 0.622 * es / (p - es)
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         times = xr.DataArray(np.array([0]), dims=('time'))
         heights = xr.DataArray(heights, dims=('height'))
         p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
@@ -150,7 +151,7 @@ class TestModel(Model):
         N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
-                            'time': time})
+                            'time': times})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
         self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
@@ -178,10 +179,10 @@ class TestConvection(Model):
         q = np.linspace(0, 1, 1000.)
         N = 100 * np.ones_like(q)
         heights = np.linspace(0, 11000., 1000)
-        temp = 15.04 - 0.00649 * heights + 273.15
-        p = 101.29 * (temp / 288.08) ** 5.256
-        es = 0.6112 * np.exp(17.67 * temp / (temp + 243.5))
-        qv = 0.622 * es / (p - es)
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         convective_liquid = np.logical_and(heights > 1000.,
                                            temp >= 273.15)
         convective_ice = np.logical_and(heights > 1000.,
@@ -235,9 +236,10 @@ class TestAllStratiform(Model):
         N = 100 * np.ones_like(q)
         heights = np.linspace(0, 11000., 1000)
         temp = 15.04 - 0.00649 * heights + 273.15
-        p = 101.29 * (temp / 288.08) ** 5.256
-        es = 0.6112 * np.exp(17.67 * temp / (temp + 243.5))
-        qv = 0.622 * es / (p - es)
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         stratiform_liquid = np.logical_and(heights > 1000.,
                                            temp >= 273.15)
         stratiform_ice = np.logical_and(heights > 1000.,
@@ -291,9 +293,10 @@ class TestHalfAndHalf(Model):
         N = 100 * np.ones_like(q)
         heights = np.linspace(0, 11000., 1000)
         temp = 15.04 - 0.00649 * heights + 273.15
-        p = 101.29 * (temp / 288.08) ** 5.256
-        es = 0.6112 * np.exp(17.67 * temp / (temp + 243.5))
-        qv = 0.622 * es / (p - es)
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         stratiform_liquid = np.logical_and(heights > 1000.,
                                            temp >= 273.15)
         stratiform_ice = np.logical_and(heights > 1000.,

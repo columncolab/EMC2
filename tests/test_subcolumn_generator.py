@@ -36,9 +36,8 @@ def test_set_stratiform_profile():
                                                                     'ci', N_columns=8)
     my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
     where_gt_1km = np.where(np.logical_and(my_model.ds['height'] > 1000.,
-                                           my_model.ds['t'] > 273.15))[0]
-    where_lt_1km = np.where(np.logical_and(my_model.ds['height'] < 1000.,
-                                           my_model.ds['t'] > 273.15))[0]
+                                           my_model.ds['t'] > 274.15))[0]
+
     assert np.all(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km])
     assert np.all(~my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km])
 
@@ -49,9 +48,7 @@ def test_set_stratiform_profile():
                                                                     'ci', N_columns=8)
     my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
     where_gt_1km = np.where(np.logical_and(my_model.ds['height'] > 1000.,
-                                           my_model.ds['t'] > 273.15))[0]
-    where_lt_1km = np.where(np.logical_and(my_model.ds['height'] < 1000.,
-                                           my_model.ds['t'] > 273.15))[0]
+                                           my_model.ds['t'] > 274.15))[0]
 
     num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km])
     num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km])
@@ -60,3 +57,83 @@ def test_set_stratiform_profile():
     num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
     assert num_strat == 4
     assert num_conv == 4
+
+    my_model = emc2.core.model.TestHalfAndHalf()
+    my_model.ds[my_model.strat_frac_names['cl']] *= 0.5
+    my_model.ds[my_model.strat_frac_names['ci']] *= 0.5
+    my_model.ds[my_model.conv_frac_names['cl']] *= 0.5
+    my_model.ds[my_model.conv_frac_names['ci']] *= 0.5
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model, 'cl', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model, 'ci', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
+    num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km[1]])
+    num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km[1]])
+    assert num_conv == 2
+    assert num_strat == 2
+
+    my_model = emc2.core.model.TestHalfAndHalf()
+    my_model.ds[my_model.strat_frac_names['cl']] *= 0.25
+    my_model.ds[my_model.strat_frac_names['ci']] *= 0.25
+    my_model.ds[my_model.conv_frac_names['cl']] *= 0.25
+    my_model.ds[my_model.conv_frac_names['ci']] *= 0.25
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model, 'cl', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model, 'ci', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
+    num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
+    num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
+    assert num_conv == 1
+    assert num_strat == 1
+
+
+def test_set_precip_profile():
+    my_model = emc2.core.model.TestAllStratiform()
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
+                                                                    'cl', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
+                                                                    'ci', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
+    my_model = emc2.simulator.subcolumn.set_precip_sub_col_frac(my_model, convective=False)
+    my_model = emc2.simulator.subcolumn.set_precip_sub_col_frac(my_model, convective=True)
+    where_gt_1km = np.where(np.logical_and(my_model.ds['height'] > 1000.,
+                                           my_model.ds['t'] > 274.15))[0]
+
+    assert np.all(my_model.ds['strat_frac_subcolumns_pl'].values[:, where_gt_1km])
+    assert np.all(~my_model.ds['conv_frac_subcolumns_pl'].values[:, where_gt_1km])
+
+    my_model = emc2.core.model.TestHalfAndHalf()
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
+                                                                    'cl', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
+                                                                    'ci', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
+    my_model = emc2.simulator.subcolumn.set_precip_sub_col_frac(my_model, convective=False)
+    my_model = emc2.simulator.subcolumn.set_precip_sub_col_frac(my_model, convective=True)
+    where_gt_1km = np.where(np.logical_and(my_model.ds['height'] > 1000.,
+                                           my_model.ds['t'] > 274.15))[0]
+    num_strat = np.sum(my_model.ds['strat_frac_subcolumns_pl'].values[:, where_gt_1km], axis=0)
+    num_conv = np.sum(my_model.ds['conv_frac_subcolumns_pl'].values[:, where_gt_1km], axis=0)
+
+    assert np.all(num_strat == 4)
+    assert np.all(num_conv == 4)
+
+    my_model = emc2.core.model.TestHalfAndHalf()
+    my_model.ds[my_model.strat_frac_names['pl']] *= 0.25
+    my_model.ds[my_model.strat_frac_names['pi']] *= 0.25
+    my_model.ds[my_model.conv_frac_names['pl']] *= 0.5
+    my_model.ds[my_model.conv_frac_names['pi']] *= 0.5
+
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
+                                                                    'cl', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
+                                                                    'ci', N_columns=8)
+    my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
+    my_model = emc2.simulator.subcolumn.set_precip_sub_col_frac(my_model, convective=False)
+    my_model = emc2.simulator.subcolumn.set_precip_sub_col_frac(my_model, convective=True)
+    where_gt_1km = np.where(np.logical_and(my_model.ds['height'] > 1000.,
+                                           my_model.ds['t'] > 274.15))[0]
+
+    num_strat = np.sum(my_model.ds['strat_frac_subcolumns_pl'].values[:, where_gt_1km], axis=0)
+    num_conv = np.sum(my_model.ds['conv_frac_subcolumns_pl'].values[:, where_gt_1km], axis=0)
+
+    assert np.all(num_strat == 1)
+    assert np.all(num_conv == 2)

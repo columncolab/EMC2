@@ -87,10 +87,25 @@ class Model():
 
     @property
     def num_subcolumns(self):
+        """
+        Gets the number of subcolumns in the model. Will
+        return 0 if the number of subcolumns has not yet been set.
+        """
         if 'subcolumn' in self.ds.dims.keys():
             return self.ds.dims['subcolumn']
         else:
             return 0
+
+    @num_subcolumns.setter
+    def num_subcolumns(self, a):
+        """
+        This will set the number of subcolumns in the simulated radar output.
+        This is a handy shortcut for setting the number of subcolumns if you
+        do not want to use any of the functions in the simulator module to
+        do so.
+        """
+        subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
+        self.ds['subcolumn'] = subcolumn
 
 
 class ModelE(Model):
@@ -179,6 +194,7 @@ class TestConvection(Model):
         q = np.linspace(0, 1, 1000.)
         N = 100 * np.ones_like(q)
         heights = np.linspace(0, 11000., 1000)
+        temp = 15.04 - 0.00649 * heights + 273.15
         temp_c = temp - 273.15
         p = 1012.9 * (temp / 288.08) ** 5.256
         es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
@@ -206,6 +222,8 @@ class TestConvection(Model):
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
+                            'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
+                            'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
@@ -224,6 +242,7 @@ class TestConvection(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
+
 
 class TestAllStratiform(Model):
     """
@@ -263,6 +282,8 @@ class TestAllStratiform(Model):
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
+                            'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
+                            'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
@@ -281,6 +302,7 @@ class TestAllStratiform(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
+
 
 class TestHalfAndHalf(Model):
     """
@@ -301,10 +323,10 @@ class TestHalfAndHalf(Model):
                                            temp >= 273.15)
         stratiform_ice = np.logical_and(heights > 1000.,
                                         temp < 273.15)
-        cldsscl = 0.5*np.where(stratiform_liquid, 1, 0.)
-        cldssci = 0.5*np.where(stratiform_ice, 1, 0.)
-        cldmccl = 0.5*np.where(stratiform_liquid, 1, 0.)
-        cldmcci = 0.5*np.where(stratiform_ice, 1, 0.)
+        cldsscl = 0.5 * np.where(stratiform_liquid, 1, 0.)
+        cldssci = 0.5 * np.where(stratiform_ice, 1, 0.)
+        cldmccl = 0.5 * np.where(stratiform_liquid, 1, 0.)
+        cldmcci = 0.5 * np.where(stratiform_ice, 1, 0.)
         times = xr.DataArray(np.array([0]), dims=('time'))
         heights = xr.DataArray(heights, dims=('height'))
         p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
@@ -320,6 +342,8 @@ class TestHalfAndHalf(Model):
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
+                            'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
+                            'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>emc2.simulator.psd.calc_mu_lambda &mdash; EMC^2  documentation</title>
+  <title>emc2.simulator.subcolumn.set_stratiform_sub_col_frac &mdash; EMC^2  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.simulator.reflectivity.calc_radar_reflectivity_conv" href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html" />
-    <link rel="prev" title="emc2.simulator.attenuation.calc_radar_atm_attenuation" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html" /> 
+    <link rel="next" title="emc2.simulator.subcolumn.set_precip_sub_col_frac" href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html" />
+    <link rel="prev" title="emc2.simulator.subcolumn.set_convective_sub_col_frac" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,10 +89,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_mu_lambda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html">emc2.simulator.reflectivity.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
 </ul>
 </li>
@@ -147,13 +147,13 @@
         
           <li><a href="../simulator.html">emc2.simulator (emc2.simulator)</a> &raquo;</li>
         
-      <li>emc2.simulator.psd.calc_mu_lambda</li>
+      <li>emc2.simulator.subcolumn.set_stratiform_sub_col_frac</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/API/generated/emc2.simulator.psd.calc_mu_lambda.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -166,45 +166,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="emc2-simulator-psd-calc-mu-lambda">
-<h1>emc2.simulator.psd.calc_mu_lambda<a class="headerlink" href="#emc2-simulator-psd-calc-mu-lambda" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="emc2-simulator-subcolumn-set-stratiform-sub-col-frac">
+<h1>emc2.simulator.subcolumn.set_stratiform_sub_col_frac<a class="headerlink" href="#emc2-simulator-subcolumn-set-stratiform-sub-col-frac" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="emc2.simulator.psd.calc_mu_lambda">
-<code class="sig-prename descclassname">emc2.simulator.psd.</code><code class="sig-name descname">calc_mu_lambda</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">hyd_type='cl'</em>, <em class="sig-param">calc_dispersion=True</em>, <em class="sig-param">dispersion_mu_bounds=(2</em>, <em class="sig-param">15)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
-The gamma size distribution takes the form:</p>
-<div class="math notranslate nohighlight">
-\[N(D) = N_{0}e^{-\lambda D}D^{\mu}\]</div>
-<p>Where <span class="math notranslate nohighlight">\(N_{0}\)</span> is the intercept, <span class="math notranslate nohighlight">\(\lambda\)</span> is the slope, and
-<span class="math notranslate nohighlight">\(\mu\)</span> is the dispersion.</p>
+<dt id="emc2.simulator.subcolumn.set_stratiform_sub_col_frac">
+<code class="sig-prename descclassname">emc2.simulator.subcolumn.</code><code class="sig-name descname">set_stratiform_sub_col_frac</code><span class="sig-paren">(</span><em class="sig-param">model</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_stratiform_sub_col_frac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_stratiform_sub_col_frac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>model: :py:mod:`emc2.core.Model`</strong></dt><dd><p>The model to generate the parameters for.</p>
-</dd>
-<dt><strong>hyd_type: str</strong></dt><dd><p>The assumed hydrometeor type. Must be a hydrometeor type in Model.</p>
-</dd>
-<dt><strong>calc_dispersion: bool</strong></dt><dd><p>If False, the <span class="math notranslate nohighlight">\(\mu\)</span> parameter will be fixed at 1/0.09. If True and
-the hydrometeor type is “cl”, then the Martin et al. (1994) method
-will be used to calculate <span class="math notranslate nohighlight">\(\mu\)</span>.</p>
-</dd>
-<dt><strong>dispersion_mu_bounds: 2-tuple</strong></dt><dd><p>The lower and upper bounds for the <span class="math notranslate nohighlight">\(\mu\)</span> parameter.</p>
+<dt><strong>model: :py:func: `emc2.core.Model`</strong></dt><dd><p>The model we are generating the subcolumns of stratiform fraction for.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>model: <code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></dt><dd><p>The Model with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
+<dt>model: :py:func: <cite>emc2.core.Model</cite></dt><dd><p>The Model object with the stratiform hydrometeor fraction in each subcolumn added.</p>
 </dd>
 </dl>
 </dd>
 </dl>
-<p class="rubric">References</p>
-<p>Ulbrich, C. W., 1983: Natural variations in the analytical form of the raindrop size
-distribution: J. Climate Appl. Meteor., 22, 1764-1775</p>
-<p>Martin, G.M., D.W. Johnson, and A. Spice, 1994: The Measurement and Parameterization
-of Effective Radius of Droplets in Warm Stratocumulus Clouds.
-J. Atmos. Sci., 51, 1823–1842, <a class="reference external" href="https://doi.org/10.1175/1520-0469(1994">https://doi.org/10.1175/1520-0469(1994</a>)051&lt;1823:TMAPOE&gt;2.0.CO;2</p>
 </dd></dl>
 
 </div>
@@ -217,10 +198,10 @@ J. Atmos. Sci., 51, 1823–1842, <a class="reference external" href="https://doi
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html" class="btn btn-neutral float-right" title="emc2.simulator.reflectivity.calc_radar_reflectivity_conv" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html" class="btn btn-neutral float-right" title="emc2.simulator.subcolumn.set_precip_sub_col_frac" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html" class="btn btn-neutral float-left" title="emc2.simulator.attenuation.calc_radar_atm_attenuation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html" class="btn btn-neutral float-left" title="emc2.simulator.subcolumn.set_convective_sub_col_frac" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

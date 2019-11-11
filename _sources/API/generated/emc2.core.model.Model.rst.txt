@@ -25,5 +25,6 @@ emc2.core.model.Model
    
       ~Model.hydrometeor_classes
       ~Model.num_hydrometeor_classes
+      ~Model.num_subcolumns
    
    

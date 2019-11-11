@@ -5,10 +5,14 @@
 ./API/generated/emc2.core.instruments.Ten64nm.html
 ./API/generated/emc2.core.model.Model.html
 ./API/generated/emc2.core.model.ModelE.html
+./API/generated/emc2.core.model.TestConvection.html
 ./API/generated/emc2.core.model.TestModel.html
 ./API/generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html
 ./API/generated/emc2.simulator.psd.calc_mu_lambda.html
 ./API/generated/emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html
+./API/generated/emc2.simulator.subcolumn.set_convective_sub_col_frac.html
+./API/generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.html
+./API/generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html
 ./API/index.html
 ./API/simulator.html
 ./_downloads/33b49fc019dd6ef398ec84d699aef1f9/auto_examples_jupyter.zip
@@ -19,6 +23,7 @@
 ./_modules/emc2/simulator/attenuation.html
 ./_modules/emc2/simulator/psd.html
 ./_modules/emc2/simulator/reflectivity.html
+./_modules/emc2/simulator/subcolumn.html
 ./_modules/index.html
 ./_sources/API/core.rst.txt
 ./_sources/API/generated/emc2.core.Instrument.rst.txt
@@ -27,10 +32,14 @@
 ./_sources/API/generated/emc2.core.instruments.Ten64nm.rst.txt
 ./_sources/API/generated/emc2.core.model.Model.rst.txt
 ./_sources/API/generated/emc2.core.model.ModelE.rst.txt
+./_sources/API/generated/emc2.core.model.TestConvection.rst.txt
 ./_sources/API/generated/emc2.core.model.TestModel.rst.txt
 ./_sources/API/generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.rst.txt
 ./_sources/API/generated/emc2.simulator.psd.calc_mu_lambda.rst.txt
 ./_sources/API/generated/emc2.simulator.reflectivity.calc_radar_reflectivity_conv.rst.txt
+./_sources/API/generated/emc2.simulator.subcolumn.set_convective_sub_col_frac.rst.txt
+./_sources/API/generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.rst.txt
+./_sources/API/generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.rst.txt
 ./_sources/API/index.rst.txt
 ./_sources/API/simulator.rst.txt
 ./_sources/index.rst.txt

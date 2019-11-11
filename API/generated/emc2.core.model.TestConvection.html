@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>emc2.core.Instrument &mdash; EMC^2  documentation</title>
+  <title>emc2.core.model.TestConvection &mdash; EMC^2  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.core.instruments.KAZR" href="emc2.core.instruments.KAZR.html" />
-    <link rel="prev" title="emc2.core (emc2.core)" href="../core.html" /> 
+    <link rel="next" title="emc2.simulator (emc2.simulator)" href="../simulator.html" />
+    <link rel="prev" title="emc2.core.model.TestModel" href="emc2.core.model.TestModel.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -87,14 +87,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.Instrument</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.Instrument.html">emc2.core.Instrument</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.Model.html">emc2.core.model.Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.ModelE.html">emc2.core.model.ModelE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestConvection.html">emc2.core.model.TestConvection</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.model.TestConvection</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
@@ -149,13 +149,13 @@
         
           <li><a href="../core.html">emc2.core (emc2.core)</a> &raquo;</li>
         
-      <li>emc2.core.Instrument</li>
+      <li>emc2.core.model.TestConvection</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/API/generated/emc2.core.Instrument.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.core.model.TestConvection.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -168,53 +168,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="emc2-core-instrument">
-<h1>emc2.core.Instrument<a class="headerlink" href="#emc2-core-instrument" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="emc2-core-model-testconvection">
+<h1>emc2.core.model.TestConvection<a class="headerlink" href="#emc2-core-model-testconvection" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="emc2.core.Instrument">
-<em class="property">class </em><code class="sig-prename descclassname">emc2.core.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">frequency=None</em>, <em class="sig-param">wavelength=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.Instrument" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the base class which holds the information needed to contain the instrument parameters for the
-simulator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>instrument_str: str</strong></dt><dd><p>The name of the instrument.</p>
-</dd>
-<dt><strong>instrument_class: str</strong></dt><dd><p>The class of the instrument. Currently must be one of ‘radar,’ or ‘lidar’.</p>
-</dd>
-<dt><strong>freq: float</strong></dt><dd><p>The frequency of the instrument.</p>
-</dd>
-<dt><strong>wavelength: float</strong></dt><dd><p>The wavelength of the instrument</p>
-</dd>
-<dt><strong>ext_OD: float</strong></dt><dd><p>The optical depth where we have full extinction of the lidar signal.</p>
-</dd>
-<dt><strong>K_w: float</strong></dt><dd><p>The index of refraction of water used for Ze calculation.
-See the ARM KAZR handbook (Widener et al. 2012)</p>
-</dd>
-<dt><strong>eps_liq: float</strong></dt><dd><p>The complex dielectric constant for liquid water.</p>
-</dd>
-<dt><strong>pt: float</strong></dt><dd><p>Transmitting power in Watts.</p>
-</dd>
-<dt><strong>theta: float</strong></dt><dd><p>3 dB beam width in degrees</p>
-</dd>
-<dt><strong>gain: float</strong></dt><dd><p>The antenna gain in linear units.</p>
-</dd>
-<dt><strong>Z_min_1km: float</strong></dt><dd><p>The minimum detectable signal at 1 km in dBZ</p>
-</dd>
-<dt><strong>lr: float</strong></dt><dd><p>Attenuation based on the the general attributes in the spectra files.</p>
-</dd>
-<dt><strong>pr_noise_ge: float</strong></dt><dd><p>Minimum detectable signal in mW.</p>
-</dd>
-<dt><strong>tau_ge: float</strong></dt><dd><p>Pulse width in mus.</p>
-</dd>
-<dt><strong>tau_md: float</strong></dt><dd><p>Pulse width in mus.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dt id="emc2.core.model.TestConvection">
+<em class="property">class </em><code class="sig-prename descclassname">emc2.core.model.</code><code class="sig-name descname">TestConvection</code><a class="reference internal" href="../../_modules/emc2/core/model.html#TestConvection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.TestConvection" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a test Model structure used only for unit testing.
+This model has a 100% convective column from 1 km to 11 km.
+It is not recommended for end users.</p>
 <dl class="method">
-<dt id="emc2.core.Instrument.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">frequency=None</em>, <em class="sig-param">wavelength=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/instrument.html#Instrument.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.Instrument.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="emc2.core.model.TestConvection.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#TestConvection.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.TestConvection.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -225,8 +189,26 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.Instrument.__init__" title="emc2.core.Instrument.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self[, frequency, wavelength])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.TestConvection.__init__" title="emc2.core.model.TestConvection.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self)</p></td>
 <td><p>Initialize self.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrometeor_classes</span></code></p></td>
+<td><p>The list of hydrometeor classes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_hydrometeor_classes</span></code></p></td>
+<td><p>The number of hydrometeor classes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_subcolumns</span></code></p></td>
+<td><p>Gets the number of subcolumns in the model.</p></td>
 </tr>
 </tbody>
 </table>
@@ -242,10 +224,10 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="emc2.core.instruments.KAZR.html" class="btn btn-neutral float-right" title="emc2.core.instruments.KAZR" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../simulator.html" class="btn btn-neutral float-right" title="emc2.simulator (emc2.simulator)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../core.html" class="btn btn-neutral float-left" title="emc2.core (emc2.core)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.core.model.TestModel.html" class="btn btn-neutral float-left" title="emc2.core.model.TestModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -11,4 +11,4 @@ def test_gaseous_attenuation():
     my_model = emc2.simulator.attenuation.calc_radar_atm_attenuation(instrument, my_model)
     my_ds = my_model.ds
     assert np.all(my_ds['kappa_o2'].values < 0.1)
-    assert np.all(my_ds['kappa_wv'].values < 0.1)
+    assert np.all(my_ds['kappa_wv'].values < 0.5)

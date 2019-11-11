@@ -45,6 +45,10 @@ class Model():
     conv_frac_names: dict
        A dictionary containing the names of the convective fraction corresponding to each
        hydrometeor class in the model.
+    time_dim: str
+       The name of the time dimension in the model.
+    height_dim: str
+       The name of the height dimension in the model.
     """
 
     def __init__(self):
@@ -64,6 +68,8 @@ class Model():
         self.conv_frac_names = {}
         self.strat_frac_names = {}
         self.ds = None
+        self.time_dim = "time"
+        self.height_dim = "height"
 
     @property
     def hydrometeor_classes(self):
@@ -78,6 +84,28 @@ class Model():
         The number of hydrometeor classes
         """
         return len(list(self.N_field.keys()))
+
+    @property
+    def num_subcolumns(self):
+        """
+        Gets the number of subcolumns in the model. Will
+        return 0 if the number of subcolumns has not yet been set.
+        """
+        if 'subcolumn' in self.ds.dims.keys():
+            return self.ds.dims['subcolumn']
+        else:
+            return 0
+
+    @num_subcolumns.setter
+    def num_subcolumns(self, a):
+        """
+        This will set the number of subcolumns in the simulated radar output.
+        This is a handy shortcut for setting the number of subcolumns if you
+        do not want to use any of the functions in the simulator module to
+        do so.
+        """
+        subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
+        self.ds['subcolumn'] = subcolumn
 
 
 class ModelE(Model):
@@ -101,6 +129,8 @@ class ModelE(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.height_dim = "plm"
+        self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = xr.open_dataset(file_path, decode_times=False)
@@ -119,15 +149,24 @@ class TestModel(Model):
     This is a test Model structure used only for unit testing. It is not recommended for end users.
     """
     def __init__(self):
-        q = np.linspace(0, 1, 100.)
+        q = np.linspace(0, 1, 1000.)
         N = 100 * np.ones_like(q)
-        heights = xr.DataArray(np.linspace(0, 11000., 1000))
+        heights = np.linspace(0, 11000., 1000)
         temp = 15.04 - 0.00649 * heights + 273.15
-        p = 101.29 * (temp / 288.08) ** 5.256
-        es = 0.6112 * np.exp(17.67 * temp / (temp + 243.5))
-        qv = 0.622 * es / (p - es)
-        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
-                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q})
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
+        times = xr.DataArray(np.array([0]), dims=('time'))
+        heights = xr.DataArray(heights, dims=('height'))
+        p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
+                            'time': times})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
         self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
@@ -138,8 +177,188 @@ class TestModel(Model):
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
-        self.z_field = "z"
+        self.z_field = "height"
         self.T_field = "t"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = my_ds
+
+
+class TestConvection(Model):
+    """
+    This is a test Model structure used only for unit testing.
+    This model has a 100% convective column from 1 km to 11 km.
+    It is not recommended for end users.
+    """
+    def __init__(self):
+        q = np.linspace(0, 1, 1000.)
+        N = 100 * np.ones_like(q)
+        heights = np.linspace(0, 11000., 1000)
+        temp = 15.04 - 0.00649 * heights + 273.15
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
+        convective_liquid = np.logical_and(heights > 1000.,
+                                           temp >= 273.15)
+        convective_ice = np.logical_and(heights > 1000.,
+                                        temp < 273.15)
+        cldmccl = np.where(convective_liquid, 1, 0.)
+        cldmcci = np.where(convective_ice, 1, 0.)
+        cldsscl = np.zeros_like(heights)
+        cldssci = np.zeros_like(heights)
+        times = xr.DataArray(np.array([0]), dims=('time'))
+        heights = xr.DataArray(heights, dims=('height'))
+        p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+        cldmccl = xr.DataArray(cldmccl[:, np.newaxis], dims=('height', 'time'))
+        cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
+        cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
+        cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
+                            'cldmccl': cldmccl, 'cldmcci': cldmcci,
+                            'cldsscl': cldsscl, 'cldssci': cldssci,
+                            'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
+                            'cldsspl': cldsscl, 'cldsspi': cldssci,
+                            'time': times})
+        self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
+        self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
+        self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2., 'ci': 1., 'pl': 0.8, 'pi': 0.41}
+        self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_field = "q"
+        self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
+        self.p_field = "p_3d"
+        self.z_field = "height"
+        self.T_field = "t"
+        self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.ds = my_ds
+        self.height_dim = "height"
+        self.time_dim = "time"
+
+
+class TestAllStratiform(Model):
+    """
+    This is a test Model structure used only for unit testing.
+    This model has a 100% stratiform column from 1 km to 11 km.
+    It is not recommended for end users.
+    """
+    def __init__(self):
+        q = np.linspace(0, 1, 1000.)
+        N = 100 * np.ones_like(q)
+        heights = np.linspace(0, 11000., 1000)
+        temp = 15.04 - 0.00649 * heights + 273.15
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
+        stratiform_liquid = np.logical_and(heights > 1000.,
+                                           temp >= 273.15)
+        stratiform_ice = np.logical_and(heights > 1000.,
+                                        temp < 273.15)
+        cldsscl = np.where(stratiform_liquid, 1, 0.)
+        cldssci = np.where(stratiform_ice, 1, 0.)
+        cldmccl = np.zeros_like(heights)
+        cldmcci = np.zeros_like(heights)
+        times = xr.DataArray(np.array([0]), dims=('time'))
+        heights = xr.DataArray(heights, dims=('height'))
+        p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+        cldmccl = xr.DataArray(cldmccl[:, np.newaxis], dims=('height', 'time'))
+        cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
+        cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
+        cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
+                            'cldmccl': cldmccl, 'cldmcci': cldmcci,
+                            'cldsscl': cldsscl, 'cldssci': cldssci,
+                            'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
+                            'cldsspl': cldsscl, 'cldsspi': cldssci,
+                            'time': times})
+        self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
+        self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
+        self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2., 'ci': 1., 'pl': 0.8, 'pi': 0.41}
+        self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_field = "q"
+        self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
+        self.p_field = "p_3d"
+        self.z_field = "height"
+        self.T_field = "t"
+        self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.ds = my_ds
+        self.height_dim = "height"
+        self.time_dim = "time"
+
+
+class TestHalfAndHalf(Model):
+    """
+    This is a test Model structure used only for unit testing.
+    This model has a 50% stratiform, 50% convective column from 1 km to 11 km.
+    It is not recommended for end users.
+    """
+    def __init__(self):
+        q = np.linspace(0, 1, 1000.)
+        N = 100 * np.ones_like(q)
+        heights = np.linspace(0, 11000., 1000)
+        temp = 15.04 - 0.00649 * heights + 273.15
+        temp_c = temp - 273.15
+        p = 1012.9 * (temp / 288.08) ** 5.256
+        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
+        stratiform_liquid = np.logical_and(heights > 1000.,
+                                           temp >= 273.15)
+        stratiform_ice = np.logical_and(heights > 1000.,
+                                        temp < 273.15)
+        cldsscl = 0.5 * np.where(stratiform_liquid, 1, 0.)
+        cldssci = 0.5 * np.where(stratiform_ice, 1, 0.)
+        cldmccl = 0.5 * np.where(stratiform_liquid, 1, 0.)
+        cldmcci = 0.5 * np.where(stratiform_ice, 1, 0.)
+        times = xr.DataArray(np.array([0]), dims=('time'))
+        heights = xr.DataArray(heights, dims=('height'))
+        p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+        cldmccl = xr.DataArray(cldmccl[:, np.newaxis], dims=('height', 'time'))
+        cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
+        cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
+        cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
+                            'cldmccl': cldmccl, 'cldmcci': cldmcci,
+                            'cldsscl': cldsscl, 'cldssci': cldssci,
+                            'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
+                            'cldsspl': cldsscl, 'cldsspi': cldssci,
+                            'time': times})
+        self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
+        self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
+        self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2., 'ci': 1., 'pl': 0.8, 'pi': 0.41}
+        self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_field = "q"
+        self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
+        self.p_field = "p_3d"
+        self.z_field = "height"
+        self.T_field = "t"
+        self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.ds = my_ds
+        self.height_dim = "height"
+        self.time_dim = "time"

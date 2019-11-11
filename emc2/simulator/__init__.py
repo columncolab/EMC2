@@ -12,8 +12,12 @@ simulator in EMC^2.
     attenuation.calc_radar_atm_attenuation
     psd.calc_mu_lambda
     reflectivity.calc_radar_reflectivity_conv
+    subcolumn.set_convective_sub_col_frac
+    subcolumn.set_stratiform_sub_col_frac
+    subcolumn.set_precip_sub_col_frac
 """
 
 from . import attenuation
 from . import reflectivity
 from . import psd
+from . import subcolumn

@@ -15,6 +15,7 @@ simulator in EMC^2.
     subcolumn.set_convective_sub_col_frac
     subcolumn.set_stratiform_sub_col_frac
     subcolumn.set_precip_sub_col_frac
+    subcolumn.set_q_n
 """
 
 from . import attenuation

@@ -272,14 +272,19 @@ class TestAllStratiform(Model):
         p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
         qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
         temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
+        qcl = np.where(stratiform_liquid, q, 0)
+        qci = np.where(stratiform_ice, q, 0)
+        qcl = xr.DataArray(qcl[:, np.newaxis], dims=('height', 'time'))
+        qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
         q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
         N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+
         cldmccl = xr.DataArray(cldmccl[:, np.newaxis], dims=('height', 'time'))
         cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
         cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
         cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
-                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
+                            'qcl': qcl, 'ncl': N, 'qpl': qcl, 'qci': qci, 'qpi': qci,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,

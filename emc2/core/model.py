@@ -164,6 +164,7 @@ class TestModel(Model):
         temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
         q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
         N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'time': times})
@@ -278,13 +279,16 @@ class TestAllStratiform(Model):
         qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
         q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
         N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
-
+        nci = 0. * N
+        npi = 0. * N
+        npl = 1e-3 * N
         cldmccl = xr.DataArray(cldmccl[:, np.newaxis], dims=('height', 'time'))
         cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
         cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
         cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
-                            'qcl': qcl, 'ncl': N, 'qpl': qcl, 'qci': qci, 'qpi': qci,
+                            'qcl': qcl, 'ncl': N, 'nci': nci, 'npi': npi,
+                            'npl': npl, 'qpl': qcl, 'qci': qci, 'qpi': qci,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,

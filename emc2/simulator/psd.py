@@ -5,7 +5,8 @@ from scipy.special import gamma
 
 
 def calc_mu_lambda(model, hyd_type="cl",
-                   calc_dispersion=True, dispersion_mu_bounds=(2, 15)):
+                   calc_dispersion=True, dispersion_mu_bounds=(2, 15),
+                   subcolumns=False):
 
     """
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
@@ -29,7 +30,9 @@ def calc_mu_lambda(model, hyd_type="cl",
         will be used to calculate :math:`\mu`.
     dispersion_mu_bounds: 2-tuple
         The lower and upper bounds for the :math:`\mu` parameter.
-
+    subcolumns: bool
+        If True, the fit parameters will be generated for the generated subcolumns
+        rather than the model data itself.
     Returns
     -------
     model: :py:mod:`emc2.core.Model`
@@ -45,8 +48,13 @@ def calc_mu_lambda(model, hyd_type="cl",
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
 
-    N_name = model.N_field[hyd_type]
-    q_name = model.q_names_stratiform[hyd_type]
+    if not subcolumns:
+        N_name = model.N_field[hyd_type]
+        q_name = model.q_names_stratiform[hyd_type]
+    else:
+        N_name = "strat_n_subcolumns_%s" % hyd_type
+        q_name = "strat_q_subcolumns_%s" % hyd_type
+
     Rho_hyd = model.Rho_hyd[hyd_type]
     column_ds = model.ds
 
@@ -62,7 +70,7 @@ def calc_mu_lambda(model, hyd_type="cl",
             column_ds["mu"] = xr.DataArray(mus, dims=column_ds[q_name].dims)
     else:
         column_ds["mu"] = xr.DataArray(
-            np.zeros_like(column_ds[q_name], dims=column_ds[q_name].dims))
+            np.zeros_like(column_ds[q_name].values), dims=column_ds[q_name].dims)
 
     column_ds["mu"].attrs["long_name"] = "Gamma fit dispersion"
     column_ds["mu"].attrs["units"] = "1"

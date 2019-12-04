@@ -85,7 +85,7 @@ def calc_radar_moments(instrument, model, is_conv,
     Returns
     -------
     model: :func:`emc2.core.Model`
-        The xarray Dataset containing the calculated reflectivities
+        The xarray Dataset containing the calculated radar moments.
     """
 
     hyd_types = ["cl", "ci", "pl", "pi"]
@@ -171,137 +171,153 @@ def calc_radar_moments(instrument, model, is_conv,
         total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]
         if hyd_type == "cl":
             for tt in range(Dims[2]):
-                N_0_tmp = fits_ds["N_0"].values[:, :, tt]
-                num_in_column = len(N_0_tmp)
-                p_diam = instrument.mie_table[hyd_type]["p_diam"].values
-                N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
-                lambda_tmp = fits_ds["lambda"].values[:, :, tt]
-                lambda_tmp, d_diam_tmp = np.meshgrid(lambda_tmp, p_diam)
-                mu_temp = np.tile(fits_ds["mu"].values[:, :, tt], (1, num_diam, 1))
-                N_D = N_0_tmp * p_diam_tmp * mu_temp**np.exp(-lambda_tmp * p_diam_tmp)
-                Calc_tmp = np.tile(instrument.mie_table["beta_p"].values, (1, num_in_column)) * N_D
-                tmp_od = np.tile(instrument.mie_table["alpha_p"].values, (1, num_in_column)) * N_D
-                tmp_od = (tmp_od.sum(axis=1) / 2.0 + tmp_od[:, 1:-1].sum(axis=1)) * dD
-                moment_denom = (Calc_tmp.sum(axis=1) / 2.0 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
-                column_ds["sub_col_Ze_%s_strat" % hyd_type][:, :, tt] = (moment_denom * instrument.wavelength**4 /
-                                                                         instrument.K_w * np.pi**5) * 1e-6
+                for k in range(Dims[1]):
+                    if total_hydrometeor.values[k, tt] == 0:
+                        continue
 
-                v_tmp = model.vel_param_a[hyd_type] * np.tile(p_diam, (1, num_in_column))**model.vel_param_b[hyd_type]
-                Calc_tmp2 = v_tmp * Calc_tmp
-                V_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-                column_ds["sub_col_Vd_%s_strat" % hyd_type][:, :, tt] = -V_d_numer / moment_denom
-                Calc_tmp2 = (v_tmp - np.tile(
-                    column_ds["sub_col_Vd_%s_strat" % hyd_type][:, :, tt].values, (1, num_in_column)))**2 * Calc_tmp
-                sigma_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-                column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, tt] = np.sqrt(sigma_d_numer / moment_denom)
-                V_d_numer_tot[:, tt] += v_d_numer
-                moment_denom_tot[:, tt] += moment_denom
-                od_tot[:, tt] += tmp_od
+                    N_0_tmp = fits_ds["N_0"][:, k, tt].values.max(axis=0) * np.ones(
+                        (model.num_subcolumns, num_diam))
+                    lambda_tmp = fits_ds["lambda"][:, k, tt].values.max(axis=0) * np.ones(
+                        (model.num_subcolumns, num_diam))
+                    num_in_column = len(N_0_tmp)
+                    p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+                    p_diam_tiled = np.tile(
+                        instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
+                    mu_temp = np.tile(fits_ds["mu"].values[:, k, tt], (num_diam, 1)).T
+                    N_D = N_0_tmp * p_diam_tiled ** mu_temp * np.exp(-lambda_tmp * p_diam_tiled)
+                    Calc_tmp = instrument.mie_table[hyd_type]["beta_p"].values * N_D
+                    tmp_od = instrument.mie_table[hyd_type]["alpha_p"].values * N_D
+                    tmp_od = (tmp_od.sum(axis=1) / 2.0 + tmp_od[:, 1:-1].sum(axis=1)) * dD
+                    moment_denom = (Calc_tmp.sum(axis=1) / 2.0 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+                    column_ds["sub_col_Ze_%s_strat" % hyd_type][:, k, tt] = (moment_denom * instrument.wavelength**4) / \
+                        (instrument.K_w * np.pi**5) * 1e-6
+
+                    v_tmp = model.vel_param_a[hyd_type] * p_diam**model.vel_param_b[hyd_type]
+                    Calc_tmp2 = v_tmp * Calc_tmp
+                    V_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+                    column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt] = -V_d_numer / moment_denom
+                    Calc_tmp2 = (v_tmp -
+                                 np.tile(column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt].values,
+                                         (num_diam, 1)).T) ** 2 * Calc_tmp
+                    sigma_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+                    column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, k, tt] = np.sqrt(sigma_d_numer / moment_denom)
+                    V_d_numer_tot[:, k, tt] += V_d_numer
+                    moment_denom_tot[:, k, tt] += moment_denom
+                    od_tot[:, k, tt] += tmp_od
         else:
-            N_0_tmp = fits_ds["N_0"].values.max()
-            lambda_tmp = fits_ds["lambda"].values.max()
-            mu = fits_ds["mu"].values.max()
             p_diam_tiled = np.tile(
-                instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, Dims[1], 1))
-            N_D = N_0_tmp * p_diam_tiled**mu * np.exp(-lambda_tmp * p_diam_tiled)
-            Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values, (model.num_subcolumns, Dims[1], 1)) * N_D
+                instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
+            v_tmp = model.vel_param_a[hyd_type] * p_diam_tiled ** model.vel_param_b[hyd_type]
+
             for tt in range(Dims[2]):
-                tmp_od = np.tile(
-                    instrument.mie_table[hyd_type]["alpha_p"].values, (model.num_subcolumns, Dims[1], 1)) * N_D
-                tmp_od = (tmp_od.sum(axis=2) / 2 + tmp_od[:, :, 1:-1].sum(axis=2) * dD)
-                tmp_od = np.where(sub_q_array[:, tt, :] == 0, 0, tmp_od)
-                moment_denom = Calc_tmp.sum(axis=2)/2. + Calc_tmp[:, :, 1:-1].sum(axis=2)
-                moment_denom = np.where(sub_q_array[:, :, tt] == 0, 0, moment_denom)
-                column_ds["sub_col_Ze_%s_strat" % hyd_type][:, :, tt] = (moment_denom * instrument.wavelength ** 4 /
-                                                                         instrument.K_w * np.pi ** 5) * 1e-6
-                v_tmp = model.vel_param_a[hyd_type] * p_diam_tiled**model.vel_param_b[hyd_type]
-                Calc_tmp2 = Calc_tmp * v_tmp
-                V_d_numer = Calc_tmp2.sum(axis=2)/2. + Calc_tmp2[:, :, 1:-1].sum(axis=2)*dD
-                V_d_numer = np.where(sub_q_array[:, :, tt] == 0, 0, V_d_numer)
-                column_ds["sub_col_Vd_%s_strat" % hyd_type][:, :, tt] = -V_d_numer / moment_denom
-                Calc_tmp2 = (v_tmp - np.tile(
-                    column_ds["sub_col_Vd_%s_strat" % hyd_type][:, :, tt].values, (num_diam, 1, 1)))**2 * Calc_tmp
-                sigma_d_numer = Calc_tmp2.sum(axis=2)/2. + Calc_tmp2[:, :, 1:-1].sum(axis=2)*dD
-                sigma_d_numer = np.where(sub_q_array[:, tt, :] == 0, 0, sigma_d_numer)
-                column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, tt] = np.sqrt(sigma_d_numer / moment_denom)
-                V_d_numer_tot[:, tt] += v_d_numer
-                moment_denom_tot[:, tt] += moment_denom
-                od_tot[:, tt] += tmp_od
+                for k in range(Dims[1]):
+                    if total_hydrometeor.values[k, tt] == 0:
+                        continue
+                    N_0_tmp = fits_ds["N_0"][:, k, tt].values.max(axis=0)
+                    lambda_tmp = fits_ds["lambda"][:, k, tt].values.max(axis=0)
+                    mu = fits_ds["mu"][:, k, tt].values.max(axis=0)
+                    N_D = N_0_tmp * np.exp(-lambda_tmp * p_diam_tiled) * p_diam_tiled**mu
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values,
+                                       (model.num_subcolumns, 1)) * N_D
+                    tmp_od = np.tile(
+                        instrument.mie_table[hyd_type]["alpha_p"].values, (model.num_subcolumns, 1)) * N_D
+                    tmp_od = (tmp_od.sum(axis=1) / 2 + tmp_od[:, 1:-1].sum(axis=1)) * dD
+                    tmp_od = np.where(sub_q_array[:, k, tt] == 0, 0, tmp_od)
+                    moment_denom = (Calc_tmp.sum(axis=1)/2. + Calc_tmp[:,1:-1].sum(axis=1)) * dD
+                    moment_denom = np.where(sub_q_array[:, k, tt] == 0, 0, moment_denom)
+                    column_ds["sub_col_Ze_%s_strat" % hyd_type][:, k, tt] = (moment_denom * instrument.wavelength ** 4) / \
+                        (instrument.K_w * np.pi ** 5) * 1e-6
+                    Calc_tmp2 = Calc_tmp * v_tmp
+                    V_d_numer = (Calc_tmp2.sum(axis=1)/2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+                    V_d_numer = np.where(sub_q_array[:, k, tt] == 0, 0, V_d_numer)
+                    column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt] = -V_d_numer / moment_denom
+                    Calc_tmp2 = (v_tmp -
+                                 np.tile(column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt].values,
+                                        (num_diam, 1)).T)**2 * Calc_tmp
+                    Calc_tmp2 = (Calc_tmp2.sum(axis=1)/2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+                    sigma_d_numer = np.where(sub_q_array[:, k, tt] == 0, 0, Calc_tmp2)
+                    column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, k, tt] = np.sqrt(sigma_d_numer / moment_denom)
+                    V_d_numer_tot[:, k, tt] += V_d_numer
+                    moment_denom_tot[:, k, tt] += moment_denom
+                    od_tot[:, k, tt] += tmp_od
 
         if "sub_col_Ze_tot_strat" in column_ds.variables.keys():
-            column_ds["sub_col_Ze_tot_strat"] += 10**(column_ds["sub_col_Ze_%s_strat" % hyd_type]/10)
+            column_ds["sub_col_Ze_tot_strat"] += column_ds["sub_col_Ze_%s_strat" % hyd_type]
         else:
-            column_ds["sub_col_Ze_tot_strat"] = 10**(column_ds["sub_col_Ze_%s_strat" % hyd_type]/10)
+            column_ds["sub_col_Ze_tot_strat"] = column_ds["sub_col_Ze_%s_strat" % hyd_type]
 
-        column_ds["sub_col_Vd_tot_strat"] = -V_d_numer_tot / moment_denom_tot
+        column_ds["sub_col_Ze_%s_strat" % hyd_type] = 10 * np.log10(column_ds["sub_col_Ze_%s_strat" % hyd_type])
+        column_ds["sub_col_Vd_tot_strat"] = xr.DataArray(-V_d_numer_tot / moment_denom_tot,
+                                                         dims=column_ds["sub_col_Ze_tot_strat"].dims)
 
         if hyd_type == "cl":
-            for tt in range(Dims[1]):
-                N_0_tmp = column_ds.ds["N_0"].values[:, tt, :]
-                num_in_column = len(N_0_tmp)
-                p_diam = instrument.mie_table[hyd_type]["p_diam"].values
-                N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
-                lambda_tmp = column_ds.ds["lambda"].values[:, tt, :]
-                lambda_tmp, d_diam_tmp = np.meshgrid(lambda_tmp, p_diam)
-                mu_temp = np.tile(column_ds.ds["mu"].values[:, tt, :], (1, num_diam, 1))
-                N_D = N_0_tmp * p_diam_tmp * mu_temp**np.exp(-lambda_tmp * p_diam_tmp)
-                Calc_tmp = np.tile(instrument.mie_table["beta_p"].values, (1, num_in_column)) * N_D
-                tmp_od = np.tile(instrument.mie_table["alpha_p"].values, (1, num_in_column)) * N_D
-                tmp_od = (tmp_od.sum(axis=1) / 2.0 + tmp_od[1:-1, :].sum(axis=1)) * dD
-                moment_denom = (Calc_tmp.sum(axis=1) / 2.0 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
-                v_tmp = model.vel_param_a[hyd_type] * np.tile(p_diam, (1, num_in_column))**model.vel_param_b[hyd_type]
-                Calc_tmp2 = v_tmp * Calc_tmp
-                V_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-                Calc_tmp2 = (v_tmp - np.tile(
-                    column_ds["sub_col_Vd_tot_strat" % hyd_type][:, tt, :].values, (1, num_in_column)))**2 * Calc_tmp
-                sigma_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-                column_ds["sub_col_sigma_d_tot_strat" % hyd_type][:, tt, :] = np.sqrt(sigma_d_numer / moment_denom)
+            for tt in range(Dims[2]):
+                for k in range(Dims[1]):
+                    if total_hydrometeor.values[k, tt] == 0:
+                        continue
+                    N_0_tmp = fits_ds["N_0"].values[:, k, tt]
+                    p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+                    N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
+                    lambda_tmp = fits_ds["lambda"].values[:, k, tt]
+                    lambda_tmp, d_diam_tmp = np.meshgrid(lambda_tmp, p_diam)
+                    mu_temp = fits_ds["mu"].values[:, k, tt] * np.ones_like(lambda_tmp)
+                    N_D = N_0_tmp * d_diam_tmp **mu_temp * np.exp(-lambda_tmp * d_diam_tmp)
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values, (model.num_subcolumns, 1)) * N_D.T
+                    moment_denom = (Calc_tmp.sum(axis=1) / 2.0 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+                    v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
+                    Calc_tmp2 = (v_tmp - np.tile(
+                        column_ds["sub_col_Vd_tot_strat"][:, k, tt].values, (num_diam, 1)).T) ** 2 * Calc_tmp
+                    sigma_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+                    column_ds["sub_col_sigma_d_tot_strat"][:, k, tt] = np.sqrt(sigma_d_numer / moment_denom)
 
         else:
-            N_0_tmp = column_ds["N_0"].values.max()
-            lambda_tmp = column_ds["lambda"].values.max()
-            mu = column_ds["mu"].values.max()
+            mu = fits_ds["mu"].values.max()
             p_diam_tiled = np.tile(
-                instrument.mie_table[hyd_type]["p_diam"], (1, model.num_subcolumns))
-            N_D = N_0_tmp*np.ones(num_diam, 1) * p_diam_tiled**mu
-            N_D *= np.exp(-np.tile(lambda_tmp, (num_diam, 1)) * p_diam_tiled)
-            Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values, (1, Dims[1])) * N_D
+                instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
+            v_tmp = model.vel_param_a[hyd_type] * p_diam_tiled ** model.vel_param_b[hyd_type]
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
-            for tt in range(Dims[1]):
-                v_tmp = model.vel_param_a[hyd_type] * p_diam_tiled**model.vel_param_b[hyd_type]
-                Calc_tmp2 = Calc_tmp * v_tmp
-                V_d_numer = np.tile((Calc_tmp2.sum(axis=1)/2. + Calc_tmp2[1:-1].sum(axis=1))*dD, (1, Dims[0]))
-                V_d_numer = np.where(sub_q_array[:, tt, :] == 0, 0, V_d_numer)
-                column_ds["sub_col_Vd_%s_strat" % hyd_type][:, tt, :] = -V_d_numer / moment_denom
-                Calc_tmp2 = (v_tmp - np.tile(
-                    column_ds["sub_col_Vd_%s_strat" % hyd_type][:, tt, :].values, (1, num_diam))**2) * Calc_tmp
-                sigma_d_numer = np.tile((Calc_tmp2.sum(axis=1)/2. + Calc_tmp2[1:-1].sum(axis=1))*dD, (1, Dims[0]))
-                sigma_d_numer = np.where(sub_q_array[:, tt, :] == 0, 0, sigma_d_numer)
-                column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, tt, :] = np.sqrt(sigma_d_numer / moment_denom)
-                sigma_d_numer_tot[:, tt, :] += sigma_d_numer
+            for tt in range(Dims[2]):
+                for k in range(Dims[1]):
+                    if total_hydrometeor.values[k, tt] == 0:
+                        continue
+                    N_0_tmp = fits_ds["N_0"][:, k, tt].values.max(axis=0)
+                    lambda_tmp = fits_ds["lambda"][:, k, tt].values.max(axis=0)
+                    N_D = N_0_tmp * p_diam_tiled ** mu * np.exp(-lambda_tmp * p_diam_tiled)
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values,
+                                      (model.num_subcolumns, 1)) * N_D
+                    moment_denom = (Calc_tmp.sum(axis=1) / 2. + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+                    moment_denom = np.where(sub_q_array[:, k, tt] == 0, 0, moment_denom)
+                    Calc_tmp2 = (v_tmp - np.tile(
+                        column_ds["sub_col_Vd_tot_strat"][:, k, tt].values, (num_diam, 1)).T) ** 2 * Calc_tmp
+                    Calc_tmp2 = (Calc_tmp2.sum(axis=1)/2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+                    sigma_d_numer = np.where(sub_q_array[:, k, tt] == 0, 0, Calc_tmp2)
+                    column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, k, tt] = np.sqrt(sigma_d_numer / moment_denom)
+                    sigma_d_numer_tot[:, k, tt] += sigma_d_numer
 
-    column_ds["sub_col_sigma_d_tot_strat"] = np.sqrt(sigma_d_numer_tot / moment_denom_tot)
-    kappa_ds = calc_radar_atm_attenuation(instrument, column_ds,
-                                          p_field=p_field, t_field=t_field, **kwargs)
+    column_ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),
+                                                          dims=column_ds["sub_col_Vd_tot_strat"].dims)
+    kappa_ds = calc_radar_atm_attenuation(instrument, model)
 
     if OD_from_sfc:
-        dz = np.diff(column_ds[z_field].values, axis=0)
-        dz = np.tile(dz, (1, Dims[0]))
-        od_tot = np.cumsum(dz*od_tot, axis=2)
-        atm_ext = np.cumsum(dz/1e3*kappa_ds['kappa_att'].values, axis=2)
+        dz = np.diff(column_ds[z_field].values, axis=0, prepend=0)
+        dz = np.tile(dz, (Dims[0], 1, 1))
+        od_tot = np.cumsum(dz * od_tot, axis=1)
+        atm_ext = np.cumsum(dz/1e3 * kappa_ds.ds['kappa_att'].values, axis=1)
     else:
-        dz = np.diff(column_ds[z_field].values, axis=0)
-        dz = np.tile(dz, (1, Dims[0]))
-        od_tot = np.flip(np.cumsum(np.flip(dz * od_tot, axis=2), axis=2), axis=2)
-        atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds['kappa_att'].values, axis=2), axis=2), axis=2)
+        dz = np.diff(column_ds[z_field].values, prepend=0)
+        dz = np.tile(dz, (Dims[0], 1, 1))
+        od_tot = np.flip(np.cumsum(np.flip(dz * od_tot, axis=1), axis=1), axis=1)
+        atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1), axis=1), axis=1)
 
-    column_ds['sub_col_Ze_tot_strat'] = 10*np.log10(column_ds['sub_col_Ze_tot_strat'])
-    column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_tot_strat'] * np.exp(-2 * od_tot)/10**(2 * atm_ext/10)
+    column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_tot_strat'] * np.exp(-2 * od_tot) / \
+                                            10**(2 * atm_ext/10)
     column_ds['sub_col_Ze_tot_strat'] = column_ds['sub_col_Ze_tot_strat'].where(
         column_ds['sub_col_Ze_tot_strat'] != 0)
     column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_tot_strat'].where(
         column_ds['sub_col_Ze_att_tot_strat'] != 0)
+    column_ds['sub_col_Ze_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_tot_strat'])
+    column_ds['sub_col_Ze_att_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_att_tot_strat'])
     column_ds['sub_col_Vd_tot_strat'] = column_ds['sub_col_Vd_tot_strat'].where(
         column_ds['sub_col_Vd_tot_strat'] != 0)
     column_ds['sub_col_sigma_d_tot_strat'] = column_ds['sub_col_sigma_d_tot_strat'].where(

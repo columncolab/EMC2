@@ -269,7 +269,7 @@ class TestAllStratiform(Model):
         cldmccl = np.zeros_like(heights)
         cldmcci = np.zeros_like(heights)
         times = xr.DataArray(np.array([0]), dims=('time'))
-        heights = xr.DataArray(heights, dims=('height'))
+        heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
         p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
         qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
         temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
@@ -286,7 +286,7 @@ class TestAllStratiform(Model):
         cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
         cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
         cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
-        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
                             'qcl': qcl, 'ncl': N, 'nci': nci, 'npi': npi,
                             'npl': npl, 'qpl': qcl, 'qci': qci, 'qpi': qci,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
@@ -304,7 +304,7 @@ class TestAllStratiform(Model):
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
-        self.z_field = "height"
+        self.z_field = "z"
         self.T_field = "t"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}

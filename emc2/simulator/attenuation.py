@@ -87,7 +87,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     R_d = 287.058
     nu = 1 / Lambda
 
-    P = model.ds[model.p_field].values
+    P = model.ds[model.p_field].values / 100.
     T = model.ds[model.T_field].values
     raw = P * 100 / (R_d * (T + 273.15)) * 1e3 / 1e6
     p_cos = 0.7629 * (1 + 0.932 * np.cos(Theta)**2)
@@ -97,7 +97,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     beta = 8 * np.pi*3 / 3 * (n_s**2 - 1)**2 * N_s / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     kappa = beta / raw
-    sigma_180 = pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
+    sigma_180 = np.pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
     sigma_180_vol = sigma_180 * N_s
 
     sigma = sigma * 1e-4
@@ -105,13 +105,14 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     beta = beta / 1e-2
     kappa = kappa * 1e-3 / 1e-6
     sigma_180 = sigma_180 * 1e-4
-    sigma_180_vol = sigma_180_bol / 1e-2
+    sigma_180_vol = sigma_180_vol / 1e-2
 
     Z_4_trap = np.diff(model.ds[model.z_field].values, axis=0) / 2.
+    Z_4_trap = np.tile(Z_4_trap, (1, beta.shape[1])).T
     summed_beta = beta[:-1, :] + beta[1:, :]
     u = np.zeros_like(beta)
     if OD_from_sfc:
-        u[1:, :] = np.cumsum(Z_4_trap * summed_beta)
+        u[1:, :] = np.cumsum(Z_4_trap * summed_beta, axis=0)
     else:
         u[1:, :] = np.flip(np.cumsum(np.flip(Z_4_trap * summed_beta, axis=0), axis=0), axis=0)
 
@@ -131,27 +132,27 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     model.ds["beta"].attrs["units"] = "m-1"
 
     model.ds["sigma_180_vol"] = xr.DataArray(sigma_180_vol, dims=my_dims)
-    model.ds["sigma_180_vol"].atrrs["long_name"] = "Volume backscatter cross section"
+    model.ds["sigma_180_vol"].attrs["long_name"] = "Volume backscatter cross section"
     model.ds["sigma_180_vol"].attrs["units"] = "m^2"
 
     model.ds["sigma_180"] = xr.DataArray(sigma_180, dims=my_dims)
-    model.ds["sigma_180"].atrrs["long_name"] = "backscatter cross section per molecule"
+    model.ds["sigma_180"].attrs["long_name"] = "backscatter cross section per molecule"
     model.ds["sigma_180"].attrs["units"] = "m^2"
 
     model.ds["sigma"] = xr.DataArray(sigma, dims=my_dims)
-    model.ds["sigma"].atrrs["long_name"] = "Rayleigh scattering cross section per molecule"
+    model.ds["sigma"].attrs["long_name"] = "Rayleigh scattering cross section per molecule"
     model.ds["sigma"].attrs["units"] = "m^2"
 
     model.ds["kappa"] = xr.DataArray(kappa, dims=my_dims)
-    model.ds["kappa"].atrrs["long_name"] = "Mass extinction cross section per molecule"
+    model.ds["kappa"].attrs["long_name"] = "Mass extinction cross section per molecule"
     model.ds["kappa"].attrs["units"] = "kg m^-3"
 
     model.ds["N_s"] = xr.DataArray(N_s, dims=my_dims)
-    model.ds["N_s"].atrrs["long_name"] = "Number density profile"
+    model.ds["N_s"].attrs["long_name"] = "Number density profile"
     model.ds["N_s"].attrs["units"] = "m-3"
 
     model.ds["n_s"] = xr.DataArray(n_s, dims=my_dims)
-    model.ds["n_s"].atrrs["long_name"] = "Refractive index"
+    model.ds["n_s"].attrs["long_name"] = "Refractive index"
     model.ds["n_s"].attrs["units"] = "1"
 
     return model

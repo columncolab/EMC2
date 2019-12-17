@@ -194,38 +194,50 @@ class TestConvection(Model):
     def __init__(self):
         q = np.linspace(0, 1, 1000.)
         N = 100 * np.ones_like(q)
+        Npl = 0.001 * np.ones_like(1)
         heights = np.linspace(0, 11000., 1000)
         temp = 15.04 - 0.00649 * heights + 273.15
         temp_c = temp - 273.15
         p = 1012.9 * (temp / 288.08) ** 5.256
+        re_cl = 10 * np.ones_like(q)
+        re_pl = 100 * np.ones_like(q)
         es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         convective_liquid = np.logical_and(heights > 1000.,
                                            temp >= 273.15)
         convective_ice = np.logical_and(heights > 1000.,
                                         temp < 273.15)
+        Nci = np.where(convective_ice, Npl, 0)
+        Npi = np.where(convective_ice, Npl, 0)
+        Npl = np.where(convective_liquid, Npl, 0)
         cldmccl = np.where(convective_liquid, 1, 0.)
         cldmcci = np.where(convective_ice, 1, 0.)
         cldsscl = np.zeros_like(heights)
         cldssci = np.zeros_like(heights)
         times = xr.DataArray(np.array([0]), dims=('time'))
-        heights = xr.DataArray(heights, dims=('height'))
+        heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
         p = xr.DataArray(p[:, np.newaxis], dims=('height', 'time'))
         qv = xr.DataArray(qv[:, np.newaxis], dims=('height', 'time'))
         temp = xr.DataArray(temp[:, np.newaxis], dims=('height', 'time'))
         q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
         N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+        re_cl = xr.DataArray(re_cl[:, np.newaxis], dims=('height', 'time'))
+        re_pl = xr.DataArray(re_pl[:, np.newaxis], dims=('height', 'time'))
         cldmccl = xr.DataArray(cldmccl[:, np.newaxis], dims=('height', 'time'))
         cldmcci = xr.DataArray(cldmcci[:, np.newaxis], dims=('height', 'time'))
         cldsscl = xr.DataArray(cldsscl[:, np.newaxis], dims=('height', 'time'))
         cldssci = xr.DataArray(cldssci[:, np.newaxis], dims=('height', 'time'))
-        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
-                            'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
+        Nci = xr.DataArray(Nci[:, np.newaxis], dims=('height', 'time'))
+        Npl = xr.DataArray(Npl[:, np.newaxis], dims=('height', 'time'))
+        Npi = xr.DataArray(Npi[:, np.newaxis], dims=('height', 'time'))
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
+                            'qcl': q, 'ncl': N, 'nci': Nci, 'npl': Npl, 'npi': Npi,
+                            'qpl': q, 'qci': q, 'qpi': q,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
-                            'time': times})
+                            'time': times, 're_cl': re_cl, 're_pl': re_pl})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
         self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
@@ -233,10 +245,11 @@ class TestConvection(Model):
         self.vel_param_b = {'cl': 2., 'ci': 1., 'pl': 0.8, 'pi': 0.41}
         self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
-        self.z_field = "height"
+        self.z_field = "z"
         self.T_field = "t"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
@@ -310,7 +323,7 @@ class TestAllStratiform(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
-        self.re_fields = {'cl': 're_cl', 'ci': 're_pl', 'pl': 're_pl', 'pi': 're_pi'}
+        self.re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = my_ds

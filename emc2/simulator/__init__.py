@@ -10,6 +10,7 @@ simulator in EMC^2.
     :toctree: generated/
 
     attenuation.calc_radar_atm_attenuation
+    attenuation.calc_theory_beta_m
     psd.calc_mu_lambda
     radar_moments.calc_radar_reflectivity_conv
     radar_moments.calc_radar_moments

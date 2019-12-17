@@ -75,7 +75,6 @@ def calc_radar_moments(instrument, model, is_conv,
         True if the cell is convective
     z_field: str
         The name of the altitude field to use.
-
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     Additional keyword arguments are passed into
@@ -325,10 +324,3 @@ def calc_radar_moments(instrument, model, is_conv,
     model.ds = column_ds
 
     return model
-
-
-
-
-
-
-

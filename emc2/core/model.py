@@ -260,6 +260,8 @@ class TestAllStratiform(Model):
         p = 1012.9 * (temp / 288.08) ** 5.256
         es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
+        re_cl = 10 * np.ones_like(q)
+        re_pl = 100 * np.ones_like(q)
         stratiform_liquid = np.logical_and(heights > 1000.,
                                            temp >= 273.15)
         stratiform_ice = np.logical_and(heights > 1000.,
@@ -279,6 +281,8 @@ class TestAllStratiform(Model):
         qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
         q = xr.DataArray(q[:, np.newaxis], dims=('height', 'time'))
         N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+        re_cl = xr.DataArray(re_cl[:, np.newaxis], dims=('height', 'time'))
+        re_pl = xr.DataArray(re_pl[:, np.newaxis], dims=('height', 'time'))
         nci = 0. * N
         npi = 0. * N
         npl = 1e-3 * N
@@ -293,7 +297,7 @@ class TestAllStratiform(Model):
                             'cldsscl': cldsscl, 'cldssci': cldssci,
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
-                            'time': times})
+                            'time': times, 're_cl': re_cl, 're_pl': re_pl})
         self.Rho_hyd = {'cl': 1000., 'ci': 5000., 'pl': 1000., 'pi': 250.}
         self.lidar_ratio = {'cl': 18., 'ci': 24., 'pl': 5.5, 'pi': 24.0}
         self.LDR_per_hyd = {'cl': 0.03, 'ci': 0.35, 'pl': 0.1, 'pi': 0.40}
@@ -306,6 +310,7 @@ class TestAllStratiform(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.re_fields = {'cl': 're_cl', 'ci': 're_pl', 'pl': 're_pl', 'pi': 're_pi'}
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = my_ds

@@ -87,15 +87,15 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     R_d = 287.058
     nu = 1 / Lambda
 
-    P = model.ds[model.p_field].values / 100.
+    P = model.ds[model.p_field].values
     T = model.ds[model.T_field].values
     raw = P * 100 / (R_d * (T + 273.15)) * 1e3 / 1e6
     p_cos = 0.7629 * (1 + 0.932 * np.cos(Theta)**2)
     n_s_ref = 1 + (6432.8 + 2949810 / (146 - nu**2) + 25540 / (41 - nu**2)) * 1e-8
-    n_s = (n_s_ref - 1) * ((1 + alpha * .15) / (1 + alpha * T)) * P / 1013.25 + 1
-    N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c
+    n_s = (n_s_ref - 1) * ((1 + alpha * .15) / (1 + alpha * T)) * (P / 1013.25) + 1
+    N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c / 1e6
     sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
-    beta = 8 * np.pi*3 / 3 * (n_s**2 - 1)**2 * N_s / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+    beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     kappa = beta / raw
     sigma_180 = np.pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
     sigma_180_vol = sigma_180 * N_s
@@ -108,7 +108,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     sigma_180_vol = sigma_180_vol / 1e-2
 
     Z_4_trap = np.diff(model.ds[model.z_field].values, axis=0) / 2.
-    Z_4_trap = np.tile(Z_4_trap, (1, beta.shape[1])).T
+    Z_4_trap = np.tile(Z_4_trap, (1, beta.shape[1]))
     summed_beta = beta[:-1, :] + beta[1:, :]
     u = np.zeros_like(beta)
     if OD_from_sfc:
@@ -125,7 +125,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
 
     model.ds["u"] = xr.DataArray(u, dims=my_dims)
     model.ds["u"].attrs["long_name"] = "Atmospheric optical depth"
-    model.ds["u"].attrs["units"] = "m-1"
+    model.ds["u"].attrs["units"] = "1"
 
     model.ds["beta"] = xr.DataArray(beta, dims=my_dims)
     model.ds["beta"].attrs["long_name"] = "Volume extinction cross section"

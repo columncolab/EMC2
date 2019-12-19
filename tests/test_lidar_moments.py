@@ -23,9 +23,10 @@ def test_radar_moments_all_convective():
     my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True, 10)
 
     # Check to see if all OD's > 10 are masked. We should have thick enough cloud for this.
-    assert model.ds['sub_col_OD_tot_conv'].max() == 10
-    assert model.ds['ext_max'].max() == 2
+    assert np.nanmax(my_model.ds['sub_col_OD_tot_conv'].values) == 10
+    assert np.all(np.diff(my_model.ds['sub_col_OD_tot_conv'].values, axis=1) > 0)
+    assert my_model.ds['ext_max'].max() == 2
 
     # We should have all zeros
     my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False, 10)
-    assert model.ds['sub_col_OD_tot_strat'].max() == 0
+    assert np.nanmax(my_model.ds['sub_col_OD_tot_strat'].values) == 0

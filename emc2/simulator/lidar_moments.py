@@ -36,8 +36,6 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
     if LDR_per_hyd is None:
         LDR_per_hyd = model.LDR_per_hyd
 
-
-
     if is_conv:
         cloud_class = "conv"
     else:
@@ -57,15 +55,17 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
     model.ds["LDR"].attrs["long_name"] = "Linear depolarization ratio"
 
     OD_cum_p_tot = model.ds["sub_col_OD_tot_%s" % cloud_class].values
-    ext_tmp = np.where(np.diff(OD_cum_p_tot > ext_OD) == 1, 1, 0)
-    ext_mask = np.where(np.cumsum(ext_tmp, axis=1) > 0, 2, 0) - ext_tmp
+    OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0)
+    my_diff = np.diff(OD_cum_p_tot, axis=1, prepend=0)
+    ext_tmp = np.where(my_diff > 1, 1, 0)
+    ext_mask = OD_cum_p_tot - ext_tmp
 
     if not OD_from_sfc:
         ext_mask = np.flip(ext_mask, axis=1)
 
     model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["LDR"].dims)
-    model.ds["ext_mask"].long_name = "Extinction mask"
-    model.ds["ext_mask"].units = "2 = Signal extinct, 1 = layer where signal becomes extinct, 0 = signal not extinct"
+    model.ds["ext_mask"].attrs["long_name"] = "Extinction mask"
+    model.ds["ext_mask"].attrs["units"] = "2 = Signal extinct, 1 = layer where signal becomes extinct, 0 = signal not extinct"
 
     return model
 
@@ -121,7 +121,8 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD,
         model.ds['sub_col_OD_tot_conv'] = xr.DataArray(np.zeros(Dims),
                                                         dims=model.ds["conv_q_subcolumns_cl"].dims)
         for hyd_type in hyd_types:
-            WC = model.ds["conv_q_subcolumns_%s" % hyd_type] * 1e3 * model.ds[p_field] / (instrument.R_d * model.ds[t_field])
+            WC = model.ds["conv_q_subcolumns_%s" % hyd_type] * 1e3 * model.ds[p_field] /\
+                 (instrument.R_d * (model.ds[t_field] + 273.15))
             empr_array = model.ds[model.re_fields[hyd_type]].values
             if hyd_type == "cl" or hyd_type == "pl":
                 model.ds["sub_col_alpha_p_%s_conv" % hyd_type] = xr.DataArray(
@@ -153,7 +154,7 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD,
             model.ds["sub_col_beta_p_tot_conv"] += model.ds["sub_col_beta_p_%s_conv" % hyd_type]
             model.ds["sub_col_alpha_p_tot_conv"] += model.ds["sub_col_alpha_p_%s_conv" % hyd_type]
             model.ds["sub_col_OD_tot_conv"] += model.ds["sub_col_OD_%s_conv" % hyd_type]
-        model.ds = calc_LDR(instrument, model, ext_OD, OD_from_sfc, **kwargs)
+        model = calc_LDR(instrument, model, ext_OD, OD_from_sfc, **kwargs)
         model.ds["sub_col_beta_p_tot_conv"]  = model.ds["sub_col_beta_p_tot_conv"].where(
                 model.ds["sub_col_beta_p_tot_conv"] != 0)
         model.ds["sub_col_alpha_p_tot_conv"] = model.ds["sub_col_alpha_p_tot_conv"].where(
@@ -161,7 +162,7 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD,
         model.ds["sub_col_OD_tot_conv"] = model.ds["sub_col_OD_tot_conv"].where(
                 model.ds["sub_col_OD_tot_conv"] != 0)
 
-        model.ds = calc_theory_beta_m(model, instrument.wavelength)
+        model = calc_theory_beta_m(model, instrument.wavelength)
         beta_m = np.tile(model.ds['beta'].values, (model.num_subcolumns, 1, 1))
         T = np.tile(model.ds[model.T_field].values, (model.num_subcolumns, 1, 1)) + 273.15
         model.ds['sub_col_beta_att_tot_conv'] = beta_m + model.ds['sub_col_beta_p_tot_conv'] * \

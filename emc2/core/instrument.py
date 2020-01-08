@@ -7,7 +7,9 @@ This module stores the Instrument class.
 """
 import numpy as np
 
-from . import quantity, ureg
+from pint import UnitRegistry
+ureg = UnitRegistry()
+quantity = ureg.Quantity
 
 class Instrument(object):
     """

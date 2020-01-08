@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 from ..core import Instrument
+from ..core.instrument import ureg, quantity
 
 
 def calc_radar_atm_attenuation(instrument, model):
@@ -33,17 +34,17 @@ def calc_radar_atm_attenuation(instrument, model):
     three_hundred_t = 300. / column_ds[t_field]
     gamma_l = 2.85 * (column_ds[p_field] / 1013.) * (three_hundred_t)**0.626 * \
         (1 + 0.018 * rho_wv * column_ds[t_field] / column_ds[p_field])
-    column_ds['kappa_wv'] = (2 * instrument.freq)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
+    column_ds['kappa_wv'] = (2 * instrument.freq.magnitude)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
         (three_hundred_t) * np.exp(-644 / column_ds[t_field]) * \
-        1 / ((494.4 - instrument.freq**2)**2 + 4 * instrument.freq**2) * gamma_l**2 + 1.2e-6
+        1 / ((494.4 - instrument.freq.magnitude**2)**2 + 4 * instrument.freq.magnitude**2) * gamma_l**2 + 1.2e-6
     f0 = 60.
 
     gamma_0 = 0.59 * (1 + 3.1e-3 * (333 - column_ds[p_field].values))
     gamma_0[column_ds[p_field].values >= 333] = 0.59
     gamma_0[column_ds[p_field].values < 25.] = 1.18
     gamma_l = gamma_0 * (column_ds[p_field] / 1013.) * three_hundred_t**0.85
-    column_ds['kappa_o2'] = (1.1e-2 * instrument.freq**2) * (column_ds[p_field] / 1013.) * three_hundred_t**2 * \
-        gamma_l * (1. / ((instrument.freq - f0)**2 + gamma_l**2) + 1. / (instrument.freq**2 + gamma_l**2))
+    column_ds['kappa_o2'] = (1.1e-2 * instrument.freq.magnitude**2) * (column_ds[p_field] / 1013.) * three_hundred_t**2 * \
+        gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1. / (instrument.freq.magnitude**2 + gamma_l**2))
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
@@ -85,14 +86,18 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     Avogadro_c = 6.022140857e23
     R = 8.3144598
     R_d = 287.058
-    nu = 1 / Lambda
+    nu = 1 / Lambda.to("micrometer").magnitude
 
-    P = model.ds[model.p_field].values
-    T = model.ds[model.T_field].values
+    p_temp = model.ds[model.p_field].values * getattr(ureg, model.ds[model.p_field].attrs["units"])
+    P = p_temp.to('hPa').magnitude
+    t_temp = quantity(model.ds[model.T_field].values, model.ds[model.T_field].attrs["units"])
+    T = t_temp.to('degC').magnitude
+    z_temp = model.ds[model.z_field].values * getattr(ureg, model.ds[model.z_field].attrs["units"])
+    Z = z_temp.to('meter').magnitude
     raw = P * 100 / (R_d * (T + 273.15)) * 1e3 / 1e6
     p_cos = 0.7629 * (1 + 0.932 * np.cos(Theta)**2)
     n_s_ref = 1 + (6432.8 + 2949810 / (146 - nu**2) + 25540 / (41 - nu**2)) * 1e-8
-    n_s = (n_s_ref - 1) * ((1 + alpha * .15) / (1 + alpha * T)) * (P / 1013.25) + 1
+    n_s = (n_s_ref - 1) * ((1 + alpha * 15) / (1 + alpha * T)) * (P / 1013.25) + 1
     N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c / 1e6
     sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
@@ -107,7 +112,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     sigma_180 = sigma_180 * 1e-4
     sigma_180_vol = sigma_180_vol / 1e-2
 
-    Z_4_trap = np.diff(model.ds[model.z_field].values, axis=0) / 2.
+    Z_4_trap = np.diff(Z, axis=0) / 2.
     Z_4_trap = np.tile(Z_4_trap, (1, beta.shape[1]))
     summed_beta = beta[:-1, :] + beta[1:, :]
     u = np.zeros_like(beta)

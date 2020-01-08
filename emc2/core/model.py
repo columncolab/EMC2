@@ -9,7 +9,7 @@ This module contains the Model class and example Models for your use.
 import xarray as xr
 import numpy as np
 
-from . import ureg, quantity
+from .instrument import ureg, quantity
 
 class Model():
     """
@@ -73,9 +73,9 @@ class Model():
         self.height_dim = "height"
 
     def _add_vel_units(self):
-        for my_keys in self.vel_param_a.keys()
+        for my_keys in self.vel_param_a.keys():
             self.vel_param_a[my_keys] = self.vel_param_a[my_keys] * (
-                ureg.meter ** (1 - self.vel_param_b[my_keys]) / ureg.second)
+                ureg.meter ** (1 - self.vel_param_b[my_keys].magnitude) / ureg.second)
 
     @property
     def hydrometeor_classes(self):
@@ -172,8 +172,8 @@ class TestModel(Model):
         temp = 15.04 * ureg.kelvin - quantity(0.00649, 'kelvin/meter') * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC')
         p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
-        es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c / (temp_c + 243.5 * ureg.degC))
-        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3) * (q.units)
+        es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c.magnitude / (temp_c.magnitude + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
         heights = xr.DataArray(heights.magnitude, dims=('height'))
@@ -191,7 +191,7 @@ class TestModel(Model):
         qv.attrs["units"] = '%s' % qv_units
 
         t_units = temp_c.units
-        temp = xr.DataArray(temp_c[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp_c.magnitude[:, np.newaxis], dims=('height', 'time'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
@@ -249,10 +249,10 @@ class TestConvection(Model):
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC')
-        p = 1012.9 * ureg.hectapascal * (temp / (288.08 * ureg.kelvin)) ** 5.256
+        p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
         re_cl = 10 * np.ones_like(q) * ureg.micrometer
         re_pl = 100 * np.ones_like(q) * ureg.micrometer
-        es = 0.6112 * ureg.hectapascal * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c.magnitude / (temp_c.magnitude + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3) * q.units
         convective_liquid = np.logical_and(heights > 1000. * ureg.meter,
                                            temp >= 273.15 * ureg.kelvin)
@@ -268,8 +268,6 @@ class TestConvection(Model):
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
         heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
-
-        heights = xr.DataArray(heights.magnitude, dims=('height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
@@ -284,7 +282,7 @@ class TestConvection(Model):
         qv.attrs["units"] = '%s' % qv_units
 
         t_units = temp_c.units
-        temp = xr.DataArray(temp_c[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp_c.magnitude[:, np.newaxis], dims=('height', 'time'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
@@ -381,9 +379,9 @@ class TestAllStratiform(Model):
         Npl = 0.001 * np.ones_like(1) * (ureg.centimeter ** -3)
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
-        temp_c = temp.to('degC')
-        p = 1012.9 * ureg.hectapascal * (temp / (288.08 * ureg.kelvin)) ** 5.256
-        es = 0.6112 * ureg.hectapascal * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        temp_c = temp.to('degC').magnitude
+        p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
+        es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c / (temp_c + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3) * q.units
         re_cl = 10 * np.ones_like(q)
         re_pl = 100 * np.ones_like(q)
@@ -395,11 +393,11 @@ class TestAllStratiform(Model):
         cldssci = np.where(stratiform_ice, 1, 0.) * ureg.dimensionless
         cldmccl = np.zeros_like(heights) * ureg.dimensionless
         cldmcci = np.zeros_like(heights) * ureg.dimensionless
+        qcl = np.where(stratiform_liquid, q, 0)
+        qci = np.where(stratiform_ice, q, 0)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
         heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
-
-        heights = xr.DataArray(heights.magnitude, dims=('height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
@@ -413,7 +411,7 @@ class TestAllStratiform(Model):
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
-        t_units = temp_c.units
+        t_units = "degC"
         temp = xr.DataArray(temp_c[:, np.newaxis], dims=('height', 'time'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
@@ -427,15 +425,13 @@ class TestAllStratiform(Model):
         N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % N_units
-        qcl = np.where(stratiform_liquid, q, 0)
-        qci = np.where(stratiform_ice, q, 0)
         qcl = xr.DataArray(qcl[:, np.newaxis], dims=('height', 'time'))
         qcl.attrs["units"] = "g kg-1"
         qcl.attrs["long_name"] = "Cloud liquid water mixing ratio"
         qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
         qci.attrs["units"] = "g kg-1"
         qci.attrs["long_name"] = "Cloud ice water mixing ratio"
-        N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+
         re_cl = xr.DataArray(re_cl[:, np.newaxis], dims=('height', 'time'))
         re_cl.attrs["units"] = "micrometer"
         re_cl.attrs["long_name"] = "Effective radius of cloud liquid particles"
@@ -447,15 +443,11 @@ class TestAllStratiform(Model):
         nci = 0. * N
         npi = 0. * N
         npl = 1e-3 * N
-        nci = xr.DataArray(nci[:, np.newaxis], dims=('height', 'time'))
+
         nci.attrs["units"] = "cm-3"
         nci.attrs["long_name"] = "cloud ice particle number concentration"
-
-        npl = xr.DataArray(npl[:, np.newaxis], dims=('height', 'time'))
         npl.attrs["units"] = "cm-3"
         npl.attrs["long_name"] = "liquid precipitation particle number concentration"
-
-        npi = xr.DataArray(npi[:, np.newaxis], dims=('height', 'time'))
         npi.attrs["units"] = "cm-3"
         npi.attrs["long_name"] = "ice precipitation particle number concentration"
         cldmccl = xr.DataArray(cldmccl.magnitude[:, np.newaxis], dims=('height', 'time'))
@@ -516,28 +508,28 @@ class TestHalfAndHalf(Model):
     It is not recommended for end users.
     """
     def __init__(self):
-        q = np.linspace(0, 1, 1000.)
-        N = 100 * np.ones_like(q)
-        heights = np.linspace(0, 11000., 1000)
-        temp = 15.04 - 0.00649 * heights + 273.15
-        temp_c = temp - 273.15
-        p = 1012.9 * (temp / 288.08) ** 5.256
-        es = 0.6112 * np.exp(17.67 * temp_c / (temp_c + 243.5))
-        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
-        stratiform_liquid = np.logical_and(heights > 1000.,
-                                           temp >= 273.15)
-        stratiform_ice = np.logical_and(heights > 1000.,
-                                        temp < 273.15)
+        q = np.linspace(0, 1, 1000.) * ureg.gram / ureg.kilogram
+        N = 100 * np.ones_like(q) * (ureg.centimeter ** -3)
+        Npl = 0.001 * np.ones_like(1) * (ureg.centimeter ** -3)
+        heights = np.linspace(0, 11000., 1000) * ureg.meter
+        temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
+        temp_c = temp.to('degC').magnitude
+        p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
+        es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c / (temp_c + 243.5))
+        qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3) * q.units
+        stratiform_liquid = np.logical_and(heights > 1000. * ureg.meter,
+                                           temp >= 273.15 * ureg.kelvin)
+        stratiform_ice = np.logical_and(heights > 1000. * ureg.meter,
+                                        temp < 273.15 * ureg.kelvin)
         cldsscl = 0.5 * np.where(stratiform_liquid, 1, 0.) * ureg.dimensionless
         cldssci = 0.5 * np.where(stratiform_ice, 1, 0.) * ureg.dimensionless
         cldmccl = 0.5 * np.where(stratiform_liquid, 1, 0.) * ureg.dimensionless
         cldmcci = 0.5 * np.where(stratiform_ice, 1, 0.) * ureg.dimensionless
-
+        qcl = np.where(stratiform_liquid, q, 0)
+        qci = np.where(stratiform_ice, q, 0)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
-
-        heights = xr.DataArray(heights.magnitude, dims=('height'))
+        heights = xr.DataArray(heights.magnitude[:, np.newaxis], dims=('height', 'time'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
@@ -551,7 +543,7 @@ class TestHalfAndHalf(Model):
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
-        t_units = temp_c.units
+        t_units = "degC"
         temp = xr.DataArray(temp_c[:, np.newaxis], dims=('height', 'time'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
@@ -565,15 +557,14 @@ class TestHalfAndHalf(Model):
         N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % N_units
-        qcl = np.where(stratiform_liquid, q, 0)
-        qci = np.where(stratiform_ice, q, 0)
+
         qcl = xr.DataArray(qcl[:, np.newaxis], dims=('height', 'time'))
         qcl.attrs["units"] = "g kg-1"
         qcl.attrs["long_name"] = "Cloud liquid water mixing ratio"
         qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
         qci.attrs["units"] = "g kg-1"
         qci.attrs["long_name"] = "Cloud ice water mixing ratio"
-        N = xr.DataArray(N[:, np.newaxis], dims=('height', 'time'))
+
         cldmccl = xr.DataArray(cldmccl.magnitude[:, np.newaxis], dims=('height', 'time'))
         cldmccl.attrs["units"] = 'g kg-1'
         cldmccl.attrs["long_name"] = "Convective cloud liquid mixing ratio"
@@ -586,7 +577,7 @@ class TestHalfAndHalf(Model):
         cldssci = xr.DataArray(cldssci.magnitude[:, np.newaxis], dims=('height', 'time'))
         cldssci.attrs["units"] = 'g kg-1'
         cldssci.attrs["long_name"] = "Stratiform cloud ice mixing ratio"
-        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'cldmccl': cldmccl, 'cldmcci': cldmcci,
                             'cldsscl': cldsscl, 'cldssci': cldssci,
@@ -621,4 +612,4 @@ class TestHalfAndHalf(Model):
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = my_ds
         self.height_dim = "height"
-        self.time_dim = "time""
+        self.time_dim = "time"

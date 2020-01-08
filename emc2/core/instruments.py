@@ -8,8 +8,7 @@ This module stores example instruments.
 import numpy as np
 import os
 
-from . import quantity, ureg
-from .instrument import Instrument
+from .instrument import Instrument, ureg, quantity
 from ..io import load_mie_file
 
 

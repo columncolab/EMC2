@@ -60,7 +60,7 @@ def calc_mu_lambda(model, hyd_type="cl",
 
     if hyd_type == "cl":
         if calc_dispersion:
-            mus = 0.0005714 * (column_ds[N_name].values / 1e6 * model.Rho_hyd["cl"]) + 0.2714
+            mus = 0.0005714 * (column_ds[N_name].values / 1e6 * model.Rho_hyd["cl"].magnitude) + 0.2714
             mus = 1 / mus**2 - 1
             mus = np.where(mus < dispersion_mu_bounds[0], dispersion_mu_bounds[0], mus)
             mus = np.where(mus > dispersion_mu_bounds[1], dispersion_mu_bounds[1], mus)

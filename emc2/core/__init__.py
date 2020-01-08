@@ -31,6 +31,4 @@ from . import instruments
 from .instrument import Instrument
 from . import model
 from .model import Model
-from pint import UnitRegistry
-ureg = UnitRegistry()
-quantity = ureg.Quantity
+

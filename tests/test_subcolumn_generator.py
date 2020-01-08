@@ -47,7 +47,7 @@ def test_set_stratiform_profile():
     my_model = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
                                                                     'ci', N_columns=8)
     my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
-    where_gt_1km = np.where(np.logical_and(my_model.ds['height'] > 1000.,
+    where_gt_1km = np.where(np.logical_and(my_model.ds['z'] > 1000.,
                                            my_model.ds['t'] > 274.15))[0]
 
     num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km])

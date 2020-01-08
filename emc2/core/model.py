@@ -11,6 +11,7 @@ import numpy as np
 
 from .instrument import ureg, quantity
 
+
 class Model():
     """
     This class stores the model specific parameters for the radar simulator.
@@ -124,16 +125,16 @@ class ModelE(Model):
         file_path: str
             Path to a ModelE simulation.
         """
-        self.Rho_hyd = {'cl': 1000. * ureg.kg/(ureg.m**3), 'ci': 5000.* ureg.kg/(ureg.m**3),
-                        'pl': 1000. * ureg.kg/(ureg.m**3), 'pi': 250. * ureg.kg/(ureg.m**3)}
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 5000. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
                             'pl': 5.5 * ureg.dimensionless,
                             'pi': 24.0 * ureg.dimensionless}
-        self.LDR_per_hyd = {'cl': 0.03 * 1/(ureg.kg/(ureg.m**3)),
-                            'ci': 0.35 * 1/(ureg.kg/(ureg.m**3)),
-                            'pl': 0.1 * 1/(ureg.kg/(ureg.m**3)),
-                            'pi': 0.40 * 1/(ureg.kg/(ureg.m**3))}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
         self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
@@ -195,12 +196,10 @@ class TestModel(Model):
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
-        q_units = q.units
         q = xr.DataArray(q.magnitude[:, np.newaxis], dims=('height', 'time'))
         q.attrs["long_name"] = "Liquid cloud water mixing ratio"
         q.attrs["units"] = '%s' % qv_units
 
-        N_units = N.units
         N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % qv_units
@@ -376,7 +375,6 @@ class TestAllStratiform(Model):
     def __init__(self):
         q = np.linspace(0, 1, 1000.) * ureg.gram / ureg.kilogram
         N = 100 * np.ones_like(q) * (ureg.centimeter ** -3)
-        Npl = 0.001 * np.ones_like(1) * (ureg.centimeter ** -3)
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC').magnitude
@@ -510,7 +508,6 @@ class TestHalfAndHalf(Model):
     def __init__(self):
         q = np.linspace(0, 1, 1000.) * ureg.gram / ureg.kilogram
         N = 100 * np.ones_like(q) * (ureg.centimeter ** -3)
-        Npl = 0.001 * np.ones_like(1) * (ureg.centimeter ** -3)
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC').magnitude

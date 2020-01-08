@@ -4,6 +4,7 @@ import numpy as np
 
 from emc2.core.instrument import ureg
 
+
 def test_gaseous_attenuation():
     # Create an X array object with a standard atmosphere that is saturated
     # Gaseous attenuation should be small (under 0.1 dB/km)

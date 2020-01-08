@@ -353,7 +353,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         q_array = model.ds[model.q_names_convective[hyd_type]]
         q_name = "conv_q_subcolumns_%s" % hyd_type
 
-    q_ic_mean = q_array/hyd_profs
+    q_ic_mean = q_array / hyd_profs
     if qc_flag:
         tot_hyd_in_sub = sub_hyd_profs.sum(axis=0)
         q_profs = np.zeros_like(sub_hyd_profs, dtype=float)
@@ -366,19 +366,20 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
                 elif tot_hyd_in_sub[j, tt] > 1:
                     alpha = inv_rel_var / q_ic_mean[j, tt]
                     a = inv_rel_var
-                    b = 1/alpha
+                    b = 1 / alpha
                     randlocs = np.random.permutation(tot_hyd_in_sub[j, tt])
                     rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[j, tt] - 1)
                     valid_vals = False
                     counter_4_valid = 0
                     while not valid_vals:
                         counter_4_valid += 1
-                        valid_vals = (q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt]
-                                      - rand_gamma_vals[0:-counter_4_valid].sum()) > 0
+                        valid_vals = (q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt] -
+                                      rand_gamma_vals[0:-counter_4_valid].sum()) > 0
                     q_profs[hyd_in_sub_loc[
-                        randlocs[:-(counter_4_valid+1)]], j, tt] = rand_gamma_vals[:-counter_4_valid]
-                    q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j, tt] = (q_ic_mean[j, tt] *
-                        tot_hyd_in_sub[j, tt] - np.sum(rand_gamma_vals[:-counter_4_valid])) / (1 + counter_4_valid)
+                        randlocs[:-(counter_4_valid + 1)]], j, tt] = rand_gamma_vals[:-counter_4_valid]
+                    q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j, tt] = (
+                        q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt] - np.sum(rand_gamma_vals[:-counter_4_valid])) / \
+                        (1 + counter_4_valid)
 
     else:
         q_profs = q_array / hyd_profs

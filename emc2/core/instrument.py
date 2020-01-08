@@ -11,6 +11,7 @@ from pint import UnitRegistry
 ureg = UnitRegistry()
 quantity = ureg.Quantity
 
+
 class Instrument(object):
     """
     This is the base class which holds the information needed to contain the instrument parameters for the
@@ -69,7 +70,7 @@ class Instrument(object):
         self.pr_noise_md = np.nan
         self.tau_ge = np.nan
         self.tau_md = np.nan
-        self.c = quantity(299792458.0, ureg.meter/ureg.second)
+        self.c = quantity(299792458.0, ureg.meter / ureg.second)
         self.R_d = quantity(287.058, ureg.kelvin)
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")

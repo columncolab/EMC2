@@ -49,16 +49,15 @@ def calc_radar_atm_attenuation(instrument, model):
     gamma_0[column_ds[p_field].values < 25.] = 1.18
     gamma_l = gamma_0 * (p_temp / 1013.) * three_hundred_t**0.85
     kappa_o2 = (1.1e-2 * instrument.freq.magnitude**2) * (p_temp / 1013.) * three_hundred_t**2 * \
-        gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1.
-                   / (instrument.freq.magnitude**2 + gamma_l**2))
-
+        gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1. /
+                   (instrument.freq.magnitude**2 + gamma_l**2))
 
     column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=('height', 'time'))
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
     column_ds['kappa_wv'].attrs["units"] = "dB/km"
-    
+
     column_ds['kappa_att'] = column_ds['kappa_wv'] + column_ds['kappa_o2']
     column_ds['kappa_att'].attrs["long_name"] = "Gaseous attenuation due to O2 and water vapor"
     column_ds['kappa_att'].attrs["units"] = "dB/km"
@@ -109,10 +108,13 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     n_s_ref = 1 + (6432.8 + 2949810 / (146 - nu**2) + 25540 / (41 - nu**2)) * 1e-8
     n_s = (n_s_ref - 1) * ((1 + alpha * 15) / (1 + alpha * T)) * (P / 1013.25) + 1
     N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c / 1e6
-    sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
-    beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+    sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / \
+        ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+    beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / \
+        ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     kappa = beta / raw
-    sigma_180 = np.pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
+    sigma_180 = np.pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / \
+        ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
     sigma_180_vol = sigma_180 * N_s
 
     sigma = sigma * 1e-4
@@ -131,7 +133,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     else:
         u[1:, :] = np.flip(np.cumsum(np.flip(Z_4_trap * summed_beta, axis=0), axis=0), axis=0)
 
-    tau = np.exp(-2*u)
+    tau = np.exp(-2 * u)
 
     my_dims = model.ds[model.T_field].dims
     model.ds["tau"] = xr.DataArray(tau, dims=my_dims)

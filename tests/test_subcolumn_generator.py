@@ -158,5 +158,3 @@ def test_set_qn():
     assert np.all(q_sum[~where_gt_1km] == 0)
     qcl = my_model.ds[my_model.q_names_stratiform["cl"]].values
     np.testing.assert_almost_equal(q_sum, qcl)
-
-    # Also test without qc_flag

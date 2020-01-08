@@ -176,7 +176,7 @@ class TestModel(Model):
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights.magnitude, dims=('height'))
+        heights = xr.DataArray(heights.magnitude[:, np.newaxis], dims=('height', 'time'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
@@ -205,7 +205,7 @@ class TestModel(Model):
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % qv_units
 
-        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'height': heights,
+        my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'time': times})
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 5000. * ureg.kg / (ureg.m ** 3),
@@ -229,7 +229,7 @@ class TestModel(Model):
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
-        self.z_field = "height"
+        self.z_field = "z"
         self.T_field = "t"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}

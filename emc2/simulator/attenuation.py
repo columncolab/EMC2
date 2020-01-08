@@ -28,27 +28,37 @@ def calc_radar_atm_attenuation(instrument, model):
     q_field = model.q_field
     p_field = model.p_field
     t_field = model.T_field
+
+    # Convert to assumed units
+    t_temp = quantity(model.ds[t_field].values, model.ds[t_field].attrs["units"]).to("kelvin").magnitude
+    p_temp = quantity(model.ds[p_field].values, model.ds[p_field].attrs["units"]).to("hPa").magnitude
+
     column_ds = model.ds
 
-    rho_wv = column_ds[q_field] * 1e3 * (column_ds[p_field] * 1e2) / (instrument.R_d * column_ds[t_field])
-    three_hundred_t = 300. / column_ds[t_field]
-    gamma_l = 2.85 * (column_ds[p_field] / 1013.) * (three_hundred_t)**0.626 * \
-        (1 + 0.018 * rho_wv * column_ds[t_field] / column_ds[p_field])
+    rho_wv = column_ds[q_field] * 1e3 * (p_temp * 1e2) / (instrument.R_d.magnitude * t_temp)
+    three_hundred_t = 300. / t_temp
+    gamma_l = 2.85 * (p_temp / 1013.) * (three_hundred_t)**0.626 * \
+        (1 + 0.018 * rho_wv * t_temp / p_temp)
     column_ds['kappa_wv'] = (2 * instrument.freq.magnitude)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
-        (three_hundred_t) * np.exp(-644 / column_ds[t_field]) * \
+        (three_hundred_t) * np.exp(-644 / t_temp) * \
         1 / ((494.4 - instrument.freq.magnitude**2)**2 + 4 * instrument.freq.magnitude**2) * gamma_l**2 + 1.2e-6
     f0 = 60.
 
-    gamma_0 = 0.59 * (1 + 3.1e-3 * (333 - column_ds[p_field].values))
+    gamma_0 = 0.59 * (1 + 3.1e-3 * (333 - p_temp))
     gamma_0[column_ds[p_field].values >= 333] = 0.59
     gamma_0[column_ds[p_field].values < 25.] = 1.18
-    gamma_l = gamma_0 * (column_ds[p_field] / 1013.) * three_hundred_t**0.85
-    column_ds['kappa_o2'] = (1.1e-2 * instrument.freq.magnitude**2) * (column_ds[p_field] / 1013.) * three_hundred_t**2 * \
-        gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1. / (instrument.freq.magnitude**2 + gamma_l**2))
+    gamma_l = gamma_0 * (p_temp / 1013.) * three_hundred_t**0.85
+    kappa_o2 = (1.1e-2 * instrument.freq.magnitude**2) * (p_temp / 1013.) * three_hundred_t**2 * \
+        gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1.
+                   / (instrument.freq.magnitude**2 + gamma_l**2))
+
+
+    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=('height', 'time'))
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
     column_ds['kappa_wv'].attrs["units"] = "dB/km"
+    
     column_ds['kappa_att'] = column_ds['kappa_wv'] + column_ds['kappa_o2']
     column_ds['kappa_att'].attrs["long_name"] = "Gaseous attenuation due to O2 and water vapor"
     column_ds['kappa_att'].attrs["units"] = "dB/km"

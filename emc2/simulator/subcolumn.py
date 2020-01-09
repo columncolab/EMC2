@@ -85,9 +85,9 @@ def set_stratiform_sub_col_frac(model):
     N_columns = len(model.ds["subcolumn"])
     subcolumn_dims = conv_profs1.dims
     data_frac1 = model.ds[model.strat_frac_names["cl"]]
-    data_frac1 = np.round(data_frac1.values * N_columns)
+    data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
     data_frac2 = model.ds[model.strat_frac_names["ci"]]
-    data_frac2 = np.round(data_frac2.values * N_columns)
+    data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
 
     strat_profs1 = np.zeros((N_columns, data_frac1.shape[0], data_frac1.shape[1]), dtype=bool)
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)

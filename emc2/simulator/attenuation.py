@@ -52,7 +52,7 @@ def calc_radar_atm_attenuation(instrument, model):
         gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1. /
                    (instrument.freq.magnitude**2 + gamma_l**2))
 
-    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=('height', 'time'))
+    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=(model.height_dim, model.time_dim))
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
@@ -125,7 +125,6 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     sigma_180_vol = sigma_180_vol / 1e-2
 
     Z_4_trap = np.diff(Z, axis=0) / 2.
-    Z_4_trap = np.tile(Z_4_trap, (1, beta.shape[1]))
     summed_beta = beta[:-1, :] + beta[1:, :]
     u = np.zeros_like(beta)
     if OD_from_sfc:

@@ -16,6 +16,7 @@ simulator in EMC^2.
     radar_moments.calc_radar_moments
     lidar_moments.calc_LDR
     lidar_moments.calc_lidar_moments
+    main.make_simulated_data
     subcolumn.set_convective_sub_col_frac
     subcolumn.set_stratiform_sub_col_frac
     subcolumn.set_precip_sub_col_frac
@@ -27,3 +28,4 @@ from . import radar_moments
 from . import lidar_moments
 from . import psd
 from . import subcolumn
+from . import main

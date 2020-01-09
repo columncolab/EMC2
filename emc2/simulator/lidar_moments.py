@@ -74,7 +74,7 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
     return model
 
 
-def calc_lidar_moments(instrument, model, is_conv, ext_OD,
+def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
                        OD_from_sfc=True, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
@@ -192,6 +192,7 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD,
             raise KeyError("Water mixing ratio in convective subcolumns must be generated first!")
         Dims = column_ds["strat_q_subcolumns_cl"].values.shape
         for hyd_type in ["pi", "pl", "ci", "cl"]:
+            print("Generating stratiform radar moments for hydrometeor class %s" % hyd_type)
             num_diam = len(instrument.mie_table[hyd_type]["p_diam"].values)
             if hyd_type == "pi":
                 model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
@@ -204,12 +205,14 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD,
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
             model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-            dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
-                instrument.mie_table[hyd_type]["p_diam"].values[0]
+            dD = instrument.mie_table[hyd_type]["p_diam"].values[1] * 2e-6 - \
+                instrument.mie_table[hyd_type]["p_diam"].values[0] * 2e-6
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]
 
             for tt in range(Dims[2]):
+                if tt % 50 == 0:
+                    print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[2]))
                 for k in range(Dims[1]):
                     if total_hydrometeor.values[k, tt] == 0:
                         continue
@@ -217,13 +220,13 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD,
                     N_0_tmp = np.tile(fits_ds["N_0"][:, k, tt].values, (num_diam, 1)).T
                     lambda_tmp = np.tile(fits_ds["lambda"][:, k, tt].values, (num_diam, 1)).T
                     p_diam_tiled = np.tile(
-                        instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
+                        instrument.mie_table[hyd_type]["p_diam"] * 2e-6, (model.num_subcolumns, 1))
                     mu_temp = np.tile(fits_ds["mu"].values[:, k, tt], (num_diam, 1)).T
                     N_D = N_0_tmp * p_diam_tiled ** mu_temp * np.exp(-lambda_tmp * p_diam_tiled)
-                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"], (model.num_subcolumns, 1)) * N_D
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"] * 1e-12, (model.num_subcolumns, 1)) * N_D
                     model.ds["sub_col_beta_p_%s_strat" % hyd_type][:, k, tt] = (
                         Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
-                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["alpha_p"], (model.num_subcolumns, 1)) * N_D
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["alpha_p"] * 1e-12, (model.num_subcolumns, 1)) * N_D
                     model.ds["sub_col_alpha_p_%s_strat" % hyd_type][:, k, tt] = (
                         Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
 

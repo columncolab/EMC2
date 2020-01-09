@@ -151,6 +151,9 @@ class ModelE(Model):
         self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
+        self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
+        self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = xr.open_dataset(file_path, decode_times=False)
 
         # Check to make sure we are loading a single column
@@ -160,6 +163,14 @@ class ModelE(Model):
 
         # No need for lat and lon dimensions
         self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+
+        # Transpose time and height dimensions for EMC2 data model
+        for the_vars in self.ds.variables.keys():
+            if self.ds[the_vars].dims == ('time', 'plm'):
+                self.ds[the_vars] = self.ds[the_vars].transpose()
+
+        # ModelE has pressure units in mb, but pint only supports hPa
+        self.ds["p_3d"].attrs["units"] = "hPa"
 
 
 class TestModel(Model):

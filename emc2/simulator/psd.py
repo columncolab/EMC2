@@ -55,7 +55,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         N_name = "strat_n_subcolumns_%s" % hyd_type
         q_name = "strat_q_subcolumns_%s" % hyd_type
 
-    Rho_hyd = model.Rho_hyd[hyd_type]
+    Rho_hyd = model.Rho_hyd[hyd_type].magnitude
     column_ds = model.ds
 
     if hyd_type == "cl":
@@ -77,11 +77,11 @@ def calc_mu_lambda(model, hyd_type="cl",
 
     d = 3.0
     c = np.pi * Rho_hyd / 6.0
-    fit_lambda = (c * column_ds[N_name] * gamma(column_ds["mu"] + d + 1) /
+    fit_lambda = ((c * column_ds[N_name] * gamma(column_ds["mu"] + d + 1)) / \
                   (column_ds[q_name] * gamma(column_ds["mu"] + 1)))**(1 / d)
 
     # Eventually need to make this unit aware, pint as a dependency?
-    column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0)
+    column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0).astype('float64')
     column_ds["lambda"].attrs["long_name"] = "Slope of gamma distribution fit"
     column_ds["lambda"].attrs["units"] = "cm-1"
     column_ds["N_0"] = column_ds[N_name] * column_ds["lambda"]**(column_ds["mu"] + 1.) \

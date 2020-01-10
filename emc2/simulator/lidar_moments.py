@@ -223,10 +223,12 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
                         instrument.mie_table[hyd_type]["p_diam"] * 2e-6, (model.num_subcolumns, 1))
                     mu_temp = np.tile(fits_ds["mu"].values[:, k, tt], (num_diam, 1)).T
                     N_D = N_0_tmp * p_diam_tiled ** mu_temp * np.exp(-lambda_tmp * p_diam_tiled)
-                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"] * 1e-12, (model.num_subcolumns, 1)) * N_D
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"] * 1e-12,
+                                       (model.num_subcolumns, 1)) * N_D
                     model.ds["sub_col_beta_p_%s_strat" % hyd_type][:, k, tt] = (
                         Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
-                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["alpha_p"] * 1e-12, (model.num_subcolumns, 1)) * N_D
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["alpha_p"] * 1e-12,
+                                       (model.num_subcolumns, 1)) * N_D
                     model.ds["sub_col_alpha_p_%s_strat" % hyd_type][:, k, tt] = (
                         Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
 

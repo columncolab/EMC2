@@ -1,6 +1,8 @@
-from .subcolumn import *
+from .subcolumn import set_convective_sub_col_frac, set_precip_sub_col_frac
+from .subcolumn import set_stratiform_sub_col_frac, set_q_n
 from .lidar_moments import calc_lidar_moments
 from .radar_moments import calc_radar_moments
+
 
 def make_simulated_data(model, instrument, N_columns, **kwargs):
     """
@@ -26,14 +28,14 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
     print("## Creating subcolumns...")
     hydrometeor_classes = model.conv_frac_names.keys()
     for hyd_type in hydrometeor_classes:
-       model = set_convective_sub_col_frac(model, hyd_type, N_columns=N_columns)
+        model = set_convective_sub_col_frac(model, hyd_type, N_columns=N_columns)
 
     model = set_stratiform_sub_col_frac(model)
     model = set_precip_sub_col_frac(model, convective=False)
     model = set_precip_sub_col_frac(model, convective=True)
     for hyd_type in hydrometeor_classes:
-       model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
-       model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+        model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
+        model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
 
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")

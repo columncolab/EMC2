@@ -77,7 +77,7 @@ def calc_mu_lambda(model, hyd_type="cl",
 
     d = 3.0
     c = np.pi * Rho_hyd / 6.0
-    fit_lambda = ((c * column_ds[N_name] * gamma(column_ds["mu"] + d + 1)) / \
+    fit_lambda = ((c * column_ds[N_name] * gamma(column_ds["mu"] + d + 1)) /
                   (column_ds[q_name] * gamma(column_ds["mu"] + 1)))**(1 / d)
 
     # Eventually need to make this unit aware, pint as a dependency?

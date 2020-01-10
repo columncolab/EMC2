@@ -244,6 +244,8 @@ class TestModel(Model):
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = my_ds
+        self.height_dim = "height"
+        self.time_dim = "time"
 
 
 class TestConvection(Model):

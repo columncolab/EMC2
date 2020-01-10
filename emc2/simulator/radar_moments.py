@@ -121,8 +121,8 @@ def calc_radar_moments(instrument, model, is_conv,
         if OD_from_sfc:
             WC_new = np.zeros_like(WC)
             WC_new[1:, :] = WC[:-1, :]
-            liq_ext = np.cumsum(kappa_f * dz * WC_new)
-            atm_ext = np.cumsum(kappa_ds.ds["kappa_att"].values * dz)
+            liq_ext = np.cumsum(kappa_f * dz * WC_new, axis=0)
+            atm_ext = np.cumsum(kappa_ds.ds["kappa_att"].values * dz, axis=0)
         else:
             WC_new = np.zeros_like(WC)
             WC_new[1:, :] = WC[:-1, :]

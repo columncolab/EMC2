@@ -14,14 +14,16 @@ An open source framework for atmospheric model and observational column comparis
 The Earth Model Column Collaboratory (EMC2) will build on past work comparing remotely sensed measurements
 in the column to earth system and global climate models (GCMs) and their single-column models (SCMs)
 (Lamer et al. 2018; Swales et al. 2018) by building an open source software framework to:
-1.     Represent both ARM and GCM columns in the Python programming
-       language building on the Atmospheric Community Toolkit (ACT, Theisen et. al. 2019)
-       and leveraging the EMC2 team’s success with Py-ART (Helmus and Collis 2016).
-2.     Scale GCM outputs (using the cloud fraction) to compare with sub-grid-scale column measurements
-       using a modular sub column generator (Lamer 2018) which will be designed to run off-line on
-       time series extracted from existing GCM/SCM output.
-3.     Enable a suite of comparisons between ARM (and other) column measurements and
-       the GCM model subcolumns.
+
+s
+1. Represent both ARM and GCM columns in the Python programming
+   language building on the Atmospheric Community Toolkit (ACT, Theisen et. al. 2019)
+   and leveraging the EMC2 team’s success with Py-ART (Helmus and Collis 2016).
+2. Scale GCM outputs (using the cloud fraction) to compare with sub-grid-scale column measurements
+   using a modular sub column generator (Lamer 2018) which will be designed to run off-line on
+   time series extracted from existing GCM/SCM output.
+3. Enable a suite of comparisons between ARM (and other) column measurements and
+   the GCM model subcolumns.
 
 The work is inspired by the (GO)2SIM (Lamer et al. 2018) in which a sample of NASA ModelE3 global simulation was analyzed over the North Slope of Alaska (NSA) site at Utqiagvik, Alaska. For this initial development, a forward model was applied directly to the grid cell mean profiles and areas of different hydrometeors were converted to observational units using a variety of techniques. The forward-simulated phase identification was then compared with the actual model phase, demonstrating that significant differences exist between true model phase and forward-simulated phase owing to a number of factors, including factors such as lidar attenuation, radar sensitivity, and trace quantities of liquid that would not be observable. It is therefore particularly important to project true model phase into forward-modeled phase in order to perform a robust evaluation against available observations.
 Based on the work by Lamer et at

@@ -10,6 +10,7 @@ EMC2: the Earth Model Column Collaboratory
    :alt: Latest Travis CI build status
 
 An open source framework for atmospheric model and observational column comparison.
+Supported by the Atmospheric Systems Research (ASR) program of the United States Department of Energy.
 
 The Earth Model Column Collaboratory (EMC2) will build on past work comparing remotely sensed measurements
 in the column to earth system and global climate models (GCMs) and their single-column models (SCMs)
@@ -24,9 +25,16 @@ in the column to earth system and global climate models (GCMs) and their single-
 3. Enable a suite of comparisons between ARM (and other) column measurements and
    the GCM model subcolumns.
 
-The work is inspired by the (GO)2SIM (Lamer et al. 2018) in which a sample of NASA ModelE3 global simulation was analyzed over the North Slope of Alaska (NSA) site at Utqiagvik, Alaska. For this initial development, a forward model was applied directly to the grid cell mean profiles and areas of different hydrometeors were converted to observational units using a variety of techniques. The forward-simulated phase identification was then compared with the actual model phase, demonstrating that significant differences exist between true model phase and forward-simulated phase owing to a number of factors, including factors such as lidar attenuation, radar sensitivity, and trace quantities of liquid that would not be observable. It is therefore particularly important to project true model phase into forward-modeled phase in order to perform a robust evaluation against available observations.
-Based on the work by Lamer et at
-
+The work is inspired by the (GO)2SIM (Lamer et al. 2018) in which a sample of NASA ModelE3 global
+simulation was analyzed over the North Slope of Alaska (NSA) site at Utqiagvik, Alaska.
+For this initial development, a forward model was applied directly to the grid cell mean
+profiles and areas of different hydrometeors were converted to observational units using a
+variety of techniques. The forward-simulated phase identification was then compared with the
+actual model phase, demonstrating that significant differences exist between true model phase
+and forward-simulated phase owing to a number of factors, including factors such as lidar attenuation,
+ radar sensitivity, and trace quantities of liquid that would not be observable. It is therefore
+ particularly important to project true model phase into forward-modeled phase in order to perform
+ a robust evaluation against available observations.
 
 
 Usage

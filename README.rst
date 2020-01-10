@@ -27,6 +27,30 @@ in the column to earth system and global climate models (GCMs) and their single-
 The work is inspired by the (GO)2SIM (Lamer et al. 2018) in which a sample of NASA ModelE3 global simulation was analyzed over the North Slope of Alaska (NSA) site at Utqiagvik, Alaska. For this initial development, a forward model was applied directly to the grid cell mean profiles and areas of different hydrometeors were converted to observational units using a variety of techniques. The forward-simulated phase identification was then compared with the actual model phase, demonstrating that significant differences exist between true model phase and forward-simulated phase owing to a number of factors, including factors such as lidar attenuation, radar sensitivity, and trace quantities of liquid that would not be observable. It is therefore particularly important to project true model phase into forward-modeled phase in order to perform a robust evaluation against available observations.
 Based on the work by Lamer et at
 
+
+
+Usage
+-----
+
+Installation
+------------
+
+Requirements
+^^^^^^^^^^^^
+
+Compatibility
+-------------
+
+Licence
+-------
+
+Authors
+-------
+
+`EMC2` was written by `Robert Jackson <rjackson@anl.gov>`_, and led by `Scott Collis <scollis@anl.gov>`_
+Collaborators and Contributorss include Ann Fridlind (NASA GISS), Israel Silber (Penn State) and Marcus van-Lier-Walqui
+
+
 References
 ----------
 
@@ -49,24 +73,3 @@ Wang J, R Wood, M Jensen, E Azevedo, C Bretherton, D Chand, C Chiu, X Dong, J Fa
 Jupyter et al., "Binder 2.0 - Reproducible, Interactive, Sharable
 Environments for Science at Scale." Proceedings of the 17th Python
 in Science Conference. 2018. 10.25080/Majora-4af1f417-011
-
-
-Usage
------
-
-Installation
-------------
-
-Requirements
-^^^^^^^^^^^^
-
-Compatibility
--------------
-
-Licence
--------
-
-Authors
--------
-
-`emc2` was written by `Robert Jackson <rjackson@anl.gov>`_.

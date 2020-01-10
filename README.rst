@@ -15,7 +15,6 @@ The Earth Model Column Collaboratory (EMC2) will build on past work comparing re
 in the column to earth system and global climate models (GCMs) and their single-column models (SCMs)
 (Lamer et al. 2018; Swales et al. 2018) by building an open source software framework to:
 
-s
 1. Represent both ARM and GCM columns in the Python programming
    language building on the Atmospheric Community Toolkit (ACT, Theisen et. al. 2019)
    and leveraging the EMC2 team’s success with Py-ART (Helmus and Collis 2016).

@@ -155,17 +155,18 @@
 <span class="sd">This module stores example instruments.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">.instrument</span> <span class="k">import</span> <span class="n">Instrument</span>
-<span class="kn">from</span> <span class="nn">..io</span> <span class="k">import</span> <span class="n">load_mie_file</span>
 <span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.instrument</span> <span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
+<span class="kn">from</span> <span class="nn">..io</span> <span class="kn">import</span> <span class="n">load_mie_file</span>
 
 
 <div class="viewcode-block" id="HSRL"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL">[docs]</a><span class="k">class</span> <span class="nc">HSRL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-<div class="viewcode-block" id="HSRL.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HSRL.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the High Resolution Spectral Lidar.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.532</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.532</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;HSRL&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
@@ -190,11 +191,11 @@
 
 
 <div class="viewcode-block" id="KAZR"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR">[docs]</a><span class="k">class</span> <span class="nc">KAZR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-<div class="viewcode-block" id="KAZR.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+<div class="viewcode-block" id="KAZR.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the KAZR.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">34.860</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">34.860</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sgp&quot;</span><span class="p">,</span> <span class="s2">&quot;nsa&quot;</span><span class="p">,</span> <span class="s2">&quot;awr&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site must be one of &#39;sgp&#39;, &#39;nsa&#39;, or &#39;awr&#39;!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
@@ -236,11 +237,11 @@
 
 
 <div class="viewcode-block" id="Ten64nm"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm">[docs]</a><span class="k">class</span> <span class="nc">Ten64nm</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-<div class="viewcode-block" id="Ten64nm.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Ten64nm.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the 1064nm Lidar.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">1.064</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">1.064</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_name</span> <span class="o">=</span> <span class="s2">&quot;1064nm&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>

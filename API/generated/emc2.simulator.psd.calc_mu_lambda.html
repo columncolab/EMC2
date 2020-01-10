@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.simulator.reflectivity.calc_radar_reflectivity_conv" href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html" />
-    <link rel="prev" title="emc2.simulator.attenuation.calc_radar_atm_attenuation" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html" /> 
+    <link rel="next" title="emc2.simulator.radar_moments.calc_radar_reflectivity_conv" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html" />
+    <link rel="prev" title="emc2.simulator.attenuation.calc_theory_beta_m" href="emc2.simulator.attenuation.calc_theory_beta_m.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,11 +89,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html">emc2.simulator.reflectivity.calc_radar_reflectivity_conv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR.html">emc2.simulator.lidar_moments.calc_LDR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_q_n.html">emc2.simulator.subcolumn.set_q_n</a></li>
 </ul>
 </li>
 </ul>
@@ -170,7 +176,7 @@
 <h1>emc2.simulator.psd.calc_mu_lambda<a class="headerlink" href="#emc2-simulator-psd-calc-mu-lambda" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="emc2.simulator.psd.calc_mu_lambda">
-<code class="sig-prename descclassname">emc2.simulator.psd.</code><code class="sig-name descname">calc_mu_lambda</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">hyd_type='cl'</em>, <em class="sig-param">calc_dispersion=True</em>, <em class="sig-param">dispersion_mu_bounds=(2</em>, <em class="sig-param">15)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.psd.</code><code class="sig-name descname">calc_mu_lambda</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">hyd_type='cl'</em>, <em class="sig-param">calc_dispersion=True</em>, <em class="sig-param">dispersion_mu_bounds=(2</em>, <em class="sig-param">15)</em>, <em class="sig-param">subcolumns=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
 The gamma size distribution takes the form:</p>
 <div class="math notranslate nohighlight">
@@ -190,11 +196,12 @@ will be used to calculate <span class="math notranslate nohighlight">\(\mu\)</sp
 </dd>
 <dt><strong>dispersion_mu_bounds: 2-tuple</strong></dt><dd><p>The lower and upper bounds for the <span class="math notranslate nohighlight">\(\mu\)</span> parameter.</p>
 </dd>
-</dl>
+<dt><strong>subcolumns: bool</strong></dt><dd><p>If True, the fit parameters will be generated for the generated subcolumns
+rather than the model data itself.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>model: <code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></dt><dd><p>The Model with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>model: :py:mod:`emc2.core.Model`</strong></dt><dd><p>The Model with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
 </dd>
 </dl>
 </dd>
@@ -217,10 +224,10 @@ J. Atmos. Sci., 51, 1823–1842, <a class="reference external" href="https://doi
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="emc2.simulator.reflectivity.calc_radar_reflectivity_conv.html" class="btn btn-neutral float-right" title="emc2.simulator.reflectivity.calc_radar_reflectivity_conv" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html" class="btn btn-neutral float-right" title="emc2.simulator.radar_moments.calc_radar_reflectivity_conv" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html" class="btn btn-neutral float-left" title="emc2.simulator.attenuation.calc_radar_atm_attenuation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.simulator.attenuation.calc_theory_beta_m.html" class="btn btn-neutral float-left" title="emc2.simulator.attenuation.calc_theory_beta_m" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

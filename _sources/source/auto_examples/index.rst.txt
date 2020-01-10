@@ -10,7 +10,7 @@ EMC^2 Example Gallery
 
 .. raw:: html
 
-    <div style='clear:both'></div>
+    <div class="sphx-glr-clear"></div>
 
 
 

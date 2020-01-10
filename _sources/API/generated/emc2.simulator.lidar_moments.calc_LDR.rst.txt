@@ -1,0 +1,6 @@
+emc2.simulator.lidar\_moments.calc\_LDR
+=======================================
+
+.. currentmodule:: emc2.simulator.lidar_moments
+
+.. autofunction:: calc_LDR

@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>emc2.simulator.radar_moments &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>emc2.simulator.radar_moments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for emc2.simulator.radar_moments</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">.attenuation</span> <span class="kn">import</span> <span class="n">calc_radar_atm_attenuation</span>
+<span class="kn">from</span> <span class="nn">.psd</span> <span class="kn">import</span> <span class="n">calc_mu_lambda</span>
+<span class="kn">from</span> <span class="nn">..core.instrument</span> <span class="kn">import</span> <span class="n">ureg</span>
+
+
+<div class="viewcode-block" id="calc_radar_reflectivity_conv"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html#emc2.simulator.radar_moments.calc_radar_reflectivity_conv">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_reflectivity_conv</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This estimates the radar reflectivity given a profile of liquid water mixing ratio.</span>
+<span class="sd">    Convective DSDs are assumed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    instrument: :func:`emc2.core.Instrument` class</span>
+<span class="sd">        The instrument to calculate the reflectivity parameters for.</span>
+<span class="sd">    model: :func:`emc2.core.Model` class</span>
+<span class="sd">        The model to calculate the parameters for.</span>
+<span class="sd">    hyd_type: str</span>
+<span class="sd">        The assumed hydrometeor type. Must be one of:</span>
+<span class="sd">        &#39;cl&#39; (cloud liquid), &#39;ci&#39; (cloud ice),</span>
+<span class="sd">        &#39;pl&#39; (liquid precipitation), &#39;pi&#39; (ice precipitation).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    model: :func:`emc2.core.Model`</span>
+<span class="sd">        Returns a Model with an added reflectivity field.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;radar&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reflectivity can only be derived from a radar!&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hyd_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a valid hydrometeor type. Valid choices are cl, ci, pl, and pi.&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">)</span>
+    <span class="n">q_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_convective</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+    <span class="n">p_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_field</span>
+    <span class="n">t_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">T_field</span>
+    <span class="n">column_ds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span>
+
+    <span class="n">WC</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">q_field</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e2</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">R_d</span> <span class="o">*</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">t_field</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">hyd_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;cl&quot;</span><span class="p">:</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.031</span> <span class="o">*</span> <span class="n">WC</span> <span class="o">**</span> <span class="mf">1.56</span>
+    <span class="k">elif</span> <span class="n">hyd_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;pl&quot;</span><span class="p">:</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">WC</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.4</span><span class="p">)</span><span class="o">**</span><span class="mf">1.75</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Tc</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">t_field</span><span class="p">]</span> <span class="o">-</span> <span class="mf">273.15</span>
+        <span class="k">if</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gigahertz</span> <span class="ow">and</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gigahertz</span><span class="p">:</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">WC</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.0197</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">1.7</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.060</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">&gt;=</span> <span class="mi">27</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gigahertz</span> <span class="ow">and</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">&lt;</span> <span class="mi">40</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gigahertz</span><span class="p">:</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">WC</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.0186</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">1.63</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.000242</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">0.699</span><span class="p">))</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">&gt;=</span> <span class="mi">75</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gigahertz</span> <span class="ow">and</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">&lt;</span> <span class="mi">110</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gigahertz</span><span class="p">:</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">WC</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.00706</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">0.992</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.000580</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">0.0923</span><span class="p">))</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">WC</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.0186</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">1.63</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.000242</span> <span class="o">*</span> <span class="n">Tc</span> <span class="o">+</span> <span class="mf">0.0699</span><span class="p">))</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">)</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;Ze&quot;</span><span class="p">])</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Radar reflectivity factor&quot;</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dBZ&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">column_ds</span>
+    <span class="k">return</span> <span class="n">model</span></div>
+
+
+<div class="viewcode-block" id="calc_radar_moments"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_moments.html#emc2.simulator.radar_moments.calc_radar_moments">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span>
+                       <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the reflectivity, doppler velocity, and spectral width</span>
+<span class="sd">    in a given column for the given radar.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    instrument: Instrument</span>
+<span class="sd">        The instrument to simulate. The instrument must be a radar.</span>
+<span class="sd">    model: Model</span>
+<span class="sd">        The model to generate the parameters for.</span>
+<span class="sd">    is_conv: bool</span>
+<span class="sd">        True if the cell is convective</span>
+<span class="sd">    z_field: str</span>
+<span class="sd">        The name of the altitude field to use.</span>
+<span class="sd">    OD_from_sfc: bool</span>
+<span class="sd">        If True, then calculate optical depth from the surface.</span>
+<span class="sd">    Additional keyword arguments are passed into</span>
+<span class="sd">    :func:`emc2.simulator.reflectivity.calc_radar_reflectivity_conv` and</span>
+<span class="sd">    :func:`emc2.simulator.attenuation.calc_radar_atm_attenuation`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    model: :func:`emc2.core.Model`</span>
+<span class="sd">        The xarray Dataset containing the calculated radar moments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;radar&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reflectivity can only be derived from a radar!&quot;</span><span class="p">)</span>
+
+    <span class="n">p_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_field</span>
+    <span class="n">t_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">T_field</span>
+    <span class="n">z_field</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">z_field</span>
+    <span class="n">column_ds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span>
+
+    <span class="k">if</span> <span class="n">is_conv</span><span class="p">:</span>
+        <span class="n">q_names</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_convective</span>
+        <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hyd_types</span><span class="p">:</span>
+            <span class="n">temp_ds</span> <span class="o">=</span> <span class="n">calc_radar_reflectivity_conv</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">)</span>
+
+            <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_conv&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_ds</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Ze&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span> <span class="ow">in</span> <span class="n">column_ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">])</span>
+
+        <span class="n">kappa_ds</span> <span class="o">=</span> <span class="n">calc_radar_atm_attenuation</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="n">kappa_f</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">instrument</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">*</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">Rho_hyd</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span>
+        <span class="n">WC</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">q_names</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">q_names</span><span class="p">[</span><span class="s2">&quot;pl&quot;</span><span class="p">]]</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">*</span> \
+            <span class="n">column_ds</span><span class="p">[</span><span class="n">p_field</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">R_d</span> <span class="o">*</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">t_field</span><span class="p">])</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">z_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                     <span class="n">prepend</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">OD_from_sfc</span><span class="p">:</span>
+            <span class="n">WC_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">WC</span><span class="p">)</span>
+            <span class="n">WC_new</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">WC</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">liq_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">kappa_f</span> <span class="o">*</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">WC_new</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">atm_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">kappa_ds</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;kappa_att&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">dz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">WC_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">WC</span><span class="p">)</span>
+            <span class="n">WC_new</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">WC</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">liq_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">kappa_f</span> <span class="o">*</span> <span class="n">dz</span> <span class="o">*</span> <span class="n">WC_new</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">atm_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">kappa_ds</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;kappa_att&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">dz</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">liq_ext</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">liq_ext</span> <span class="o">=</span> <span class="n">liq_ext</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">atm_ext</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">atm_ext</span> <span class="o">=</span> <span class="n">atm_ext</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">liq_ext</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">liq_ext</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">))</span>
+        <span class="n">atm_ext</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">atm_ext</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">dz</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_att_tot_conv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span> <span class="o">/</span> \
+            <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">liq_ext</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">atm_ext</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">)</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_conv&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">column_ds</span>
+        <span class="k">return</span> <span class="n">model</span>
+
+    <span class="n">q_names</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span>
+    <span class="n">n_names</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span>
+    <span class="n">frac_names</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_frac_names</span>
+    <span class="n">Dims</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;strat_q_subcolumns_cl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">moment_denom_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">)</span>
+    <span class="n">V_d_numer_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">)</span>
+    <span class="n">sigma_d_numer_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">)</span>
+    <span class="n">od_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;cl&quot;</span><span class="p">]:</span>
+        <span class="n">num_diam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s2">&quot;pi&quot;</span><span class="p">:</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">dD</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">2e-6</span> <span class="o">-</span>\
+            <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">2e-6</span>
+        <span class="n">fits_ds</span> <span class="o">=</span> <span class="n">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">ds</span>
+        <span class="n">total_hydrometeor</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]]</span> <span class="o">*</span> <span class="n">column_ds</span><span class="p">[</span><span class="n">n_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s2">&quot;cl&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">tt</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stratiform moment for class </span><span class="si">%s</span><span class="s1"> progress: </span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hyd_type</span><span class="p">,</span> <span class="n">tt</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">total_hydrometeor</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">N_0_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="n">num_diam</span><span class="p">))</span>
+                    <span class="n">lambda_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="n">num_diam</span><span class="p">))</span>
+                    <span class="n">p_diam</span> <span class="o">=</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-6</span>
+                    <span class="n">p_diam_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">],</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="n">mu_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">],</span> <span class="p">(</span><span class="n">num_diam</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+                    <span class="n">N_D</span> <span class="o">=</span> <span class="n">N_0_tmp</span> <span class="o">*</span> <span class="n">p_diam_tiled</span> <span class="o">**</span> <span class="n">mu_temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lambda_tmp</span> <span class="o">*</span> <span class="n">p_diam_tiled</span><span class="p">)</span>
+                    <span class="n">Calc_tmp</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-12</span> <span class="o">*</span> <span class="n">N_D</span>
+                    <span class="n">tmp_od</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-12</span> <span class="o">*</span> <span class="n">N_D</span>
+                    <span class="n">tmp_od</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_od</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">tmp_od</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">moment_denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">Calc_tmp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="p">(</span><span class="n">moment_denom</span> <span class="o">*</span> <span class="n">instrument</span><span class="o">.</span><span class="n">wavelength</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">K_w</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-6</span>
+
+                    <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_a</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_diam</span><span class="o">**</span><span class="n">model</span><span class="o">.</span><span class="n">vel_param_b</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+                    <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">v_tmp</span><span class="o">.</span><span class="n">magnitude</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="n">v_tmp</span> <span class="o">*</span> <span class="n">Calc_tmp</span>
+                    <span class="n">V_d_numer</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">Calc_tmp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">V_d_numer</span> <span class="o">/</span> <span class="n">moment_denom</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_tmp</span> <span class="o">-</span>
+                                 <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                         <span class="p">(</span><span class="n">num_diam</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Calc_tmp</span>
+                    <span class="n">sigma_d_numer</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">Calc_tmp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_d_numer</span> <span class="o">/</span> <span class="n">moment_denom</span><span class="p">)</span>
+                    <span class="n">V_d_numer_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">V_d_numer</span>
+                    <span class="n">moment_denom_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">moment_denom</span>
+                    <span class="n">od_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tmp_od</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p_diam_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">sub_q_array</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_a</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_diam_tiled</span> <span class="o">**</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_b</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">tt</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stratiform moment for class </span><span class="si">%s</span><span class="s1"> progress: </span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hyd_type</span><span class="p">,</span> <span class="n">tt</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">total_hydrometeor</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">N_0_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">lambda_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">mu</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">N_D</span> <span class="o">=</span> <span class="n">N_0_tmp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lambda_tmp</span> <span class="o">*</span> <span class="n">p_diam_tiled</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_diam_tiled</span><span class="o">**</span><span class="n">mu</span>
+                    <span class="n">Calc_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-12</span><span class="p">,</span>
+                                       <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N_D</span>
+                    <span class="n">tmp_od</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N_D</span>
+                    <span class="n">tmp_od</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_od</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">tmp_od</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">tmp_od</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sub_q_array</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tmp_od</span><span class="p">)</span>
+                    <span class="n">moment_denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">+</span> <span class="n">Calc_tmp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">moment_denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sub_q_array</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">moment_denom</span><span class="p">)</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="p">(</span><span class="n">moment_denom</span> <span class="o">*</span> <span class="n">instrument</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">K_w</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-6</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="n">Calc_tmp</span> <span class="o">*</span> <span class="n">v_tmp</span><span class="o">.</span><span class="n">magnitude</span>
+                    <span class="n">V_d_numer</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">+</span> <span class="n">Calc_tmp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">V_d_numer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sub_q_array</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">V_d_numer</span><span class="p">)</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">V_d_numer</span> <span class="o">/</span> <span class="n">moment_denom</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_tmp</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">num_diam</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">Calc_tmp</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">+</span> <span class="n">Calc_tmp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">sigma_d_numer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sub_q_array</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Calc_tmp2</span><span class="p">)</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_d_numer</span> <span class="o">/</span> <span class="n">moment_denom</span><span class="p">)</span>
+                    <span class="n">V_d_numer_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">V_d_numer</span>
+                    <span class="n">moment_denom_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">moment_denom</span>
+                    <span class="n">od_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tmp_od</span>
+
+        <span class="k">if</span> <span class="s2">&quot;sub_col_Ze_tot_strat&quot;</span> <span class="ow">in</span> <span class="n">column_ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_strat&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span>
+
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">])</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="o">-</span><span class="n">V_d_numer_tot</span> <span class="o">/</span> <span class="n">moment_denom_tot</span><span class="p">,</span>
+                                                         <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Ze_tot_strat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating stratiform radar moments for hydrometeor class </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s2">&quot;cl&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">tt</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stratiform moment for class </span><span class="si">%s</span><span class="s1"> progress: </span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hyd_type</span><span class="p">,</span> <span class="n">tt</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">total_hydrometeor</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">N_0_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span>
+                    <span class="n">p_diam</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">2e-6</span>
+                    <span class="n">N_0_tmp</span><span class="p">,</span> <span class="n">d_diam_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">N_0_tmp</span><span class="p">,</span> <span class="n">p_diam</span><span class="p">)</span>
+                    <span class="n">lambda_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span>
+                    <span class="n">lambda_tmp</span><span class="p">,</span> <span class="n">d_diam_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">lambda_tmp</span><span class="p">,</span> <span class="n">p_diam</span><span class="p">)</span>
+                    <span class="n">mu_temp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">lambda_tmp</span><span class="p">)</span>
+                    <span class="n">N_D</span> <span class="o">=</span> <span class="n">N_0_tmp</span> <span class="o">*</span> <span class="n">d_diam_tmp</span> <span class="o">**</span> <span class="n">mu_temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lambda_tmp</span> <span class="o">*</span> <span class="n">d_diam_tmp</span><span class="p">)</span>
+                    <span class="n">Calc_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N_D</span><span class="o">.</span><span class="n">T</span>
+                    <span class="n">moment_denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">Calc_tmp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_a</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_diam</span> <span class="o">**</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_b</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+                    <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">v_tmp</span><span class="o">.</span><span class="n">magnitude</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_tmp</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_tot_strat&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">num_diam</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Calc_tmp</span>
+                    <span class="n">sigma_d_numer</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">Calc_tmp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_tot_strat&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_d_numer</span> <span class="o">/</span> <span class="n">moment_denom</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">p_diam_tiled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_a</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_diam_tiled</span> <span class="o">**</span> <span class="n">model</span><span class="o">.</span><span class="n">vel_param_b</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+            <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">v_tmp</span><span class="o">.</span><span class="n">magnitude</span>
+            <span class="n">sub_q_array</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">tt</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stratiform moment for class </span><span class="si">%s</span><span class="s1"> progress: </span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hyd_type</span><span class="p">,</span> <span class="n">tt</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">total_hydrometeor</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">N_0_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">lambda_tmp</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">N_D</span> <span class="o">=</span> <span class="n">N_0_tmp</span> <span class="o">*</span> <span class="n">p_diam_tiled</span> <span class="o">**</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lambda_tmp</span> <span class="o">*</span> <span class="n">p_diam_tiled</span><span class="p">)</span>
+                    <span class="n">Calc_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">instrument</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">][</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-12</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N_D</span>
+                    <span class="n">moment_denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">+</span> <span class="n">Calc_tmp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">moment_denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sub_q_array</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">moment_denom</span><span class="p">)</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_tmp</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                        <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_tot_strat&quot;</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">num_diam</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Calc_tmp</span>
+                    <span class="n">Calc_tmp2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Calc_tmp2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">+</span> <span class="n">Calc_tmp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">dD</span>
+                    <span class="n">sigma_d_numer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sub_q_array</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Calc_tmp2</span><span class="p">)</span>
+                    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">][:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_d_numer</span> <span class="o">/</span> <span class="n">moment_denom</span><span class="p">)</span>
+                    <span class="n">sigma_d_numer_tot</span><span class="p">[:,</span> <span class="n">k</span><span class="p">,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sigma_d_numer</span>
+
+    <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_d_numer_tot</span> <span class="o">/</span> <span class="n">moment_denom_tot</span><span class="p">),</span>
+                                                          <span class="n">dims</span><span class="o">=</span><span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_tot_strat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">kappa_ds</span> <span class="o">=</span> <span class="n">calc_radar_atm_attenuation</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">OD_from_sfc</span><span class="p">:</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">z_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">prepend</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">dz</span><span class="p">,</span> <span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">od_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dz</span> <span class="o">*</span> <span class="n">od_tot</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">atm_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dz</span> <span class="o">/</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">kappa_ds</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;kappa_att&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">z_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">prepend</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">dz</span><span class="p">,</span> <span class="p">(</span><span class="n">Dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">od_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">dz</span> <span class="o">*</span> <span class="n">od_tot</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">atm_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">dz</span> <span class="o">/</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">kappa_ds</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;kappa_att&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_att_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">od_tot</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">atm_ext</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_att_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_att_tot_strat&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_tot_strat&#39;</span><span class="p">])</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_att_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Ze_att_tot_strat&#39;</span><span class="p">])</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Vd_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Vd_tot_strat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_Vd_tot_strat&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_sigma_d_tot_strat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_sigma_d_tot_strat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;sub_col_sigma_d_tot_strat&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">column_ds</span>
+
+    <span class="k">return</span> <span class="n">model</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

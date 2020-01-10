@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>emc2.simulator.subcolumn.set_convective_sub_col_frac &mdash; EMC^2  documentation</title>
+  <title>emc2.simulator.main.make_simulated_data &mdash; EMC^2  documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.simulator.subcolumn.set_stratiform_sub_col_frac" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html" />
-    <link rel="prev" title="emc2.simulator.main.make_simulated_data" href="emc2.simulator.main.make_simulated_data.html" /> 
+    <link rel="next" title="emc2.simulator.subcolumn.set_convective_sub_col_frac" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html" />
+    <link rel="prev" title="emc2.simulator.lidar_moments.calc_lidar_moments" href="emc2.simulator.lidar_moments.calc_lidar_moments.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,8 +95,8 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR.html">emc2.simulator.lidar_moments.calc_LDR</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.main.make_simulated_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_q_n.html">emc2.simulator.subcolumn.set_q_n</a></li>
@@ -153,13 +153,13 @@
         
           <li><a href="../simulator.html">emc2.simulator (emc2.simulator)</a> &raquo;</li>
         
-      <li>emc2.simulator.subcolumn.set_convective_sub_col_frac</li>
+      <li>emc2.simulator.main.make_simulated_data</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/API/generated/emc2.simulator.subcolumn.set_convective_sub_col_frac.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.simulator.main.make_simulated_data.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -172,30 +172,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="emc2-simulator-subcolumn-set-convective-sub-col-frac">
-<h1>emc2.simulator.subcolumn.set_convective_sub_col_frac<a class="headerlink" href="#emc2-simulator-subcolumn-set-convective-sub-col-frac" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="emc2-simulator-main-make-simulated-data">
+<h1>emc2.simulator.main.make_simulated_data<a class="headerlink" href="#emc2-simulator-main-make-simulated-data" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="emc2.simulator.subcolumn.set_convective_sub_col_frac">
-<code class="sig-prename descclassname">emc2.simulator.subcolumn.</code><code class="sig-name descname">set_convective_sub_col_frac</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">hyd_type</em>, <em class="sig-param">N_columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_convective_sub_col_frac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_convective_sub_col_frac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the hydrometeor fraction due to convection in each subcolumn.</p>
+<dt id="emc2.simulator.main.make_simulated_data">
+<code class="sig-prename descclassname">emc2.simulator.main.</code><code class="sig-name descname">make_simulated_data</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">instrument</em>, <em class="sig-param">N_columns</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/main.html#make_simulated_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.main.make_simulated_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This procedure will make all of the subcolumns and simulated data for each subcolumn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>model: :py:func: `emc2.core.Model`</strong></dt><dd><p>The model we are generating the subcolumns of convective fraction for.</p>
+<dt><strong>model: :func:`emc2.core.Model`</strong></dt><dd><p>The model to make the simulated parameters for.</p>
 </dd>
-<dt><strong>hyd_type: str</strong></dt><dd><p>The hydrometeor type to generate the fraction for.</p>
+<dt><strong>instrument: :func:`emc2.core.Instrument`</strong></dt><dd><p>The instrument to make the simulated parameters for.</p>
 </dd>
-<dt><strong>N_columns: int or None</strong></dt><dd><p>The number of subcolumns to generate. Specifying this will set the number
-of subcolumns in the model parameter when the first subcolumns are generated.
-Therefore, after those are generated this must either be
-equal to None or the number of subcolumns in the model. Setting this to None will
-use the number of subcolumns in the model parameter.</p>
+<dt><strong>N_columns: int</strong></dt><dd><p>The number of subcolumns to generate.</p>
 </dd>
+<dt><strong>Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or</strong></dt><dd></dd>
+<dt><strong>:func:`emc2.simulator.calc_radar_moments`</strong></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>model: :py:func: <cite>emc2.core.Model</cite></dt><dd><p>The Model object with the convective fraction in each subcolumn added.</p>
+<dt>model: <code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.core.Model()</span></code></dt><dd><p>The model with all of the simulated parameters generated.</p>
 </dd>
 </dl>
 </dd>
@@ -212,10 +210,10 @@ use the number of subcolumns in the model parameter.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html" class="btn btn-neutral float-right" title="emc2.simulator.subcolumn.set_stratiform_sub_col_frac" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html" class="btn btn-neutral float-right" title="emc2.simulator.subcolumn.set_convective_sub_col_frac" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="emc2.simulator.main.make_simulated_data.html" class="btn btn-neutral float-left" title="emc2.simulator.main.make_simulated_data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.simulator.lidar_moments.calc_lidar_moments.html" class="btn btn-neutral float-left" title="emc2.simulator.lidar_moments.calc_lidar_moments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

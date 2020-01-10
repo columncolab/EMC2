@@ -32,9 +32,9 @@ profiles and areas of different hydrometeors were converted to observational uni
 variety of techniques. The forward-simulated phase identification was then compared with the
 actual model phase, demonstrating that significant differences exist between true model phase
 and forward-simulated phase owing to a number of factors, including factors such as lidar attenuation,
- radar sensitivity, and trace quantities of liquid that would not be observable. It is therefore
- particularly important to project true model phase into forward-modeled phase in order to perform
- a robust evaluation against available observations.
+radar sensitivity, and trace quantities of liquid that would not be observable. It is therefore
+particularly important to project true model phase into forward-modeled phase in order to perform
+a robust evaluation against available observations.
 
 
 Usage

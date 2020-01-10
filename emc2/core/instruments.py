@@ -6,9 +6,10 @@ emc2.core.instruments
 This module stores example instruments.
 """
 import numpy as np
-from .instrument import Instrument
-from ..io import load_mie_file
 import os
+
+from .instrument import Instrument, ureg, quantity
+from ..io import load_mie_file
 
 
 class HSRL(Instrument):
@@ -16,7 +17,7 @@ class HSRL(Instrument):
         """
         This stores the information for the High Resolution Spectral Lidar.
         """
-        super().__init__(wavelength=0.532)
+        super().__init__(wavelength=0.532 * ureg.micrometer)
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
         self.ext_OD = 4
@@ -45,7 +46,7 @@ class KAZR(Instrument):
         """
         This stores the information for the KAZR.
         """
-        super().__init__(frequency=34.860)
+        super().__init__(frequency=34.860 * ureg.GHz)
         if site.lower() not in ["sgp", "nsa", "awr"]:
             raise ValueError("Site must be one of 'sgp', 'nsa', or 'awr'!")
         self.instrument_class = "radar"
@@ -91,7 +92,7 @@ class Ten64nm(Instrument):
         """
         This stores the information for the 1064nm Lidar.
         """
-        super().__init__(wavelength=1.064)
+        super().__init__(wavelength=1.064 * ureg.micrometer)
         self.instrument_class = "radar"
         self.instrument_name = "1064nm"
         self.ext_OD = 4

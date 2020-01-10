@@ -85,9 +85,9 @@ def set_stratiform_sub_col_frac(model):
     N_columns = len(model.ds["subcolumn"])
     subcolumn_dims = conv_profs1.dims
     data_frac1 = model.ds[model.strat_frac_names["cl"]]
-    data_frac1 = np.round(data_frac1.values * N_columns)
+    data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
     data_frac2 = model.ds[model.strat_frac_names["ci"]]
-    data_frac2 = np.round(data_frac2.values * N_columns)
+    data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
 
     strat_profs1 = np.zeros((N_columns, data_frac1.shape[0], data_frac1.shape[1]), dtype=bool)
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
@@ -302,7 +302,100 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     return model
 
 
-def _randperm(x, size):
+def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
+    """
+
+    This function distributes the mixing ratio and number concentration into the subcolumns.
+    For :math:`q_c`, the horizontal distribution follows Equation 8 of Morrison and Gettelman (2008).
+
+    Parameters
+    ----------
+    model: :func:`emc2.core.Model`
+        The model to calculate the mixing ratio in each subcolumn for.
+    hyd_type: str
+        The hydrometeor type.
+    is_conv: bool
+        Set to True to calculate the mixing ratio assuming convective clouds.
+    qc_flag: bool
+        Set to True to horizontally distribute the mixing ratio according to
+        Morrison and Gettleman (2008)
+    inv_rel_var: float
+        The inverse of the relative variance for the p.d.f. in Morrison and Gettleman (2008)
+
+    Returns
+    -------
+    model: :func:`emc2.core.Model`
+        The model with mixing ratio calculated in each subcolumn.
+
+    References
+    ----------
+    Morrison, H. and A. Gettelman, 2008: A New Two-Moment Bulk Stratiform Cloud Microphysics Scheme
+    in the Community Atmosphere Model, Version 3 (CAM3). Part I: Description and Numerical Tests.
+    J. Climate, 21, 3642–3659, https://doi.org/10.1175/2008JCLI2105.1
+    """
+
+    if model.num_subcolumns == 0:
+        raise RuntimeError("The number of subcolumns must be specified in the model!")
+
+    if not is_conv:
+        hyd_profs = model.ds[model.strat_frac_names[hyd_type]]
+        N_profs = model.ds[model.N_field[hyd_type]]
+        N_profs = N_profs / hyd_profs.values
+        sub_hyd_profs = model.ds['strat_frac_subcolumns_%s' % hyd_type].values
+        N_profs = np.tile(N_profs.values, (model.num_subcolumns, 1, 1))
+        N_profs = np.where(sub_hyd_profs, N_profs, 0)
+        q_array = model.ds[model.q_names_stratiform[hyd_type]]
+        q_name = "strat_q_subcolumns_%s" % hyd_type
+        n_name = "strat_n_subcolumns_%s" % hyd_type
+    else:
+        hyd_profs = model.ds[model.conv_frac_names[hyd_type]]
+        sub_hyd_profs = hyd_profs.values
+        q_array = model.ds[model.q_names_convective[hyd_type]]
+        q_name = "conv_q_subcolumns_%s" % hyd_type
+
+    q_ic_mean = q_array / hyd_profs
+    if qc_flag:
+        tot_hyd_in_sub = sub_hyd_profs.sum(axis=0)
+        q_profs = np.zeros_like(sub_hyd_profs, dtype=float)
+
+        for tt in range(hyd_profs.shape[1]):
+            for j in range(hyd_profs.shape[0] - 1, -1, -1):
+                hyd_in_sub_loc = np.where(sub_hyd_profs[:, j, tt])[0]
+                if tot_hyd_in_sub[j, tt] == 1:
+                    q_profs[hyd_in_sub_loc, j, tt] = q_ic_mean[j, tt]
+                elif tot_hyd_in_sub[j, tt] > 1:
+                    alpha = inv_rel_var / q_ic_mean[j, tt]
+                    a = inv_rel_var
+                    b = 1 / alpha
+                    randlocs = np.random.permutation(tot_hyd_in_sub[j, tt])
+                    rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[j, tt] - 1)
+                    valid_vals = False
+                    counter_4_valid = 0
+                    while not valid_vals:
+                        counter_4_valid += 1
+                        valid_vals = (q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt] -
+                                      rand_gamma_vals[0:-counter_4_valid].sum()) > 0
+                    q_profs[hyd_in_sub_loc[
+                        randlocs[:-(counter_4_valid + 1)]], j, tt] = rand_gamma_vals[:-counter_4_valid]
+                    q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j, tt] = (
+                        q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt] - np.sum(rand_gamma_vals[:-counter_4_valid])) / \
+                        (1 + counter_4_valid)
+
+    else:
+        q_profs = q_array / hyd_profs
+        q_profs = np.tile(q_profs.values, (model.num_subcolumns, 1, 1))
+        q_profs = np.where(sub_hyd_profs, q_profs, 0)
+
+    model.ds[q_name] = xr.DataArray(q_profs, dims=('subcolumn', model.height_dim, model.time_dim))
+    if not is_conv:
+        model.ds[n_name] = xr.DataArray(N_profs, dims=('subcolumn', model.height_dim, model.time_dim))
+
+    return model
+
+
+def _randperm(x, size=None):
+    if size is None:
+        size = len(x)
     return np.random.permutation(x)[0:int(size)].astype(int)
 
 

@@ -21,6 +21,10 @@ constants used by EMC^2 are also stored in this module.
     model.ModelE
     model.TestModel
     model.TestConvection
+
+In addition the :func:`emc2.core.quantity` is equivalent to pint's
+UnitRegistry().Quantity object. This allows for the use of quantities
+with units, making EMC^2 unit aware.
 """
 
 from . import instruments

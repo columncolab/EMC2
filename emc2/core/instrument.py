@@ -7,6 +7,10 @@ This module stores the Instrument class.
 """
 import numpy as np
 
+from pint import UnitRegistry
+ureg = UnitRegistry()
+quantity = ureg.Quantity
+
 
 class Instrument(object):
     """
@@ -21,7 +25,7 @@ class Instrument(object):
         The class of the instrument. Currently must be one of 'radar,' or 'lidar'.
     freq: float
         The frequency of the instrument.
-    wavelength: float
+    wavelength: emc2.core.quantity
         The wavelength of the instrument
     ext_OD: float
         The optical depth where we have full extinction of the lidar signal.
@@ -66,16 +70,16 @@ class Instrument(object):
         self.pr_noise_md = np.nan
         self.tau_ge = np.nan
         self.tau_md = np.nan
-        self.c = 299792458.0
-        self.R_d = 287.058
+        self.c = quantity(299792458.0, ureg.meter / ureg.second)
+        self.R_d = quantity(287.058, ureg.kelvin)
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")
         if frequency is None:
-            self.freq = self.c / wavelength * 1e-3
+            self.freq = self.c / wavelength
             self.wavelength = wavelength
         elif wavelength is None:
             self.freq = frequency
-            self.wavelength = self.c / frequency * 1e-3
+            self.wavelength = self.c / frequency
         else:
             self.freq = frequency
             self.wavelength = wavelength

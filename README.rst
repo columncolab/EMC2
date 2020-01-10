@@ -56,7 +56,8 @@ Authors
 -------
 
 `EMC2` was written by `Robert Jackson <rjackson@anl.gov>`_, and led by `Scott Collis <scollis@anl.gov>`_.
-Collaborators and Contributors include Ann Fridlind (NASA GISS), Israel Silber (Penn State) and Marcus van-Lier-Walqui
+Collaborators and Contributors include Ann Fridlind (NASA GISS), Israel Silber (Penn State)
+and Marcus van-Lier-Walqui (Columbia U.). 
 
 
 References

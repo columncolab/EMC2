@@ -8,6 +8,8 @@ This module stores the Instrument class.
 import numpy as np
 
 from pint import UnitRegistry
+from ..io import load_arm_file
+
 ureg = UnitRegistry()
 quantity = ureg.Quantity
 
@@ -25,7 +27,7 @@ class Instrument(object):
         The class of the instrument. Currently must be one of 'radar,' or 'lidar'.
     freq: float
         The frequency of the instrument.
-    wavelength: emc2.core.quantity
+    wavelength: float
         The wavelength of the instrument
     ext_OD: float
         The optical depth where we have full extinction of the lidar signal.
@@ -70,18 +72,32 @@ class Instrument(object):
         self.pr_noise_md = np.nan
         self.tau_ge = np.nan
         self.tau_md = np.nan
-        self.c = quantity(299792458.0, ureg.meter / ureg.second)
-        self.R_d = quantity(287.058, ureg.kelvin)
+        self.c = 299792458.0
+        self.R_d = 287.058
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")
         if frequency is None:
-            self.freq = self.c / wavelength
+            self.freq = self.c / wavelength * 1e-3
             self.wavelength = wavelength
         elif wavelength is None:
             self.freq = frequency
-            self.wavelength = self.c / frequency
+            self.wavelength = self.c / frequency * 1e-3
         else:
             self.freq = frequency
             self.wavelength = wavelength
 
         self.mie_table = {}
+        self.ds = None
+
+    def read_arm_netcdf_file(self, filename, **kwargs):
+        """
+        Loads a netCDF file that corresponds to ARM standards.
+
+        Parameters
+        ----------
+        filename: str
+
+        Additional keyword arguments are passed into :py:func:`act.io.armfiles.read_netcdf`
+
+        """
+        self.ds = load_arm_file(filename, **kwargs)

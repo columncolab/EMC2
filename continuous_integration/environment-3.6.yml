@@ -18,3 +18,4 @@ dependencies:
   - ipython
   - metpy
   - pint=0.8.1
+  - act-atmos

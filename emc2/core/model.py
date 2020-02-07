@@ -125,7 +125,7 @@ class ModelE(Model):
         file_path: str
             Path to a ModelE simulation.
         """
-        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 5000. * ureg.kg / (ureg.m**3),
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
@@ -155,7 +155,11 @@ class ModelE(Model):
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = xr.open_dataset(file_path, decode_times=False)
-
+        # Convert all variables to float64
+        for variable in self.ds.variables.keys():
+            attrs = self.ds[variable].attrs
+            self.ds[variable] = self.ds[variable].astype('float64')
+            self.ds[variable].attrs = attrs
         # Check to make sure we are loading a single column
         if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
             self.ds.close()
@@ -218,7 +222,7 @@ class TestModel(Model):
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'time': times})
-        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 5000. * ureg.kg / (ureg.m ** 3),
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
@@ -348,7 +352,7 @@ class TestConvection(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times, 're_cl': re_cl, 're_pl': re_pl})
-        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 5000. * ureg.kg / (ureg.m ** 3),
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
@@ -481,7 +485,7 @@ class TestAllStratiform(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times, 're_cl': re_cl, 're_pl': re_pl})
-        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 5000. * ureg.kg / (ureg.m ** 3),
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
@@ -594,7 +598,7 @@ class TestHalfAndHalf(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times})
-        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.meter ** 3), 'ci': 5000. * ureg.kg / (ureg.meter ** 3),
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.meter ** 3), 'ci': 500. * ureg.kg / (ureg.meter ** 3),
                         'pl': 1000. * ureg.kg / (ureg.meter ** 3), 'pi': 250. * ureg.kg / (ureg.meter ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,

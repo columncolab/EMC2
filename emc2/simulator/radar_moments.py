@@ -45,11 +45,11 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
         column_ds['Ze'] = ((WC * 1e3) / 3.4)**1.75
     else:
         Tc = column_ds[t_field] - 273.15
-        if instrument.freq >= 2 * ureg.gigahertz and instrument.freq < 4 * ureg.gigahertz:
+        if instrument.freq >= 2e9 and instrument.freq < 4e9:
             column_ds['Ze'] = 10**(((np.log10(WC) + 0.0197 * Tc + 1.7) / 0.060) / 10.)
-        elif instrument.freq >= 27 * ureg.gigahertz and instrument.freq < 40 * ureg.gigahertz:
+        elif instrument.freq >= 27e9 and instrument.freq < 40e9:
             column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.699)) / 10.)
-        elif instrument.freq >= 75 * ureg.gigahertz and instrument.freq < 110 * ureg.gigahertz:
+        elif instrument.freq >= 75e9 and instrument.freq < 110e9:
             column_ds['Ze'] = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) / 10.)
         else:
             column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.0699)) / 10.)
@@ -112,7 +112,7 @@ def calc_radar_moments(instrument, model, is_conv,
         column_ds["sub_col_Ze_tot_conv"] = 10 * np.log10(column_ds["sub_col_Ze_tot_conv"])
 
         kappa_ds = calc_radar_atm_attenuation(instrument, model)
-        kappa_f = 6 * np.pi / instrument.wavelength.magnitude * 1e-6 * model.Rho_hyd["cl"].magnitude
+        kappa_f = 6 * np.pi / instrument.wavelength * 1e-6 * model.Rho_hyd["cl"].magnitude
         WC = column_ds[q_names["cl"]] + column_ds[q_names["pl"]] * 1e3 * \
             column_ds[p_field] / (instrument.R_d * column_ds[t_field])
         dz = np.diff(column_ds[z_field].values, axis=0,
@@ -168,8 +168,7 @@ def calc_radar_moments(instrument, model, is_conv,
             np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
         column_ds["sub_col_sigma_d_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
-        dD = instrument.mie_table[hyd_type]["p_diam"].values[1] * 2e-6 -\
-            instrument.mie_table[hyd_type]["p_diam"].values[0] * 2e-6
+        dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - instrument.mie_table[hyd_type]["p_diam"].values[0]
         fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]
         if hyd_type == "cl":
@@ -184,21 +183,22 @@ def calc_radar_moments(instrument, model, is_conv,
                         (model.num_subcolumns, num_diam))
                     lambda_tmp = fits_ds["lambda"][:, k, tt].values.max(axis=0) * np.ones(
                         (model.num_subcolumns, num_diam))
-                    p_diam = (instrument.mie_table[hyd_type]["p_diam"].values * 2) * 1e-6
+                    p_diam = (instrument.mie_table[hyd_type]["p_diam"].values * 2)
                     p_diam_tiled = np.tile(
                         instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
                     mu_temp = np.tile(fits_ds["mu"].values[:, k, tt], (num_diam, 1)).T
                     N_D = N_0_tmp * p_diam_tiled ** mu_temp * np.exp(-lambda_tmp * p_diam_tiled)
-                    Calc_tmp = instrument.mie_table[hyd_type]["beta_p"].values * 1e-12 * N_D
-                    tmp_od = instrument.mie_table[hyd_type]["alpha_p"].values * 1e-12 * N_D
+                    Calc_tmp = instrument.mie_table[hyd_type]["beta_p"].values * N_D
+                    tmp_od = instrument.mie_table[hyd_type]["alpha_p"].values * N_D
                     tmp_od = (tmp_od.sum(axis=1) / 2.0 + tmp_od[:, 1:-1].sum(axis=1)) * dD
                     moment_denom = (Calc_tmp.sum(axis=1) / 2.0 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+                    moment_denom = moment_denom.astype('float64')
                     column_ds["sub_col_Ze_%s_strat" % hyd_type][:, k, tt] = \
                         (moment_denom * instrument.wavelength**4) / (instrument.K_w * np.pi**5) * 1e-6
 
                     v_tmp = model.vel_param_a[hyd_type] * p_diam**model.vel_param_b[hyd_type]
                     v_tmp = v_tmp.magnitude
-                    Calc_tmp2 = v_tmp * Calc_tmp
+                    Calc_tmp2 = v_tmp * Calc_tmp.astype('float64')
                     V_d_numer = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
                     column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt] = -V_d_numer / moment_denom
                     Calc_tmp2 = (v_tmp -
@@ -212,7 +212,7 @@ def calc_radar_moments(instrument, model, is_conv,
                     od_tot[:, k, tt] += tmp_od
         else:
             p_diam_tiled = np.tile(
-                instrument.mie_table[hyd_type]["p_diam"] * 2e-6, (model.num_subcolumns, 1))
+                instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
             v_tmp = model.vel_param_a[hyd_type] * p_diam_tiled ** model.vel_param_b[hyd_type]
 
@@ -226,25 +226,25 @@ def calc_radar_moments(instrument, model, is_conv,
                     lambda_tmp = fits_ds["lambda"][:, k, tt].values.max(axis=0)
                     mu = fits_ds["mu"][:, k, tt].values.max(axis=0)
                     N_D = N_0_tmp * np.exp(-lambda_tmp * p_diam_tiled) * p_diam_tiled**mu
-                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values * 1e-12,
+                    Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values,
                                        (model.num_subcolumns, 1)) * N_D
                     tmp_od = np.tile(
-                        instrument.mie_table[hyd_type]["alpha_p"].values * 1e-12, (model.num_subcolumns, 1)) * N_D
+                        instrument.mie_table[hyd_type]["alpha_p"].values, (model.num_subcolumns, 1)) * N_D
                     tmp_od = (tmp_od.sum(axis=1) / 2 + tmp_od[:, 1:-1].sum(axis=1)) * dD
                     tmp_od = np.where(sub_q_array[:, k, tt] == 0, 0, tmp_od)
                     moment_denom = (Calc_tmp.sum(axis=1) / 2. + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
-                    moment_denom = np.where(sub_q_array[:, k, tt] == 0, 0, moment_denom)
+                    moment_denom = np.where(sub_q_array[:, k, tt] == 0, np.nan, moment_denom)
                     column_ds["sub_col_Ze_%s_strat" % hyd_type][:, k, tt] = \
                         (moment_denom * instrument.wavelength ** 4) / (instrument.K_w * np.pi ** 5) * 1e-6
                     Calc_tmp2 = Calc_tmp * v_tmp.magnitude
                     V_d_numer = (Calc_tmp2.sum(axis=1) / 2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-                    V_d_numer = np.where(sub_q_array[:, k, tt] == 0, 0, V_d_numer)
+                    V_d_numer = np.where(sub_q_array[:, k, tt] == 0, np.nan, V_d_numer)
                     column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt] = -V_d_numer / moment_denom
                     Calc_tmp2 = (v_tmp.magnitude - np.tile(
                         column_ds["sub_col_Vd_%s_strat" % hyd_type][:, k, tt].values,
                         (num_diam, 1)).T)**2 * Calc_tmp
                     Calc_tmp2 = (Calc_tmp2.sum(axis=1) / 2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-                    sigma_d_numer = np.where(sub_q_array[:, k, tt] == 0, 0, Calc_tmp2)
+                    sigma_d_numer = np.where(sub_q_array[:, k, tt] == 0, np.nan, Calc_tmp2)
                     column_ds["sub_col_sigma_d_%s_strat" % hyd_type][:, k, tt] = \
                         np.sqrt(sigma_d_numer / moment_denom)
                     V_d_numer_tot[:, k, tt] += V_d_numer
@@ -252,13 +252,18 @@ def calc_radar_moments(instrument, model, is_conv,
                     od_tot[:, k, tt] += tmp_od
 
         if "sub_col_Ze_tot_strat" in column_ds.variables.keys():
-            column_ds["sub_col_Ze_tot_strat"] += column_ds["sub_col_Ze_%s_strat" % hyd_type]
+            column_ds["sub_col_Ze_tot_strat"] += column_ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
         else:
-            column_ds["sub_col_Ze_tot_strat"] = column_ds["sub_col_Ze_%s_strat" % hyd_type]
+            column_ds["sub_col_Ze_tot_strat"] = column_ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
 
         column_ds["sub_col_Ze_%s_strat" % hyd_type] = 10 * np.log10(column_ds["sub_col_Ze_%s_strat" % hyd_type])
+        column_ds["sub_col_Vd_%s_strat" % hyd_type] = column_ds["sub_col_Vd_%s_strat" % hyd_type].where(
+            column_ds["sub_col_Vd_%s_strat" % hyd_type] != 0)
+        column_ds["sub_col_sigma_d_%s_strat" % hyd_type] = column_ds["sub_col_Vd_%s_strat" % hyd_type].where(
+            column_ds["sub_col_sigma_d_%s_strat" % hyd_type] != 0)
         column_ds["sub_col_Vd_tot_strat"] = xr.DataArray(-V_d_numer_tot / moment_denom_tot,
                                                          dims=column_ds["sub_col_Ze_tot_strat"].dims)
+
         print("Generating stratiform radar moments for hydrometeor class %s" % hyd_type)
         if hyd_type == "cl":
             for tt in range(Dims[2]):
@@ -268,14 +273,14 @@ def calc_radar_moments(instrument, model, is_conv,
                     if total_hydrometeor.values[k, tt] == 0:
                         continue
                     N_0_tmp = fits_ds["N_0"].values[:, k, tt]
-                    p_diam = instrument.mie_table[hyd_type]["p_diam"].values * 2e-6
+                    p_diam = instrument.mie_table[hyd_type]["p_diam"].values
                     N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
                     lambda_tmp = fits_ds["lambda"].values[:, k, tt]
                     lambda_tmp, d_diam_tmp = np.meshgrid(lambda_tmp, p_diam)
                     mu_temp = fits_ds["mu"].values[:, k, tt] * np.ones_like(lambda_tmp)
                     N_D = N_0_tmp * d_diam_tmp ** mu_temp * np.exp(-lambda_tmp * d_diam_tmp)
                     Calc_tmp = np.tile(
-                        instrument.mie_table[hyd_type]["beta_p"].values * 1e-12, (model.num_subcolumns, 1)) * N_D.T
+                        instrument.mie_table[hyd_type]["beta_p"].values, (model.num_subcolumns, 1)) * N_D.T
                     moment_denom = (Calc_tmp.sum(axis=1) / 2.0 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
                     v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
                     v_tmp = v_tmp.magnitude
@@ -287,7 +292,7 @@ def calc_radar_moments(instrument, model, is_conv,
         else:
             mu = fits_ds["mu"].values.max()
             p_diam_tiled = np.tile(
-                instrument.mie_table[hyd_type]["p_diam"] * 2e-6, (model.num_subcolumns, 1))
+                instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
             v_tmp = model.vel_param_a[hyd_type] * p_diam_tiled ** model.vel_param_b[hyd_type]
             v_tmp = v_tmp.magnitude
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
@@ -301,7 +306,7 @@ def calc_radar_moments(instrument, model, is_conv,
                     lambda_tmp = fits_ds["lambda"][:, k, tt].values.max(axis=0)
                     N_D = N_0_tmp * p_diam_tiled ** mu * np.exp(-lambda_tmp * p_diam_tiled)
                     Calc_tmp = np.tile(
-                        instrument.mie_table[hyd_type]["beta_p"].values * 1e-12,
+                        instrument.mie_table[hyd_type]["beta_p"].values,
                         (model.num_subcolumns, 1)) * N_D
                     moment_denom = (Calc_tmp.sum(axis=1) / 2. + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
                     moment_denom = np.where(sub_q_array[:, k, tt] == 0, 0, moment_denom)

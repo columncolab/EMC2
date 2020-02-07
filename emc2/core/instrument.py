@@ -77,14 +77,14 @@ class Instrument(object):
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")
         if frequency is None:
-            self.freq = self.c / wavelength * 1e-3
-            self.wavelength = wavelength
+            self.freq = self.c / wavelength.to('meter').magnitude
+            self.wavelength = wavelength.to('micrometer').magnitude
         elif wavelength is None:
-            self.freq = frequency
-            self.wavelength = self.c / frequency * 1e-3
+            self.freq = frequency.to('Hz').magnitude
+            self.wavelength = self.c / self.freq * 1e6
         else:
-            self.freq = frequency
-            self.wavelength = wavelength
+            self.freq = frequency.to('Hz').magnitude
+            self.wavelength = wavelength.to('micrometer').magnitude
 
         self.mie_table = {}
         self.ds = None

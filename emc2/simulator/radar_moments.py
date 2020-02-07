@@ -168,7 +168,8 @@ def calc_radar_moments(instrument, model, is_conv,
             np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
         column_ds["sub_col_sigma_d_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
-        dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - instrument.mie_table[hyd_type]["p_diam"].values[0]
+        dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
+            instrument.mie_table[hyd_type]["p_diam"].values[0]
         fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]
         if hyd_type == "cl":

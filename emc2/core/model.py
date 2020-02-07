@@ -182,7 +182,7 @@ class TestModel(Model):
     This is a test Model structure used only for unit testing. It is not recommended for end users.
     """
     def __init__(self):
-        q = np.linspace(0, 1, 1000.) * ureg.gram / ureg.kilogram
+        q = np.linspace(0, 1, 1000) * ureg.gram / ureg.kilogram
         N = 100 * np.ones_like(q) / (ureg.centimeter ** 3)
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - quantity(0.00649, 'kelvin/meter') * heights + 273.15 * ureg.kelvin

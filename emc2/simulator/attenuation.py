@@ -35,22 +35,22 @@ def calc_radar_atm_attenuation(instrument, model):
 
     column_ds = model.ds
 
-    rho_wv = column_ds[q_field] * 1e3 * (p_temp * 1e2) / (instrument.R_d.magnitude * t_temp)
+    rho_wv = column_ds[q_field] * 1e3 * (p_temp * 1e2) / (instrument.R_d * t_temp)
     three_hundred_t = 300. / t_temp
     gamma_l = 2.85 * (p_temp / 1013.) * (three_hundred_t)**0.626 * \
         (1 + 0.018 * rho_wv * t_temp / p_temp)
-    column_ds['kappa_wv'] = (2 * instrument.freq.magnitude)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
+    column_ds['kappa_wv'] = (2 * instrument.freq)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
         (three_hundred_t) * np.exp(-644 / t_temp) * \
-        1 / ((494.4 - instrument.freq.magnitude**2)**2 + 4 * instrument.freq.magnitude**2) * gamma_l**2 + 1.2e-6
+        1 / ((494.4 - instrument.freq**2)**2 + 4 * instrument.freq**2) * gamma_l**2 + 1.2e-6
     f0 = 60.
 
     gamma_0 = 0.59 * (1 + 3.1e-3 * (333 - p_temp))
     gamma_0[column_ds[p_field].values >= 333] = 0.59
     gamma_0[column_ds[p_field].values < 25.] = 1.18
     gamma_l = gamma_0 * (p_temp / 1013.) * three_hundred_t**0.85
-    kappa_o2 = (1.1e-2 * instrument.freq.magnitude**2) * (p_temp / 1013.) * three_hundred_t**2 * \
-        gamma_l * (1. / ((instrument.freq.magnitude - f0)**2 + gamma_l**2) + 1. /
-                   (instrument.freq.magnitude**2 + gamma_l**2))
+    kappa_o2 = (1.1e-2 * instrument.freq**2) * (p_temp / 1013.) * three_hundred_t**2 * \
+        gamma_l * (1. / ((instrument.freq - f0)**2 + gamma_l**2) + 1. /
+                   (instrument.freq**2 + gamma_l**2))
 
     column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=(model.height_dim, model.time_dim))
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
@@ -95,7 +95,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     Avogadro_c = 6.022140857e23
     R = 8.3144598
     R_d = 287.058
-    nu = 1 / Lambda.to("micrometer").magnitude
+    nu = 1 / Lambda
 
     p_temp = model.ds[model.p_field].values * getattr(ureg, model.ds[model.p_field].attrs["units"])
     P = p_temp.to('hPa').magnitude

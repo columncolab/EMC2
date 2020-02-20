@@ -78,6 +78,15 @@ class Model():
             self.vel_param_a[my_keys] = self.vel_param_a[my_keys] * (
                 ureg.meter ** (1 - self.vel_param_b[my_keys].magnitude) / ureg.second)
 
+    def _prepare_variables(self):
+        for variable in self.ds.variables.keys():
+            attrs = self.ds[variable].attrs
+            try:
+                self.ds[variable] = self.ds[variable].astype('float64')
+            except TypeError:
+                continue
+            self.ds[variable].attrs = attrs
+
     @property
     def hydrometeor_classes(self):
         """
@@ -154,12 +163,8 @@ class ModelE(Model):
         self.re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
-        self.ds = xr.open_dataset(file_path, decode_times=False)
-        # Convert all variables to float64
-        for variable in self.ds.variables.keys():
-            attrs = self.ds[variable].attrs
-            self.ds[variable] = self.ds[variable].astype('float64')
-            self.ds[variable].attrs = attrs
+        self.ds = xr.open_dataset(file_path)
+
         # Check to make sure we are loading a single column
         if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
             self.ds.close()
@@ -168,13 +173,9 @@ class ModelE(Model):
         # No need for lat and lon dimensions
         self.ds = self.ds.squeeze(dim=('lat', 'lon'))
 
-        # Transpose time and height dimensions for EMC2 data model
-        for the_vars in self.ds.variables.keys():
-            if self.ds[the_vars].dims == ('time', 'plm'):
-                self.ds[the_vars] = self.ds[the_vars].transpose()
-
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"
+
 
 
 class TestModel(Model):
@@ -192,30 +193,30 @@ class TestModel(Model):
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights.magnitude[:, np.newaxis], dims=('height', 'time'))
+        heights = xr.DataArray(heights.magnitude[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
         p_units = p.units
-        p = xr.DataArray(p.magnitude[:, np.newaxis], dims=('height', 'time'))
+        p = xr.DataArray(p.magnitude[np.newaxis, :], dims=('time', 'height'))
         p.attrs["long_name"] = "Air pressure"
         p.attrs["units"] = '%s' % p_units
 
         qv_units = qv.units
-        qv = xr.DataArray(qv.magnitude[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv.magnitude[np.newaxis, :], dims=('time', 'height'))
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
         t_units = temp_c.units
-        temp = xr.DataArray(temp_c.magnitude[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp_c.magnitude[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
-        q = xr.DataArray(q.magnitude[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q.magnitude[np.newaxis, :], dims=('time', 'height'))
         q.attrs["long_name"] = "Liquid cloud water mixing ratio"
         q.attrs["units"] = '%s' % qv_units
 
-        N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N.magnitude[np.newaxis, :], dims=('time', 'height'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % qv_units
 
@@ -283,65 +284,65 @@ class TestConvection(Model):
         cldssci = np.zeros_like(heights) * ureg.dimensionless
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
+        heights = xr.DataArray(heights[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
         p_units = p.units
-        p = xr.DataArray(p.magnitude[:, np.newaxis], dims=('height', 'time'))
+        p = xr.DataArray(p.magnitude[np.newaxis, :], dims=('time', 'height'))
         p.attrs["long_name"] = "Air pressure"
         p.attrs["units"] = '%s' % p_units
 
         qv_units = qv.units
-        qv = xr.DataArray(qv.magnitude[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv.magnitude[np.newaxis, :], dims=('time', 'height'))
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
         t_units = temp_c.units
-        temp = xr.DataArray(temp_c.magnitude[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp_c.magnitude[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
         q_units = q.units
-        q = xr.DataArray(q.magnitude[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q.magnitude[np.newaxis, :], dims=('time', 'height'))
         q.attrs["long_name"] = "Liquid cloud water mixing ratio"
         q.attrs["units"] = '%s' % q_units
 
         N_units = N.units
-        N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N.magnitude[np.newaxis, :], dims=('time', 'height'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % N_units
 
-        re_cl = xr.DataArray(re_cl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        re_cl = xr.DataArray(re_cl.magnitude[np.newaxis, :], dims=('time', 'height'))
         re_cl.attrs["units"] = "micrometer"
         re_cl.attrs["long_name"] = "Effective radius of cloud liquid particles"
 
-        re_pl = xr.DataArray(re_pl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        re_pl = xr.DataArray(re_pl.magnitude[np.newaxis, :], dims=('time', 'height'))
         re_pl.attrs["units"] = "micrometer"
         re_pl.attrs["long_name"] = "Effective radius of cloud liquid particles"
 
-        cldmccl = xr.DataArray(cldmccl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldmccl = xr.DataArray(cldmccl.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldmccl.attrs["units"] = 'g kg-1'
         cldmccl.attrs["long_name"] = "Convective cloud liquid mixing ratio"
-        cldmcci = xr.DataArray(cldmcci.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldmcci = xr.DataArray(cldmcci.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldmcci.attrs["units"] = 'g kg-1'
         cldmcci.attrs["long_name"] = "Convective cloud ice mixing ratio"
-        cldsscl = xr.DataArray(cldsscl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldsscl = xr.DataArray(cldsscl.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldsscl.attrs["units"] = 'g kg-1'
         cldsscl.attrs["long_name"] = "Stratiform cloud liquid mixing ratio"
-        cldssci = xr.DataArray(cldssci.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldssci = xr.DataArray(cldssci.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldssci.attrs["units"] = 'g kg-1'
         cldssci.attrs["long_name"] = "Stratiform cloud ice mixing ratio"
 
-        Nci = xr.DataArray(Nci[:, np.newaxis], dims=('height', 'time'))
+        Nci = xr.DataArray(Nci[np.newaxis, :], dims=('time', 'height'))
         Nci.attrs["units"] = "cm-3"
         Nci.attrs["long_name"] = "cloud ice particle number concentration"
 
-        Npl = xr.DataArray(Npl[:, np.newaxis], dims=('height', 'time'))
+        Npl = xr.DataArray(Npl[np.newaxis, :], dims=('time', 'height'))
         Npl.attrs["units"] = "cm-3"
         Npl.attrs["long_name"] = "liquid precipitation particle number concentration"
 
-        Npi = xr.DataArray(Npi[:, np.newaxis], dims=('height', 'time'))
+        Npi = xr.DataArray(Npi[np.newaxis, :], dims=('time', 'height'))
         Npi.attrs["units"] = "cm-3"
         Npi.attrs["long_name"] = "ice precipitation particle number concentration"
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
@@ -412,46 +413,46 @@ class TestAllStratiform(Model):
         qci = np.where(stratiform_ice, q, 0)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights[:, np.newaxis], dims=('height', 'time'))
+        heights = xr.DataArray(heights[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
         p_units = p.units
-        p = xr.DataArray(p.magnitude[:, np.newaxis], dims=('height', 'time'))
+        p = xr.DataArray(p.magnitude[np.newaxis, :], dims=('time', 'height'))
         p.attrs["long_name"] = "Air pressure"
         p.attrs["units"] = '%s' % p_units
 
         qv_units = qv.units
-        qv = xr.DataArray(qv.magnitude[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv.magnitude[np.newaxis, :], dims=('time', 'height'))
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
         t_units = "degC"
-        temp = xr.DataArray(temp_c[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp_c[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
         q_units = q.units
-        q = xr.DataArray(q.magnitude[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q.magnitude[np.newaxis, :], dims=('time', 'height'))
         q.attrs["long_name"] = "Liquid cloud water mixing ratio"
         q.attrs["units"] = '%s' % q_units
 
         N_units = N.units
-        N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N.magnitude[np.newaxis, :], dims=('time', 'height'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % N_units
-        qcl = xr.DataArray(qcl[:, np.newaxis], dims=('height', 'time'))
+        qcl = xr.DataArray(qcl[np.newaxis, :], dims=('time', 'height'))
         qcl.attrs["units"] = "g kg-1"
         qcl.attrs["long_name"] = "Cloud liquid water mixing ratio"
-        qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
+        qci = xr.DataArray(qci[np.newaxis, :], dims=('time', 'height'))
         qci.attrs["units"] = "g kg-1"
         qci.attrs["long_name"] = "Cloud ice water mixing ratio"
 
-        re_cl = xr.DataArray(re_cl[:, np.newaxis], dims=('height', 'time'))
+        re_cl = xr.DataArray(re_cl[np.newaxis, :], dims=('time', 'height'))
         re_cl.attrs["units"] = "micrometer"
         re_cl.attrs["long_name"] = "Effective radius of cloud liquid particles"
 
-        re_pl = xr.DataArray(re_pl[:, np.newaxis], dims=('height', 'time'))
+        re_pl = xr.DataArray(re_pl[np.newaxis, :], dims=('time', 'height'))
         re_pl.attrs["units"] = "micrometer"
         re_pl.attrs["long_name"] = "Effective radius of cloud liquid particles"
 
@@ -465,16 +466,16 @@ class TestAllStratiform(Model):
         npl.attrs["long_name"] = "liquid precipitation particle number concentration"
         npi.attrs["units"] = "cm-3"
         npi.attrs["long_name"] = "ice precipitation particle number concentration"
-        cldmccl = xr.DataArray(cldmccl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldmccl = xr.DataArray(cldmccl.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldmccl.attrs["units"] = 'g kg-1'
         cldmccl.attrs["long_name"] = "Convective cloud liquid mixing ratio"
-        cldmcci = xr.DataArray(cldmcci.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldmcci = xr.DataArray(cldmcci.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldmcci.attrs["units"] = 'g kg-1'
         cldmcci.attrs["long_name"] = "Convective cloud ice mixing ratio"
-        cldsscl = xr.DataArray(cldsscl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldsscl = xr.DataArray(cldsscl.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldsscl.attrs["units"] = 'g kg-1'
         cldsscl.attrs["long_name"] = "Stratiform cloud liquid mixing ratio"
-        cldssci = xr.DataArray(cldssci.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldssci = xr.DataArray(cldssci.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldssci.attrs["units"] = 'g kg-1'
         cldssci.attrs["long_name"] = "Stratiform cloud ice mixing ratio"
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
@@ -543,52 +544,52 @@ class TestHalfAndHalf(Model):
         qci = np.where(stratiform_ice, q, 0)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights.magnitude[:, np.newaxis], dims=('height', 'time'))
+        heights = xr.DataArray(heights.magnitude[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
         p_units = p.units
-        p = xr.DataArray(p.magnitude[:, np.newaxis], dims=('height', 'time'))
+        p = xr.DataArray(p.magnitude[np.newaxis, :], dims=('time', 'height'))
         p.attrs["long_name"] = "Air pressure"
         p.attrs["units"] = '%s' % p_units
 
         qv_units = qv.units
-        qv = xr.DataArray(qv.magnitude[:, np.newaxis], dims=('height', 'time'))
+        qv = xr.DataArray(qv.magnitude[np.newaxis, :], dims=('time', 'height'))
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
         t_units = "degC"
-        temp = xr.DataArray(temp_c[:, np.newaxis], dims=('height', 'time'))
+        temp = xr.DataArray(temp_c[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
         q_units = q.units
-        q = xr.DataArray(q.magnitude[:, np.newaxis], dims=('height', 'time'))
+        q = xr.DataArray(q.magnitude[np.newaxis, :], dims=('time', 'height'))
         q.attrs["long_name"] = "Liquid cloud water mixing ratio"
         q.attrs["units"] = '%s' % q_units
 
         N_units = N.units
-        N = xr.DataArray(N.magnitude[:, np.newaxis], dims=('height', 'time'))
+        N = xr.DataArray(N.magnitude[np.newaxis, :], dims=('time', 'height'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % N_units
 
-        qcl = xr.DataArray(qcl[:, np.newaxis], dims=('height', 'time'))
+        qcl = xr.DataArray(qcl[np.newaxis, :], dims=('time', 'height'))
         qcl.attrs["units"] = "g kg-1"
         qcl.attrs["long_name"] = "Cloud liquid water mixing ratio"
-        qci = xr.DataArray(qci[:, np.newaxis], dims=('height', 'time'))
+        qci = xr.DataArray(qci[np.newaxis, :], dims=('time', 'height'))
         qci.attrs["units"] = "g kg-1"
         qci.attrs["long_name"] = "Cloud ice water mixing ratio"
 
-        cldmccl = xr.DataArray(cldmccl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldmccl = xr.DataArray(cldmccl.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldmccl.attrs["units"] = 'g kg-1'
         cldmccl.attrs["long_name"] = "Convective cloud liquid mixing ratio"
-        cldmcci = xr.DataArray(cldmcci.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldmcci = xr.DataArray(cldmcci.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldmcci.attrs["units"] = 'g kg-1'
         cldmcci.attrs["long_name"] = "Convective cloud ice mixing ratio"
-        cldsscl = xr.DataArray(cldsscl.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldsscl = xr.DataArray(cldsscl.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldsscl.attrs["units"] = 'g kg-1'
         cldsscl.attrs["long_name"] = "Stratiform cloud liquid mixing ratio"
-        cldssci = xr.DataArray(cldssci.magnitude[:, np.newaxis], dims=('height', 'time'))
+        cldssci = xr.DataArray(cldssci.magnitude[np.newaxis, :], dims=('time', 'height'))
         cldssci.attrs["units"] = 'g kg-1'
         cldssci.attrs["long_name"] = "Stratiform cloud ice mixing ratio"
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,

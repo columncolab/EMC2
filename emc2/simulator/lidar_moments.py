@@ -30,6 +30,7 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
     is_conv: bool
         If true, calculate LDR for convective clouds. If False, LDR will be
         calculated for stratiform clouds.
+
     Returns
     -------
     model: Model
@@ -44,27 +45,26 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
     else:
         cloud_class = "strat"
 
+    numerator = 0.
+    denominator = 0.
+
     for hyd_type in model.hydrometeor_classes:
         beta_p_key = "sub_col_beta_p_%s_%s" % (hyd_type, cloud_class)
-        if 'numerator' not in locals():
-            numerator = model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type]
-            denominator = model.ds[beta_p_key]
-        else:
-            numerator += model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type]
-            denominator += model.ds[beta_p_key]
+        numerator += model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type]
+        denominator += model.ds[beta_p_key]
 
     model.ds["LDR"] = numerator / denominator
-    model.ds["LDR"] = model.ds["LDR"].where(model.ds["LDR"] != 0)
+    model.ds["LDR"] = model.ds["LDR"].where(model.ds["LDR"] != 0.)
     model.ds["LDR"].attrs["long_name"] = "Linear depolarization ratio"
 
     OD_cum_p_tot = model.ds["sub_col_OD_tot_%s" % cloud_class].values
-    OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0)
-    my_diff = np.diff(OD_cum_p_tot, axis=1, prepend=0)
-    ext_tmp = np.where(my_diff > 1, 1, 0)
+    OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0.)
+    my_diff = np.diff(OD_cum_p_tot, axis=2, prepend=0)
+    ext_tmp = np.where(my_diff > 1., 1, 0)
     ext_mask = OD_cum_p_tot - ext_tmp
 
     if not OD_from_sfc:
-        ext_mask = np.flip(ext_mask, axis=1)
+        ext_mask = np.flip(ext_mask, axis=2)
 
     model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["LDR"].dims)
     model.ds["ext_mask"].attrs["long_name"] = "Extinction mask"
@@ -72,6 +72,7 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
                                            "extinct, 0 = signal not extinct")
 
     return model
+
 
 
 def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
@@ -96,12 +97,14 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
         If True, then calculate optical depth from the surface.
 
     Additonal keyword arguments are passed into
-    :func:`emc2.simulator.lidar_moments.calc_LDR`.
+    :py:func:`emc2.simulator.lidar_moments.calc_LDR`.
+
     Returns
     -------
     model: Model
         The model with the added simulated lidar parameters.
     """
+
 
     hyd_types = ["cl", "ci", "pl", "pi"]
     if not instrument.instrument_class.lower() == "lidar":
@@ -210,38 +213,38 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]
 
-            for tt in range(Dims[2]):
+            for tt in range(Dims[1]):
                 if tt % 50 == 0:
-                    print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[2]))
-                for k in range(Dims[1]):
-                    if total_hydrometeor.values[k, tt] == 0:
+                    print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
+                for k in range(Dims[2]):
+                    if total_hydrometeor.values[tt, k] == 0:
                         continue
 
-                    N_0_tmp = np.tile(fits_ds["N_0"][:, k, tt].values, (num_diam, 1)).T
-                    lambda_tmp = np.tile(fits_ds["lambda"][:, k, tt].values, (num_diam, 1)).T
+                    N_0_tmp = np.tile(fits_ds["N_0"][:, tt, k].values, (num_diam, 1)).T
+                    lambda_tmp = np.tile(fits_ds["lambda"][:, tt, k].values, (num_diam, 1)).T
                     p_diam_tiled = np.tile(
                         instrument.mie_table[hyd_type]["p_diam"], (model.num_subcolumns, 1))
-                    mu_temp = np.tile(fits_ds["mu"].values[:, k, tt], (num_diam, 1)).T
+                    mu_temp = np.tile(fits_ds["mu"].values[:, tt, k], (num_diam, 1)).T
                     N_D = N_0_tmp * p_diam_tiled ** mu_temp * np.exp(-lambda_tmp * p_diam_tiled)
                     Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"],
                                        (model.num_subcolumns, 1)) * N_D
-                    model.ds["sub_col_beta_p_%s_strat" % hyd_type][:, k, tt] = (
+                    model.ds["sub_col_beta_p_%s_strat" % hyd_type][:, tt, k] = (
                         Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
                     Calc_tmp = np.tile(instrument.mie_table[hyd_type]["alpha_p"],
                                        (model.num_subcolumns, 1)) * N_D
-                    model.ds["sub_col_alpha_p_%s_strat" % hyd_type][:, k, tt] = (
+                    model.ds["sub_col_alpha_p_%s_strat" % hyd_type][:, tt, k] = (
                         Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
 
         if OD_from_sfc:
-            dz = np.diff(z_values, axis=0, prepend=0)
+            dz = np.diff(z_values, axis=1, prepend=0)
             dz = np.tile(dz, (model.num_subcolumns, 1, 1))
             model.ds["sub_col_OD_%s_strat" % hyd_type] = np.cumsum(
-                dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=1)
+                dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2)
         else:
-            dz = np.diff(z_values, axis=0, prepend=0)
+            dz = np.diff(z_values, axis=1, prepend=0)
             dz = np.tile(dz, (model.num_subcolumns, 1, 1))
             model.ds["sub_col_OD_%s_conv" % hyd_type] = np.flip(np.cumsum(
-                dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=1), axis=1)
+                dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2), axis=2)
 
             model.ds["sub_col_beta_p_tot_strat"] += model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
             model.ds["sub_col_alpha_p_tot_strat"] += model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)

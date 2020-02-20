@@ -40,7 +40,7 @@ forward-modeled phase in order to perform a robust evaluation against available 
    :caption: Contents:
 
    installation
-   usage
+   usage/index.rst
    contributing
    API/index.rst
 

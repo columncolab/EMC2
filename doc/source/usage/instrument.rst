@@ -2,7 +2,7 @@
 Construction of the EMC^2 Instrument Object
 ===========================================
 
-The :mod:`emc2.core.Instrument` object contains all of the information that is needed
+The :py:mod:`emc2.core.Instrument` object contains all of the information that is needed
 for EMC^2 to both visualize instrument data as well as the instrument specific parameters
 that are needed to simulate a lidar or a radar.
 
@@ -19,7 +19,6 @@ $         """
 
 Make sure all of the variables are initalized and the proper wavelength is
 entered::
-
 
 $         super().__init__(wavelength=0.532 * ureg.micrometer)
 
@@ -38,12 +37,14 @@ $         self.ext_OD = 4
 
 If we have a radar, we will assign the dielectric constant.
 Since this is a lidar, we will assign NaN to *K_w*::
+
 $         self.K_w = np.nan
 
 Tell EMC^2 what the index of refraction of water is::
+
 $         self.eps_liq = (1.337273 + 1.7570744e-9j)**2
 
-The rest of these parameters are needed if you are specifying a radar
+The rest of these parameters are needed if you are specifying a radar::
 
 $         self.pt = np.nan
 $         self.theta = np.nan
@@ -83,7 +84,7 @@ the given wavelength. The mie scattering tables are xarray datasets with the fol
 +--------------------+---------------------------------------+
 | size_parameter     |  The size parameter of the particle.  |
 |                    |  This is defined as                   |
-|                    |  :math:`\frac{\pi D}{\lambda}`        |
+|                    |  :math:`\frac{\pi D}{\lambda}`.       |
 +--------------------+---------------------------------------+
 |  compre_real       |  Real part of complex index of        |
 |                    |  refraction of the sphere.            |
@@ -107,4 +108,4 @@ the given wavelength. The mie scattering tables are xarray datasets with the fol
 |  backscatt_eff     |  Backscattering efficiency            |
 +--------------------+---------------------------------------+
 
-These mie tables must be generated for the four precipitation classes/
+These mie tables must be generated for the four precipitation classes.

@@ -9,6 +9,7 @@ This module contains the Model class and example Models for your use.
 import xarray as xr
 import numpy as np
 
+from act.io.armfiles import read_netcdf
 from .instrument import ureg, quantity
 
 
@@ -163,7 +164,7 @@ class ModelE(Model):
         self.re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
-        self.ds = xr.open_dataset(file_path)
+        self.ds = read_netcdf(file_path)
 
         # Check to make sure we are loading a single column
         if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
@@ -175,7 +176,6 @@ class ModelE(Model):
 
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"
-
 
 
 class TestModel(Model):

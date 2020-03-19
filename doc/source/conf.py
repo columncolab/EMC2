@@ -37,7 +37,8 @@ extensions = ['sphinx_gallery.gen_gallery',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
               'numpydoc',
-              'sphinx.ext.autosummary']
+              'sphinx.ext.autosummary',
+              'nbsphinx']
 
 sphinx_gallery_conf = {
     'examples_dirs': '../../examples',

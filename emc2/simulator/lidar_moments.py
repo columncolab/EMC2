@@ -74,7 +74,6 @@ def calc_LDR(instrument, model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None, is_c
     return model
 
 
-
 def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
                        OD_from_sfc=True, **kwargs):
     """
@@ -104,7 +103,6 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
     model: Model
         The model with the added simulated lidar parameters.
     """
-
 
     hyd_types = ["cl", "ci", "pl", "pi"]
     if not instrument.instrument_class.lower() == "lidar":

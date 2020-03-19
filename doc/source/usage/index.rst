@@ -12,5 +12,6 @@ a variety of instrumentation. Therefore, EMC^2 is based around two Python object
 
    instrument
    model
+   running
 
 

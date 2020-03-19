@@ -113,9 +113,9 @@ $                       'pi': 0.41 * ureg.dimensionless}
 $   super()._add_vel_units()
 
 
-==========
+++++++++++
 References
-==========
+++++++++++
 Locatelli, J. D., and Hobbs, P. V. (1974), Fall speeds and masses
 of solid precipitation particles, J. Geophys. Res., 79( 15), 2185– 2197,
 doi:10.1029/JC079i015p02185.

@@ -40,17 +40,34 @@ a robust evaluation against available observations.
 Usage
 -----
 
+
 Installation
 ------------
+
+In order to install EMC^2, you can use either pip or anaconda. In a terminal, simply type either of::
+
+$ pip install emc2
+$ conda install -c conda-forge emc2
+
+In addition, if you want to build EMC^2 from source and install, type in the following commands::
+
+$ git clone https://github.com/columncolab/EMC2
+$ cd EMC2
+$ pip install .
 
 Requirements
 ^^^^^^^^^^^^
 
-Compatibility
--------------
-
+EMC^2 requires Python 3.6+ as well as: 
+   * [Atmoshperic Community Toolkit](https://arm-doe.github.io/ACT). 
+   * [Numpy](https://numpy.org)
+   * [Scipy](https://scipy.org)
+   * [Matplotlib](https://matplotlib.org)
+   * [Xarray](http://xarray.pydata.org)
+   
 Licence
 -------
+
 
 Authors
 -------

@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Construction of the Model object &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Creating your simulated variables" href="running.html" />
+    <link rel="prev" title="Construction of the EMC^2 Instrument Object" href="instrument.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">EMC^2 Usage guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="instrument.html">Construction of the EMC^2 Instrument Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#addition-of-more-wavelengths-format-of-mie-tables">Addition of more wavelengths - format of Mie tables</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Construction of the Model object</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="running.html">Creating your simulated variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#visualization-of-results">Visualization of results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html">EMC^2 demo notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">EMC^2 Usage guide</a> &raquo;</li>
+        
+      <li>Construction of the Model object</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/usage/model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="construction-of-the-model-object">
+<h1>Construction of the Model object<a class="headerlink" href="#construction-of-the-model-object" title="Permalink to this headline">¶</a></h1>
+<p>EMC^2 uses the <code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code> object to know what fields to load from a given
+file in order to obtain the required information. In order to define your
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code> object, it is highly recommended to use class inheritance. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ class ModelE(Model):
+$    def __init__(self, file_path):
+$        &quot;&quot;&quot;
+$        This loads a ModelE simulation with all of the necessary
+$        parameters for EMC^2 to run.
+$
+$        Parameters
+$        ----------
+$        file_path: str
+$            Path to a ModelE simulation.
+$        &quot;&quot;&quot;
+</pre></div>
+</div>
+<p>In particular, EMC^2 will require information about the mixing ratio and
+the number concentration of four
+different species: cloud liquid (<em>cl</em>), cloud ice (<em>cl</em>), precipitating liquid (<em>pl</em>),
+and precipitating ice (<em>pi</em>). These precipitation classes are commonly used
+in many models in order to represent the cloud microphysical properties. EMC^2
+derives the radar and lidar parameters for all 4 of these species. First,
+in order to specify the fields that EMC^2 needs to look for, certain entries
+whose keys correspond to the names of these four precipitation species must
+be specified:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$   # Names of mixing ratios of species
+$   self.q_names = {&#39;cl&#39;: &#39;qcl&#39;, &#39;ci&#39;: &#39;qci&#39;, &#39;pl&#39;: &#39;qpl&#39;, &#39;pi&#39;: &#39;qpi&#39;}
+$   # Number concentration of each species
+$   self.N_field = {&#39;cl&#39;: &#39;ncl&#39;, &#39;ci&#39;: &#39;nci&#39;, &#39;pl&#39;: &#39;npl&#39;, &#39;pi&#39;: &#39;npi&#39;}
+$   # Convective fraction
+$   self.conv_frac_names = {&#39;cl&#39;: &#39;cldmccl&#39;, &#39;ci&#39;: &#39;cldmcci&#39;, &#39;pl&#39;: &#39;cldmcpl&#39;, &#39;pi&#39;: &#39;cldmcpi&#39;}
+$   # Stratiform fraction
+$   self.strat_frac_names = {&#39;cl&#39;: &#39;cldsscl&#39;, &#39;ci&#39;: &#39;cldssci&#39;, &#39;pl&#39;: &#39;cldsspl&#39;, &#39;pi&#39;: &#39;cldsspi&#39;}
+$   # Effective radius
+$   self.re_fields = {&#39;cl&#39;: &#39;re_mccl&#39;, &#39;ci&#39;: &#39;re_mcci&#39;, &#39;pi&#39;: &#39;re_mcpi&#39;, &#39;pl&#39;: &#39;re_mcpl&#39;}
+$   # Convective mixing ratio
+$   self.q_names_convective = {&#39;cl&#39;: &#39;QCLmc&#39;, &#39;ci&#39;: &#39;QCImc&#39;, &#39;pl&#39;: &#39;QPLmc&#39;, &#39;pi&#39;: &#39;QPImc&#39;}
+$   # Stratiform mixing ratio
+$   self.q_names_stratiform = {&#39;cl&#39;: &#39;qcl&#39;, &#39;ci&#39;: &#39;qci&#39;, &#39;pl&#39;: &#39;qpl&#39;, &#39;pi&#39;: &#39;qpi&#39;}
+</pre></div>
+</div>
+<p>In addition, other fields must also be specified:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$   # Water vapor mixing ratio
+$   self.q_field = &quot;q&quot;
+$   # Pressure
+$   self.p_field = &quot;p_3d&quot;
+$   # Height
+$   self.z_field = &quot;z&quot;
+$   # Temperature
+$   self.T_field = &quot;t&quot;
+$   # Name of height dimension
+$   self.height_dim = &quot;plm&quot;
+$   # Name of time dimension
+$   self.time_dim = &quot;time&quot;
+</pre></div>
+</div>
+<p>What if your model does not produce output for all 4 species, as is common
+in many GCMs? Simply place in zero arrays that are the same shape as your
+model fields!</p>
+<p>Finally, we need to load in the model dataset. In order to do this, the model
+must be loaded into a format that is compatible with <strong>xarray</strong>. If you are loading
+a netCDF file, this is quite easy to do as <strong>xarray</strong> has native support for
+netCDF files. For example, ModelE’s files are in netCDF format, so we can simply do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$   self.ds = xr.open_dataset(file_path)
+</pre></div>
+</div>
+<p>One thing to be aware of is that you must ensure that all of your fields that
+you load are 64-bit double precision floating point numbers in order to conform
+with the assumed data types in ECM^2. Otherwise, underflow
+errors are likely for many of the calculations. To ensure that this is the case,
+one can simply loop over the variables in the file like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$   super().prepare_variables()
+</pre></div>
+</div>
+<p>Finally, there are many assumptions that go into the calculation of the forward
+modelled radar moments. For example, there are various fall-speed relationships
+of the form <span class="math notranslate nohighlight">\(V = aD^b\)</span> for different types of particles. Therefore, if you
+are looking at a case where you think a specific kind of ice species may be
+dominant, it is important to adjust these <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span> constants. There
+are numerous papers on this subject that are included in the references below.
+It is best to match these coefficients with what is used in your model for the
+best comparison. In order to adjust the constants that are used in the various
+routines in EMC^2, you would have to fill in these dictionaries for each
+hydrometeor species:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$   # Bulk density
+$   self.Rho_hyd = {&#39;cl&#39;: 1000. * ureg.kg / (ureg.m**3),
+$                   &#39;ci&#39;: 500. * ureg.kg / (ureg.m**3),
+$                   &#39;pl&#39;: 1000. * ureg.kg / (ureg.m**3),
+$                   &#39;pi&#39;: 250. * ureg.kg / (ureg.m**3)}
+$   # Lidar ratio
+$   self.lidar_ratio = {&#39;cl&#39;: 18. * ureg.dimensionless,
+$                       &#39;ci&#39;: 24. * ureg.dimensionless,
+$                       &#39;pl&#39;: 5.5 * ureg.dimensionless,
+$                       &#39;pi&#39;: 24.0 * ureg.dimensionless}
+$   # Lidar LDR per hydrometeor mass content
+$   self.LDR_per_hyd = {&#39;cl&#39;: 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+$                       &#39;ci&#39;: 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+$                       &#39;pl&#39;: 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+$                       &#39;pi&#39;: 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+$   # a, b in V = aD^b
+$   self.vel_param_a = {&#39;cl&#39;: 3e-7, &#39;ci&#39;: 700., &#39;pl&#39;: 841.997, &#39;pi&#39;: 11.72}
+$   self.vel_param_b = {&#39;cl&#39;: 2. * ureg.dimensionless,
+$                       &#39;ci&#39;: 1. * ureg.dimensionless,
+$                       &#39;pl&#39;: 0.8 * ureg.dimensionless,
+$                       &#39;pi&#39;: 0.41 * ureg.dimensionless}
+$   super()._add_vel_units()
+</pre></div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>Locatelli, J. D., and Hobbs, P. V. (1974), Fall speeds and masses
+of solid precipitation particles, J. Geophys. Res., 79( 15), 2185– 2197,
+doi:10.1029/JC079i015p02185.</p>
+<p>Brown, P.R. and P.N. Francis, 1995: Improved Measurements of the Ice
+Water Content in Cirrus Using a Total-Water Probe.
+J. Atmos. Oceanic Technol., 12, 410–414,
+<a class="reference external" href="https://doi.org/10.1175/1520-0426(1995">https://doi.org/10.1175/1520-0426(1995</a>)012&lt;0410:IMOTIW&gt;2.0.CO;2</p>
+<p>Heymsfield, A.J., G. van Zadelhoff, D.P. Donovan, F. Fabry, R.J. Hogan,
+and A.J. Illingworth, 2007: Refinements to Ice Particle Mass Dimensional
+and Terminal Velocity Relationships for Ice Clouds. Part II: Evaluation
+and Parameterizations of Ensemble Ice Particle Sedimentation Velocities.
+J. Atmos. Sci., 64, 1068–1088, <a class="reference external" href="https://doi.org/10.1175/JAS3900.1">https://doi.org/10.1175/JAS3900.1</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="running.html" class="btn btn-neutral float-right" title="Creating your simulated variables" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="instrument.html" class="btn btn-neutral float-left" title="Construction of the EMC^2 Instrument Object" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

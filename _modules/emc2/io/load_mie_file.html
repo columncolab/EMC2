@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>emc2.io.load_mie_file &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">EMC^2 Usage guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../EMC2example.html">EMC^2 demo notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>emc2.io.load_mie_file</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for emc2.io.load_mie_file</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="load_mie_file"><a class="viewcode-back" href="../../../API/generated/emc2.io.load_mie_file.html#emc2.io.load_mie_file">[docs]</a><span class="k">def</span> <span class="nf">load_mie_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the Mie parameters from a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: str</span>
+<span class="sd">        The name of the file storing the Mie scattering parameters</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mie_df: xarray DataFrame</span>
+<span class="sd">        The xarray DataFrame storing the Mie parameters, including</span>
+<span class="sd">        descriptive metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">my_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">,</span> <span class="s2">&quot;p_diam&quot;</span><span class="p">,</span> <span class="s2">&quot;size_parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;compre_real&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;compre_im&quot;</span><span class="p">,</span> <span class="s2">&quot;scat_p&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha_p&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_p&quot;</span><span class="p">,</span> <span class="s2">&quot;scat_eff&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;ext_eff&quot;</span><span class="p">,</span> <span class="s2">&quot;backscat_eff&quot;</span><span class="p">])</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2e-6</span> <span class="o">*</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span>
+    <span class="n">my_df</span> <span class="o">=</span> <span class="n">my_df</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;microns&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Wavelength of beam&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wavelength&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;microns&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of particle&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;p_diam&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;size_parameter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;size_parameter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Size parameter (pi*diameter / wavelength)&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;size_parameter&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Size parameter&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;compre_real&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;compre_real&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Complex refractive index of the sphere divided &quot;</span> <span class="o">+</span>
+                                               <span class="s2">&quot;by the real index of the medium (real part)&quot;</span><span class="p">)</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;compre_real&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Complex_over_real_Re&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;compre_im&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;compre_im&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Complex refractive index of the sphere divided &quot;</span> <span class="o">+</span>
+                                             <span class="s2">&quot;by the real index of the medium (imaginary part)&quot;</span><span class="p">)</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;compre_im&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Complex_over_real_Im&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;microns^2&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Forward scattering cross section&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scat_cross_section_fwd&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;microns^2&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Back scattering cross section&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scat_cross_section_back&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Extinction cross section&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ext_cross_section&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Forward scattering efficiency&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scattering_efficiency&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;ext_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;ext_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Extinction efficiency&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;ext_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Extinction_efficiency&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;backscat_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;backscat_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Backscattering efficiency&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;backscat_eff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Backscattering_efficiency&quot;</span>
+    <span class="k">return</span> <span class="n">my_df</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

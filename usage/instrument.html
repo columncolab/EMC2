@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Construction of the EMC^2 Instrument Object &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Construction of the Model object" href="model.html" />
+    <link rel="prev" title="EMC^2 Usage guide" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">EMC^2 Usage guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Construction of the EMC^2 Instrument Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#addition-of-more-wavelengths-format-of-mie-tables">Addition of more wavelengths - format of Mie tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Construction of the Model object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html">Creating your simulated variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running.html#visualization-of-results">Visualization of results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html">EMC^2 demo notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">EMC^2 Usage guide</a> &raquo;</li>
+        
+      <li>Construction of the EMC^2 Instrument Object</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/usage/instrument.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="construction-of-the-emc-2-instrument-object">
+<h1>Construction of the EMC^2 Instrument Object<a class="headerlink" href="#construction-of-the-emc-2-instrument-object" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> object contains all of the information that is needed
+for EMC^2 to both visualize instrument data as well as the instrument specific parameters
+that are needed to simulate a lidar or a radar.</p>
+<p>It is recommended that you use class inheritance to make your own <strong>Instrument</strong>
+objects. This helps to ensure that your object has the required methods for
+EMC^2 to use. For example, the object for the High Spectral Resolution Lidar
+is created as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ class HSRL(Instrument):
+$     def __init__(self):
+$         &quot;&quot;&quot;
+$         This stores the information for the High Resolution Spectral Lidar.
+$         &quot;&quot;&quot;
+</pre></div>
+</div>
+<p>Make sure all of the variables are initalized and the proper wavelength is
+entered:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         super().__init__(wavelength=0.532 * ureg.micrometer)
+</pre></div>
+</div>
+<p>Define whether your instrument is a lidar or a radar:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         self.instrument_class = &quot;lidar&quot;
+</pre></div>
+</div>
+<p>Name your instrument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         self.instrument_str = &quot;HSRL&quot;
+</pre></div>
+</div>
+<p>If it’s a lidar, we’ll tell EMC^2 to consider the signal to be extinct
+above a certain optical depth:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         self.ext_OD = 4
+</pre></div>
+</div>
+<p>If we have a radar, we will assign the dielectric constant.
+Since this is a lidar, we will assign NaN to <em>K_w</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         self.K_w = np.nan
+</pre></div>
+</div>
+<p>Tell EMC^2 what the index of refraction of water is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         self.eps_liq = (1.337273 + 1.7570744e-9j)**2
+</pre></div>
+</div>
+<p>The rest of these parameters are needed if you are specifying a radar:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         self.pt = np.nan
+$         self.theta = np.nan
+$         self.gain = np.nan
+$         self.Z_min_1km = np.nan
+$         self.lr = np.nan
+$         self.pr_noise_ge = np.nan
+$         self.pr_noise_md = np.nan
+$         self.tau_ge = np.nan
+$         self.tau_md = np.nan
+</pre></div>
+</div>
+<p>In addition, the mie tables for each hydrometeor class must be specified:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$         # Load mie tables
+$         data_path = os.path.join(os.path.dirname(__file__), &#39;mie_tables&#39;)
+$         self.mie_table[&quot;cl&quot;] = load_mie_file(data_path + &quot;/MieHSRL_liq.dat&quot;)
+$         self.mie_table[&quot;pl&quot;] = load_mie_file(data_path + &quot;/MieHSRL_liq.dat&quot;)
+$         self.mie_table[&quot;ci&quot;] = load_mie_file(data_path + &quot;/MieHSRL_ci.dat&quot;)
+$         self.mie_table[&quot;pi&quot;] = load_mie_file(data_path + &quot;/MieHSRL_pi.dat&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="addition-of-more-wavelengths-format-of-mie-tables">
+<h1>Addition of more wavelengths - format of Mie tables<a class="headerlink" href="#addition-of-more-wavelengths-format-of-mie-tables" title="Permalink to this headline">¶</a></h1>
+<p>If you wish to use an instrument with a different wavelength than what is currently used in EMC^2,
+then you must generate the Mie scattering parameters using your favorite Mie scattering code for
+the given wavelength. The mie scattering tables are xarray datasets with the following variables:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 66%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>wavelength</p></td>
+<td><p>The wavelength <span class="math notranslate nohighlight">\(\lambda\)</span> of the
+beam in microns.</p></td>
+</tr>
+<tr class="row-odd"><td><p>p_diam</p></td>
+<td><p>The diameter <span class="math notranslate nohighlight">\(D\)</span> of the
+particle in microns</p></td>
+</tr>
+<tr class="row-even"><td><p>size_parameter</p></td>
+<td><p>The size parameter of the particle.
+This is defined as
+<span class="math notranslate nohighlight">\(\frac{\pi D}{\lambda}\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>compre_real</p></td>
+<td><p>Real part of complex index of
+refraction of the sphere.</p></td>
+</tr>
+<tr class="row-even"><td><p>compre_im</p></td>
+<td><p>Imaginary part of complex index of
+refraction of the sphere</p></td>
+</tr>
+<tr class="row-odd"><td><p>scat_p</p></td>
+<td><p>Forward scattering cross section in
+<span class="math notranslate nohighlight">\({\mu m}^2\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p>alpha_p</p></td>
+<td><p>Back scattering cross section in
+<span class="math notranslate nohighlight">\({\mu m}^2\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>beta_p</p></td>
+<td><p>Extinction cross section in
+<span class="math notranslate nohighlight">\({\mu m}^2\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p>scat_eff</p></td>
+<td><p>Scattering efficiency</p></td>
+</tr>
+<tr class="row-odd"><td><p>ext_eff</p></td>
+<td><p>Extinction efficiency</p></td>
+</tr>
+<tr class="row-even"><td><p>backscatt_eff</p></td>
+<td><p>Backscattering efficiency</p></td>
+</tr>
+</tbody>
+</table>
+<p>These mie tables must be generated for the four precipitation classes.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="model.html" class="btn btn-neutral float-right" title="Construction of the Model object" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="EMC^2 Usage guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

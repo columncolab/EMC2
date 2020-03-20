@@ -1,0 +1,834 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>EMC^2 demo notebook &mdash; EMC^2  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="API/index.html" />
+    <link rel="prev" title="Creating your simulated variables" href="usage/running.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> EMC^2
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/index.html">EMC^2 Usage guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">EMC^2 demo notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EMC^2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>EMC^2 demo notebook</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/EMC2example.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    min-width: 5ex;
+    padding-top: 0.3rem;
+    padding-right: 0.3rem;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 0.3rem;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="EMC^2-demo-notebook">
+<h1>EMC^2 demo notebook<a class="headerlink" href="#EMC^2-demo-notebook" title="Permalink to this headline">¶</a></h1>
+<p>In this notebook we show an example of how to run EMC2 using ModelE and HSRL data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">emc2</span>
+<span class="kn">import</span> <span class="nn">act</span>
+<span class="o">%</span><span class="k">pylab</span> inline
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<p>First, we load the model data using the ModelE object</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model_path</span> <span class="o">=</span> <span class="s1">&#39;allvars.SCM_AWR_linft_BT0_unNa_noaer.nc&#39;</span>
+<span class="n">my_model</span> <span class="o">=</span> <span class="n">emc2</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ModelE</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>After that, we load in the KAZR data using the KAZR object.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">KAZR</span> <span class="o">=</span> <span class="n">emc2</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">instruments</span><span class="o">.</span><span class="n">KAZR</span><span class="p">(</span><span class="s1">&#39;nsa&#39;</span><span class="p">)</span>
+<span class="n">KAZR</span><span class="o">.</span><span class="n">read_arm_netcdf_file</span><span class="p">(</span><span class="s1">&#39;awrkazrcorgeM1.c0.20160816.000001.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">KAZR</span><span class="o">.</span><span class="n">ds</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<pre>&lt;xarray.Dataset&gt;
+Dimensions:                                   (range: 600, time: 43262)
+Coordinates:
+  * time                                      (time) datetime64[ns] 2016-08-16T00:00:01.172000 ... 2016-08-16T23:59:58.015000
+  * range                                     (range) float32 100.679245 ... 18058.242
+Data variables:
+    base_time                                 datetime64[ns] 2016-08-16
+    time_offset                               (time) datetime64[ns] 2016-08-16T00:00:01.172000 ... 2016-08-16T23:59:58.015000
+    reflectivity_copol                        (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_reflectivity_copol                     (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    gaseous_attenuation_correction_copol      (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_gaseous_attenuation_correction_copol   (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    mean_doppler_velocity_copol               (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_mean_doppler_velocity_copol            (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    spectral_width_copol                      (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_spectral_width_copol                   (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    signal_to_noise_ratio_copol               (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    significant_detection_mask                (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    mean_doppler_velocity_copol_dealias_flag  (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    rx_noise                                  (time) float32 dask.array&lt;chunksize=(43262,), meta=np.ndarray&gt;
+    sky_noise_copol                           (time) float32 dask.array&lt;chunksize=(43262,), meta=np.ndarray&gt;
+    cold_noise_copol                          (time) float32 dask.array&lt;chunksize=(43262,), meta=np.ndarray&gt;
+    hot_noise_copol                           (time) float32 dask.array&lt;chunksize=(43262,), meta=np.ndarray&gt;
+    temp                                      (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_temp                                   (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    rh                                        (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_rh                                     (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    bar_pres                                  (time, range) float32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    qc_bar_pres                               (time, range) int32 dask.array&lt;chunksize=(43262, 600), meta=np.ndarray&gt;
+    lat                                       float32 ...
+    lon                                       float32 ...
+    alt                                       float32 ...
+Attributes:
+    command_line:                idl -R -n kazrcorc0 -s awr -f M1 -b 20160816...
+    Conventions:                 ARM-1.2
+    process_version:             vap-kazrcor-5.0.0-devel
+    input_datastreams:           awrkazrgeM1.a1 : 2.8 : 20160816.000001\nawrk...
+    dod_version:                 kazrcorge-c0-1.5
+    site_id:                     awr
+    platform_id:                 kazrcorge
+    facility_id:                 M1
+    data_level:                  c0
+    location_description:        ARM West Antarctic Radiation Experiment (AWA...
+    datastream:                  awrkazrcorgeM1.c0
+    antenna_altitude:            3.66 m
+    antenna_diameter:            1.81 m
+    attenuation_short_pulse:     4.000000 dB
+    clutter_filter_len:          0
+    fft_len:                     512
+    num_spectral_averages:       11
+    nyquist_velocity:            6.068320 m/s
+    processing_mode:             2
+    pulse_repetition_frequency:  2820.08 Hz
+    pulse_width_short_pulse:     333 ns
+    radar_constant_offset_flag:  0
+    radar_constant_offset:       0.000000 dB
+    radar_operating_frequency:   34.830000 GHz
+    range_gate_spacing:          29.979246 m
+    cal_constant_copol:          0.0
+    comment:                     Reflectivity values have not yet been calibr...
+    doi:                         10.5439/1389054
+    history:                     created by user ttoto on machine talc.dmf.ar...
+    _file_dates:                 [&#x27;20160816&#x27;]
+    _file_times:                 [&#x27;000001&#x27;]
+    _datastream:                 awrkazrcorgeM1.c0
+    _arm_standards_flag:         ARMStandardsFlag.OK</pre></div>
+</div>
+<p>The following command will generate 8 subcolumns per time period of simulated KAZR data.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">my_model</span> <span class="o">=</span> <span class="n">emc2</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">make_simulated_data</span><span class="p">(</span><span class="n">my_model</span><span class="p">,</span> <span class="n">KAZR</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">my_model</span><span class="o">.</span><span class="n">ds</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<pre>&lt;xarray.Dataset&gt;
+Dimensions:                    (plm: 63, subcolumn: 8, time: 240)
+Coordinates:
+  * plm                        (plm) float64 995.0 985.0 975.0 ... 0.247 0.139
+  * time                       (time) datetime64[ns] 2016-08-16T01:15:00 ... 2016-08-21T00:45:00
+  * subcolumn                  (subcolumn) int64 0 1 2 3 4 5 6 7
+    lat                        float32 -77.85
+    lon                        float32 166.72
+Data variables:
+    QCImc                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    QCLmc                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    QPImc                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    QPLmc                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    axyp                       float32 dask.array&lt;chunksize=(), meta=np.ndarray&gt;
+    cIWPss                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    cLWPss                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    cldmc                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldmc_2d                   (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    cldmcci                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldmccl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldmcpi                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldmcpl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldss                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldss_2d                   (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    cldssci                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldsscl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldsspi                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldsspl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    cldtot_2d                  (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    dq_ls                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dq_mc                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dq_nudge                   (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dq_ss                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dq_turb                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_ls                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_lw                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_mc                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_nudge                  (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_rad                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_ss                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_sw                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    dth_turb                   (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    e_turb                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    gtempr                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    isccp_tau                  (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    iwp                        (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    kh_turb                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    km_turb                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    len_turb                   (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    lhflx                      (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    lwdp                       (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    lwds                       (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    lwdscs                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    lwp                        (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    lwup                       (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    lwus                       (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    mcp                        (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    nci                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    nciic                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    ncl                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    nclic                      (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    npi                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    npl                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    olrcs                      (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    olrrad                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    pIWPss                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    pLWPss                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    p_3d                       (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    p_surf                     (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    pblht                      (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    pblht_bp                   (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    prec                       (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    pwv                        (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    q                          (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    qci                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    qcl                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    qpi                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    qpl                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_mcci                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_mccl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_mcpi                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_mcpl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_ssci                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_sscl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_sspi                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    re_sspl                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    rhw                        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    ri_turb                    (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    shflx                      (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    ssp                        (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    swdf                       (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    swdp                       (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    swds                       (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    swup                       (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    swus                       (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    t                          (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    tau_mc                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    tau_ss                     (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    th                         (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    u                          (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    ustar                      (time) float32 dask.array&lt;chunksize=(240,), meta=np.ndarray&gt;
+    v                          (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    z                          (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    conv_frac_subcolumns_cl    (subcolumn, time, plm) bool False False ... False
+    conv_frac_subcolumns_ci    (subcolumn, time, plm) bool False False ... False
+    conv_frac_subcolumns_pl    (subcolumn, time, plm) bool False False ... False
+    conv_frac_subcolumns_pi    (subcolumn, time, plm) bool False False ... False
+    strat_frac_subcolumns_cl   (subcolumn, time, plm) bool False False ... False
+    strat_frac_subcolumns_ci   (subcolumn, time, plm) bool False False ... False
+    strat_frac_subcolumns_pl   (subcolumn, time, plm) bool False False ... False
+    strat_frac_subcolumns_pi   (subcolumn, time, plm) bool False False ... False
+    strat_q_subcolumns_cl      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_n_subcolumns_cl      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    conv_q_subcolumns_cl       (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_q_subcolumns_ci      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_n_subcolumns_ci      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    conv_q_subcolumns_ci       (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_q_subcolumns_pl      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_n_subcolumns_pl      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    conv_q_subcolumns_pl       (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_q_subcolumns_pi      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    strat_n_subcolumns_pi      (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    conv_q_subcolumns_pi       (subcolumn, time, plm) float32 0.0 0.0 ... 0.0
+    sub_col_Ze_tot_strat       (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_Vd_tot_strat       (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_sigma_d_tot_strat  (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_Ze_pi_strat        (subcolumn, time, plm) float64 -inf -inf ... -inf
+    sub_col_Vd_pi_strat        (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_sigma_d_pi_strat   (subcolumn, time, plm) float64 nan nan ... nan
+    mu                         (subcolumn, time, plm) float64 12.58 ... 12.58
+    lambda                     (subcolumn, time, plm) float64 nan nan ... nan
+    N_0                        (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_Ze_pl_strat        (subcolumn, time, plm) float64 -inf -inf ... -inf
+    sub_col_Vd_pl_strat        (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_sigma_d_pl_strat   (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_Ze_ci_strat        (subcolumn, time, plm) float64 -inf -inf ... -inf
+    sub_col_Vd_ci_strat        (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_sigma_d_ci_strat   (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_Ze_cl_strat        (subcolumn, time, plm) float64 -inf -inf ... -inf
+    sub_col_Vd_cl_strat        (subcolumn, time, plm) float64 nan nan ... nan
+    sub_col_sigma_d_cl_strat   (subcolumn, time, plm) float64 nan nan ... nan
+    kappa_wv                   (time, plm) float64 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    kappa_o2                   (time, plm) float32 0.019597711 ... 1.1832672e-09
+    kappa_att                  (time, plm) float64 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_att_tot_strat   (subcolumn, time, plm) float64 nan nan ... nan
+    Ze                         (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_cl_conv         (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_tot_conv        (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_ci_conv         (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_pl_conv         (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_pi_conv         (time, plm) float32 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+    sub_col_Ze_att_tot_conv    (time, plm) float64 dask.array&lt;chunksize=(240, 63), meta=np.ndarray&gt;
+Attributes:
+    xlabel:                     SCM_AWR_linft_BT0_unNa_noaer SCM_AWARE (M-PAC...
+    history:                    Fri Sep  6 17:21:45 2019: ncks -A allsteps.si...
+    history_of_appended_files:  Fri Sep  6 17:21:45 2019: Appended file allst...
+    NCO:                        4.6.7
+    _file_dates:                [&#x27;allvars&#x27;]
+    _file_times:                [&#x27;SCM_AWR_linft_BT0_unNa_noaer&#x27;]
+    _datastream:                act_datastream
+    _arm_standards_flag:        ARMStandardsFlag.OK</pre></div>
+</div>
+<p>EMC^2 interacts with the <a class="reference external" href="https://arm-doe.github.io/ACT">Atmospheric Community Toolkit</a> for easy to create visualizations. You can use the TimeSeriesDisplay object to make visualizations of both the observation and simulated radar parameters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">display</span> <span class="o">=</span> <span class="n">act</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">TimeSeriesDisplay</span><span class="p">(</span><span class="n">KAZR</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">display</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;reflectivity_copol&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;act_HomeyerRainbow&#39;</span><span class="p">,</span> <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.axes._subplots.AxesSubplot at 0x23395e350c8&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/EMC2example_11_1.png" src="_images/EMC2example_11_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">display</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;Kazr_refl.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model_display</span> <span class="o">=</span> <span class="n">act</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">TimeSeriesDisplay</span><span class="p">(</span><span class="n">my_model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">subcolumn</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">model_display</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;sub_col_Ze_cl_strat&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;act_HomeyerRainbow&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=-</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">model_display</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+<span class="n">model_display</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;model_Ze.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\Users\rjackson\AppData\Local\Continuum\anaconda3\envs\emc2_env\lib\site-packages\act\plotting\plot.py:84: UserWarning: Could not discern datastreamname and dict or tuple were not provided. Using defaultname of act_datastream!
+  &#34;name of act_datastream!&#34;), UserWarning)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/EMC2example_13_1.png" src="_images/EMC2example_13_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="API/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage/running.html" class="btn btn-neutral float-left" title="Creating your simulated variables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Bobby Jackson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

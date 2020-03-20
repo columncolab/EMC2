@@ -9,6 +9,7 @@ This module contains all of the basic I/O functions of EMC^2:
     :toctree: generated/
 
     load_mie_file
+    load_arm_file
 """
 
 from .load_mie_file import load_mie_file

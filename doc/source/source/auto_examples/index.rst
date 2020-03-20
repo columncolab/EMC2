@@ -10,7 +10,7 @@ EMC^2 Example Gallery
 
 .. raw:: html
 
-    <div style='clear:both'></div>
+    <div class="sphx-glr-clear"></div>
 
 
 
@@ -22,13 +22,13 @@ EMC^2 Example Gallery
 
   .. container:: sphx-glr-download
 
-    :download:`Download all examples in Python source code: auto_examples_python.zip <//home/rjackson/EMC2/doc/source/source/auto_examples/auto_examples_python.zip>`
+    :download:`Download all examples in Python source code: auto_examples_python.zip </C:/Users/rjackson/Documents/EMC2/doc/source/source/auto_examples/auto_examples_python.zip>`
 
 
 
   .. container:: sphx-glr-download
 
-    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip <//home/rjackson/EMC2/doc/source/source/auto_examples/auto_examples_jupyter.zip>`
+    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip </C:/Users/rjackson/Documents/EMC2/doc/source/source/auto_examples/auto_examples_jupyter.zip>`
 
 
 .. only:: html

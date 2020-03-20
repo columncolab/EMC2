@@ -39,7 +39,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None):
 
     # In case we only have one time step
     if len(data_frac.shape) == 1:
-        data_frac = data_frac[:, np.newaxis]
+        data_frac = data_frac[np.newaxis, :]
 
     conv_profs = np.zeros((model.num_subcolumns, data_frac.shape[0], data_frac.shape[1]),
                           dtype=bool)
@@ -94,7 +94,7 @@ def set_stratiform_sub_col_frac(model):
     conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
     is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
     is_cloud_one_above = np.roll(is_cloud, -1)
-    is_cloud_one_above[-1, :] = False
+    is_cloud_one_above[:, -1] = False
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
 
     cld_2_assigns = np.stack([data_frac1, data_frac2], axis=0)
@@ -102,16 +102,16 @@ def set_stratiform_sub_col_frac(model):
     cld_2_assign_max = cld_2_assigns.max(axis=0)
     I_min = np.argmin(cld_2_assigns, axis=0)
     I_max = np.argmax(cld_2_assigns, axis=0)
-    for tt in range(data_frac1.shape[1]):
-        for j in range(data_frac1.shape[0] - 1, -1, -1):
-            cld_2_assign = np.array([data_frac1[j, tt], data_frac2[j, tt]])
+    for tt in range(data_frac1.shape[0]):
+        for j in range(data_frac1.shape[1] - 1, -1, -1):
+            cld_2_assign = np.array([data_frac1[tt, j], data_frac2[tt, j]])
             I_min = np.argmin(cld_2_assign)
             I_max = np.argmax(cld_2_assign)
             if cld_2_assign[I_max] == 0:
                 continue
-            if overlapping_cloud[j, tt]:
-                overlying_locs1 = np.where(np.logical_and(strat_profs1[:, j + 1, tt], ~conv_profs[:, j, tt]))[0]
-                overlying_locs2 = np.where(np.logical_and(strat_profs2[:, j + 1, tt], ~conv_profs[:, j, tt]))[0]
+            if overlapping_cloud[tt, j]:
+                overlying_locs1 = np.where(np.logical_and(strat_profs1[:, tt, j + 1], ~conv_profs[:, tt, j]))[0]
+                overlying_locs2 = np.where(np.logical_and(strat_profs2[:, tt, j + 1], ~conv_profs[:, tt, j]))[0]
                 overlying_num = np.array([len(overlying_locs1), len(overlying_locs2)], dtype=int)
                 over_diff = abs(overlying_num[1] - overlying_num[0])
                 Iover_min = np.argmin(overlying_num)
@@ -122,64 +122,64 @@ def set_stratiform_sub_col_frac(model):
                     if cld_2_assign[I_max] > 0:
                         rand_locs = _randperm(overlying_num.min(), size=cld_2_assign[I_max])
                         inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs[0:cld_2_assign[I_min]]]
-                        locals()['strat_profs%d' % (I_min + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
                         inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
-                        locals()['strat_profs%d' % (I_max + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
                     cld_2_assign = np.zeros(2)
                 elif overlying_num[Iover_min] > cld_2_assign[I_min]:
                     if cld_2_assign[I_min] > 0:
                         rand_locs = _randperm(overlying_num.min(), size=cld_2_assign[I_min])
                         inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
-                        locals()['strat_profs%d' % (I_min + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
                         inds = locals()["overlying_locs%d" % (Iover_min + 1)]
-                        locals()['strat_profs%d' % (I_max + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
                     cld_2_assign[I_min] = 0
                     cld_2_assign[I_max] -= overlying_num[Iover_min]
 
                     if cld_2_assign[I_max] > 0 and over_diff > 0:
                         rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
                         inds = over_unique_lo[rand_locs]
-                        locals()['strat_profs%d' % (I_max + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
                         cld_2_assign[I_max] = 0.
                     else:
-                        locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, j, tt] = True
+                        locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, tt, j] = True
                         cld_2_assign[I_max] -= over_diff
                 elif overlying_num[Iover_max] > cld_2_assign[I_min]:
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)]
-                    locals()['strat_profs%d' % (I_min + 1)][inds, j, tt] = True
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j, tt] = True
+                    locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
+                    locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
                     cld_2_assign -= overlying_num[Iover_min]
 
                     if over_diff > cld_2_assign[I_max]:
                         rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
                         inds = over_unique_lo[rand_locs[1:cld_2_assign[I_min]]]
-                        locals()['strat_profs%d' % (I_min + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
                         inds = over_unique_lo[rand_locs]
-                        locals()['strat_profs%d' % (I_max + 1)][inds, j, tt] = True
+                        locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
                         cld_2_assign = np.zeros(2)
                     else:
                         if cld_2_assign[I_min] > 0:
                             rand_locs = _randperm(over_diff, size=cld_2_assign[I_min])
                             inds = over_unique_lo[rand_locs]
-                            locals()['strat_profs%d' % (I_min + 1)][inds, j, tt] = True
+                            locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
                         cld_2_assign[I_min] = 0
-                        locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, j, tt] = True
+                        locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, tt, j] = True
                         cld_2_assign[I_max] -= over_diff
                 else:
                     inds = locals()["overlying_locs%d" % (Iover_max + 1)]
-                    locals()['strat_profs%d' % (I_min + 1)][inds, j, tt] = True
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j, tt] = True
+                    locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
+                    locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
                     cld_2_assign -= overlying_num[Iover_max]
 
             if cld_2_assign[I_max] > 0:
                 sprof = locals()["strat_profs%d" % (I_max + 1)]
-                free_locs_max = np.where(np.logical_and(~sprof[:, j, tt], ~conv_profs[:, j, tt]))[0]
+                free_locs_max = np.where(np.logical_and(~sprof[:, tt, j], ~conv_profs[:, tt, j]))[0]
                 free_num = len(free_locs_max)
                 rand_locs = _randperm(free_num, size=int(cld_2_assign[I_max]))
-                locals()["strat_profs%d" % (I_max + 1)][free_locs_max[rand_locs], j, tt] = True
+                locals()["strat_profs%d" % (I_max + 1)][free_locs_max[rand_locs], tt, j] = True
                 if cld_2_assign[I_min] > 0.:
                     locals()["strat_profs%d"
-                             % (I_min + 1)][free_locs_max[rand_locs[0:cld_2_assign[I_min]]], j, tt] = True
+                             % (I_min + 1)][free_locs_max[rand_locs[0:cld_2_assign[I_min]]], tt, j] = True
 
     model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(strat_profs1,
                                                         dims=(subcolumn_dims[0],
@@ -262,38 +262,38 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     precip_exist = np.stack([np.where(data_frac1 > 0, True, False), np.where(data_frac2 > 0, True, False)])
     PF_val = np.max(np.stack([data_frac1, data_frac2]), axis=0)
     cond = [strat_profs, ~strat_profs]
-    for tt in range(data_frac1.shape[1]):
-        for j in range(data_frac1.shape[0] - 1, -1, -1):
-            if overlapping_cloud[j, tt]:
-                overlying_locs = np.where(np.any(p_strat_profs[:, j + 1, tt, :], axis=1))[0]
+    for tt in range(data_frac1.shape[0]):
+        for j in range(data_frac1.shape[1] - 1, -1, -1):
+            if overlapping_cloud[tt, j]:
+                overlying_locs = np.where(np.any(p_strat_profs[:, tt, j + 1, :], axis=1))[0]
                 overlying_num = len(overlying_locs)
-                if overlying_num > PF_val[j, tt]:
+                if overlying_num > PF_val[tt, j]:
                     rand_locs = _randperm(overlying_num, PF_val[tt, j])
                     for i in range(2):
-                        if precip_exist[i, j, tt]:
-                            p_strat_profs[overlying_locs[rand_locs], j, tt, i] = True
-                    PF_val[j, tt] = 0.
+                        if precip_exist[i, tt, j]:
+                            p_strat_profs[overlying_locs[rand_locs], tt, j, i] = True
+                    PF_val[tt, j] = 0.
                 else:
                     for i in range(2):
-                        if precip_exist[i, j, tt]:
-                            p_strat_profs[overlying_locs, j, tt, i] = True
-                    PF_val[j, tt] -= overlying_num
+                        if precip_exist[i, tt, j]:
+                            p_strat_profs[overlying_locs, tt, j, i] = True
+                    PF_val[tt, j] -= overlying_num
             for ii in range(2):
                 free_locs = np.where(np.logical_and(
-                    ~np.all(p_strat_profs[:, j, tt, :], axis=1), cond[ii][:, j, tt]))[0]
+                    ~np.all(p_strat_profs[:, tt, j, :], axis=1), cond[ii][:, tt, j]))[0]
                 free_num = len(free_locs)
                 if free_num > 0:
-                    if free_num > PF_val[j, tt]:
-                        rand_locs = _randperm(free_num, PF_val[j, tt])
+                    if free_num > PF_val[tt, j]:
+                        rand_locs = _randperm(free_num, PF_val[tt, j])
                         for i in range(2):
-                            if precip_exist[i, j, tt]:
-                                p_strat_profs[free_locs[rand_locs], j, tt, i] = True
-                        PF_val[j, tt] = 0
+                            if precip_exist[i, tt, j]:
+                                p_strat_profs[free_locs[rand_locs], tt, j, i] = True
+                        PF_val[tt, j] = 0
                     else:
                         for i in range(2):
-                            if precip_exist[i, j, tt]:
-                                p_strat_profs[free_locs, j, tt, i] = True
-                        PF_val[j, tt] -= free_num
+                            if precip_exist[i, tt, j]:
+                                p_strat_profs[free_locs, tt, j, i] = True
+                        PF_val[tt, j] -= free_num
 
     model.ds[out_prof_name1] = xr.DataArray(p_strat_profs[:, :, :, 0],
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
@@ -360,25 +360,25 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
 
         for tt in range(hyd_profs.shape[1]):
             for j in range(hyd_profs.shape[0] - 1, -1, -1):
-                hyd_in_sub_loc = np.where(sub_hyd_profs[:, j, tt])[0]
-                if tot_hyd_in_sub[j, tt] == 1:
-                    q_profs[hyd_in_sub_loc, j, tt] = q_ic_mean[j, tt]
-                elif tot_hyd_in_sub[j, tt] > 1:
-                    alpha = inv_rel_var / q_ic_mean[j, tt]
+                hyd_in_sub_loc = np.where(sub_hyd_profs[:, tt, j])[0]
+                if tot_hyd_in_sub[tt, j] == 1:
+                    q_profs[hyd_in_sub_loc, tt, j] = q_ic_mean[tt, j]
+                elif tot_hyd_in_sub[tt, j] > 1:
+                    alpha = inv_rel_var / q_ic_mean[tt, j]
                     a = inv_rel_var
                     b = 1 / alpha
-                    randlocs = np.random.permutation(tot_hyd_in_sub[j, tt])
-                    rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[j, tt] - 1)
+                    randlocs = np.random.permutation(tot_hyd_in_sub[tt, j])
+                    rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j] - 1)
                     valid_vals = False
                     counter_4_valid = 0
                     while not valid_vals:
                         counter_4_valid += 1
-                        valid_vals = (q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt] -
+                        valid_vals = (q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
                                       rand_gamma_vals[0:-counter_4_valid].sum()) > 0
                     q_profs[hyd_in_sub_loc[
-                        randlocs[:-(counter_4_valid + 1)]], j, tt] = rand_gamma_vals[:-counter_4_valid]
-                    q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j, tt] = (
-                        q_ic_mean[j, tt] * tot_hyd_in_sub[j, tt] - np.sum(rand_gamma_vals[:-counter_4_valid])) / \
+                        randlocs[:-(counter_4_valid + 1)]], tt, j] = rand_gamma_vals[:-counter_4_valid]
+                    q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], tt, j] = (
+                        q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] - np.sum(rand_gamma_vals[:-counter_4_valid])) / \
                         (1 + counter_4_valid)
 
     else:
@@ -386,9 +386,9 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         q_profs = np.tile(q_profs.values, (model.num_subcolumns, 1, 1))
         q_profs = np.where(sub_hyd_profs, q_profs, 0)
 
-    model.ds[q_name] = xr.DataArray(q_profs, dims=('subcolumn', model.height_dim, model.time_dim))
+    model.ds[q_name] = xr.DataArray(q_profs, dims=('subcolumn', model.time_dim, model.height_dim))
     if not is_conv:
-        model.ds[n_name] = xr.DataArray(N_profs, dims=('subcolumn', model.height_dim, model.time_dim))
+        model.ds[n_name] = xr.DataArray(N_profs, dims=('subcolumn', model.time_dim, model.height_dim))
 
     return model
 

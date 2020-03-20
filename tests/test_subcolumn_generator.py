@@ -55,8 +55,8 @@ def test_set_stratiform_profile():
     assert num_strat == num_conv
     num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
     num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
-    assert num_strat == 4
-    assert num_conv == 4
+    assert num_strat == 480
+    assert num_conv == 480
 
     my_model = emc2.core.model.TestHalfAndHalf()
     my_model.ds[my_model.strat_frac_names['cl']] *= 0.5
@@ -68,8 +68,8 @@ def test_set_stratiform_profile():
     my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
     num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km[1]])
     num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km[1]])
-    assert num_conv == 2
-    assert num_strat == 2
+    assert num_conv == 240
+    assert num_strat == 240
 
     my_model = emc2.core.model.TestHalfAndHalf()
     my_model.ds[my_model.strat_frac_names['cl']] *= 0.25
@@ -81,8 +81,8 @@ def test_set_stratiform_profile():
     my_model = emc2.simulator.subcolumn.set_stratiform_sub_col_frac(my_model)
     num_strat = np.sum(my_model.ds['strat_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
     num_conv = np.sum(my_model.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km[0]])
-    assert num_conv == 1
-    assert num_strat == 1
+    assert num_conv == 120
+    assert num_strat == 120
 
 
 def test_set_precip_profile():

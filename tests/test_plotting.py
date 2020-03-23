@@ -1,6 +1,7 @@
 import emc2
 import pytest
 
+
 @pytest.mark.mpl_image_compare(tolerance=30)
 def test_plot_timeseries():
     model = emc2.core.model.ModelE(emc2.test_files.TEST_SUBCOL_FILE)

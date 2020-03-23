@@ -45,7 +45,6 @@ class SubcolumnDisplay(Display):
         super().__init__(model.ds, ds_name=ds_name, **kwargs)
         self.model = model
 
-
     def plot_subcolumn_timeseries(self, variable,
                                   column_no, pressure_coords=True, title=None,
                                   subplot_index=(0, ), **kwargs):

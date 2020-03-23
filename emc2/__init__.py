@@ -7,3 +7,5 @@ __all__ = []
 from . import core
 from . import io
 from . import simulator
+from . import plotting
+from . import test_files

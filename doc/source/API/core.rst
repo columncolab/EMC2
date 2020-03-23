@@ -3,6 +3,11 @@
     :undoc-members:
     :show-inheritance:
 
-    
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
+
+.. autoclass:: emc2.core.Model
+    :members:
+
+.. autoclass:: emc2.core.Instrument
+    :members:

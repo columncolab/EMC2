@@ -14,3 +14,4 @@ of each procedure in each module is provided as a reference.
    core
    io
    simulator
+   plotting

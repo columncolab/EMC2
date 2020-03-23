@@ -340,7 +340,12 @@
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;strat_frac_subcolumns_ci&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">strat_profs2</span><span class="p">,</span>
                                                         <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                                               <span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;strat_frac_subcolumns_cl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="s2">&quot;Liquid cloud particles present? [stratiform]&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;strat_frac_subcolumns_cl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0 = no, 1 = yes&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;strat_frac_subcolumns_ci&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="s2">&quot;Liquid cloud particles present? [stratiform]&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;strat_frac_subcolumns_ci&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0 = no, 1 = yes&quot;</span>
     <span class="k">return</span> <span class="n">model</span></div>
 
 
@@ -382,6 +387,8 @@
         <span class="n">data_frac2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">conv_frac_names</span><span class="p">[</span><span class="s1">&#39;pi&#39;</span><span class="p">]]</span>
         <span class="n">out_prof_name1</span> <span class="o">=</span> <span class="s1">&#39;conv_frac_subcolumns_pl&#39;</span>
         <span class="n">out_prof_name2</span> <span class="o">=</span> <span class="s1">&#39;conv_frac_subcolumns_pi&#39;</span>
+        <span class="n">out_prof_long_name1</span> <span class="o">=</span> <span class="s1">&#39;Liquid precipitation present? [convective]&#39;</span>
+        <span class="n">out_prof_long_name2</span> <span class="o">=</span> <span class="s1">&#39;Ice precipitation present? [convective]&#39;</span>
         <span class="n">in_prof_cloud_name_liq</span> <span class="o">=</span> <span class="s1">&#39;conv_frac_subcolumns_cl&#39;</span>
         <span class="n">in_prof_cloud_name_ice</span> <span class="o">=</span> <span class="s1">&#39;conv_frac_subcolumns_ci&#39;</span>
     <span class="k">else</span><span class="p">:</span>
@@ -391,6 +398,8 @@
         <span class="n">out_prof_name2</span> <span class="o">=</span> <span class="s1">&#39;strat_frac_subcolumns_pi&#39;</span>
         <span class="n">in_prof_cloud_name_liq</span> <span class="o">=</span> <span class="s1">&#39;strat_frac_subcolumns_cl&#39;</span>
         <span class="n">in_prof_cloud_name_ice</span> <span class="o">=</span> <span class="s1">&#39;strat_frac_subcolumns_ci&#39;</span>
+        <span class="n">out_prof_long_name1</span> <span class="o">=</span> <span class="s1">&#39;Liquid precipitation present? [stratiform]&#39;</span>
+        <span class="n">out_prof_long_name2</span> <span class="o">=</span> <span class="s1">&#39;Ice precipitation present? [stratiform]&#39;</span>
 
     <span class="k">if</span> <span class="n">in_prof_cloud_name_liq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a variable in the model object. Please ensure that you have&quot;</span> <span class="o">+</span>
@@ -452,6 +461,10 @@
                                             <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">out_prof_name2</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">p_strat_profs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span>
                                             <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subcolumn_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">out_prof_name1</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_prof_long_name1</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">out_prof_name1</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0 = no, 1 = yes&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">out_prof_name2</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_prof_long_name2</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">out_prof_name2</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0 = no, 1 = yes&quot;</span>
     <span class="k">return</span> <span class="n">model</span></div>
 
 

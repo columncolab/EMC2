@@ -194,7 +194,7 @@
 </style>
 <div class="section" id="creating-your-simulated-variables">
 <h1>Creating your simulated variables<a class="headerlink" href="#creating-your-simulated-variables" title="Permalink to this headline">¶</a></h1>
-<p>Once you have created the <code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code> and <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> objects creating
+<p>Once you have created the <a class="reference internal" href="../API/core.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></a> and <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> objects creating
 the simulated variables is as easy as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ my_model = emc2.simulator.main.make_simulated_data(my_model, my_instrument, num_columns)
 </pre></div>
@@ -281,35 +281,35 @@ liquid water mixing ratio, and cloud fraction in each subcolumn.</p>
 </tr>
 <tr class="row-even"><td><p>strat_frac_subcolumns_cl</p></td>
 <td><div class="line-block">
-<div class="line">The cloud fraction of liquid water particles in</div>
+<div class="line">The presence of liquid water particles in</div>
 <div class="line">stratiform clouds.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p>strat_frac_subcolumns_ci</p></td>
 <td><div class="line-block">
-<div class="line">The cloud fraction of ice particles from stratiform</div>
+<div class="line">The presence of ice particles from stratiform</div>
 <div class="line">clouds.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-even"><td><p>strat_frac_subcolumns_pl</p></td>
 <td><div class="line-block">
-<div class="line">The fraction of the volume covered by liquid</div>
-<div class="line">precipitation.</div>
+<div class="line">The presence of liquid precipitation from</div>
+<div class="line">stratiform clouds.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p>strat_frac_subcolumns_pi</p></td>
 <td><div class="line-block">
-<div class="line">The fraction of the volume covered by ice</div>
-<div class="line">precipitation.</div>
+<div class="line">The presence of ice precipitation from stratiform</div>
+<div class="line">clouds.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-even"><td><p>conv_q_subcolumns_cl</p></td>
 <td><div class="line-block">
@@ -376,34 +376,34 @@ liquid water mixing ratio, and cloud fraction in each subcolumn.</p>
 </tr>
 <tr class="row-even"><td><p>conv_frac_subcolumns_cl</p></td>
 <td><div class="line-block">
-<div class="line">The cloud fraction of liquid water particles in</div>
+<div class="line">The presence of liquid water particles in</div>
 <div class="line">convective clouds.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p>conv_frac_subcolumns_ci</p></td>
 <td><div class="line-block">
-<div class="line">The cloud fraction of ice particles from convection.</div>
+<div class="line">The presence of ice particles from convection.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-even"><td><p>conv_frac_subcolumns_pl</p></td>
 <td><div class="line-block">
-<div class="line">The fraction of the volume covered by liquid</div>
+<div class="line">The presence of the volume covered by liquid</div>
 <div class="line">precipitation.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 <tr class="row-odd"><td><p>conv_frac_subcolumns_pi</p></td>
 <td><div class="line-block">
-<div class="line">The fraction of the volume covered by ice</div>
+<div class="line">The presence of the volume covered by ice</div>
 <div class="line">precipitation.</div>
 </div>
 </td>
-<td></td>
+<td><p>0 = No, 1 = Yes</p></td>
 </tr>
 </tbody>
 </table>

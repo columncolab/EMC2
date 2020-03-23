@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="emc2.core.model.TestModel" href="emc2.core.model.TestModel.html" />
-    <link rel="prev" title="emc2.core.model.Model" href="emc2.core.model.Model.html" /> 
+    <link rel="prev" title="emc2.core.instruments.Ten64nm" href="emc2.core.instruments.Ten64nm.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -91,11 +91,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../EMC2example.html">EMC^2 demo notebook</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="emc2.core.Instrument.html">emc2.core.Instrument</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.Model.html">emc2.core.model.Model</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.model.ModelE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestConvection.html">emc2.core.model.TestConvection</a></li>
@@ -103,6 +101,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../io.html">emc2.io (emc2.io)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html">emc2.plotting (emc2.plotting)</a></li>
 </ul>
 </li>
 </ul>
@@ -202,7 +201,16 @@
 <dl class="class">
 <dt id="emc2.core.model.ModelE">
 <em class="property">class </em><code class="sig-prename descclassname">emc2.core.model.</code><code class="sig-name descname">ModelE</code><span class="sig-paren">(</span><em class="sig-param">file_path</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_path: str</strong></dt><dd><p>Path to a ModelE simulation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
 <dt id="emc2.core.model.ModelE.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">file_path</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
@@ -225,6 +233,12 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.ModelE.__init__" title="emc2.core.model.ModelE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, file_path)</p></td>
 <td><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_subcolumns_from_netcdf</span></code>(self, file_name)</p></td>
+<td><p>Load all of the subcolumn data from a previously saved netCDF file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(self, file_name)</p></td>
+<td><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -261,7 +275,7 @@
         <a href="emc2.core.model.TestModel.html" class="btn btn-neutral float-right" title="emc2.core.model.TestModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="emc2.core.model.Model.html" class="btn btn-neutral float-left" title="emc2.core.model.Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.core.instruments.Ten64nm.html" class="btn btn-neutral float-left" title="emc2.core.instruments.Ten64nm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

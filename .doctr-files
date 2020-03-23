@@ -3,7 +3,6 @@
 ./API/generated/emc2.core.instruments.HSRL.html
 ./API/generated/emc2.core.instruments.KAZR.html
 ./API/generated/emc2.core.instruments.Ten64nm.html
-./API/generated/emc2.core.model.Model.html
 ./API/generated/emc2.core.model.ModelE.html
 ./API/generated/emc2.core.model.TestConvection.html
 ./API/generated/emc2.core.model.TestModel.html
@@ -24,6 +23,7 @@
 ./API/generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html
 ./API/index.html
 ./API/io.html
+./API/plotting.html
 ./API/simulator.html
 ./EMC2example.html
 ./EMC2example.ipynb
@@ -37,6 +37,7 @@
 ./_modules/emc2/core/model.html
 ./_modules/emc2/io/load_mie_file.html
 ./_modules/emc2/io/load_obs.html
+./_modules/emc2/plotting/subcol_display.html
 ./_modules/emc2/simulator/attenuation.html
 ./_modules/emc2/simulator/lidar_moments.html
 ./_modules/emc2/simulator/main.html
@@ -49,7 +50,6 @@
 ./_sources/API/generated/emc2.core.instruments.HSRL.rst.txt
 ./_sources/API/generated/emc2.core.instruments.KAZR.rst.txt
 ./_sources/API/generated/emc2.core.instruments.Ten64nm.rst.txt
-./_sources/API/generated/emc2.core.model.Model.rst.txt
 ./_sources/API/generated/emc2.core.model.ModelE.rst.txt
 ./_sources/API/generated/emc2.core.model.TestConvection.rst.txt
 ./_sources/API/generated/emc2.core.model.TestModel.rst.txt
@@ -70,6 +70,7 @@
 ./_sources/API/generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.rst.txt
 ./_sources/API/index.rst.txt
 ./_sources/API/io.rst.txt
+./_sources/API/plotting.rst.txt
 ./_sources/API/simulator.rst.txt
 ./_sources/EMC2example.ipynb.txt
 ./_sources/index.rst.txt

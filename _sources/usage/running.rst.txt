@@ -42,17 +42,17 @@ liquid water mixing ratio, and cloud fraction in each subcolumn.
 | strat_n_subcolumns_pi    | | The precipitating ice particle                            |                |
 |                          | | concentration in stratiform clouds.                       | :math:`m^{-3}` |
 +--------------------------+-------------------------------------------------------------+----------------+
-| strat_frac_subcolumns_cl | | The cloud fraction of liquid water particles in           |                |
+| strat_frac_subcolumns_cl | | The presence of liquid water particles in                 | 0 = No, 1 = Yes|
 |                          | | stratiform clouds.                                        |                |
 +--------------------------+-------------------------------------------------------------+----------------+
-| strat_frac_subcolumns_ci | | The cloud fraction of ice particles from stratiform       |                |
+| strat_frac_subcolumns_ci | | The presence of ice particles from stratiform             | 0 = No, 1 = Yes|
 |                          | | clouds.                                                   |                |
 +--------------------------+-------------------------------------------------------------+----------------+
-| strat_frac_subcolumns_pl | | The fraction of the volume covered by liquid              |                |
-|                          | | precipitation.                                            |                |
+| strat_frac_subcolumns_pl | | The presence of liquid precipitation from                 | 0 = No, 1 = Yes|
+|                          | | stratiform clouds.                                        |                |
 +--------------------------+-------------------------------------------------------------+----------------+
-| strat_frac_subcolumns_pi | | The fraction of the volume covered by ice                 |                |
-|                          | | precipitation.                                            |                |
+| strat_frac_subcolumns_pi | | The presence of ice precipitation from stratiform         | 0 = No, 1 = Yes|
+|                          | | clouds.                                                   |                |
 +--------------------------+-------------------------------------------------------------+----------------+
 | conv_q_subcolumns_cl     | | The cloud liquid water mixing                             |                |
 |                          | | ratio in convective clouds.                               | kg/kg          |
@@ -77,16 +77,16 @@ liquid water mixing ratio, and cloud fraction in each subcolumn.
 | conv_n_subcolumns_pi     | | The precipitation ice particle                            |                |
 |                          | | concentration in ice clouds.                              | :math:`m^{-3}` |
 +--------------------------+-------------------------------------------------------------+----------------+
-| conv_frac_subcolumns_cl  | | The cloud fraction of liquid water particles in           |                |
+| conv_frac_subcolumns_cl  | | The presence of liquid water particles in                 | 0 = No, 1 = Yes|
 |                          | | convective clouds.                                        |                |
 +--------------------------+-------------------------------------------------------------+----------------+
-| conv_frac_subcolumns_ci  | | The cloud fraction of ice particles from convection.      |                |
+| conv_frac_subcolumns_ci  | | The presence of ice particles from convection.            | 0 = No, 1 = Yes|
 |                          |                                                             |                |
 +--------------------------+-------------------------------------------------------------+----------------+
-| conv_frac_subcolumns_pl  | | The fraction of the volume covered by liquid              |                |
+| conv_frac_subcolumns_pl  | | The presence of the volume covered by liquid              | 0 = No, 1 = Yes|
 |                          | | precipitation.                                            |                |
 +--------------------------+-------------------------------------------------------------+----------------+
-| conv_frac_subcolumns_pi  | | The fraction of the volume covered by ice                 |                |
+| conv_frac_subcolumns_pi  | | The presence of the volume covered by ice                 | 0 = No, 1 = Yes|
 |                          | | precipitation.                                            |                |
 +--------------------------+-------------------------------------------------------------+----------------+
 

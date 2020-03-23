@@ -108,6 +108,9 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
     if not instrument.instrument_class.lower() == "lidar":
         raise ValueError("Instrument must be a lidar!")
 
+    hyd_names_dict = {'cl': 'cloud liquid particles', 'pl': 'liquid precipitation',
+                      'ci': 'cloud ice particles', 'pi': 'liquid ice precipitation'}
+
     p_field = model.p_field
     t_field = model.T_field
     z_field = model.z_field
@@ -171,6 +174,16 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
             model.ds["sub_col_beta_p_tot_conv"] += model.ds["sub_col_beta_p_%s_conv" % hyd_type]
             model.ds["sub_col_alpha_p_tot_conv"] += model.ds["sub_col_alpha_p_%s_conv" % hyd_type]
             model.ds["sub_col_OD_tot_conv"] += model.ds["sub_col_OD_%s_conv" % hyd_type]
+            model.ds["sub_col_beta_p_%s_conv" % hyd_type].attrs["long_name"] = \
+                "Backscatter coefficient from %s in convective clouds" % hyd_names_dict[hyd_type]
+            model.ds["sub_col_beta_p_%s_conv" % hyd_type].attrs["units"] = "m^-1"
+            model.ds["sub_col_alpha_p_%s_conv" % hyd_type].attrs["long_name"] = \
+                "Extinction coefficient from %s in convective clouds" % hyd_names_dict[hyd_type]
+            model.ds["sub_col_alpha_p_%s_conv" % hyd_type].attrs["units"] = "m^-1"
+            model.ds["sub_col_OD_%s_conv" % hyd_type].attrs["long_name"] = \
+                "Optical depth from %s in convective clouds" % hyd_names_dict[hyd_type]
+            model.ds["sub_col_OD_%s_conv" % hyd_type].attrs["units"] = "1"
+
         model = calc_LDR(instrument, model, ext_OD, OD_from_sfc, **kwargs)
         model.ds["sub_col_beta_p_tot_conv"] = model.ds["sub_col_beta_p_tot_conv"].where(
             model.ds["sub_col_beta_p_tot_conv"] != 0)
@@ -178,13 +191,24 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
             model.ds["sub_col_alpha_p_tot_conv"] != 0)
         model.ds["sub_col_OD_tot_conv"] = model.ds["sub_col_OD_tot_conv"].where(
             model.ds["sub_col_OD_tot_conv"] != 0)
+        model.ds["sub_col_beta_p_tot_conv"].attrs["long_name"] = \
+            "Backscatter coefficient from all hydrometeors in convective clouds"
+        model.ds["sub_col_beta_p_tot_conv"].attrs["units"] = "m^-1"
+        model.ds["sub_col_alpha_p_tot_conv"].attrs["long_name"] = \
+            "Extinction coefficient from all hydrometeors in convective clouds"
+        model.ds["sub_col_alpha_p_tot_conv"].attrs["units"] = "m^-1"
+        model.ds["sub_col_OD_tot_conv"].attrs["long_name"] = \
+            "Optical depth from all hydrometeors in convective clouds"
+        model.ds["sub_col_OD_tot_conv"].attrs["units"] = "1"
 
         model = calc_theory_beta_m(model, instrument.wavelength)
         beta_m = np.tile(model.ds['beta'].values, (model.num_subcolumns, 1, 1))
         T = np.tile(t_values, (model.num_subcolumns, 1, 1))
         model.ds['sub_col_beta_att_tot_conv'] = beta_m + model.ds['sub_col_beta_p_tot_conv'] * \
             T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_conv'])
-
+        model.ds["sub_col_beta_att_tot_conv"].attrs["long_name"] = \
+            "Backscatter coefficient from all hydrometeors in convective clouds including gaseous attenuation"
+        model.ds["sub_col_beta_att_tot_conv"].attrs["units"] = "m^-1"
         return model
     else:
         frac_names = model.strat_frac_names
@@ -243,9 +267,27 @@ def calc_lidar_moments(instrument, model, is_conv, ext_OD=10,
             dz = np.tile(dz, (model.num_subcolumns, 1, 1))
             model.ds["sub_col_OD_%s_conv" % hyd_type] = np.flip(np.cumsum(
                 dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2), axis=2)
+            model.ds["sub_col_beta_p_%s_strat" % hyd_type].attrs["long_name"] = \
+                "Backscatter coefficient from %s in stratiform clouds" % hyd_names_dict[hyd_type]
+            model.ds["sub_col_beta_p_%s_strat" % hyd_type].attrs["units"] = "m^-1"
+            model.ds["sub_col_alpha_p_%s_strat" % hyd_type].attrs["long_name"] = \
+                "Extinction coefficient from %s in stratiform clouds" % hyd_names_dict[hyd_type]
+            model.ds["sub_col_alpha_p_%s_strat" % hyd_type].attrs["units"] = "m^-1"
+            model.ds["sub_col_OD_%s_strat" % hyd_type].attrs["long_name"] = \
+                "Optical depth from %s in stratiform clouds" % hyd_names_dict[hyd_type]
+            model.ds["sub_col_OD_%s_strat" % hyd_type].attrs["units"] = "1"
 
             model.ds["sub_col_beta_p_tot_strat"] += model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
             model.ds["sub_col_alpha_p_tot_strat"] += model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
             model.ds["sub_col_OD_tot_strat"] += model.ds["sub_col_OD_%s_strat" % hyd_type].fillna(0)
 
+        model.ds["sub_col_beta_p_tot_strat"].attrs["long_name"] = \
+            "Backscatter coefficient from all hydrometeors in stratiform clouds"
+        model.ds["sub_col_beta_p_tot_strat"].attrs["units"] = "m^-1"
+        model.ds["sub_col_alpha_p_tot_strat"].attrs["long_name"] = \
+            "Extinction coefficient from all hydrometeors in stratiform clouds"
+        model.ds["sub_col_alpha_p_tot_strat"].attrs["units"] = "m^-1"
+        model.ds["sub_col_OD_tot_strat"].attrs["long_name"] = \
+            "Optical depth from all hydrometeors in stratiform clouds"
+        model.ds["sub_col_OD_tot_strat"].attrs["units"] = "1"
         return model

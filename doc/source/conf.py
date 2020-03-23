@@ -58,7 +58,7 @@ exclude_patterns = []
 # Generate the API documentation when building
 autosummary_generate = True
 numpydoc_show_class_members = False
-autoclass_content = "class"
+autoclass_content = "both"
 
 # -- Options for HTML output -------------------------------------------------
 

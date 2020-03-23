@@ -52,6 +52,8 @@ class Model():
        The name of the time dimension in the model.
     height_dim: str
        The name of the height dimension in the model.
+    model_name: str
+       The name of the model (used for plotting).
     """
 
     def __init__(self):
@@ -73,6 +75,7 @@ class Model():
         self.ds = None
         self.time_dim = "time"
         self.height_dim = "height"
+        self.model_name = "empty_model"
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -124,6 +127,41 @@ class Model():
         subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
         self.ds['subcolumn'] = subcolumn
 
+    def subcolumns_to_netcdf(self, file_name):
+        """
+        Saves all of the simulated subcolumn parameters to a netCDF file.
+
+        Parameters
+        ----------
+        file_name: str
+            The name of the file to save to.
+        """
+
+        # Get all relevant variables to save:
+        var_dict = {}
+        for my_var in self.ds.variables.keys():
+            if "sub_col" in my_var or "strat_" in my_var or "conv_" in my_var:
+                var_dict[my_var] = self.ds[my_var]
+
+        out_ds = xr.Dataset(var_dict)
+        out_ds.to_netcdf(file_name)
+
+    def load_subcolumns_from_netcdf(self, file_name):
+        """
+        Load all of the subcolumn data from a previously saved netCDF file.
+        The dataset being loaded must match the current number of subcolumns if there are any
+        generated.
+
+        Parameters
+        ----------
+        file_name: str
+            Name of the file to save.
+
+        """
+        my_file = xr.open_dataset(file_name)
+        self.ds = xr.merge([self.ds, my_file])
+        my_file.close()
+
 
 class ModelE(Model):
     def __init__(self, file_path):
@@ -167,15 +205,17 @@ class ModelE(Model):
         self.ds = read_netcdf(file_path)
 
         # Check to make sure we are loading a single column
-        if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-            self.ds.close()
-            raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
+        if 'lat' in [x for x in self.ds.dims.keys()]:
+            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
+                self.ds.close()
+                raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
 
-        # No need for lat and lon dimensions
-        self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+            # No need for lat and lon dimensions
+            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
 
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"
+        self.model_name = "ModelE"
 
 
 class TestModel(Model):
@@ -413,7 +453,7 @@ class TestAllStratiform(Model):
         qci = np.where(stratiform_ice, q, 0)
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights[np.newaxis, :], dims=('time', 'height'))
+        heights = xr.DataArray(heights.magnitude[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 

@@ -187,7 +187,12 @@ def set_stratiform_sub_col_frac(model):
     model.ds['strat_frac_subcolumns_ci'] = xr.DataArray(strat_profs2,
                                                         dims=(subcolumn_dims[0],
                                                               subcolumn_dims[1], subcolumn_dims[2]))
-
+    model.ds['strat_frac_subcolumns_cl'].attrs["long_name"] = \
+        "Liquid cloud particles present? [stratiform]"
+    model.ds['strat_frac_subcolumns_cl'].attrs["units"] = "0 = no, 1 = yes"
+    model.ds['strat_frac_subcolumns_ci'].attrs["long_name"] = \
+        "Liquid cloud particles present? [stratiform]"
+    model.ds['strat_frac_subcolumns_ci'].attrs["units"] = "0 = no, 1 = yes"
     return model
 
 
@@ -229,6 +234,8 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
         data_frac2 = model.ds[model.conv_frac_names['pi']]
         out_prof_name1 = 'conv_frac_subcolumns_pl'
         out_prof_name2 = 'conv_frac_subcolumns_pi'
+        out_prof_long_name1 = 'Liquid precipitation present? [convective]'
+        out_prof_long_name2 = 'Ice precipitation present? [convective]'
         in_prof_cloud_name_liq = 'conv_frac_subcolumns_cl'
         in_prof_cloud_name_ice = 'conv_frac_subcolumns_ci'
     else:
@@ -238,6 +245,8 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
         out_prof_name2 = 'strat_frac_subcolumns_pi'
         in_prof_cloud_name_liq = 'strat_frac_subcolumns_cl'
         in_prof_cloud_name_ice = 'strat_frac_subcolumns_ci'
+        out_prof_long_name1 = 'Liquid precipitation present? [stratiform]'
+        out_prof_long_name2 = 'Ice precipitation present? [stratiform]'
 
     if in_prof_cloud_name_liq not in model.ds.variables.keys():
         raise KeyError("%s is not a variable in the model object. Please ensure that you have" +
@@ -299,6 +308,10 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     model.ds[out_prof_name2] = xr.DataArray(p_strat_profs[:, :, :, 1],
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
+    model.ds[out_prof_name1].attrs["long_name"] = out_prof_long_name1
+    model.ds[out_prof_name1].attrs["units"] = "0 = no, 1 = yes"
+    model.ds[out_prof_name2].attrs["long_name"] = out_prof_long_name2
+    model.ds[out_prof_name2].attrs["units"] = "0 = no, 1 = yes"
     return model
 
 

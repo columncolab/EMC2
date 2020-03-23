@@ -89,6 +89,8 @@ def calc_radar_moments(instrument, model, is_conv,
     """
 
     hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_names_dict = {'cl': 'cloud liquid particles', 'pl': 'liquid precipitation',
+                      'ci': 'cloud ice particles', 'pi': 'liquid ice precipitation'}
     if not instrument.instrument_class.lower() == "radar":
         raise ValueError("Reflectivity can only be derived from a radar!")
 
@@ -108,6 +110,9 @@ def calc_radar_moments(instrument, model, is_conv,
                 column_ds["sub_col_Ze_tot_conv"] += 10**(column_ds[var_name] / 10)
             else:
                 column_ds["sub_col_Ze_tot_conv"] = 10**(column_ds[var_name] / 10)
+            column_ds[var_name].attrs["long_name"] = \
+                "Radar reflectivity factor from %s in convective clouds" % hyd_type
+            column_ds[var_name].attrs["units"] = "dBZ"
 
         column_ds["sub_col_Ze_tot_conv"] = 10 * np.log10(column_ds["sub_col_Ze_tot_conv"])
 
@@ -140,6 +145,12 @@ def calc_radar_moments(instrument, model, is_conv,
             10**(2 * liq_ext / 10.) / 10**(2 * atm_ext / 10.)
         column_ds["sub_col_Ze_tot_conv"] = column_ds["sub_col_Ze_tot_conv"].where(
             column_ds["sub_col_Ze_tot_conv"] != 0)
+        column_ds["sub_col_Ze_att_tot_conv"].attrs["long_name"] = \
+            "Radar reflectivity factor from all hydrometeors in convection accounting for gaseous attenuation"
+        column_ds["sub_col_Ze_att_tot_conv"].attrs["units"] = "dBZ"
+        column_ds["sub_col_Ze_tot_conv"].attrs["long_name"] = \
+            "Radar reflectivity factor from all hydrometeors in convection"
+        column_ds["sub_col_Ze_tot_conv"].attrs["units"] = "dBZ"
         model.ds = column_ds
         return model
 
@@ -265,6 +276,15 @@ def calc_radar_moments(instrument, model, is_conv,
         column_ds["sub_col_Vd_tot_strat"] = xr.DataArray(-V_d_numer_tot / moment_denom_tot,
                                                          dims=column_ds["sub_col_Ze_tot_strat"].dims)
 
+        column_ds["sub_col_Ze_%s_strat" % hyd_type].attrs["long_name"] = \
+            "Radar reflectivity factor from %s in stratiform clouds" % hyd_names_dict[hyd_type]
+        column_ds["sub_col_Ze_%s_strat" % hyd_type].attrs["units"] = "dBZ"
+        column_ds["sub_col_Vd_%s_strat" % hyd_type].attrs["long_name"] = \
+            "Doppler velocity from %s in stratiform clouds" % hyd_names_dict[hyd_type]
+        column_ds["sub_col_Vd_%s_strat" % hyd_type].attrs["units"] = "m s-1"
+        column_ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["long_name"] = \
+            "Spectral width from %s in stratiform clouds" % hyd_names_dict[hyd_type]
+        column_ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["units"] = "m s-1"
         print("Generating stratiform radar moments for hydrometeor class %s" % hyd_type)
         if hyd_type == "cl":
             for tt in range(Dims[1]):
@@ -346,6 +366,19 @@ def calc_radar_moments(instrument, model, is_conv,
         column_ds['sub_col_Vd_tot_strat'] != 0)
     column_ds['sub_col_sigma_d_tot_strat'] = column_ds['sub_col_sigma_d_tot_strat'].where(
         column_ds['sub_col_sigma_d_tot_strat'] != 0)
+
+    column_ds['sub_col_Ze_att_tot_strat'].attrs["long_name"] = \
+        "Radar reflectivity factor in stratiform clouds factoring in gaseous atteunation"
+    column_ds['sub_col_Ze_att_tot_strat'].attrs["units"] = "dBZ"
+    column_ds['sub_col_Ze_tot_strat'].attrs["long_name"] = \
+        "Radar reflectivity factor in stratiform clouds"
+    column_ds['sub_col_Ze_tot_strat'].attrs["units"] = "dBZ"
+    column_ds['sub_col_Vd_tot_strat'].attrs["long_name"] = \
+        "Doppler velocity in stratiform clouds"
+    column_ds['sub_col_Vd_tot_strat'].attrs["units"] = "m s-1"
+    column_ds['sub_col_sigma_d_tot_strat'].attrs["long_name"] = \
+        "Spectral width in stratiform clouds"
+    column_ds['sub_col_sigma_d_tot_strat'].attrs["units"] = "m s-1"
     model.ds = column_ds
 
     return model

@@ -13,11 +13,9 @@ constants used by EMC^2 are also stored in this module.
 .. autosummary::
     :toctree: generated/
 
-    Instrument
     instruments.KAZR
     instruments.HSRL
     instruments.Ten64nm
-    model.Model
     model.ModelE
     model.TestModel
     model.TestConvection

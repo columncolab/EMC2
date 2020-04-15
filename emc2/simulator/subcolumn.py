@@ -24,7 +24,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None):
     model: :py:func: `emc2.core.Model`
         The Model object with the convective fraction in each subcolumn added.
     """
-
+    np.seterr(divide='ignore', invalid='ignore')
     if model.num_subcolumns == 0 and N_columns is None:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
 
@@ -79,7 +79,7 @@ def set_stratiform_sub_col_frac(model):
     if "conv_frac_subcolumns_ci" not in model.ds.variables.keys():
         raise KeyError("You have to generate the convective fraction in each subcolumn " +
                        "before the stratiform fraction in each subcolumn is generated.")
-
+    np.seterr(divide='ignore', invalid='ignore')
     conv_profs1 = model.ds["conv_frac_subcolumns_cl"]
     conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
     N_columns = len(model.ds["subcolumn"])
@@ -218,7 +218,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     model: :py:func: `emc2.core.Model`
         The Model object with the stratiform hydrometeor fraction in each subcolumn added.
     """
-
+    np.seterr(divide='ignore', invalid='ignore')
     if model.num_subcolumns == 0 and N_columns is None:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
 
@@ -346,7 +346,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
     in the Community Atmosphere Model, Version 3 (CAM3). Part I: Description and Numerical Tests.
     J. Climate, 21, 3642–3659, https://doi.org/10.1175/2008JCLI2105.1
     """
-
+    np.seterr(divide='ignore', invalid='ignore')
     if model.num_subcolumns == 0:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
 

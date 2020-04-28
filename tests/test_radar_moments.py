@@ -49,7 +49,7 @@ def test_radar_moments_all_stratiform():
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pi', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.radar_moments.calc_radar_moments(instrument, my_model, False)
     assert np.nanmax(my_model.ds["sub_col_Ze_tot_strat"].values) < 80.
-    assert my_model.ds["sub_col_Ze_pl_strat"].values.max() < 80.
+    assert np.nanmax(my_model.ds["sub_col_Ze_pl_strat"].values) < 80.
     assert np.all(~np.isfinite(my_model.ds["sub_col_Ze_pi_strat"].values))
     assert np.all(~np.isfinite(my_model.ds["sub_col_Ze_ci_strat"].values))
     assert np.all(np.nanmax(np.abs(my_model.ds["sub_col_Vd_cl_strat"].values)) < 1)

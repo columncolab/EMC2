@@ -1,6 +1,6 @@
 from .subcolumn import set_convective_sub_col_frac, set_precip_sub_col_frac
 from .subcolumn import set_stratiform_sub_col_frac, set_q_n
-from .lidar_moments import calc_lidar_moments
+from .lidar_moments import calc_lidar_moments, calc_LDR
 from .radar_moments import calc_radar_moments
 
 
@@ -45,6 +45,17 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
         print("Generating lidar moments...")
         model = calc_lidar_moments(instrument, model, False, **kwargs)
         model = calc_lidar_moments(instrument, model, True, **kwargs)
+        if 'ext_OD' in kwargs.keys():
+            ext_OD = kwargs['ext_OD']
+        else:
+            ext_OD = 10.
+
+        if 'OD_from_sfc' in kwargs.keys():
+            OD_from_sfc = kwargs['OD_from_sfc']
+        else:
+            OD_from_sfc = True
+
+        model = calc_LDR(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
     else:
         raise ValueError("Currently, only lidars and radars are supported as instruments.")
     return model

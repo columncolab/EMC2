@@ -481,10 +481,10 @@ class TestAllStratiform(Model):
         N = xr.DataArray(N.magnitude[np.newaxis, :], dims=('time', 'height'))
         N.attrs["long_name"] = "Cloud particle number concentration"
         N.attrs["units"] = '%s' % N_units
-        qcl = xr.DataArray(qcl.magnitude[np.newaxis, :], dims=('time', 'height'))
+        qcl = xr.DataArray(qcl[np.newaxis, :], dims=('time', 'height'))
         qcl.attrs["units"] = "g kg-1"
         qcl.attrs["long_name"] = "Cloud liquid water mixing ratio"
-        qci = xr.DataArray(qci.magnitude[np.newaxis, :], dims=('time', 'height'))
+        qci = xr.DataArray(qci[np.newaxis, :], dims=('time', 'height'))
         qci.attrs["units"] = "g kg-1"
         qci.attrs["long_name"] = "Cloud ice water mixing ratio"
 

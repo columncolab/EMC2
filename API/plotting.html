@@ -37,6 +37,8 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="emc2.simulator.subcolumn.set_q_n" href="generated/emc2.simulator.subcolumn.set_q_n.html" /> 
@@ -189,9 +191,9 @@
 <h1>emc2.plotting (emc2.plotting)<a class="headerlink" href="#emc2-plotting-emc2-plotting" title="Permalink to this headline">¶</a></h1>
 <p>This module contains routines for visualizing simulated radar data from EMC^2.</p>
 </div>
-<dl class="class">
+<dl class="py class">
 <dt id="emc2.plotting.SubcolumnDisplay">
-<em class="property">class </em><code class="sig-prename descclassname">emc2.plotting.</code><code class="sig-name descname">SubcolumnDisplay</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">emc2.plotting.</code><code class="sig-name descname">SubcolumnDisplay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class contains modules for displaying the generated subcolumn parameters as quicklook
 plots. It is inherited from <a class="reference external" href="https://arm-doe.github.io/ACT">ACT</a>’s Display object. For more
 information on the Display object and its attributes and parameters, click <a class="reference external" href="https://arm-doe.github.io/ACT/API/generated/act.plotting.plot.Display.html">here</a>. In addition to the
@@ -222,9 +224,9 @@ $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subp
 </dl>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">
-<code class="sig-name descname">plot_subcolumn_timeseries</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">variable</em>, <em class="sig-param">column_no</em>, <em class="sig-param">pressure_coords=True</em>, <em class="sig-param">title=None</em>, <em class="sig-param">subplot_index=(0</em>, <em class="sig-param">)</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_subcolumn_timeseries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_subcolumn_timeseries</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">variable</em>, <em class="sig-param">column_no</em>, <em class="sig-param">pressure_coords=True</em>, <em class="sig-param">title=None</em>, <em class="sig-param">subplot_index=(0</em>, <em class="sig-param">)</em>, <em class="sig-param">\*\*kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_subcolumn_timeseries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

@@ -37,6 +37,8 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="emc2.simulator.main.make_simulated_data" href="emc2.simulator.main.make_simulated_data.html" />
@@ -204,9 +206,9 @@
 </style>
 <div class="section" id="emc2-simulator-lidar-moments-calc-lidar-moments">
 <h1>emc2.simulator.lidar_moments.calc_lidar_moments<a class="headerlink" href="#emc2-simulator-lidar-moments-calc-lidar-moments" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="emc2.simulator.lidar_moments.calc_lidar_moments">
-<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_lidar_moments</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">model</em>, <em class="sig-param">is_conv</em>, <em class="sig-param">ext_OD=10</em>, <em class="sig-param">OD_from_sfc=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_lidar_moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_lidar_moments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_lidar_moments</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">model</em>, <em class="sig-param">is_conv</em>, <em class="sig-param">OD_from_sfc=True</em>, <em class="sig-param">parallel=True</em>, <em class="sig-param">\*\*kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_lidar_moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_lidar_moments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the lidar backscatter, extinction, and optical depth
 in a given column for the given lidar.</p>
 <dl class="field-list simple">
@@ -218,11 +220,11 @@ in a given column for the given lidar.</p>
 </dd>
 <dt><strong>is_conv: bool</strong></dt><dd><p>True if the cell is convective</p>
 </dd>
-<dt><strong>ext_OD: float</strong></dt><dd><p>The optical depth at which the lidar signal is fully extinct.</p>
-</dd>
 <dt><strong>z_field: str</strong></dt><dd><p>The name of the altitude field to use.</p>
 </dd>
 <dt><strong>OD_from_sfc: bool</strong></dt><dd><p>If True, then calculate optical depth from the surface.</p>
+</dd>
+<dt><strong>parallel: bool</strong></dt><dd><p>If True, use parallelism in calculating lidar parameters.</p>
 </dd>
 <dt><strong>Additonal keyword arguments are passed into</strong></dt><dd></dd>
 <dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_LDR`.</strong></dt><dd></dd>

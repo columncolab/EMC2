@@ -37,6 +37,8 @@
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -153,7 +155,7 @@
   <h1>Source code for emc2.simulator.main</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_convective_sub_col_frac</span><span class="p">,</span> <span class="n">set_precip_sub_col_frac</span>
 <span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">,</span> <span class="n">set_q_n</span>
-<span class="kn">from</span> <span class="nn">.lidar_moments</span> <span class="kn">import</span> <span class="n">calc_lidar_moments</span>
+<span class="kn">from</span> <span class="nn">.lidar_moments</span> <span class="kn">import</span> <span class="n">calc_lidar_moments</span><span class="p">,</span> <span class="n">calc_LDR</span>
 <span class="kn">from</span> <span class="nn">.radar_moments</span> <span class="kn">import</span> <span class="n">calc_radar_moments</span>
 
 
@@ -198,6 +200,17 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating lidar moments...&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;ext_OD&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ext_OD</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ext_OD&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ext_OD</span> <span class="o">=</span> <span class="mf">10.</span>
+
+        <span class="k">if</span> <span class="s1">&#39;OD_from_sfc&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;OD_from_sfc&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_LDR</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ext_OD</span><span class="o">=</span><span class="n">ext_OD</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Currently, only lidars and radars are supported as instruments.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model</span></div>

@@ -37,6 +37,8 @@
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="emc2.simulator.lidar_moments.calc_lidar_moments" href="emc2.simulator.lidar_moments.calc_lidar_moments.html" />
@@ -204,30 +206,32 @@
 </style>
 <div class="section" id="emc2-simulator-lidar-moments-calc-ldr">
 <h1>emc2.simulator.lidar_moments.calc_LDR<a class="headerlink" href="#emc2-simulator-lidar-moments-calc-ldr" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="emc2.simulator.lidar_moments.calc_LDR">
-<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_LDR</code><span class="sig-paren">(</span><em class="sig-param">instrument</em>, <em class="sig-param">model</em>, <em class="sig-param">ext_OD</em>, <em class="sig-param">OD_from_sfc=True</em>, <em class="sig-param">LDR_per_hyd=None</em>, <em class="sig-param">is_conv=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_LDR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_LDR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the lidar extinction mask and linear depolarization ratio for
+<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_LDR</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ext_OD</span><span class="o">=</span><span class="default_value">10.0</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">LDR_per_hyd</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_LDR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_LDR" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Calculates the lidar extinction mask and linear depolarization ratio for
 the given model and lidar.</p>
-<dl class="field-list simple">
+</div></blockquote>
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>instrument: Instrument</strong></dt><dd><p>The instrument to simulate. The instrument must be a lidar.</p>
+<dd class="field-odd"><dl>
+<dt><strong>model: Model</strong></dt><dd><blockquote>
+<div><p>The model to generate the parameters for.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>ext_OD: float</dt><dd><p>The optical depth threshold for determining if the signal is extinct.</p>
 </dd>
-<dt><strong>model: Model</strong></dt><dd><p>The model to generate the parameters for.</p>
-</dd>
-<dt><strong>ext_OD: float</strong></dt><dd><p>The optical depth threshold for determining if the signal is extinct.</p>
-</dd>
-<dt><strong>OD_from_sfc: bool</strong></dt><dd><p>If True, optical depth will be calculated from the surface. If False,
+<dt>OD_from_sfc: bool</dt><dd><p>If True, optical depth will be calculated from the surface. If False,
 optical depth will be calculated from the top of the atmosphere.</p>
 </dd>
-<dt><strong>LDR_per_hyd: dict or None</strong></dt><dd><p>If a dict, the amount of LDR per hydrometeor class must be specified in
+<dt>LDR_per_hyd: dict or None</dt><dd><p>If a dict, the amount of LDR per hydrometeor class must be specified in
 a dictionary whose keywords are the model’s hydrometeor classes. If None,
 the default settings from the model will be used.</p>
 </dd>
-<dt><strong>is_conv: bool</strong></dt><dd><p>If true, calculate LDR for convective clouds. If False, LDR will be
-calculated for stratiform clouds.</p>
+</dl>
 </dd>
+<dt><strong>.</strong></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>

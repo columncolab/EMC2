@@ -47,13 +47,16 @@ class KAZR(Instrument):
         This stores the information for the KAZR.
         """
         super().__init__(frequency=34.860 * ureg.GHz)
-        if site.lower() not in ["sgp", "nsa", "awr"]:
-            raise ValueError("Site must be one of 'sgp', 'nsa', or 'awr'!")
+        if site.lower() not in ["sgp", "nsa", "awr", "ena"]:
+            raise ValueError("Site must be one of 'sgp', 'ena', 'nsa', or 'awr'!")
         self.instrument_class = "radar"
         self.ext_OD = np.nan
         self.K_w = 0.88
         self.eps_liq = (5.489262 + 2.8267679j)**2
-        self.pt = 2000.
+        if site.lower() == "ena":
+            self.pt = 2200.
+        else:
+            self.pt = 2000.
         if site.lower() == "sgp":
             self.theta = 0.19
         else:
@@ -63,10 +66,13 @@ class KAZR(Instrument):
             self.Z_min_1km = -51.5
         elif site.lower() == "nsa":
             self.gain = 10**5.337
-            self.Z_min_1km = -49.0
-        else:
+            self.Z_min_1km = -48.5
+        elif site.lower() == "awr":
             self.gain = 10**5.273
-            self.Z_min_1km = -47.2
+            self.Z_min_1km = -45.5
+        else:
+            self.gain = np.nan
+            self.Z_min_1km = -56.5
         if site.lower() == "nsa":
             self.lr = 10**0.4
             self.pr_noise_ge = 10**-6.85

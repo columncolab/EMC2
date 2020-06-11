@@ -91,6 +91,24 @@ class Model():
                 continue
             self.ds[variable].attrs = attrs
 
+    def _crop_time_range(self, time_range):
+        """
+        Crop model output time range.
+        Can significantly cut subcolumn processing time.
+
+        Parameters
+        ----------
+        time_range: datetime64
+            Two-element array with starting and ending of time range.
+
+        """
+        time_ind = np.logical_and(self.ds.time >= time_range[0], self.ds.time < time_range[1])        
+        if np.sum(time_ind) == 0:
+            self.ds.close()
+            print("The requested time range: {0} to {1} is out of the model output range; Ignoring crop request.".format(time_range[0], time_range[1]))
+        else:
+            self.ds = self.ds.isel(time= time_ind)
+
     @property
     def hydrometeor_classes(self):
         """
@@ -164,7 +182,7 @@ class Model():
 
 
 class ModelE(Model):
-    def __init__(self, file_path):
+    def __init__(self, file_path, time_range = None):
         """
         This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.
 
@@ -212,6 +230,17 @@ class ModelE(Model):
 
             # No need for lat and lon dimensions
             self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+
+        # crop specific model output time range (if requested)
+        if time_range is not None: 
+            try:
+                if np.issubdtype(time_range.dtype, np.datetime64):
+                    super()._crop_time_range(time_range)
+                else:
+                    raise RuntimeError("input time range is not in the required datetime64 data type")
+            except:
+                raise RuntimeError("input time range is not in the required numpy (datetime64) data type")
+            
 
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"

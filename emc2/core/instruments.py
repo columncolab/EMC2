@@ -150,7 +150,7 @@ class RL(Instrument):
 class HSRL(Instrument):
     def __init__(self):
         """
-        This stores the information for 532 nm lidars ,e.g., the High 
+        This stores the information for 532 nm lidars ,e.g., the High
         Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).
         """
         super().__init__(wavelength=0.532 * ureg.micrometer)

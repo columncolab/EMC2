@@ -102,10 +102,11 @@ class Model():
             Two-element array with starting and ending of time range.
 
         """
-        time_ind = np.logical_and(self.ds.time >= time_range[0], self.ds.time < time_range[1])        
+        time_ind = np.logical_and(self.ds.time >= time_range[0], self.ds.time < time_range[1])
         if np.sum(time_ind) == 0:
             self.ds.close()
-            print("The requested time range: {0} to {1} is out of the model output range; Ignoring crop request.".format(time_range[0], time_range[1]))
+            print("The requested time range: {0} to {1} is out of the \
+            model output range; Ignoring crop request.".format(time_range[0], time_range[1]))
         else:
             self.ds = self.ds.isel(time= time_ind)
 

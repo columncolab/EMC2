@@ -84,7 +84,7 @@ class WACR(Instrument):
         self.ext_OD = np.nan
         self.K_w = 0.84
         self.eps_liq = (3.468221 + 2.1423486j)**2
-        if site.lower() == "sgp":        
+        if site.lower() == "sgp":
             self.pt = 1513.
         else:
             self.pt = 1500.
@@ -97,7 +97,7 @@ class WACR(Instrument):
             self.Z_min_1km = -46.0
         else:
             self.gain = 10**3.78
-            self.Z_min_1km = -40.0 
+            self.Z_min_1km = -40.0
         if site.lower() == "sgp":
             self.tau_ge = 0.3
             self.lr = np.nan
@@ -150,7 +150,8 @@ class RL(Instrument):
 class HSRL(Instrument):
     def __init__(self):
         """
-        This stores the information for 532 nm lidars ,e.g., the High Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).
+        This stores the information for 532 nm lidars ,e.g., the High 
+        Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).
         """
         super().__init__(wavelength=0.532 * ureg.micrometer)
         self.instrument_class = "lidar"

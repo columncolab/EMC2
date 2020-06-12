@@ -237,7 +237,7 @@ class ModelE(Model):
             if np.issubdtype(time_range.dtype, np.datetime64):
                 super()._crop_time_range(time_range)
             else:
-                raise RuntimeError("input time range is not in the required datetime64 data type") 
+                raise RuntimeError("input time range is not in the required datetime64 data type")
 
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"

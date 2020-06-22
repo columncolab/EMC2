@@ -77,7 +77,7 @@ class SubcolumnDisplay(Display):
         if pressure_coords:
             y_variable = self.model.height_dim
         else:
-            y_variable = self.model.time_dim
+            y_variable = self.model.z_field
 
         x_label = 'Time [UTC]'
         if "long_name" in my_ds[y_variable].attrs and "units" in my_ds[y_variable].attrs:
@@ -87,9 +87,15 @@ class SubcolumnDisplay(Display):
             y_label = y_variable
 
         cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
-        x = my_ds[x_variable].values
-        y = my_ds[y_variable].values
-        x, y = np.meshgrid(x, y)
+        if pressure_coords:
+            x = my_ds[x_variable].values
+            y = my_ds[y_variable].values
+            x, y = np.meshgrid(x, y)
+        else:
+            x = my_ds[x_variable].values
+            y = my_ds[y_variable].values.T
+            p = my_ds[self.model.height_dim].values
+            x, p = np.meshgrid(x, p)
         mesh = self.axes[subplot_index].pcolormesh(x, y, my_ds[variable].values.T, **kwargs)
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +

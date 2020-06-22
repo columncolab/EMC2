@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,21 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -32,13 +40,6 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="emc2.core.instruments.KAZR" href="generated/emc2.core.instruments.KAZR.html" />
@@ -56,7 +57,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> EMC^2
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> EMC^2
           
 
           
@@ -79,6 +80,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -111,6 +113,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -149,7 +152,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">API Reference</a> &raquo;</li>
         
@@ -209,15 +212,15 @@ constants used by EMC^2 are also stored in this module.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR" title="emc2.core.instruments.KAZR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.KAZR</span></code></a>(site)</p></td>
-<td><p>This stores the information for the KAZR.</p></td>
+<td><p>This stores the information for the KAZR (Ka-band radar).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL" title="emc2.core.instruments.HSRL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.HSRL</span></code></a>()</p></td>
-<td><p>This stores the information for the High Resolution Spectral Lidar.</p></td>
+<td><p>This stores the information for 532 nm lidars ,e.g., the High Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm" title="emc2.core.instruments.Ten64nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.Ten64nm</span></code></a>()</p></td>
-<td><p>This stores the information for the 1064nm Lidar.</p></td>
+<td><p>This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE" title="emc2.core.model.ModelE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.ModelE</span></code></a>(file_path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE" title="emc2.core.model.ModelE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.ModelE</span></code></a>(file_path[, time_range])</p></td>
 <td><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.model.TestModel.html#emc2.core.model.TestModel" title="emc2.core.model.TestModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.TestModel</span></code></a>()</p></td>
@@ -374,7 +377,7 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 </dl>
 <dl class="py method">
 <dt id="emc2.core.Instrument.read_arm_netcdf_file">
-<code class="sig-name descname">read_arm_netcdf_file</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">filename</em>, <em class="sig-param">\*\*kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_arm_netcdf_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a netCDF file that corresponds to ARM standards.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -409,11 +412,19 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Bobby Jackson
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -424,7 +435,6 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

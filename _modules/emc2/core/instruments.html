@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,21 @@
   
 
   
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,13 +40,6 @@
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -54,7 +55,7 @@
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> EMC^2
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> EMC^2
           
 
           
@@ -77,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -95,6 +97,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -133,7 +136,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -167,10 +170,146 @@
 <span class="kn">from</span> <span class="nn">..io</span> <span class="kn">import</span> <span class="n">load_mie_file</span>
 
 
+<div class="viewcode-block" id="KAZR"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR">[docs]</a><span class="k">class</span> <span class="nc">KAZR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="KAZR.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the KAZR (Ka-band radar).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">34.860</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sgp&quot;</span><span class="p">,</span> <span class="s2">&quot;nsa&quot;</span><span class="p">,</span> <span class="s2">&quot;awr&quot;</span><span class="p">,</span> <span class="s2">&quot;ena&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site must be one of &#39;sgp&#39;, &#39;ena&#39;, &#39;nsa&#39;, or &#39;awr&#39;!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;KAZR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.88</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.489262</span> <span class="o">+</span> <span class="mf">2.8267679</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ena&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">2200.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">2000.</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.19</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.31</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.748</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">51.5</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nsa&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.337</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">48.5</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;awr&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.273</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">45.5</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">56.5</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nsa&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">0.4</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**-</span><span class="mf">6.85</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**-</span><span class="mf">7.23</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="mf">4.0</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ena&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="mf">4.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="c1"># Load mie tables</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;mie_tables&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_ci.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_pi.dat&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">WACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the WACR or M-WACR (W-band radars).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">95.04</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sgp&quot;</span><span class="p">,</span> <span class="s2">&quot;awr&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site must be one of &#39;sgp&#39; or &#39;awr&#39;!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;WACR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.84</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.468221</span> <span class="o">+</span> <span class="mf">2.1423486</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">1513.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">1500.</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.19</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.38</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">3.94</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">46.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">3.78</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">40.0</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="c1"># Load mie tables</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;mie_tables&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieWACR_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieWACR_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieWACR_ci.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieWACR_pi.dat&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for 355 nm lidars ,e.g., ARM Raman lidar (elastic channel).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.355</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;RL&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.357247</span> <span class="o">+</span> <span class="mf">2.4198595e-9</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># Load mie tables</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;mie_tables&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieRL_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieRL_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieRL_ci.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieRL_pi.dat&quot;</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="HSRL"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL">[docs]</a><span class="k">class</span> <span class="nc">HSRL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="HSRL.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This stores the information for the High Resolution Spectral Lidar.</span>
+<span class="sd">        This stores the information for 532 nm lidars ,e.g., the High</span>
+<span class="sd">        Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.532</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
@@ -196,59 +335,42 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieHSRL_pi.dat&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="KAZR"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR">[docs]</a><span class="k">class</span> <span class="nc">KAZR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-<div class="viewcode-block" id="KAZR.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CEIL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This stores the information for the KAZR.</span>
+<span class="sd">        This stores the information for 910 nm lidars ,e.g., the CL31 ceilometer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">34.860</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sgp&quot;</span><span class="p">,</span> <span class="s2">&quot;nsa&quot;</span><span class="p">,</span> <span class="s2">&quot;awr&quot;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site must be one of &#39;sgp&#39;, &#39;nsa&#39;, or &#39;awr&#39;!&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.88</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.489262</span> <span class="o">+</span> <span class="mf">2.8267679</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">2000.</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.19</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.31</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.748</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">51.5</span>
-        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nsa&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.337</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">49.0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.273</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">47.2</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nsa&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">0.4</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**-</span><span class="mf">6.85</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**-</span><span class="mf">7.23</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="mf">4.0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.910</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;CEIL&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.323434</span> <span class="o">+</span> <span class="mf">5.6988883e-7</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
         <span class="c1"># Load mie tables</span>
         <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;mie_tables&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_liq.dat&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_liq.dat&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_ci.dat&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieKAZR_pi.dat&quot;</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieCEIL_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieCEIL_liq.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieCEIL_ci.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mie_table</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_mie_file</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;/MieCEIL_pi.dat&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Ten64nm"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm">[docs]</a><span class="k">class</span> <span class="nc">Ten64nm</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="Ten64nm.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This stores the information for the 1064nm Lidar.</span>
+<span class="sd">        This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">1.064</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_name</span> <span class="o">=</span> <span class="s2">&quot;1064nm&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -280,11 +402,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Bobby Jackson
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -295,7 +425,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

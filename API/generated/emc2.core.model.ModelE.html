@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,21 @@
   
 
   
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -32,13 +40,6 @@
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="emc2.core.model.TestModel" href="emc2.core.model.TestModel.html" />
@@ -56,7 +57,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> EMC^2
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> EMC^2
           
 
           
@@ -79,6 +80,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -111,6 +113,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -149,7 +152,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">API Reference</a> &raquo;</li>
         
@@ -202,7 +205,7 @@
 <h1>emc2.core.model.ModelE<a class="headerlink" href="#emc2-core-model-modele" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="emc2.core.model.ModelE">
-<em class="property">class </em><code class="sig-prename descclassname">emc2.core.model.</code><code class="sig-name descname">ModelE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">emc2.core.model.</code><code class="sig-name descname">ModelE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">time_range</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -214,7 +217,7 @@
 </dl>
 <dl class="py method">
 <dt id="emc2.core.model.ModelE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">file_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">time_range</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.core.model.ModelE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -233,7 +236,7 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.ModelE.__init__" title="emc2.core.model.ModelE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, file_path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.ModelE.__init__" title="emc2.core.model.ModelE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(self, file_path[, time_range])</p></td>
 <td><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_subcolumns_from_netcdf</span></code>(self, file_name)</p></td>
@@ -286,11 +289,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Bobby Jackson
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -301,7 +312,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

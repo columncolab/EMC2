@@ -25,6 +25,7 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
     model: :func:`emc2.core.Model`
         The model with all of the simulated parameters generated.
     """
+    print("1,2, check, check")
     print("## Creating subcolumns...")
     hydrometeor_classes = model.conv_frac_names.keys()
     for hyd_type in hydrometeor_classes:
@@ -37,23 +38,28 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
         model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
         model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
 
+    if 'OD_from_sfc' in kwargs.keys():
+        OD_from_sfc = kwargs['OD_from_sfc']
+    else:
+        OD_from_sfc = True
+
+    if 'parallel' in kwargs.keys():
+        parallel = kwargs['parallel']
+    else:
+        parallel = True
+
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")
-        model = calc_radar_moments(instrument, model, False, **kwargs)
-        model = calc_radar_moments(instrument, model, True, **kwargs)
+        model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
     elif instrument.instrument_class.lower() == "lidar":
         print("Generating lidar moments...")
-        model = calc_lidar_moments(instrument, model, False, **kwargs)
-        model = calc_lidar_moments(instrument, model, True, **kwargs)
+        model = calc_lidar_moments(instrument, model, False,OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
         if 'ext_OD' in kwargs.keys():
             ext_OD = kwargs['ext_OD']
         else:
             ext_OD = 10.
-
-        if 'OD_from_sfc' in kwargs.keys():
-            OD_from_sfc = kwargs['OD_from_sfc']
-        else:
-            OD_from_sfc = True
 
         model = calc_LDR(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
     else:

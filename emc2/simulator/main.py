@@ -40,11 +40,13 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
 
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']
+        del kwargs['OD_from_sfc']
     else:
         OD_from_sfc = True
 
     if 'parallel' in kwargs.keys():
         parallel = kwargs['parallel']
+        del kwargs['parallel']
     else:
         parallel = True
 

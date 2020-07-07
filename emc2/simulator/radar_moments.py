@@ -236,6 +236,8 @@ def calc_radar_moments(instrument, model, is_conv,
         else:
             column_ds["sub_col_Ze_tot_strat"] = column_ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
 
+        column_ds["sub_col_Ze_%s_strat" % hyd_type] = column_ds["sub_col_Ze_%s_strat" % hyd_type].where(
+            column_ds["sub_col_Ze_%s_strat" % hyd_type] > 0)
         column_ds["sub_col_Ze_%s_strat" % hyd_type] = 10 * np.log10(column_ds["sub_col_Ze_%s_strat" % hyd_type])
         column_ds["sub_col_Ze_%s_strat" % hyd_type].attrs["long_name"] = \
             "Radar reflectivity factor from %s in stratiform clouds" % hyd_names_dict[hyd_type]
@@ -292,9 +294,9 @@ def calc_radar_moments(instrument, model, is_conv,
     column_ds['sub_col_Ze_att_tot_strat'] = \
         column_ds['sub_col_Ze_tot_strat'] * np.exp(-2 * od_tot) / 10**(2 * atm_ext / 10)
     column_ds['sub_col_Ze_tot_strat'] = column_ds['sub_col_Ze_tot_strat'].where(
-        column_ds['sub_col_Ze_tot_strat'] != 0)
-    column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_tot_strat'].where(
-        column_ds['sub_col_Ze_att_tot_strat'] != 0)
+        column_ds['sub_col_Ze_tot_strat'] > 0)
+    column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_att_tot_strat'].where(
+        column_ds['sub_col_Ze_att_tot_strat'] > 0)
     column_ds['sub_col_Ze_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_tot_strat'])
     column_ds['sub_col_Ze_att_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_att_tot_strat'])
     column_ds['sub_col_Ze_att_tot_strat'].attrs["long_name"] = \

@@ -25,7 +25,6 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
     model: :func:`emc2.core.Model`
         The model with all of the simulated parameters generated.
     """
-    print("1,2, check, check")
     print("## Creating subcolumns...")
     hydrometeor_classes = model.conv_frac_names.keys()
     for hyd_type in hydrometeor_classes:

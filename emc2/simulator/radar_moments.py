@@ -391,11 +391,10 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         lambda_tmp = lambdas[:, tt, k].max(axis=0)
         if np.isnan(N_0_tmp):
             continue
-        p_diam2 = (p_diam * 2)
         mu_temp = mu[:, tt, k]
         N_D = []
         for i in range(num_subcolumns):
-            N_D.append(N_0_tmp * p_diam2 ** mu_temp[i] * np.exp(-lambda_tmp * p_diam2))
+            N_D.append(N_0_tmp * p_diam ** mu_temp[i] * np.exp(-lambda_tmp * p_diam))
         N_D = np.stack(N_D, axis=0)
 
         Calc_tmp = beta_p * N_D
@@ -434,7 +433,7 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
         lambda_tmp = fits_ds["lambda"][:, tt, k].values.max(axis=0)
         if np.isnan(N_0_tmp):
             continue
-        p_diam = (instrument.mie_table[hyd_type]["p_diam"].values * 2)
+        p_diam = instrument.mie_table[hyd_type]["p_diam"].values
         mu_temp = fits_ds["mu"].values[:, tt, k]
         num_diam = len(p_diam)
         N_D = []

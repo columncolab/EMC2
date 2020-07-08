@@ -202,7 +202,7 @@ def calc_lidar_moments(instrument, model, is_conv,
             raise KeyError("Water mixing ratio in convective subcolumns must be generated first!")
         Dims = column_ds["strat_q_subcolumns_cl"].values.shape
         for hyd_type in ["pi", "pl", "ci", "cl"]:
-            print("Generating stratiform radar moments for hydrometeor class %s" % hyd_type)
+            print("Generating stratiform lidar variables for hydrometeor class %s" % hyd_type)
             if hyd_type == "pi":
                 model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
                     np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)

@@ -193,7 +193,6 @@ def calc_radar_moments(instrument, model, is_conv,
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = v_tmp.magnitude
         if hyd_type == "cl":
-            tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             mu = fits_ds["mu"].values
@@ -202,6 +201,8 @@ def calc_radar_moments(instrument, model, is_conv,
                 x, total_hydrometeor, N_0, lambdas, mu,
                 alpha_p, beta_p, v_tmp, num_subcolumns, instrument, dD, p_diam)
             if parallel:
+                print("Doing parallel calculation for %s" % hyd_type)
+                tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
                 my_tuple = tt_bag.map(_calc_liquid).compute()
             else:
                 my_tuple = [x for x in map(_calc_liquid, np.arange(0, Dims[1], 1))]
@@ -215,12 +216,11 @@ def calc_radar_moments(instrument, model, is_conv,
             column_ds["sub_col_sigma_d_cl_strat"][:, :, :] = np.stack([x[5] for x in my_tuple], axis=1)
             del my_tuple
         else:
-            print("Doing parallel calculation for %s" % hyd_type)
-            tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_other = lambda x: _calculate_other_observables(
                 x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, dD)
             if parallel:
+                print("Doing parallel calculation for %s" % hyd_type)
                 my_tuple = tt_bag.map(_calc_other).compute()
             else:
                 my_tuple = [x for x in map(_calc_other, np.arange(0, Dims[1], 1))]
@@ -253,8 +253,6 @@ def calc_radar_moments(instrument, model, is_conv,
                                                      dims=column_ds["sub_col_Ze_tot_strat"].dims)
     for hyd_type in ["cl", "pl", "ci", "pi"]:
         if hyd_type == "cl":
-            print("Doing parallel calculation for %s" % hyd_type)
-            tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
             Vd_tot = column_ds["sub_col_Vd_tot_strat"].values
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
                 x, fits_ds, instrument, model, total_hydrometeor, dD, Vd_tot)

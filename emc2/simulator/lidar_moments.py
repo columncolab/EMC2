@@ -284,6 +284,7 @@ def calc_lidar_moments(instrument, model, is_conv,
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,
                                  hyd_type, num_subcolumns, dD, beta_p, alpha_p):
     Dims = total_hydrometeor.shape
+    num_diam = len(p_diam)
     beta_p_strat = np.zeros((num_subcolumns, Dims[1]))
     alpha_p_strat = np.zeros((num_subcolumns, Dims[1]))
 
@@ -302,9 +303,9 @@ def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor
 
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
         beta_p_strat[:, k] = (
-            Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+            Calc_tmp[:, ::num_diam-1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
         Calc_tmp = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
         alpha_p_strat[:, k] = (
-            Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+            Calc_tmp[:, ::num_diam-1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
 
     return beta_p_strat, alpha_p_strat

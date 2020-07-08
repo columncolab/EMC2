@@ -281,12 +281,10 @@ def calc_radar_moments(instrument, model, is_conv,
     kappa_ds = calc_radar_atm_attenuation(instrument, model)
 
     if OD_from_sfc:
-        disp("1,2, check, check, 1,2")
         dz = np.diff(column_ds[z_field].values, axis=1, prepend=0)
         dz = np.tile(dz, (Dims[0], 1, 1))
         od_tot = np.cumsum(dz * od_tot, axis=1)
         atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=2)
-        disp("1,2, check, check")
     else:
         dz = np.diff(column_ds[z_field].values, prepend=0)
         dz = np.tile(dz, (Dims[0], 1, 1))

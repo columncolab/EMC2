@@ -35,7 +35,7 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
 
     if hyd_type.lower() not in ['cl', 'ci', 'pl', 'pi']:
         raise ValueError("%s is not a valid hydrometeor type. Valid choices are cl, ci, pl, and pi." % hyd_type)
-    q_field = model.q_names_convective[hyd_type]
+    q_field = “conv_q_subcolumns_%s” % hyd_type
     p_field = model.p_field
     t_field = model.T_field
     column_ds = model.ds

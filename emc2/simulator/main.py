@@ -55,7 +55,7 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
         model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
     elif instrument.instrument_class.lower() == "lidar":
         print("Generating lidar moments...")
-        model = calc_lidar_moments(instrument, model, False,OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
         if 'ext_OD' in kwargs.keys():
             ext_OD = kwargs['ext_OD']

@@ -160,7 +160,6 @@ def calc_radar_moments(instrument, model, is_conv,
         model.ds = column_ds
         return model
 
-
     Dims = column_ds["strat_q_subcolumns_cl"].values.shape
 
     moment_denom_tot = np.zeros(Dims)
@@ -237,8 +236,6 @@ def calc_radar_moments(instrument, model, is_conv,
         else:
             column_ds["sub_col_Ze_tot_strat"] = column_ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
 
-        #column_ds["sub_col_Ze_%s_strat" % hyd_type] = column_ds["sub_col_Ze_%s_strat" % hyd_type].where(
-        #    column_ds["sub_col_Ze_%s_strat" % hyd_type] > 0)
         column_ds["sub_col_Ze_%s_strat" % hyd_type] = 10 * np.log10(column_ds["sub_col_Ze_%s_strat" % hyd_type])
         column_ds["sub_col_Ze_%s_strat" % hyd_type].attrs["long_name"] = \
             "Radar reflectivity factor from %s in stratiform clouds" % hyd_names_dict[hyd_type]

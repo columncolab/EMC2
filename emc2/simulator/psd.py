@@ -84,8 +84,8 @@ def calc_mu_lambda(model, hyd_type="cl",
     column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0).astype(np.longdouble)
     column_ds["lambda"].attrs["long_name"] = "Slope of gamma distribution fit"
     column_ds["lambda"].attrs["units"] = "m-1"
-    column_ds["N_0"] = column_ds[N_name].astype(np.longdouble) * 1e6 * column_ds["lambda"]**(column_ds["mu"] + 1.) /\
-        gamma(column_ds["mu"] + 1.)
+    column_ds["N_0"] = column_ds[N_name].astype(np.longdouble) * 1e6 * \
+        column_ds["lambda"]**(column_ds["mu"] + 1.) / gamma(column_ds["mu"] + 1.)
     column_ds["N_0"].attrs["long_name"] = "Intercept of gamma fit"
     column_ds["N_0"].attrs["units"] = "m-4"
     model.ds = column_ds

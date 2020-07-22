@@ -196,13 +196,13 @@ def calc_lidar_moments(instrument, model, is_conv,
         model.ds["sub_col_beta_att_tot_conv"].attrs["units"] = "m^-1"
         return model
     else:
-        frac_names = model.strat_frac_names
-        n_names = model.q_names_stratiform
         if "strat_q_subcolumns_cl" not in model.ds.variables.keys():
             raise KeyError("Water mixing ratio in convective subcolumns must be generated first!")
         Dims = column_ds["strat_q_subcolumns_cl"].values.shape
         for hyd_type in ["pi", "pl", "ci", "cl"]:
-            print("Generating stratiform radar moments for hydrometeor class %s" % hyd_type)
+            n_names = "strat_n_subcolumns_%s" % hyd_type
+            frac_names = "strat_frac_subcolumns_%s" % hyd_type
+            print("Generating stratiform lidar variables for hydrometeor class %s" % hyd_type)
             if hyd_type == "pi":
                 model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
                     np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
@@ -217,7 +217,7 @@ def calc_lidar_moments(instrument, model, is_conv,
             dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
                 instrument.mie_table[hyd_type]["p_diam"].values[0]
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
-            total_hydrometeor = column_ds[frac_names[hyd_type]] * column_ds[n_names[hyd_type]]
+            total_hydrometeor = column_ds[frac_names] * column_ds[n_names]
             N_0 = fits_ds["N_0"].values
             mu = fits_ds["mu"].values
             num_subcolumns = model.num_subcolumns
@@ -284,13 +284,14 @@ def calc_lidar_moments(instrument, model, is_conv,
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,
                                  hyd_type, num_subcolumns, dD, beta_p, alpha_p):
     Dims = total_hydrometeor.shape
-    beta_p_strat = np.zeros((num_subcolumns, Dims[1]))
-    alpha_p_strat = np.zeros((num_subcolumns, Dims[1]))
+    num_diam = len(p_diam)
+    beta_p_strat = np.zeros((num_subcolumns, Dims[2]))
+    alpha_p_strat = np.zeros((num_subcolumns, Dims[2]))
 
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
-    for k in range(Dims[1]):
-        if total_hydrometeor.values[tt, k] == 0:
+    for k in range(Dims[2]):
+        if np.all(total_hydrometeor.values[:, tt, k] == 0):
             continue
         N_D = []
         for i in range(num_subcolumns):
@@ -302,9 +303,9 @@ def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor
 
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
         beta_p_strat[:, k] = (
-            Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+            Calc_tmp[:, ::num_diam - 1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
         Calc_tmp = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
         alpha_p_strat[:, k] = (
-            Calc_tmp[:, :].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+            Calc_tmp[:, ::num_diam - 1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
 
     return beta_p_strat, alpha_p_strat

@@ -351,22 +351,23 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         raise RuntimeError("The number of subcolumns must be specified in the model!")
 
     if not is_conv:
-        hyd_profs = model.ds[model.strat_frac_names[hyd_type]]
-        N_profs = model.ds[model.N_field[hyd_type]]
-        N_profs = N_profs / hyd_profs.values
+        hyd_profs = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
+        N_profs = model.ds[model.N_field[hyd_type]].astype('float64').values
+        N_profs = N_profs / hyd_profs
         sub_hyd_profs = model.ds['strat_frac_subcolumns_%s' % hyd_type].values
-        N_profs = np.tile(N_profs.values, (model.num_subcolumns, 1, 1))
+        N_profs = np.tile(N_profs, (model.num_subcolumns, 1, 1))
         N_profs = np.where(sub_hyd_profs, N_profs, 0)
-        q_array = model.ds[model.q_names_stratiform[hyd_type]]
+        q_array = model.ds[model.q_names_stratiform[hyd_type]].astype('float64').values
         q_name = "strat_q_subcolumns_%s" % hyd_type
         n_name = "strat_n_subcolumns_%s" % hyd_type
     else:
-        hyd_profs = model.ds[model.conv_frac_names[hyd_type]]
-        sub_hyd_profs = hyd_profs.values
-        q_array = model.ds[model.q_names_convective[hyd_type]]
+        hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
+        sub_hyd_profs = model.ds['conv_frac_subcolumns_%s' % hyd_type]
+        q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
         q_name = "conv_q_subcolumns_%s" % hyd_type
 
     q_ic_mean = q_array / hyd_profs
+    q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
     if qc_flag:
         tot_hyd_in_sub = sub_hyd_profs.sum(axis=0)
         q_profs = np.zeros_like(sub_hyd_profs, dtype=float)
@@ -396,12 +397,18 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
 
     else:
         q_profs = q_array / hyd_profs
-        q_profs = np.tile(q_profs.values, (model.num_subcolumns, 1, 1))
+        q_profs = np.tile(q_profs, (model.num_subcolumns, 1, 1))
         q_profs = np.where(sub_hyd_profs, q_profs, 0)
 
+    q_profs = np.where(np.isnan(q_profs), 0, q_profs)
     model.ds[q_name] = xr.DataArray(q_profs, dims=('subcolumn', model.time_dim, model.height_dim))
+    model.ds[q_name].attrs["long_name"] = "Q in subcolumns"
+    model.ds[q_name].attrs["units"] = "kg/kg"
     if not is_conv:
+        N_profs = np.where(np.isnan(N_profs), 0, N_profs)
         model.ds[n_name] = xr.DataArray(N_profs, dims=('subcolumn', model.time_dim, model.height_dim))
+        model.ds[n_name].attrs["long_name"] = "N in subcolumns"
+        model.ds[n_name].attrs["units"] = "cm-3"
 
     return model
 

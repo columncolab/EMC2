@@ -29,7 +29,7 @@ def load_mie_file(filename):
     my_df["wavelength"].attrs["long_name"] = "Wavelength of beam"
     my_df["wavelength"].attrs["standard_name"] = "wavelength"
 
-    my_df["p_diam"].attrs["units"] = "microns"
+    my_df["p_diam"].attrs["units"] = "meters"
     my_df["p_diam"].attrs["long_name"] = "Diameter of particle"
     my_df['p_diam'].attrs["standard_name"] = "Diameter"
 
@@ -50,11 +50,11 @@ def load_mie_file(filename):
     my_df["scat_p"].attrs["long_name"] = "Forward scattering cross section"
     my_df["scat_p"].attrs["standard_name"] = "Scat_cross_section_fwd"
 
-    my_df["alpha_p"].attrs["units"] = "microns^2"
+    my_df["alpha_p"].attrs["units"] = "meters^2"
     my_df["alpha_p"].attrs["long_name"] = "Back scattering cross section"
     my_df["alpha_p"].attrs["standard_name"] = "Scat_cross_section_back"
 
-    my_df["beta_p"].attrs["units"] = "1"
+    my_df["beta_p"].attrs["units"] = "meters^2"
     my_df["beta_p"].attrs["long_name"] = "Extinction cross section"
     my_df["beta_p"].attrs["standard_name"] = "Ext_cross_section"
 

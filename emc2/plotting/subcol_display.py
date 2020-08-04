@@ -110,3 +110,107 @@ class SubcolumnDisplay(Display):
         cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
         cbar.set_label(cbar_label)
         return self.axes[subplot_index]
+
+    def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
+                               subplot_index=(0,), log_plot=False):
+        return
+
+    def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
+                               subplot_index=(0,), log_plot=False, **kwargs):
+        """
+        This function will plot a mean vertical profile of a subcolumn variable for a given time period. The
+        thick line will represent the mean profile along the subcolumns, and the shading represents one
+        standard deviation about the mean.
+
+        Parameters
+        ----------
+        variable: str
+            The name of the variable to plot.
+        time: tuple of Datetime or str
+            The time period to plot. If a string, specify in the format '%Y-%m-%dT%H:%M:%S'
+        pressure_coords: bool
+            Set to true to plot in pressure coordinates.
+        title: str or None
+            Set the title of the plot to this string. Set to None to provide a default title
+        subplot_index: tuple
+            The index of the subplot to make the plot in.
+        log_plot: bool
+            Set to true to plot variable in logarithmic space.
+        kwargs
+
+        Returns
+        -------
+        axes: Matplotlib axes handle
+            The matplotlib axes handle of the plot.
+
+        """
+
+        ds_name = [x for x in self._arm.keys()][0]
+        my_ds = self._arm[ds_name].sel(time=time, method='nearest')
+        if pressure_coords:
+            y_variable = my_ds[self.model.p_field]
+            y_label = 'Pressure [hPa]'
+        else:
+            y_variable = my_ds[self.model.height_dim]
+            y_label = 'Height [hPa]'
+
+        x_variable = my_ds[variable].values
+        x_variable = np.where(np.isfinite(x_variable), x_variable, np.nan)
+
+        if 'Ze' in variable:
+            x_var = np.nanmean(x_variable, axis=0)
+            x_err = np.nanstd(x_variable, ddof=0, axis=0)
+            x_lim = np.array([np.nanmin(np.floor(x_var - x_err)),
+                              np.nanmax(np.ceil(x_var + x_err))])
+            x_label = ''
+        elif log_plot:
+            x_var = np.nanmean(np.log10(x_variable), axis=0)
+            x_err = np.nanstd(np.log10(x_variable), ddof=0, axis=0)
+            x_lim = np.array([np.nanmin(10 ** (np.floor(x_var - x_err))).min(),
+                              np.nanmax(10 ** (np.ceil(x_var + x_err))).max()])
+            x_label = 'log '
+        else:
+            x_var = np.nanmean(x_variable, axis=0)
+            x_err = np.nanstd(x_variable, ddof=0, axis=0)
+            x_lim = np.array([np.nanmin(np.floor(x_var - x_err)), np.nanmax(np.ceil(x_var + x_err))])
+            x_label = ''
+
+        # Choose label based on variable
+        hyd_met = ''
+        hyd_types = ['cl', 'ci', 'pl', 'pi', 'tot']
+        for hyd in hyd_types:
+            if hyd in variable:
+                hyd_met = hyd
+
+        variables = ['Ze', 'Vd', 'sigma_d', 'od', 'beta', 'alpha']
+
+        for var in variables:
+            if var in variable:
+                if var == 'Ze':
+                    x_label += '$Z_{e, %s}$ [dBZ]' % hyd_met
+                elif var == 'Vd':
+                    x_label += '$V_{d, %s}$ [m/s]' % hyd_met
+                elif var == 'sigma_d':
+                    x_label += '$\sigma_{d, %s}$ [m/s]' % hyd_met
+                elif var == 'od':
+                    x_label += '$\tau_{%s}$' % hyd_met
+                elif var == 'beta':
+                    x_label += '$\beta_{%s}$ [$m^{-2}$]' % hyd_met
+                elif var == 'alpha':
+                    x_label += '$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
+
+        if x_label == '' or x_label == 'log':
+            x_label = variable
+
+        self.axes[subplot_index].plot(x_var, y_variable)
+        self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
+                                               alpha=0.5, color='deepskyblue')
+        if title is None:
+            self.axes[subplot_index].set_title(time)
+        else:
+            self.axes[subplot_index].set_title(title)
+
+        self.axes[subplot_index].set_xlabel(x_label)
+        self.axes[subplot_index].set_ylabel(y_label)
+        self.axes[subplot_index].set_xlim(x_lim)
+        return self.axes[subplot_index]

@@ -152,7 +152,7 @@ class SubcolumnDisplay(Display):
         return self.axes[subplot_index]
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
-                               subplot_index=(0,), colorbar=True, cbar_label=None, **kwargs):
+                            subplot_index=(0,), colorbar=True, cbar_label=None, **kwargs):
         """
         Plots the single profile of subcolumns for a given time period.
 
@@ -230,9 +230,8 @@ class SubcolumnDisplay(Display):
 
         return self.axes[subplot_index]
 
-
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
-                               subplot_index=(0,), log_plot=False, **kwargs):
+                                    subplot_index=(0,), log_plot=False, **kwargs):
         """
         This function will plot a mean vertical profile of a subcolumn variable for a given time period. The
         thick line will represent the mean profile along the subcolumns, and the shading represents one
@@ -274,10 +273,13 @@ class SubcolumnDisplay(Display):
         x_variable = np.where(np.isfinite(x_variable), x_variable, np.nan)
 
         if 'Ze' in variable:
-            x_var = np.nanmean(x_variable, axis=0)
-            x_err = np.nanstd(x_variable, ddof=0, axis=0)
-            x_lim = np.array([np.nanmin(np.floor(x_var - x_err)),
-                              np.nanmax(np.ceil(x_var + x_err))])
+            x_var = np.nanmean(10**(x_variable / 10), axis=0)
+            x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
+            x_lim = np.array([np.nanmin(x_var - x_err),
+                              np.nanmax(x_var + x_err)])
+            x_lim = 10 * np.log10(x_lim)
+            x_lim[0] = np.floor(x_lim[0])
+            x_lim[1] = np.ceil(x_lim[1])
             x_label = ''
         elif log_plot:
             x_var = np.nanmean(np.log10(x_variable), axis=0)
@@ -318,9 +320,15 @@ class SubcolumnDisplay(Display):
         if x_label == '' or x_label == 'log':
             x_label = variable
 
-        self.axes[subplot_index].plot(x_var, y_variable)
-        self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
-                                               alpha=0.5, color='deepskyblue')
+        if 'Ze' in variable:
+            self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable)
+            self.axes[subplot_index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
+                                                   np.log10(x_var + x_err) * 10,
+                                                   alpha=0.5, color='deepskyblue')
+        else:
+            self.axes[subplot_index].plot(x_var, y_variable)
+            self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
+                                                   alpha=0.5, color='deepskyblue')
         if title is None:
             self.axes[subplot_index].set_title(time)
         else:

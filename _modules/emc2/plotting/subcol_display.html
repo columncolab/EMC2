@@ -203,9 +203,43 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_name</span><span class="o">=</span><span class="n">ds_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
 
+<div class="viewcode-block" id="SubcolumnDisplay.set_yrng"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng">[docs]</a>    <span class="k">def</span> <span class="nf">set_yrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the Y axes limits of the subplot</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subplot_index: tuple</span>
+<span class="sd">            The index of the subplot to set the y axes limits to.</span>
+<span class="sd">        y_range: tuple</span>
+<span class="sd">            The y range of the plot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_range</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SubcolumnDisplay.set_xrng"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng">[docs]</a>    <span class="k">def</span> <span class="nf">set_xrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">x_range</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the Y axes limits of the subplot</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        subplot_index: tuple</span>
+<span class="sd">            The index of the subplot to set the y axes limits to.</span>
+<span class="sd">        x_range: tuple</span>
+<span class="sd">            The y range of the plot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_range</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_timeseries"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_subcolumn_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span>
                                   <span class="n">column_no</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                  <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                                  <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots timeseries of subcolumn parameters for a given variable and subcolumn.</span>
 
@@ -221,7 +255,10 @@
 <span class="sd">            The title of the plot. Set to None to have EMC^2 generate a title for you.</span>
 <span class="sd">        subplot_index: tuple</span>
 <span class="sd">            The index of the subplot to make the plot in.</span>
-
+<span class="sd">        colorbar: bool</span>
+<span class="sd">            If true, plot the colorbar.</span>
+<span class="sd">        cbar_label: None or str</span>
+<span class="sd">            The colorbar label. Set to None to provide a default label.</span>
 <span class="sd">        Additional keyword arguments are passed into matplotlib&#39;s matplotlib.pyplot.pcolormesh.</span>
 
 <span class="sd">        Returns</span>
@@ -244,7 +281,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">y_label</span> <span class="o">=</span> <span class="n">y_variable</span>
 
-        <span class="n">cbar_label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> [</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">],</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">cbar_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbar_label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> [</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">],</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+
         <span class="k">if</span> <span class="n">pressure_coords</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">x_variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
@@ -265,8 +304,197 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">])</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_single_profile"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_single_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the single profile of subcolumns for a given time period.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable: str</span>
+<span class="sd">            The subcolumn variable to plot.</span>
+<span class="sd">        column_no: int</span>
+<span class="sd">            The subcolumn number to plot.</span>
+<span class="sd">        pressure_coords: bool</span>
+<span class="sd">            Set to true to plot in pressure coordinates, false to height coordinates.</span>
+<span class="sd">        title: str or None</span>
+<span class="sd">            The title of the plot. Set to None to have EMC^2 generate a title for you.</span>
+<span class="sd">        subplot_index: tuple</span>
+<span class="sd">            The index of the subplot to make the plot in.</span>
+<span class="sd">        colorbar: bool</span>
+<span class="sd">            If true, then plot the colorbar.</span>
+<span class="sd">        cbar_label: None or str</span>
+<span class="sd">            The colorbar label. Set to None to provide a default label.</span>
+<span class="sd">        Additional keyword arguments are passed into matplotlib&#39;s matplotlib.pyplot.pcolormesh.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: Matplotlib axes handle</span>
+<span class="sd">            The matplotlib axes handle of the plot.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="o">.</span><span class="n">keys</span><span class="p">()][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">my_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="p">[</span><span class="n">ds_name</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pressure_coords</span><span class="p">:</span>
+            <span class="n">y_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">height_dim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">z_field</span>
+
+        <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;Subcolumn #&#39;</span>
+        <span class="k">if</span> <span class="s2">&quot;long_name&quot;</span> <span class="ow">in</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="ow">and</span> <span class="s2">&quot;units&quot;</span> <span class="ow">in</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> [</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">],</span>
+                                   <span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="n">y_variable</span>
+
+        <span class="k">if</span> <span class="n">cbar_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbar_label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> [</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">],</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">pressure_coords</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">y_variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">height_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+        <span class="n">mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">time_title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">time_title</span> <span class="o">=</span> <span class="n">time</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">):</span>
+                <span class="n">time_title</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime_as_string</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                                               <span class="n">time_title</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pressure_coords</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">])</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_mean_profile"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_subcolumn_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                    <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function will plot a mean vertical profile of a subcolumn variable for a given time period. The</span>
+<span class="sd">        thick line will represent the mean profile along the subcolumns, and the shading represents one</span>
+<span class="sd">        standard deviation about the mean.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable: str</span>
+<span class="sd">            The name of the variable to plot.</span>
+<span class="sd">        time: tuple of Datetime or str</span>
+<span class="sd">            The time period to plot. If a string, specify in the format &#39;%Y-%m-%dT%H:%M:%S&#39;</span>
+<span class="sd">        pressure_coords: bool</span>
+<span class="sd">            Set to true to plot in pressure coordinates.</span>
+<span class="sd">        title: str or None</span>
+<span class="sd">            Set the title of the plot to this string. Set to None to provide a default title</span>
+<span class="sd">        subplot_index: tuple</span>
+<span class="sd">            The index of the subplot to make the plot in.</span>
+<span class="sd">        log_plot: bool</span>
+<span class="sd">            Set to true to plot variable in logarithmic space.</span>
+<span class="sd">        kwargs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: Matplotlib axes handle</span>
+<span class="sd">            The matplotlib axes handle of the plot.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ds_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="o">.</span><span class="n">keys</span><span class="p">()][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">my_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="p">[</span><span class="n">ds_name</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pressure_coords</span><span class="p">:</span>
+            <span class="n">y_variable</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="s1">&#39;Pressure [hPa]&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_variable</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">height_dim</span><span class="p">]</span>
+            <span class="n">y_label</span> <span class="o">=</span> <span class="s1">&#39;Height [hPa]&#39;</span>
+
+        <span class="n">x_variable</span> <span class="o">=</span> <span class="n">my_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">x_variable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x_variable</span><span class="p">),</span> <span class="n">x_variable</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Ze&#39;</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">:</span>
+            <span class="n">x_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">x_variable</span> <span class="o">/</span> <span class="mi">10</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">x_variable</span> <span class="o">/</span> <span class="mi">10</span><span class="p">),</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x_lim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">x_var</span> <span class="o">-</span> <span class="n">x_err</span><span class="p">),</span>
+                              <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">x_var</span> <span class="o">+</span> <span class="n">x_err</span><span class="p">)])</span>
+            <span class="n">x_lim</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
+            <span class="n">x_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">x_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="n">log_plot</span><span class="p">:</span>
+            <span class="n">x_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x_variable</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x_variable</span><span class="p">),</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x_lim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x_var</span> <span class="o">-</span> <span class="n">x_err</span><span class="p">)))</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                              <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x_var</span> <span class="o">+</span> <span class="n">x_err</span><span class="p">)))</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+            <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;log &#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">x_variable</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">x_variable</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x_lim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x_var</span> <span class="o">-</span> <span class="n">x_err</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x_var</span> <span class="o">+</span> <span class="n">x_err</span><span class="p">))])</span>
+            <span class="n">x_label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="c1"># Choose label based on variable</span>
+        <span class="n">hyd_met</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">,</span> <span class="s1">&#39;tot&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">hyd</span> <span class="ow">in</span> <span class="n">hyd_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hyd</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">:</span>
+                <span class="n">hyd_met</span> <span class="o">=</span> <span class="n">hyd</span>
+
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Ze&#39;</span><span class="p">,</span> <span class="s1">&#39;Vd&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_d&#39;</span><span class="p">,</span> <span class="s1">&#39;od&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;Ze&#39;</span><span class="p">:</span>
+                    <span class="n">x_label</span> <span class="o">+=</span> <span class="s1">&#39;$Z_{e, </span><span class="si">%s</span><span class="s1">}$ [dBZ]&#39;</span> <span class="o">%</span> <span class="n">hyd_met</span>
+                <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;Vd&#39;</span><span class="p">:</span>
+                    <span class="n">x_label</span> <span class="o">+=</span> <span class="s1">&#39;$V_{d, </span><span class="si">%s</span><span class="s1">}$ [m/s]&#39;</span> <span class="o">%</span> <span class="n">hyd_met</span>
+                <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;sigma_d&#39;</span><span class="p">:</span>
+                    <span class="n">x_label</span> <span class="o">+=</span> <span class="s1">&#39;$\sigma_{d, </span><span class="si">%s</span><span class="s1">}$ [m/s]&#39;</span> <span class="o">%</span> <span class="n">hyd_met</span>
+                <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;od&#39;</span><span class="p">:</span>
+                    <span class="n">x_label</span> <span class="o">+=</span> <span class="s1">&#39;$</span><span class="se">\t</span><span class="s1">au_{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">hyd_met</span>
+                <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;beta&#39;</span><span class="p">:</span>
+                    <span class="n">x_label</span> <span class="o">+=</span> <span class="s1">&#39;$</span><span class="se">\b</span><span class="s1">eta_{</span><span class="si">%s</span><span class="s1">}$ [$m^{-2}$]&#39;</span> <span class="o">%</span> <span class="n">hyd_met</span>
+                <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span>
+                    <span class="n">x_label</span> <span class="o">+=</span> <span class="s1">&#39;$</span><span class="se">\a</span><span class="s1">lpha_{</span><span class="si">%s</span><span class="s1">}$ [$m^{-2}$]&#39;</span> <span class="o">%</span> <span class="n">hyd_met</span>
+
+        <span class="k">if</span> <span class="n">x_label</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">x_label</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+            <span class="n">x_label</span> <span class="o">=</span> <span class="n">variable</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Ze&#39;</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x_var</span><span class="p">),</span> <span class="n">y_variable</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">y_variable</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x_var</span> <span class="o">-</span> <span class="n">x_err</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span>
+                                                   <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x_var</span> <span class="o">+</span> <span class="n">x_err</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span>
+                                                   <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;deepskyblue&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_var</span><span class="p">,</span> <span class="n">y_variable</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">y_variable</span><span class="p">,</span> <span class="n">x_var</span> <span class="o">-</span> <span class="n">x_err</span><span class="p">,</span> <span class="n">x_var</span> <span class="o">+</span> <span class="n">x_err</span><span class="p">,</span>
+                                                   <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;deepskyblue&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div></div>
 </pre></div>
 

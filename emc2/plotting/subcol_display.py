@@ -45,9 +45,43 @@ class SubcolumnDisplay(Display):
         super().__init__(model.ds, ds_name=ds_name, **kwargs)
         self.model = model
 
+    def set_yrng(self, subplot_index, y_range):
+        """
+        Set the Y axes limits of the subplot
+
+        Parameters
+        ----------
+        subplot_index: tuple
+            The index of the subplot to set the y axes limits to.
+        y_range: tuple
+            The y range of the plot.
+
+        Returns
+        -------
+
+        """
+        self.axes[subplot_index].set_ylim(y_range)
+
+    def set_xrng(self, subplot_index, x_range):
+        """
+        Set the Y axes limits of the subplot
+
+        Parameters
+        ----------
+        subplot_index: tuple
+            The index of the subplot to set the y axes limits to.
+        x_range: tuple
+            The y range of the plot.
+
+        Returns
+        -------
+
+        """
+        self.axes[subplot_index].set_xlim(x_range)
+
     def plot_subcolumn_timeseries(self, variable,
                                   column_no, pressure_coords=True, title=None,
-                                  subplot_index=(0, ), **kwargs):
+                                  subplot_index=(0, ), colorbar=True, cbar_label=None, **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
 
@@ -63,7 +97,10 @@ class SubcolumnDisplay(Display):
             The title of the plot. Set to None to have EMC^2 generate a title for you.
         subplot_index: tuple
             The index of the subplot to make the plot in.
-
+        colorbar: bool
+            If true, plot the colorbar.
+        cbar_label: None or str
+            The colorbar label. Set to None to provide a default label.
         Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
 
         Returns
@@ -86,7 +123,9 @@ class SubcolumnDisplay(Display):
         else:
             y_label = y_variable
 
-        cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+        if cbar_label is None:
+            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+
         if pressure_coords:
             x = my_ds[x_variable].values
             y = my_ds[y_variable].values
@@ -107,13 +146,90 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].invert_yaxis()
         self.axes[subplot_index].set_xlabel(x_label)
         self.axes[subplot_index].set_ylabel(y_label)
-        cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
-        cbar.set_label(cbar_label)
+        if colorbar:
+            cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
+            cbar.set_label(cbar_label)
         return self.axes[subplot_index]
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
-                               subplot_index=(0,), log_plot=False):
-        return
+                               subplot_index=(0,), colorbar=True, cbar_label=None, **kwargs):
+        """
+        Plots the single profile of subcolumns for a given time period.
+
+        Parameters
+        ----------
+        variable: str
+            The subcolumn variable to plot.
+        column_no: int
+            The subcolumn number to plot.
+        pressure_coords: bool
+            Set to true to plot in pressure coordinates, false to height coordinates.
+        title: str or None
+            The title of the plot. Set to None to have EMC^2 generate a title for you.
+        subplot_index: tuple
+            The index of the subplot to make the plot in.
+        colorbar: bool
+            If true, then plot the colorbar.
+        cbar_label: None or str
+            The colorbar label. Set to None to provide a default label.
+        Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
+
+        Returns
+        -------
+        axes: Matplotlib axes handle
+            The matplotlib axes handle of the plot.
+        """
+        ds_name = [x for x in self._arm.keys()][0]
+        my_ds = self._arm[ds_name].sel(time=time, method='nearest')
+
+        if pressure_coords:
+            y_variable = self.model.height_dim
+        else:
+            y_variable = self.model.z_field
+
+        x_label = 'Subcolumn #'
+        if "long_name" in my_ds[y_variable].attrs and "units" in my_ds[y_variable].attrs:
+            y_label = '%s [%s]' % (my_ds[y_variable].attrs["long_name"],
+                                   my_ds[y_variable].attrs["units"])
+        else:
+            y_label = y_variable
+
+        if cbar_label is None:
+            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+        if pressure_coords:
+            x = np.arange(0, self.model.num_subcolumns, 1)
+            y = my_ds[y_variable].values
+            x, y = np.meshgrid(x, y)
+        else:
+            x = np.arange(0, self.model.num_subcolumns, 1)
+            y = my_ds[y_variable].values.T
+            p = my_ds[self.model.height_dim].values
+            x, p = np.meshgrid(x, p)
+
+        mesh = self.axes[subplot_index].pcolormesh(x, y, my_ds[variable].values.T, **kwargs)
+        if title is None:
+            time_title = ""
+            if isinstance(time, str):
+                time_title = time
+            elif isinstance(time, np.datetime64):
+                time_title = np.datetime_as_string(time)
+
+            self.axes[subplot_index].set_title(self.model.model_name + ' ' +
+                                               time_title)
+        else:
+            self.axes[subplot_index].set_title(title)
+
+        if pressure_coords:
+            self.axes[subplot_index].invert_yaxis()
+
+        self.axes[subplot_index].set_xlabel(x_label)
+        self.axes[subplot_index].set_ylabel(y_label)
+        if colorbar:
+            cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
+            cbar.set_label(cbar_label)
+
+        return self.axes[subplot_index]
+
 
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
                                subplot_index=(0,), log_plot=False, **kwargs):

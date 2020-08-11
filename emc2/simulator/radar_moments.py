@@ -360,7 +360,7 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
         N_D = np.stack(N_D, axis=1)
         Calc_tmp = np.tile(
             beta_p,
-            (model.num_subcolumns, 1)) * np.transpose(N_D)
+            (model.num_subcolumns, 1)) * N_D.T
         Calc_tmp2 = (v_tmp - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         Calc_tmp2 = (Calc_tmp2.sum(axis=1) / 2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
         sigma_d_numer[:, k] = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)

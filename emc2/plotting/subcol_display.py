@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 
 from act.plotting import Display
 
@@ -81,7 +82,9 @@ class SubcolumnDisplay(Display):
 
     def plot_subcolumn_timeseries(self, variable,
                                   column_no, pressure_coords=True, title=None,
-                                  subplot_index=(0, ), colorbar=True, cbar_label=None, **kwargs):
+                                  subplot_index=(0, ), colorbar=True, cbar_label=None,
+                                  log_plot=False, Mask_array=None, x_range=(), y_range=(), 
+                                  **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
 
@@ -101,6 +104,14 @@ class SubcolumnDisplay(Display):
             If true, plot the colorbar.
         cbar_label: None or str
             The colorbar label. Set to None to provide a default label.
+        log_plot: bool
+            Set to true to plot variable in logarithmic space.
+        Mask_array: bool, int, or float (same dims as "variable")
+            Set to true or to other values greater than 0 in grid cells to make them transparent.
+        x_range: tuple
+            The x range of the plot.
+        y_range: tuple
+            The y range of the plot.
         Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
 
         Returns
@@ -135,7 +146,23 @@ class SubcolumnDisplay(Display):
             y = my_ds[y_variable].values.T
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
-        mesh = self.axes[subplot_index].pcolormesh(x, y, my_ds[variable].values.T, **kwargs)
+
+        var_array = my_ds[variable].values.T
+        if Mask_array is not None:
+            var_array = my_ds[variable].values.T
+            if Mask_array.shape == var_array.shape:
+                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+            else:
+                print("Mask dimensions are different than in the requested field - ignoring mask")
+        if y_range:
+            self.axes[subplot_index].set_ylim(y_range)
+        if x_range:
+            self.axes[subplot_index].set_xlim(x_range)
+
+        if log_plot is True:
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+        else:
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +
                                                np.datetime_as_string(self.model.ds.time[0].values))
@@ -152,7 +179,8 @@ class SubcolumnDisplay(Display):
         return self.axes[subplot_index]
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
-                            subplot_index=(0,), colorbar=True, cbar_label=None, **kwargs):
+                            subplot_index=(0,), colorbar=True, cbar_label=None,
+                            log_plot=False, Mask_array=None, x_range=(), y_range=(), **kwargs):
         """
         Plots the single profile of subcolumns for a given time period.
 
@@ -160,8 +188,8 @@ class SubcolumnDisplay(Display):
         ----------
         variable: str
             The subcolumn variable to plot.
-        column_no: int
-            The subcolumn number to plot.
+        time: tuple of Datetime or str
+            The time step to plot. If a string, specify in the format '%Y-%m-%dT%H:%M:%S'
         pressure_coords: bool
             Set to true to plot in pressure coordinates, false to height coordinates.
         title: str or None
@@ -172,6 +200,14 @@ class SubcolumnDisplay(Display):
             If true, then plot the colorbar.
         cbar_label: None or str
             The colorbar label. Set to None to provide a default label.
+        log_plot: bool
+            Set to true to plot variable in logarithmic space.
+        Mask_array: bool, int, or float (same dims as "variable")
+            Set to true or to other values greater than 0 in grid cells to make them transparent.
+        x_range: tuple
+            The x range of the plot.
+        y_range: tuple
+            The y range of the plot.
         Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
 
         Returns
@@ -196,6 +232,7 @@ class SubcolumnDisplay(Display):
 
         if cbar_label is None:
             cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+
         if pressure_coords:
             x = np.arange(0, self.model.num_subcolumns, 1)
             y = my_ds[y_variable].values
@@ -206,7 +243,21 @@ class SubcolumnDisplay(Display):
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
 
-        mesh = self.axes[subplot_index].pcolormesh(x, y, my_ds[variable].values.T, **kwargs)
+        var_array = my_ds[variable].values.T
+        if Mask_array is not None:
+            var_array = my_ds[variable].values.T
+            if Mask_array.shape == var_array.shape:
+                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+            else:
+                print("Mask dimensions are different than in the requested field - ignoring mask")
+        if y_range:
+            self.axes[subplot_index].set_ylim(y_range)
+        if x_range:
+            self.axes[subplot_index].set_xlim(x_range)
+        if log_plot is True:
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+        else:
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if title is None:
             time_title = ""
             if isinstance(time, str):
@@ -231,7 +282,8 @@ class SubcolumnDisplay(Display):
         return self.axes[subplot_index]
 
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
-                                    subplot_index=(0,), log_plot=False, **kwargs):
+                                    subplot_index=(0,), log_plot=False, plot_SD=True, 
+                                    x_range=(), y_range=(), **kwargs):
         """
         This function will plot a mean vertical profile of a subcolumn variable for a given time period. The
         thick line will represent the mean profile along the subcolumns, and the shading represents one
@@ -251,6 +303,12 @@ class SubcolumnDisplay(Display):
             The index of the subplot to make the plot in.
         log_plot: bool
             Set to true to plot variable in logarithmic space.
+        no_SD: bool
+            Set to  True (default) in order to plot a shaded patch for mean +- SD.
+        x_range: tuple
+            The x range of the plot.
+        y_range: tuple
+            The y range of the plot.
         kwargs
 
         Returns
@@ -322,12 +380,14 @@ class SubcolumnDisplay(Display):
 
         if 'Ze' in variable:
             self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable)
-            self.axes[subplot_index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
+            if plot_SD is True:
+                index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
                                                    np.log10(x_var + x_err) * 10,
                                                    alpha=0.5, color='deepskyblue')
         else:
             self.axes[subplot_index].plot(x_var, y_variable)
-            self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
+            if plot_SD is True:
+                self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
                                                    alpha=0.5, color='deepskyblue')
         if title is None:
             self.axes[subplot_index].set_title(time)
@@ -336,5 +396,10 @@ class SubcolumnDisplay(Display):
 
         self.axes[subplot_index].set_xlabel(x_label)
         self.axes[subplot_index].set_ylabel(y_label)
-        self.axes[subplot_index].set_xlim(x_lim)
+        if y_range:
+            self.axes[subplot_index].set_ylim(y_range)
+        if x_range:
+            self.axes[subplot_index].set_xlim(x_range)
+        else:
+            self.axes[subplot_index].set_xlim(x_lim)
         return self.axes[subplot_index]

@@ -381,7 +381,7 @@ class SubcolumnDisplay(Display):
         if 'Ze' in variable:
             self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable)
             if plot_SD is True:
-                index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
+                self.axes[subplot_index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
                                                    np.log10(x_var + x_err) * 10,
                                                    alpha=0.5, color='deepskyblue')
         else:

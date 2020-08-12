@@ -8,7 +8,7 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
 
-def calc_LDR(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
+def calc_LDR_and_ext(model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None):
     """
     Calculates the lidar extinction mask and linear depolarization ratio for
     the given model and lidar.
@@ -88,7 +88,7 @@ def calc_lidar_moments(instrument, model, is_conv,
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     Additonal keyword arguments are passed into
-    :py:func:`emc2.simulator.lidar_moments.calc_LDR`.
+    :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
     Returns
     -------

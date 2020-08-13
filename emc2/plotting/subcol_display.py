@@ -324,8 +324,8 @@ class SubcolumnDisplay(Display):
             y_variable = my_ds[self.model.p_field]
             y_label = 'Pressure [hPa]'
         else:
-            y_variable = my_ds[self.model.height_dim]
-            y_label = 'Height [hPa]'
+            y_variable = my_ds[self.model.z_field]
+            y_label = 'Height [m]'
 
         x_variable = my_ds[variable].values
         x_variable = np.where(np.isfinite(x_variable), x_variable, np.nan)
@@ -333,23 +333,22 @@ class SubcolumnDisplay(Display):
         if 'Ze' in variable:
             x_var = np.nanmean(10**(x_variable / 10), axis=0)
             x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
-            x_lim = np.array([np.nanmin(x_var - x_err),
-                              np.nanmax(x_var + x_err)])
-            x_lim = 10 * np.log10(x_lim)
-            x_lim[0] = np.floor(x_lim[0])
-            x_lim[1] = np.ceil(x_lim[1])
+            x_fill = np.array([10 * np.log10(x_var - x_err),
+                               10 * np.log10(x_var + x_err)])
             x_label = ''
-        elif log_plot:
-            x_var = np.nanmean(np.log10(x_variable), axis=0)
-            x_err = np.nanstd(np.log10(x_variable), ddof=0, axis=0)
-            x_lim = np.array([np.nanmin(10 ** (np.floor(x_var - x_err))).min(),
-                              np.nanmax(10 ** (np.ceil(x_var + x_err))).max()])
-            x_label = 'log '
         else:
             x_var = np.nanmean(x_variable, axis=0)
             x_err = np.nanstd(x_variable, ddof=0, axis=0)
-            x_lim = np.array([np.nanmin(np.floor(x_var - x_err)), np.nanmax(np.ceil(x_var + x_err))])
-            x_label = ''
+            x_fill = np.array([x_var - x_err,
+                x_var + x_err])
+            if log_plot:
+                x_label = 'log '
+                Xscale = 'log'
+            else:
+                x_label = ''
+                Xscale = 'linear'
+        x_lim = np.array([np.nanmin(x_fill[0]) * 0.95,
+                          np.nanmax(x_fill[1] * 1.05)])
 
         # Choose label based on variable
         hyd_met = ''
@@ -367,28 +366,25 @@ class SubcolumnDisplay(Display):
                 elif var == 'Vd':
                     x_label += '$V_{d, %s}$ [m/s]' % hyd_met
                 elif var == 'sigma_d':
-                    x_label += '$\sigma_{d, %s}$ [m/s]' % hyd_met
+                    x_label += '$\\sigma_{d, %s}$ [m/s]' % hyd_met
                 elif var == 'od':
-                    x_label += '$\tau_{%s}$' % hyd_met
+                    x_label += '$\\tau_{%s}$' % hyd_met
                 elif var == 'beta':
-                    x_label += '$\beta_{%s}$ [$m^{-2}$]' % hyd_met
+                    x_label += '$\\beta_{%s}$ [$m^{-1} sr^{-1}$]' % hyd_met
                 elif var == 'alpha':
-                    x_label += '$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
+                    x_label += '$\\alpha_{%s}$ [$m^{-1}$]' % hyd_met
 
-        if x_label == '' or x_label == 'log':
+        if x_label == '' or x_label == 'log ':
             x_label = variable
 
         if 'Ze' in variable:
             self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable)
-            if plot_SD is True:
-                self.axes[subplot_index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
-                                                   np.log10(x_var + x_err) * 10,
-                                                   alpha=0.5, color='deepskyblue')
         else:
             self.axes[subplot_index].plot(x_var, y_variable)
-            if plot_SD is True:
-                self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
+        if plot_SD is True:
+            self.axes[subplot_index].fill_betweenx(y_variable, x_fill[0], x_fill[1],
                                                    alpha=0.5, color='deepskyblue')
+        
         if title is None:
             self.axes[subplot_index].set_title(time)
         else:
@@ -396,6 +392,11 @@ class SubcolumnDisplay(Display):
 
         self.axes[subplot_index].set_xlabel(x_label)
         self.axes[subplot_index].set_ylabel(y_label)
+
+        if pressure_coords:
+            self.axes[subplot_index].invert_yaxis()
+        if log_plot:
+            self.axes[subplot_index].set_xscale(Xscale)
         if y_range:
             self.axes[subplot_index].set_ylim(y_range)
         if x_range:

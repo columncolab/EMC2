@@ -118,6 +118,8 @@ class SubcolumnDisplay(Display):
         -------
         axes: Matplotlib axes handle
             The matplotlib axes handle of the plot.
+        cbar: Matplotlib axes handle
+            The matplotlib colorbar handle of the plot.
         """
         ds_name = [x for x in self._arm.keys()][0]
         my_ds = self._arm[ds_name].sel(subcolumn=column_no)
@@ -176,7 +178,7 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
-        return self.axes[subplot_index]
+        return self.axes[subplot_index], cbar
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
@@ -214,6 +216,8 @@ class SubcolumnDisplay(Display):
         -------
         axes: Matplotlib axes handle
             The matplotlib axes handle of the plot.
+        cbar: Matplotlib axes handle
+            The matplotlib colorbar handle of the plot.
         """
         ds_name = [x for x in self._arm.keys()][0]
         my_ds = self._arm[ds_name].sel(time=time, method='nearest')
@@ -279,7 +283,7 @@ class SubcolumnDisplay(Display):
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
 
-        return self.axes[subplot_index]
+        return self.axes[subplot_index], cbar
 
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
                                     subplot_index=(0,), log_plot=False, plot_SD=True, 

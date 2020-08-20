@@ -68,7 +68,7 @@ class KAZR(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
 
 
 class WACR(Instrument):
@@ -115,7 +115,7 @@ class WACR(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieWACR_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
 
 
 class RL(Instrument):
@@ -144,7 +144,7 @@ class RL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieRL_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
 
 
 class HSRL(Instrument):
@@ -174,7 +174,7 @@ class HSRL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
 
 
 class CEIL(Instrument):
@@ -203,7 +203,7 @@ class CEIL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieCEIL_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
 
 
 class Ten64nm(Instrument):
@@ -231,4 +231,4 @@ class Ten64nm(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)

@@ -13,7 +13,7 @@ from ..io import load_mie_file
 
 
 class KAZR(Instrument):
-    def __init__(self, site):
+    def __init__(self, site, *args):
         """
         This stores the information for the KAZR (Ka-band radar).
         """
@@ -68,14 +68,14 @@ class KAZR(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
-        if self.model_name is 'DHARMA':
+        if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
 
 
 class WACR(Instrument):
-    def __init__(self, site):
+    def __init__(self, site, *args):
         """
         This stores the information for the WACR or M-WACR (W-band radars).
         """
@@ -118,14 +118,14 @@ class WACR(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieWACR_ci.dat")
-        if self.model_name is 'DHARMA':
+        if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
 
 
 class RL(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for 355 nm lidars ,e.g., ARM Raman lidar (elastic channel).
         """
@@ -150,14 +150,14 @@ class RL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieRL_ci.dat")
-        if self.model_name is 'DHARMA':
+        if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
 
 
 class HSRL(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for 532 nm lidars ,e.g., the High
         Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).
@@ -183,14 +183,14 @@ class HSRL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
-        if self.model_name is 'DHARMA':
+        if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
 
 
 class CEIL(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for 910 nm lidars ,e.g., the CL31 ceilometer.
         """
@@ -215,14 +215,14 @@ class CEIL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieCEIL_ci.dat")
-        if self.model_name is 'DHARMA':
+        if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
 
 
 class Ten64nm(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.
         """
@@ -246,7 +246,7 @@ class Ten64nm(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
-        if self.model_name is 'DHARMA':
+        if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")

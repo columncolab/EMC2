@@ -103,7 +103,7 @@ def set_stratiform_sub_col_frac(model):
     I_min = np.argmin(cld_2_assigns, axis=0)
     I_max = np.argmax(cld_2_assigns, axis=0)
     for tt in range(data_frac1.shape[0]):
-        for j in range(data_frac1.shape[1] - 1, -1, -1):
+        for j in range(data_frac1.shape[1] - 2, -1, -1):
             cld_2_assign = np.array([data_frac1[tt, j], data_frac2[tt, j]])
             I_min = np.argmin(cld_2_assign)
             I_max = np.argmax(cld_2_assign)
@@ -272,7 +272,8 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     PF_val = np.max(np.stack([data_frac1, data_frac2]), axis=0)
     cond = [strat_profs, ~strat_profs]
     for tt in range(data_frac1.shape[0]):
-        for j in range(data_frac1.shape[1] - 1, -1, -1):
+        for j in range(data_frac1.shape[1] - 2, -1, -1):
+            print(j)
             if overlapping_cloud[tt, j]:
                 overlying_locs = np.where(np.any(p_strat_profs[:, tt, j + 1, :], axis=1))[0]
                 overlying_num = len(overlying_locs)

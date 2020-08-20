@@ -276,12 +276,12 @@ class DHARMA(Model):
         self.p_field = "p"
         self.z_field = "z"
         self.T_field = "t"
-        self.height_dim = "z"
+        self.height_dim = "hgt"
         self.time_dim = "dom_col"
         self.conv_frac_names = {'cl': 'strat_frac', 'ci': 'strat_frac', 'pl': 'strat_frac', 'pi': 'strat_frac'}
         self.strat_frac_names = {'cl': 'strat_frac', 'ci': 'strat_frac', 'pl': 'strat_frac', 'pi': 'strat_frac'}
-        self.re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
-        self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
+        self.re_fields = {'cl': 'strat_frac', 'ci': 'strat_frac', 'pi': 'strat_frac', 'pl': 'strat_frac'}
+        self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = read_netcdf(file_path)
 

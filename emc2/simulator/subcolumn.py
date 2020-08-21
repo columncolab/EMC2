@@ -273,7 +273,6 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     cond = [strat_profs, ~strat_profs]
     for tt in range(data_frac1.shape[0]):
         for j in range(data_frac1.shape[1] - 2, -1, -1):
-            print(j)
             if overlapping_cloud[tt, j]:
                 overlying_locs = np.where(np.any(p_strat_profs[:, tt, j + 1, :], axis=1))[0]
                 overlying_num = len(overlying_locs)

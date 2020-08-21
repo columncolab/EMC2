@@ -180,6 +180,95 @@ class SubcolumnDisplay(Display):
             cbar.set_label(cbar_label)
         return self.axes[subplot_index], cbar
 
+    def plot_instrument_timeseries(self, instrument, variable, title=None,
+                                  subplot_index=(0, ), colorbar=True, cbar_label=None,
+                                  log_plot=False, Mask_array=None, x_range=(), y_range=(), 
+                                  **kwargs):
+        """
+        Plots timeseries of a given instrument variable.
+
+        Parameters
+        ---------
+        instrument: :py:mod:`emc2.core.Instrument`
+            The Instrument class that you wish to plot.
+        variable: str
+            The variable to plot.
+        title: str or None
+            The title of the plot. Set to None to have EMC^2 generate a title for you.
+        subplot_index: tuple
+            The index of the subplot to make the plot in.
+        colorbar: bool
+            If true, plot the colorbar.
+        cbar_label: None or str
+            The colorbar label. Set to None to provide a default label.
+        log_plot: bool
+            Set to true to plot variable in logarithmic space.
+        Mask_array: bool, int, or float (same dims as "variable")
+            Set to true or to other values greater than 0 in grid cells to make them transparent.
+        x_range: tuple
+            The x range of the plot.
+        y_range: tuple
+            The y range of the plot.
+        Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
+
+        Returns
+        -------
+        axes: Matplotlib axes handle
+            The matplotlib axes handle of the plot.
+        cbar: Matplotlib axes handle
+            The matplotlib colorbar handle of the plot.
+        """
+        my_ds = instrument.ds
+        x_variable = "time"
+        if 'range' in my_ds.keys():
+            y_variable = "range"
+        elif 'altitude' in my_ds.keys():
+            y_variable = "altitude"
+        elif 'height' in my_ds.keys():
+            y_variable = "height"
+
+        x_label = 'Time [UTC]'
+        if "long_name" in my_ds[y_variable].attrs and "units" in my_ds[y_variable].attrs:
+            y_label = '%s [%s]' % (my_ds[y_variable].attrs["long_name"],
+                                   my_ds[y_variable].attrs["units"])
+        else:
+            y_label = y_variable
+
+        if cbar_label is None:
+            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+
+        x = my_ds[x_variable].values
+        y = my_ds[y_variable].values
+        x, y = np.meshgrid(x, y)
+        var_array = my_ds[variable].values.T
+        if Mask_array is not None:
+            var_array = my_ds[variable].values.T
+            if Mask_array.shape == var_array.shape:
+                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+            else:
+                print("Mask dimensions are different than in the requested field - ignoring mask")
+        if y_range:
+            self.axes[subplot_index].set_ylim(y_range)
+        if x_range:
+            self.axes[subplot_index].set_xlim(x_range)
+
+        if log_plot is True:
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+        else:
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if title is None:
+            self.axes[subplot_index].set_title(my_ds.instrument_str + ' ' +
+                                               np.datetime_as_string(my_ds.time[0].values))
+        else:
+            self.axes[subplot_index].set_title(title)
+
+        self.axes[subplot_index].set_xlabel(x_label)
+        self.axes[subplot_index].set_ylabel(y_label)
+        if colorbar:
+            cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
+            cbar.set_label(cbar_label)
+        return self.axes[subplot_index], cbar
+ 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
                             log_plot=False, Mask_array=None, x_range=(), y_range=(), **kwargs):

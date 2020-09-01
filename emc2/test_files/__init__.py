@@ -10,3 +10,4 @@ import os
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
 TEST_SUBCOL_FILE = os.path.join(DATA_PATH, 'test_subcol.20160816.000000.nc')
+TEST_INST_PLOT_FILE = os.path.join(DATA_PATH, 'test_instrument_plot_hsrl_20160816T1000.nc')

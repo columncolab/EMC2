@@ -26,7 +26,7 @@ def test_radar_moments_all_convective():
     # increase with height
     assert np.all(np.logical_or(np.diff(my_model.ds['sub_col_OD_tot_conv'].values, axis=1) > 0,
                                 np.isnan(np.diff(my_model.ds['sub_col_OD_tot_conv'].values, axis=1))))
-    my_model = emc2.simulator.lidar_moments.calc_LDR(my_model)
+    my_model = emc2.simulator.lidar_moments.calc_LDR_and_ext(my_model)
     assert my_model.ds['ext_mask'].max() == 2
 
     # We should have all zeros

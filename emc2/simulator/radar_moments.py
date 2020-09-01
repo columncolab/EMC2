@@ -38,6 +38,7 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     q_field = "conv_q_subcolumns_%s" % hyd_type
     p_field = model.p_field
     t_field = model.T_field
+
     column_ds = model.ds
 
     WC = column_ds[q_field] * 1e3 * column_ds[p_field] * 1e2 / (instrument.R_d * column_ds[t_field])
@@ -168,7 +169,7 @@ def calc_radar_moments(instrument, model, is_conv,
 
     for hyd_type in ["cl", "pl", "ci", "pi"]:
         n_names = "strat_n_subcolumns_%s" % hyd_type
-        frac_names = "strat_frac_subcolumns_%s" % hyd_type
+        frac_names = model.strat_frac_names[hyd_type]
         if hyd_type == "cl":
             column_ds["sub_col_Ze_tot_strat"] = xr.DataArray(
                 np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
@@ -185,7 +186,7 @@ def calc_radar_moments(instrument, model, is_conv,
         dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
             instrument.mie_table[hyd_type]["p_diam"].values[0]
         fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
-        total_hydrometeor = column_ds[frac_names] * column_ds[n_names]
+        total_hydrometeor = model.ds[frac_names] * column_ds[model.N_field[hyd_type]]
         p_diam = instrument.mie_table[hyd_type]["p_diam"].values
         alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
         beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -314,14 +315,14 @@ def calc_radar_moments(instrument, model, is_conv,
 
 def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, dD, Vd_tot):
     hyd_type = "cl"
-    sigma_d_numer = np.zeros((model.num_subcolumns, total_hydrometeor.shape[2]))
+    sigma_d_numer = np.zeros((model.num_subcolumns, total_hydrometeor.shape[1]))
     if tt % 50 == 0:
         print('Stratiform moment for class cl progress: %d/%d' % (tt, total_hydrometeor.shape[1]))
     p_diam = instrument.mie_table[hyd_type]["p_diam"].values
     num_diam = len(p_diam)
     Dims = Vd_tot.shape
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor.values[:, tt, k] == 0):
+        if total_hydrometeor.values[tt, k] == 0:
             continue
         N_0_tmp = fits_ds["N_0"].values[:, tt, k]
         N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
@@ -334,21 +335,21 @@ def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, dD, 
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = v_tmp.magnitude
         Calc_tmp2 = (v_tmp - np.tile(Vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp
-        sigma_d_numer[:, k] = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
+        sigma_d_numer[:, k] = np.sqrt((Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD)
 
     return sigma_d_numer
 
 
 def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_tot, sub_q_array, dD, beta_p):
     Dims = vd_tot.shape
-    sigma_d_numer = np.zeros((model.num_subcolumns, total_hydrometeor.shape[2]))
+    sigma_d_numer = np.zeros((model.num_subcolumns, total_hydrometeor.shape[1]))
 
     num_diam = len(p_diam)
     mu = fits_ds["mu"].values.max()
     if tt % 50 == 0:
         print('Stratiform moment for class progress: %d/%d' % (tt, Dims[1]))
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor.values[:, tt, k] == 0):
+        if total_hydrometeor.values[tt, k] == 0:
             continue
         N_0_tmp = fits_ds["N_0"][:, tt, k].values.max(axis=0)
         lambda_tmp = fits_ds["lambda"][:, tt, k].values.max(axis=0)
@@ -363,7 +364,7 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
             (model.num_subcolumns, 1)) * N_D
         Calc_tmp2 = (v_tmp - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         Calc_tmp2 = (Calc_tmp2.sum(axis=1) / 2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-        sigma_d_numer[:, k] = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
+        sigma_d_numer[:, k] = np.sqrt(np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2))
 
     return sigma_d_numer
 
@@ -382,7 +383,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         print("Processing column %d" % tt)
     np.seterr(all="ignore")
     for k in range(height_dims):
-        if np.all(total_hydrometeor.values[:, tt, k] == 0):
+        if total_hydrometeor.values[tt, k] == 0:
             continue
 
         N_0_tmp = np.squeeze(N_0[:, tt, k])
@@ -425,7 +426,7 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
     moment_denom_tot = np.zeros_like(Ze)
     od_tot = np.zeros_like(Ze)
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor.values[:, tt, k] == 0):
+        if total_hydrometeor.values[tt, k] == 0:
             continue
 
         p_diam = instrument.mie_table[hyd_type]["p_diam"].values
@@ -448,6 +449,7 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
             (moment_denom * instrument.wavelength ** 4) / (instrument.K_w * np.pi ** 5) * 1e-6
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = v_tmp.magnitude
+        #moment_denom = np.where(moment_denom == 0, 1, moment_denom)
         Calc_tmp2 = Calc_tmp * v_tmp
         V_d_numer = np.trapz(Calc_tmp2, axis=1, dx=dD)
         V_d_numer = np.where(sub_q_array[:, tt, k] == 0, 0, V_d_numer)

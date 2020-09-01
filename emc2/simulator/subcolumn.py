@@ -372,8 +372,8 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         tot_hyd_in_sub = sub_hyd_profs.sum(axis=0)
         q_profs = np.zeros_like(sub_hyd_profs, dtype=float)
 
-        for tt in range(hyd_profs.shape[1]):
-            for j in range(hyd_profs.shape[0] - 1, -1, -1):
+        for j in range(hyd_profs.shape[1]):
+            for tt in range(hyd_profs.shape[0] - 1, -1, -1):
                 hyd_in_sub_loc = np.where(sub_hyd_profs[:, tt, j])[0]
                 if tot_hyd_in_sub[tt, j] == 1:
                     q_profs[hyd_in_sub_loc, tt, j] = q_ic_mean[tt, j]

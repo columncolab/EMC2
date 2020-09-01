@@ -135,6 +135,7 @@ class SubcolumnDisplay(Display):
             y = my_ds[y_variable].values.T
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
+
         mesh = self.axes[subplot_index].pcolormesh(x, y, my_ds[variable].values.T, **kwargs)
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +
@@ -160,8 +161,8 @@ class SubcolumnDisplay(Display):
         ----------
         variable: str
             The subcolumn variable to plot.
-        column_no: int
-            The subcolumn number to plot.
+        time: str
+            The time period to plot.
         pressure_coords: bool
             Set to true to plot in pressure coordinates, false to height coordinates.
         title: str or None
@@ -195,7 +196,28 @@ class SubcolumnDisplay(Display):
             y_label = y_variable
 
         if cbar_label is None:
-            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+            variables = ['Ze', 'Vd', 'sigma_d', 'od', 'beta', 'alpha']
+            hyd_met = ''
+            hyd_types = ['cl', 'ci', 'pl', 'pi', 'tot']
+            for hyd in hyd_types:
+                if hyd in variable:
+                    hyd_met = hyd
+
+            for var in variables:
+                if var in variable:
+                    if var == 'Ze':
+                        cbar_label = '$Z_{e, %s}$ [dBZ]' % hyd_met
+                    elif var == 'Vd':
+                        cbar_label = '$V_{d, %s}$ [m/s]' % hyd_met
+                    elif var == 'sigma_d':
+                        cbar_label = '$\sigma_{d, %s}$ [m/s]' % hyd_met
+                    elif var == 'od':
+                        cbar_label = '$\tau_{%s}$' % hyd_met
+                    elif var == 'beta':
+                        cbar_label = '$\beta_{%s}$ [$m^{-2}$]' % hyd_met
+                    elif var == 'alpha':
+                        cbar_label = '$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
+
         if pressure_coords:
             x = np.arange(0, self.model.num_subcolumns, 1)
             y = my_ds[y_variable].values
@@ -267,11 +289,12 @@ class SubcolumnDisplay(Display):
             y_label = 'Pressure [hPa]'
         else:
             y_variable = my_ds[self.model.height_dim]
-            y_label = 'Height [hPa]'
+            y_label = 'Height [m]'
 
         x_variable = my_ds[variable].values
-        x_variable = np.where(np.isfinite(x_variable), x_variable, np.nan)
-
+        x_variable = np.ma.masked_where(~np.isfinite(x_variable), x_variable)
+        #x_variable = np.where(np.isfinite(x_variable), x_variable, np.nan)
+        #x_variable = np.where(x_variable == 0, np.nan, x_variable)
         if 'Ze' in variable:
             x_var = np.nanmean(10**(x_variable / 10), axis=0)
             x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
@@ -288,9 +311,9 @@ class SubcolumnDisplay(Display):
                               np.nanmax(10 ** (np.ceil(x_var + x_err))).max()])
             x_label = 'log '
         else:
-            x_var = np.nanmean(x_variable, axis=0)
-            x_err = np.nanstd(x_variable, ddof=0, axis=0)
-            x_lim = np.array([np.nanmin(np.floor(x_var - x_err)), np.nanmax(np.ceil(x_var + x_err))])
+            x_var = np.ma.mean(x_variable, axis=0)
+            x_err = np.ma.std(x_variable, ddof=0, axis=0)
+            x_lim = np.array([np.ma.min(np.floor(x_var - x_err)), np.ma.max(np.ceil(x_var + x_err))])
             x_label = ''
 
         # Choose label based on variable
@@ -336,5 +359,7 @@ class SubcolumnDisplay(Display):
 
         self.axes[subplot_index].set_xlabel(x_label)
         self.axes[subplot_index].set_ylabel(y_label)
-        self.axes[subplot_index].set_xlim(x_lim)
+        if np.all(np.isfinite(x_lim)):
+            self.axes[subplot_index].set_xlim(x_lim)
+
         return self.axes[subplot_index]

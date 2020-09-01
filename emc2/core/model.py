@@ -210,7 +210,7 @@ class ModelE(Model):
         super()._add_vel_units()
         self.q_names = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_field = "q"
-        self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
+        self.N_field = {'cl': 'nclic', 'ci': 'nciic', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"

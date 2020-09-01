@@ -335,7 +335,7 @@ def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, dD, 
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = v_tmp.magnitude
         Calc_tmp2 = (v_tmp - np.tile(Vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp
-        sigma_d_numer[:, k] = np.sqrt((Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD)
+        sigma_d_numer[:, k] = (Calc_tmp2.sum(axis=1) / 2.0 + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
 
     return sigma_d_numer
 
@@ -364,7 +364,7 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
             (model.num_subcolumns, 1)) * N_D
         Calc_tmp2 = (v_tmp - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         Calc_tmp2 = (Calc_tmp2.sum(axis=1) / 2. + Calc_tmp2[:, 1:-1].sum(axis=1)) * dD
-        sigma_d_numer[:, k] = np.sqrt(np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2))
+        sigma_d_numer[:, k] = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
 
     return sigma_d_numer
 

@@ -70,9 +70,9 @@ def calc_mu_lambda(model, hyd_type="cl",
     if hyd_type == "cl":
         if calc_dispersion is True:
             if not subcolumns:
-                mus = 0.0005714 * (column_ds[N_name].values * 1e-3) + 0.2714
+                mus = 0.0005714 * (column_ds[N_name].values * 1e-6) + 0.2714
             else:
-                mus = 0.0005714 * (column_ds[N_name].values * frac_array * 1e-3) + 0.2714
+                mus = 0.0005714 * (column_ds[N_name].values * frac_array * 1e-6) + 0.2714
             mus = 1 / mus**2 - 1
             mus = np.where(mus < dispersion_mu_bounds[0], dispersion_mu_bounds[0], mus)
             mus = np.where(mus > dispersion_mu_bounds[1], dispersion_mu_bounds[1], mus)

@@ -288,7 +288,7 @@ class SubcolumnDisplay(Display):
             y_variable = my_ds[self.model.p_field]
             y_label = 'Pressure [hPa]'
         else:
-            y_variable = my_ds[self.model.height_dim]
+            y_variable = my_ds[self.model.z_field]
             y_label = 'Height [m]'
 
         x_variable = my_ds[variable].values
@@ -344,10 +344,15 @@ class SubcolumnDisplay(Display):
             x_label = variable
 
         if 'Ze' in variable:
-            self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable)
-            self.axes[subplot_index].fill_betweenx(y_variable, np.log10(x_var - x_err) * 10,
-                                                   np.log10(x_var + x_err) * 10,
+            self.axes[subplot_index].plot(x_var, y_variable)
+            self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
                                                    alpha=0.5, color='deepskyblue')
+            self.axes[subplot_index].set_xscale('log')
+
+            xticks = self.axes[subplot_index].get_xticks()
+            xticks_dBZ = np.round(10 * np.log10(xticks), 1)
+            xtick_labels = ['%2d' % x for x in xticks_dBZ]
+            self.axes[subplot_index].set_xticklabels(xtick_labels)
         else:
             self.axes[subplot_index].plot(x_var, y_variable)
             self.axes[subplot_index].fill_betweenx(y_variable, x_var - x_err, x_var + x_err,
@@ -361,5 +366,7 @@ class SubcolumnDisplay(Display):
         self.axes[subplot_index].set_ylabel(y_label)
         if np.all(np.isfinite(x_lim)):
             self.axes[subplot_index].set_xlim(x_lim)
+        if pressure_coords:
+            self.axes[subplot_index].invert_yaxis()
 
         return self.axes[subplot_index]

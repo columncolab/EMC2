@@ -93,8 +93,8 @@ def set_stratiform_sub_col_frac(model):
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
     conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
     is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
-    is_cloud_one_above = np.roll(is_cloud, -1)
-    is_cloud_one_above[:, -1] = False
+    is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
+    #is_cloud_one_above[:, -1] = False
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
 
     cld_2_assigns = np.stack([data_frac1, data_frac2], axis=0)
@@ -152,7 +152,7 @@ def set_stratiform_sub_col_frac(model):
 
                     if over_diff > cld_2_assign[I_max]:
                         rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
-                        inds = over_unique_lo[rand_locs[1:cld_2_assign[I_min]]]
+                        inds = over_unique_lo[rand_locs[0:cld_2_assign[I_min]]]
                         locals()['strat_profs%d' % (I_min + 1)][inds, tt, j] = True
                         inds = over_unique_lo[rand_locs]
                         locals()['strat_profs%d' % (I_max + 1)][inds, tt, j] = True
@@ -265,10 +265,10 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
                                 model.ds[in_prof_cloud_name_liq].values)
     subcolumn_dims = model.ds[in_prof_cloud_name_ice].dims
     is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
-    is_cloud_one_above = np.roll(is_cloud, -1)
-    is_cloud_one_above[-1, :] = False
+    is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
+    is_cloud_one_above[:, -1] = False
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
-    precip_exist = np.stack([np.where(data_frac1 > 0, True, False), np.where(data_frac2 > 0, True, False)])
+    precip_exist = np.stack([data_frac1 > 0, data_frac2 > 0])
     PF_val = np.max(np.stack([data_frac1, data_frac2]), axis=0)
     cond = [strat_profs, ~strat_profs]
     for tt in range(data_frac1.shape[0]):
@@ -287,22 +287,24 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
                         if precip_exist[i, tt, j]:
                             p_strat_profs[overlying_locs, tt, j, i] = True
                     PF_val[tt, j] -= overlying_num
+
             for ii in range(2):
-                free_locs = np.where(np.logical_and(
-                    ~np.all(p_strat_profs[:, tt, j, :], axis=1), cond[ii][:, tt, j]))[0]
-                free_num = len(free_locs)
-                if free_num > 0:
-                    if free_num > PF_val[tt, j]:
-                        rand_locs = _randperm(free_num, PF_val[tt, j])
-                        for i in range(2):
-                            if precip_exist[i, tt, j]:
-                                p_strat_profs[free_locs[rand_locs], tt, j, i] = True
-                        PF_val[tt, j] = 0
-                    else:
-                        for i in range(2):
-                            if precip_exist[i, tt, j]:
-                                p_strat_profs[free_locs, tt, j, i] = True
-                        PF_val[tt, j] -= free_num
+                if PF_val[tt, j] > 0:
+                    free_locs = np.where(np.logical_and(
+                        ~np.all(p_strat_profs[:, tt, j, :], axis=1), cond[ii][:, tt, j]))[0]
+                    free_num = len(free_locs)
+                    if free_num > 0:
+                        if free_num > PF_val[tt, j]:
+                            rand_locs = _randperm(free_num, PF_val[tt, j])
+                            for i in range(2):
+                                if precip_exist[i, tt, j]:
+                                    p_strat_profs[free_locs[rand_locs], tt, j, i] = True
+                            PF_val[tt, j] = 0
+                        else:
+                            for i in range(2):
+                                if precip_exist[i, tt, j]:
+                                    p_strat_profs[free_locs, tt, j, i] = True
+                            PF_val[tt, j] -= free_num
 
     model.ds[out_prof_name1] = xr.DataArray(p_strat_profs[:, :, :, 0],
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))

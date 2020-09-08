@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>emc2.simulator.subcolumn.set_precip_sub_col_frac &mdash; EMC^2  documentation</title>
+  <title>emc2.simulator.lidar_moments.calc_LDR_and_ext &mdash; EMC^2  documentation</title>
   
 
   
@@ -42,8 +42,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.simulator.subcolumn.set_q_n" href="emc2.simulator.subcolumn.set_q_n.html" />
-    <link rel="prev" title="emc2.simulator.subcolumn.set_stratiform_sub_col_frac" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html" /> 
+    <link rel="next" title="emc2.simulator.lidar_moments.calc_lidar_moments" href="emc2.simulator.lidar_moments.calc_lidar_moments.html" />
+    <link rel="prev" title="emc2.simulator.radar_moments.calc_radar_moments" href="emc2.simulator.radar_moments.calc_radar_moments.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -103,12 +103,12 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_q_n.html">emc2.simulator.subcolumn.set_q_n</a></li>
 </ul>
 </li>
@@ -165,13 +165,13 @@
         
           <li><a href="../simulator.html">emc2.simulator (emc2.simulator)</a> &raquo;</li>
         
-      <li>emc2.simulator.subcolumn.set_precip_sub_col_frac</li>
+      <li>emc2.simulator.lidar_moments.calc_LDR_and_ext</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/API/generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -208,30 +208,39 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="emc2-simulator-subcolumn-set-precip-sub-col-frac">
-<h1>emc2.simulator.subcolumn.set_precip_sub_col_frac<a class="headerlink" href="#emc2-simulator-subcolumn-set-precip-sub-col-frac" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="emc2-simulator-lidar-moments-calc-ldr-and-ext">
+<h1>emc2.simulator.lidar_moments.calc_LDR_and_ext<a class="headerlink" href="#emc2-simulator-lidar-moments-calc-ldr-and-ext" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="emc2.simulator.subcolumn.set_precip_sub_col_frac">
-<code class="sig-prename descclassname">emc2.simulator.subcolumn.</code><code class="sig-name descname">set_precip_sub_col_frac</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">convective</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">N_columns</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_precip_sub_col_frac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_precip_sub_col_frac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the hydrometeor fraction due to precipitation in each subcolumn. This
-module works for both stratiform and convective precipitation.</p>
-<dl class="field-list simple">
+<dt id="emc2.simulator.lidar_moments.calc_LDR_and_ext">
+<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_LDR_and_ext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ext_OD</span><span class="o">=</span><span class="default_value">10.0</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">LDR_per_hyd</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_LDR_and_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_LDR_and_ext" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Calculates the lidar extinction mask and linear depolarization ratio for
+the given model and lidar.</p>
+</div></blockquote>
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>model: :py:func: `emc2.core.Model`</strong></dt><dd><p>The model we are generating the subcolumns of stratiform fraction for.</p>
+<dd class="field-odd"><dl>
+<dt><strong>model: Model</strong></dt><dd><blockquote>
+<div><p>The model to generate the parameters for.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>ext_OD: float</dt><dd><p>The optical depth threshold for determining if the signal is extinct.</p>
 </dd>
-<dt><strong>convective: bool</strong></dt><dd><p>Set to True to generate subcolumns for convective precipitation.
-Set to False to generate subcolumns for stratiform precipitation.</p>
+<dt>OD_from_sfc: bool</dt><dd><p>If True, optical depth will be calculated from the surface. If False,
+optical depth will be calculated from the top of the atmosphere.</p>
 </dd>
-<dt><strong>N_columns: int or None</strong></dt><dd><p>Use this to set the number of subcolumns in the model. This can only
-be set once. After the number of subcolumns is set, use None to make
-EMC2 automatically detect the number of subcolumns.</p>
+<dt>LDR_per_hyd: dict or None</dt><dd><p>If a dict, the amount of LDR per hydrometeor class must be specified in
+a dictionary whose keywords are the model’s hydrometeor classes. If None,
+the default settings from the model will be used.</p>
 </dd>
+</dl>
+</dd>
+<dt><strong>.</strong></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>model: :py:func: <cite>emc2.core.Model</cite></dt><dd><p>The Model object with the stratiform hydrometeor fraction in each subcolumn added.</p>
+<dt>model: Model</dt><dd><p>The model with the added simulated lidar parameters.</p>
 </dd>
 </dl>
 </dd>
@@ -248,10 +257,10 @@ EMC2 automatically detect the number of subcolumns.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="emc2.simulator.subcolumn.set_q_n.html" class="btn btn-neutral float-right" title="emc2.simulator.subcolumn.set_q_n" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="emc2.simulator.lidar_moments.calc_lidar_moments.html" class="btn btn-neutral float-right" title="emc2.simulator.lidar_moments.calc_lidar_moments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html" class="btn btn-neutral float-left" title="emc2.simulator.subcolumn.set_stratiform_sub_col_frac" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="emc2.simulator.radar_moments.calc_radar_moments.html" class="btn btn-neutral float-left" title="emc2.simulator.radar_moments.calc_radar_moments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

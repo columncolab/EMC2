@@ -1,4 +1,4 @@
-emc2.simulator.attenuation.calc\_theory\_beta\_m
+﻿emc2.simulator.attenuation.calc\_theory\_beta\_m
 ================================================
 
 .. currentmodule:: emc2.simulator.attenuation

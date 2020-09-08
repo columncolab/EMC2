@@ -1,4 +1,4 @@
-emc2.simulator.radar\_moments.calc\_radar\_reflectivity\_conv
+﻿emc2.simulator.radar\_moments.calc\_radar\_reflectivity\_conv
 =============================================================
 
 .. currentmodule:: emc2.simulator.radar_moments

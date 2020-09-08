@@ -1,4 +1,4 @@
-emc2.core.model.ModelE
+﻿emc2.core.model.ModelE
 ======================
 
 .. currentmodule:: emc2.core.model

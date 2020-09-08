@@ -11,10 +11,11 @@ simulator in EMC^2.
 
     attenuation.calc_radar_atm_attenuation
     attenuation.calc_theory_beta_m
+    attenuation.calc_radar_Ze_min
     psd.calc_mu_lambda
     radar_moments.calc_radar_reflectivity_conv
     radar_moments.calc_radar_moments
-    lidar_moments.calc_LDR
+    lidar_moments.calc_LDR_and_ext
     lidar_moments.calc_lidar_moments
     main.make_simulated_data
     subcolumn.set_convective_sub_col_frac

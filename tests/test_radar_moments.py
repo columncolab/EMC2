@@ -21,6 +21,11 @@ def test_radar_moments_all_convective():
     assert np.nanmax(my_model.ds["sub_col_Ze_cl_conv"].values) > 40.
     assert np.nanmax(my_model.ds["sub_col_Ze_pl_conv"].values) > 40.
 
+    # Ze_min should increase with height
+    my_model = emc2.simulator.attenuation.calc_radar_Ze_min(instrument, my_model)
+    assert np.all(np.logical_or(np.diff(my_model.ds["Ze_min"].values) > 0,
+                                np.isnan(np.diff(my_model.ds['Ze_min'].values))))
+
 
 def test_radar_moments_all_stratiform():
     instrument = emc2.core.instruments.KAZR('nsa')
@@ -43,3 +48,8 @@ def test_radar_moments_all_stratiform():
     assert np.all(~np.isfinite(my_model.ds["sub_col_Ze_ci_strat"].values))
     assert np.all(np.nanmax(np.abs(my_model.ds["sub_col_Vd_cl_strat"].values)) < 1)
     assert np.all(np.nanmax(my_model.ds["sub_col_Vd_pl_strat"].values) <= 1)
+
+    # Ze_min should increase with height
+    my_model = emc2.simulator.attenuation.calc_radar_Ze_min(instrument, my_model)
+    assert np.all(np.logical_or(np.diff(my_model.ds["Ze_min"].values) > 0,
+                                np.isnan(np.diff(my_model.ds['Ze_min'].values))))

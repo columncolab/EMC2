@@ -39,9 +39,8 @@ def test_plot_instrument():
     HSRL.read_arm_netcdf_file(emc2.test_files.TEST_INST_PLOT_FILE)
 
     model_display = emc2.plotting.SubcolumnDisplay(model, subplot_shape=(1, 2), figsize=(10, 10))
-    model_display.plot_instrument_timeseries(HSRL, "linear_depol", log_plot=False, cmap='magma', \
-        subplot_index=(0, 0), vmin=0.0, vmax=0.5)
-    model_display.plot_instrument_timeseries(HSRL, "beta_a_backscat", log_plot=True, cmap='magma', \
-        subplot_index=(0, 1), vmin=1e-8, vmax=1e-3)
+    model_display.plot_instrument_timeseries(HSRL, "linear_depol", log_plot=False, cmap='magma',
+                                             subplot_index=(0, ), vmin=0.0, vmax=0.5)
+    model_display.plot_instrument_timeseries(HSRL, "beta_a_backscat", log_plot=True, cmap='magma',
+                                             subplot_index=(1, ), vmin=1e-8, vmax=1e-3)
     return model_display.fig
-

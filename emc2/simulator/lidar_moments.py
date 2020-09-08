@@ -8,7 +8,7 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
 
-def calc_LDR_and_ext(model, ext_OD, OD_from_sfc=True, LDR_per_hyd=None):
+def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
     """
     Calculates the lidar extinction mask and linear depolarization ratio for
     the given model and lidar.

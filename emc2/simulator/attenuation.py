@@ -3,6 +3,7 @@ import numpy as np
 from ..core import Instrument
 from ..core.instrument import ureg, quantity
 
+
 def calc_radar_Ze_min(instrument, model, ref_rng=1000):
     """
     This function calculates the minimum detectable radar signal (Ze_min) profile
@@ -23,8 +24,11 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
         The Model class that will store the Ze_min profile.
     """
 
-    model.ds["Ze_min"] = instrument.Z_min_1km + 20 * np.log10(model.ds.z) - 20 * np.log10(ref_rng)
+    model.ds["Ze_min"] = instrument.Z_min_1km + 20 * np.log10(model.ds[model.height_dim]) - 20 * np.log10(ref_rng)
+    model.ds["Ze_min"].attrs["long_name"] = "Minimum discernable radar reflectivity factor"
+    model.ds["Ze_min"].attrs["units"] = 'dBZ'
     return model
+
 
 def calc_radar_atm_attenuation(instrument, model):
     """

@@ -23,8 +23,8 @@ def test_radar_moments_all_convective():
 
     # Ze_min should increase with height
     my_model = emc2.simulator.attenuation.calc_radar_Ze_min(instrument, my_model)
-    assert np.all(np.logical_or(np.diff(my_model.ds["Ze_min"].values, axis=1) > 0,
-                                np.isnan(np.diff(my_model.ds['Ze_min'].values, axis=1))))
+    assert np.all(np.logical_or(np.diff(my_model.ds["Ze_min"].values) > 0,
+                                np.isnan(np.diff(my_model.ds['Ze_min'].values))))
 
 
 def test_radar_moments_all_stratiform():
@@ -51,6 +51,5 @@ def test_radar_moments_all_stratiform():
 
     # Ze_min should increase with height
     my_model = emc2.simulator.attenuation.calc_radar_Ze_min(instrument, my_model)
-    assert np.all(np.logical_or(np.diff(my_model.ds["Ze_min"].values, axis=1) > 0,
-                                np.isnan(np.diff(my_model.ds['Ze_min'].values, axis=1))))
-
+    assert np.all(np.logical_or(np.diff(my_model.ds["Ze_min"].values) > 0,
+                                np.isnan(np.diff(my_model.ds['Ze_min'].values))))

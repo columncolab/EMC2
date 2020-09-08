@@ -55,7 +55,7 @@ def test_lidar_moments_all_stratiform():
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pl', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pi', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False, 10)
-
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True, 10)
     # OD should increase with height
     assert np.all(np.logical_or(np.diff(my_model.ds['sub_col_OD_tot_strat'].values, axis=1) >= 0,
                                 np.isnan(np.diff(my_model.ds['sub_col_OD_tot_strat'].values, axis=1))))

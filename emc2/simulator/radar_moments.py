@@ -252,6 +252,8 @@ def calc_radar_moments(instrument, model, is_conv,
                                                      dims=column_ds["sub_col_Ze_tot_strat"].dims)
     for hyd_type in ["cl", "pl", "ci", "pi"]:
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
+        v_tmp = v_tmp.magnitude
+        fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         if hyd_type == "cl":
             Vd_tot = column_ds["sub_col_Vd_tot_strat"].values
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
@@ -262,7 +264,7 @@ def calc_radar_moments(instrument, model, is_conv,
                 sigma_d_numer = [x for x in map(_calc_sigma_d_liq, np.arange(0, Dims[1], 1))]
 
             sigma_d_numer_tot = np.stack([x[0] for x in sigma_d_numer], axis=1)
-            moment_denom = np.stack([x[1] for x in sigma_d_numer], axis=1)
+
         else:
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_sigma = lambda x: _calc_sigma_d_tot(
@@ -272,9 +274,10 @@ def calc_radar_moments(instrument, model, is_conv,
             else:
                 sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
             sigma_d_numer_tot += np.stack([x[0] for x in sigma_d_numer], axis=1)
-            moment_denom += np.stack([x[1] for x in sigma_d_numer], axis=1)
+            md = np.stack([x[1] for x in sigma_d_numer], axis=1)
+
     print(sigma_d_numer_tot.shape)
-    column_ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom),
+    column_ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),
                                                           dims=column_ds["sub_col_Vd_tot_strat"].dims)
     kappa_ds = calc_radar_atm_attenuation(instrument, model)
 
@@ -354,16 +357,16 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
     for k in range(Dims[2]):
         if total_hydrometeor.values[tt, k] == 0:
             continue
-        N_0_tmp = fits_ds["N_0"][:, tt, k].values.max(axis=0)
-        lambda_tmp = fits_ds["lambda"][:, tt, k].values.max(axis=0)
-        if np.isnan(N_0_tmp):
+        N_0_tmp = fits_ds["N_0"][:, tt, k].values
+        lambda_tmp = fits_ds["lambda"][:, tt, k].values
+        if np.all(np.isnan(N_0_tmp)):
             continue
         N_D = []
         for i in range(model.num_subcolumns):
-            N_D.append(N_0_tmp * p_diam ** mu * np.exp(-lambda_tmp * p_diam))
+            N_D.append(N_0_tmp[i] * p_diam ** mu * np.exp(-lambda_tmp[i] * p_diam))
         N_D = np.stack(N_D, axis=1)
         Calc_tmp = np.tile(beta_p,
-            (model.num_subcolumns, 1)) * N_D
+            (model.num_subcolumns, 1)) * N_D.T
         moment_denom = np.trapz(Calc_tmp, dx=dD, axis=1).astype('float64')
         Calc_tmp2 = (v_tmp - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         Calc_tmp2 = np.trapz(Calc_tmp2, dx=dD, axis=1)

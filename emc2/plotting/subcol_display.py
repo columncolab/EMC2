@@ -181,15 +181,9 @@ class SubcolumnDisplay(Display):
         return self.axes[subplot_index], cbar
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
-<<<<<<< HEAD
-                                  subplot_index=(0, ), colorbar=True, cbar_label=None,
-                                  log_plot=False, Mask_array=None, x_range=(), y_range=(), 
-                                  **kwargs):
-=======
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,
                                    log_plot=False, Mask_array=None, x_range=(), y_range=(),
                                    **kwargs):
->>>>>>> 0.2_IS
         """
         Plots timeseries of a given instrument variable.
 
@@ -263,11 +257,7 @@ class SubcolumnDisplay(Display):
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if title is None:
-<<<<<<< HEAD
-            self.axes[subplot_index].set_title(my_ds.instrument_str + ' ' +
-=======
             self.axes[subplot_index].set_title(instrument.instrument_str + ' ' +
->>>>>>> 0.2_IS
                                                np.datetime_as_string(my_ds.time[0].values))
         else:
             self.axes[subplot_index].set_title(title)
@@ -278,11 +268,7 @@ class SubcolumnDisplay(Display):
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
         return self.axes[subplot_index], cbar
-<<<<<<< HEAD
- 
-=======
 
->>>>>>> 0.2_IS
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
                             log_plot=False, Mask_array=None, x_range=(), y_range=(), **kwargs):

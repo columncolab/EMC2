@@ -83,7 +83,7 @@ class SubcolumnDisplay(Display):
     def plot_subcolumn_timeseries(self, variable,
                                   column_no, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
-                                  log_plot=False, Mask_array=None, x_range=(), y_range=(), 
+                                  log_plot=False, Mask_array=None, x_range=(), y_range=(),
                                   **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
@@ -181,9 +181,15 @@ class SubcolumnDisplay(Display):
         return self.axes[subplot_index], cbar
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
+<<<<<<< HEAD
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, x_range=(), y_range=(), 
                                   **kwargs):
+=======
+                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
+                                   log_plot=False, Mask_array=None, x_range=(), y_range=(),
+                                   **kwargs):
+>>>>>>> 0.2_IS
         """
         Plots timeseries of a given instrument variable.
 
@@ -257,7 +263,11 @@ class SubcolumnDisplay(Display):
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if title is None:
+<<<<<<< HEAD
             self.axes[subplot_index].set_title(my_ds.instrument_str + ' ' +
+=======
+            self.axes[subplot_index].set_title(instrument.instrument_str + ' ' +
+>>>>>>> 0.2_IS
                                                np.datetime_as_string(my_ds.time[0].values))
         else:
             self.axes[subplot_index].set_title(title)
@@ -268,7 +278,11 @@ class SubcolumnDisplay(Display):
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
         return self.axes[subplot_index], cbar
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 0.2_IS
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
                             log_plot=False, Mask_array=None, x_range=(), y_range=(), **kwargs):
@@ -375,7 +389,7 @@ class SubcolumnDisplay(Display):
         return self.axes[subplot_index], cbar
 
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
-                                    subplot_index=(0,), log_plot=False, plot_SD=True, 
+                                    subplot_index=(0,), log_plot=False, plot_SD=True,
                                     x_range=(), y_range=(), **kwargs):
         """
         This function will plot a mean vertical profile of a subcolumn variable for a given time period. The
@@ -432,8 +446,7 @@ class SubcolumnDisplay(Display):
         else:
             x_var = np.nanmean(x_variable, axis=0)
             x_err = np.nanstd(x_variable, ddof=0, axis=0)
-            x_fill = np.array([x_var - x_err,
-                x_var + x_err])
+            x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
                 x_label = 'log '
                 Xscale = 'log'
@@ -477,7 +490,7 @@ class SubcolumnDisplay(Display):
         if plot_SD is True:
             self.axes[subplot_index].fill_betweenx(y_variable, x_fill[0], x_fill[1],
                                                    alpha=0.5, color='deepskyblue')
-        
+
         if title is None:
             self.axes[subplot_index].set_title(time)
         else:

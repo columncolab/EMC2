@@ -4,6 +4,32 @@ from ..core import Instrument
 from ..core.instrument import ureg, quantity
 
 
+def calc_radar_Ze_min(instrument, model, ref_rng=1000):
+    """
+    This function calculates the minimum detectable radar signal (Ze_min) profile
+    given radar detectability at a reference rnage.
+
+    Parameters
+    ----------
+    instrument: :py:mod:`emc2.core.Instrument`
+        The Instrument class that you wish to calculate Ze_min for.
+    model: :py:mod:`emc2.core.Model`
+        The Model class that you wish to calculate the profile for.
+    ref_rng: scalar
+        Reference altitude for Ze_min
+
+    Returns
+    -------
+    model: :py:mod:`emc2.core.Model`
+        The Model class that will store the Ze_min profile.
+    """
+
+    model.ds["Ze_min"] = instrument.Z_min_1km + 20 * np.log10(model.ds[model.height_dim]) - 20 * np.log10(ref_rng)
+    model.ds["Ze_min"].attrs["long_name"] = "Minimum discernable radar reflectivity factor"
+    model.ds["Ze_min"].attrs["units"] = 'dBZ'
+    return model
+
+
 def calc_radar_atm_attenuation(instrument, model):
     """
     This function calculates atmospheric attenuation due to water vapor and CO2

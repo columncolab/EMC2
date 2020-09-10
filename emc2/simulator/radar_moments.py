@@ -365,6 +365,7 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
         for i in range(model.num_subcolumns):
             N_D.append(N_0_tmp[i] * p_diam ** mu * np.exp(-lambda_tmp[i] * p_diam))
         N_D = np.stack(N_D, axis=1)
+
         Calc_tmp = np.tile(beta_p,
             (model.num_subcolumns, 1)) * N_D.T
         moment_denom = np.trapz(Calc_tmp, dx=dD, axis=1).astype('float64')

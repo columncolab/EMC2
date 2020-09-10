@@ -35,8 +35,12 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
     model = set_precip_sub_col_frac(model, convective=False)
     model = set_precip_sub_col_frac(model, convective=True)
     for hyd_type in hydrometeor_classes:
-        model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
-        model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+        if hyd_type is not 'cl':
+            model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
+            model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+        else:
+            model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
+            model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
 
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']

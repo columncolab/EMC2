@@ -94,7 +94,6 @@ def set_stratiform_sub_col_frac(model):
     conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
     is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
     is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
-    #is_cloud_one_above[:, -1] = False
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
 
     cld_2_assigns = np.stack([data_frac1, data_frac2], axis=0)

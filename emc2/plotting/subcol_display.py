@@ -149,7 +149,6 @@ class SubcolumnDisplay(Display):
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
 
-
         var_array = my_ds[variable].values.T
         if Mask_array is not None:
             var_array = my_ds[variable].values.T
@@ -444,13 +443,12 @@ class SubcolumnDisplay(Display):
 
         x_variable = my_ds[variable].values
         x_variable = np.ma.masked_where(~np.isfinite(x_variable), x_variable)
-        #x_variable = np.where(np.isfinite(x_variable), x_variable, np.nan)
-        #x_variable = np.where(x_variable == 0, np.nan, x_variable)
+
         if 'Ze' in variable:
             # Use SD as a relative error considering the dBZ units
             x_var = np.nanmean(10**(x_variable / 10), axis=0)
             x_err = 10 * np.log10((np.nanstd(10**(x_variable / 10), ddof=0, axis=0) +
-                    x_var) / x_var)
+                                  x_var) / x_var)
             x_fill = np.array(np.where(x_var > 0,
                               [10 * np.log10(x_var) - x_err, 10 * np.log10(x_var) + x_err],
                               np.full((2, x_var.size), np.nan)))

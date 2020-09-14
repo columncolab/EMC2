@@ -35,7 +35,7 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
     model = set_precip_sub_col_frac(model, convective=False)
     model = set_precip_sub_col_frac(model, convective=True)
     for hyd_type in hydrometeor_classes:
-        if hyd_type is not 'cl':
+        if hyd_type != 'cl':
             model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
             model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
         else:

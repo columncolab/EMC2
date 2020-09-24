@@ -170,7 +170,7 @@ class SubcolumnDisplay(Display):
 
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +
-                                               np.datetime_as_string(self.model.ds.time[0].values))
+                                               np.datetime_as_string(self.model.ds[x_variable][0].values))
         else:
             self.axes[subplot_index].set_title(title)
 
@@ -314,7 +314,7 @@ class SubcolumnDisplay(Display):
             The matplotlib colorbar handle of the plot.
         """
         ds_name = [x for x in self._arm.keys()][0]
-        my_ds = self._arm[ds_name].sel(time=time, method='nearest')
+        my_ds = self._arm[ds_name].sel({self.model.time_dim: time}, method='nearest')
 
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -445,14 +445,15 @@ class SubcolumnDisplay(Display):
         """
 
         ds_name = [x for x in self._arm.keys()][0]
+        x_variable = self.model.time_dim
         if type(time) is tuple:
             time = np.array(time)
         if time.size == 1:
-            my_ds = self._arm[ds_name].sel(time=time, method='nearest')
+            my_ds = self._arm[ds_name].sel({x_variable: time}, method='nearest')
         else:
-            time_ind = np.logical_and(self._arm[ds_name].time >= time[0],
-                                      self._arm[ds_name].time < time[1])
-            my_ds = self._arm[ds_name].isel(time=time_ind)
+            time_ind = np.logical_and(self._arm[ds_name][x_variable] >= time[0],
+                                      self._arm[ds_name][x_variable] < time[1])
+            my_ds = self._arm[ds_name].isel({x_variable: time_ind})
             
         if pressure_coords:
             y_variable = my_ds[self.model.p_field]
@@ -460,7 +461,7 @@ class SubcolumnDisplay(Display):
         else:
             y_variable = my_ds[self.model.z_field]
             y_label = 'Height [m]'
-        if my_ds.time.size > 1:
+        if my_ds[x_variable].size > 1:
             y_variable = np.nanmean(y_variable, axis=0)
 
         x_variable = my_ds[variable].values

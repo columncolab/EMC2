@@ -55,7 +55,9 @@ class SubcolumnDisplay(Display):
             A model containing the subcolumn data to relpace the current model data.
 
         """
+        self._arm.pop(self.model.model_name)
         self.model = model
+        self._arm.update({self.model.model_name: self.model.ds})
 
     def set_yrng(self, subplot_index, y_range):
         """

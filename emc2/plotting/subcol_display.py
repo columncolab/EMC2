@@ -46,6 +46,17 @@ class SubcolumnDisplay(Display):
         super().__init__(model.ds, ds_name=ds_name, **kwargs)
         self.model = model
 
+    def _switch_model(self, model):
+        """
+
+        Parameters
+        ----------
+        model: emc2.core.Model
+            A model containing the subcolumn data to relpace the current model data.
+
+        """
+        self.model = model
+
     def set_yrng(self, subplot_index, y_range):
         """
         Set the Y axes limits of the subplot

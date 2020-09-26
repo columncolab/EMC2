@@ -88,6 +88,7 @@ def set_stratiform_sub_col_frac(model):
     data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
     data_frac2 = model.ds[model.strat_frac_names["ci"]]
     data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
+    full_overcast_cl_ci = 0
 
     strat_profs1 = np.zeros((N_columns, data_frac1.shape[0], data_frac1.shape[1]), dtype=bool)
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
@@ -107,6 +108,11 @@ def set_stratiform_sub_col_frac(model):
             I_min = np.argmin(cld_2_assign)
             I_max = np.argmax(cld_2_assign)
             if cld_2_assign[I_max] == 0:
+                continue
+            if cld_2_assign[I_min] == N_columns:
+                strat_profs1[:, tt, j] = True
+                strat_profs2[:, tt, j] = True
+                full_overcast_cl_ci +=1
                 continue
             if overlapping_cloud[tt, j]:
                 overlying_locs1 = np.where(np.logical_and(strat_profs1[:, tt, j + 1], ~conv_profs[:, tt, j]))[0]
@@ -180,6 +186,7 @@ def set_stratiform_sub_col_frac(model):
                     locals()["strat_profs%d"
                              % (I_min + 1)][free_locs_max[rand_locs[0:cld_2_assign[I_min]]], tt, j] = True
 
+    print("Fully overcast cl & ci in %s voxels" % full_overcast_cl_ci)
     model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(strat_profs1,
                                                         dims=(subcolumn_dims[0],
                                                               subcolumn_dims[1], subcolumn_dims[2]))
@@ -247,6 +254,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
         out_prof_long_name1 = 'Liquid precipitation present? [stratiform]'
         out_prof_long_name2 = 'Ice precipitation present? [stratiform]'
 
+    full_overcast_pl_pi = 0
     if in_prof_cloud_name_liq not in model.ds.variables.keys():
         raise KeyError("%s is not a variable in the model object. Please ensure that you have" +
                        "generated the cloud particle subcolumns before running this routine." %
@@ -272,6 +280,11 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     cond = [strat_profs, ~strat_profs]
     for tt in range(data_frac1.shape[0]):
         for j in range(data_frac1.shape[1] - 2, -1, -1):
+            if np.logical_and(data_frac1[tt, j] == model.num_subcolumns,
+                              data_frac2[tt, j] == model.num_subcolumns):
+                p_strat_profs[:, tt, j, :] = True
+                full_overcast_pl_pi +=1
+                continue
             if overlapping_cloud[tt, j]:
                 overlying_locs = np.where(np.any(p_strat_profs[:, tt, j + 1, :], axis=1))[0]
                 overlying_num = len(overlying_locs)
@@ -305,6 +318,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
                                     p_strat_profs[free_locs, tt, j, i] = True
                             PF_val[tt, j] -= free_num
 
+    print("Fully overcast pl & pi in %s voxels" % full_overcast_pl_pi)
     model.ds[out_prof_name1] = xr.DataArray(p_strat_profs[:, :, :, 0],
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     model.ds[out_prof_name2] = xr.DataArray(p_strat_profs[:, :, :, 1],

@@ -263,6 +263,7 @@ def calc_radar_moments(instrument, model, is_conv,
                 sigma_d_numer = [x for x in map(_calc_sigma_d_liq, np.arange(0, Dims[1], 1))]
 
             sigma_d_numer_tot = np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
+            print(np.all(sigma_d_numer_tot == 0))
 
         else:
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
@@ -273,6 +274,7 @@ def calc_radar_moments(instrument, model, is_conv,
             else:
                 sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
             sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
+            print(np.all(sigma_d_numer_tot == 0))
 
     print(sigma_d_numer_tot.shape)
     column_ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),

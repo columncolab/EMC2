@@ -389,12 +389,17 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
     for k in range(height_dims):
         if total_hydrometeor.values[tt, k] == 0:
             continue
-
-        N_0_tmp = np.squeeze(N_0[:, tt, k])
-        lambda_tmp = np.squeeze(lambdas[:, tt, k])
-        if all(np.isnan(x) for x in N_0_tmp):
+        if num_subcolumns > 1:
+            N_0_tmp = np.squeeze(N_0[:, tt, k])
+            lambda_tmp = np.squeeze(lambdas[:, tt, k])
+            mu_temp = np.squeeze(mu[:, tt, k])
+        else:
+            N_0_tmp = N_0[:, tt, k]
+            lambda_tmp = lambdas[:, tt, k]
+            mu_temp = mu[:, tt, k]
+        if all([np.isnan(x) for x in N_0_tmp]):
             continue
-        mu_temp = np.squeeze(mu[:, tt, k])
+
         N_D = []
         for i in range(num_subcolumns):
             N_D.append(N_0_tmp[i] * p_diam ** mu_temp[i] * np.exp(-lambda_tmp[i] * p_diam))

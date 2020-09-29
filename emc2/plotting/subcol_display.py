@@ -459,7 +459,7 @@ class SubcolumnDisplay(Display):
 
         ds_name = [x for x in self._arm.keys()][0]
         x_variable = self.model.time_dim
-        if type(time) is tuple:
+        if np.logical_or(type(time) is tuple, type(time) is str):
             time = np.array(time)
         if time.size == 1:
             my_ds = self._arm[ds_name].sel({x_variable: time}, method='nearest')

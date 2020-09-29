@@ -98,7 +98,7 @@ class Model():
 
         Parameters
         ----------
-        time_range: tuple, list of array, typically in datetime64 format
+        time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
 
         """

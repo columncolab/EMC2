@@ -112,7 +112,7 @@ def set_stratiform_sub_col_frac(model):
             if cld_2_assign[I_min] == N_columns:
                 strat_profs1[:, tt, j] = True
                 strat_profs2[:, tt, j] = True
-                full_overcast_cl_ci +=1
+                full_overcast_cl_ci += 1
                 continue
             if overlapping_cloud[tt, j]:
                 overlying_locs1 = np.where(np.logical_and(strat_profs1[:, tt, j + 1], ~conv_profs[:, tt, j]))[0]
@@ -283,7 +283,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
             if np.logical_and(data_frac1[tt, j] == model.num_subcolumns,
                               data_frac2[tt, j] == model.num_subcolumns):
                 p_strat_profs[:, tt, j, :] = True
-                full_overcast_pl_pi +=1
+                full_overcast_pl_pi += 1
                 continue
             if overlapping_cloud[tt, j]:
                 overlying_locs = np.where(np.any(p_strat_profs[:, tt, j + 1, :], axis=1))[0]

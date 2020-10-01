@@ -168,9 +168,9 @@ class SubcolumnDisplay(Display):
             if Mask_array.shape == var_array.shape:
                 var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
-                print("Mask dimensions " + str(Mask_array.shape) +\
-                         " are different than in the requested field " +
-                         str(var_array.shape) + " - ignoring mask")
+                print("Mask dimensions " + str(Mask_array.shape) +
+                      " are different than in the requested field " +
+                      str(var_array.shape) + " - ignoring mask")
         if y_range is not None:
             self.axes[subplot_index].set_ylim(y_range)
         if x_range is not None:
@@ -262,9 +262,9 @@ class SubcolumnDisplay(Display):
             if Mask_array.shape == var_array.shape:
                 var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
-                print("Mask dimensions " + str(Mask_array.shape) +\
-                         " are different than in the requested field " +
-                         str(var_array.shape) + " - ignoring mask")
+                print("Mask dimensions " + str(Mask_array.shape) +
+                      " are different than in the requested field " +
+                      str(var_array.shape) + " - ignoring mask")
         if y_range is not None:
             self.axes[subplot_index].set_ylim(y_range)
         if x_range is not None:
@@ -380,9 +380,9 @@ class SubcolumnDisplay(Display):
             if Mask_array.shape == var_array.shape:
                 var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
-                print("Mask dimensions " + str(Mask_array.shape) +\
-                         " are different than in the requested field " +
-                         str(var_array.shape) + " - ignoring mask")
+                print("Mask dimensions " + str(Mask_array.shape) +
+                      " are different than in the requested field " +
+                      str(var_array.shape) + " - ignoring mask")
         if y_range is not None:
             self.axes[subplot_index].set_ylim(y_range)
         if x_range is not None:
@@ -467,7 +467,7 @@ class SubcolumnDisplay(Display):
             time_ind = np.logical_and(self._arm[ds_name][x_variable] >= time[0],
                                       self._arm[ds_name][x_variable] < time[1])
             my_ds = self._arm[ds_name].isel({x_variable: time_ind})
-            
+
         if pressure_coords:
             y_variable = my_ds[self.model.p_field]
             y_label = 'Pressure [hPa]'
@@ -483,9 +483,9 @@ class SubcolumnDisplay(Display):
             if Mask_array.shape == x_variable.shape:
                 x_variable = np.where(Mask_array <= 0, x_variable, np.nan)
             else:
-                print("Mask dimensions " + str(Mask_array.shape) +\
-                         " are different than in the requested field " +
-                         str(x_variable.shape) + " - ignoring mask")
+                print("Mask dimensions " + str(Mask_array.shape) +
+                      " are different than in the requested field " +
+                      str(x_variable.shape) + " - ignoring mask")
 
         if 'Ze' in variable:
             # Use SD as a relative error considering the dBZ units
@@ -493,19 +493,19 @@ class SubcolumnDisplay(Display):
                 x_var = np.nanmean(10**(x_variable / 10), axis=0)
                 x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
             else:
-                x_var = np.nanmean(10**(x_variable / 10), axis=(0,1))
-                x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=(0,1))
+                x_var = np.nanmean(10**(x_variable / 10), axis=(0, 1))
+                x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=(0, 1))
             x_label = ''
-            Xscale = 'linear' # treating dBZ as linear for plotting
+            Xscale = 'linear'  # treating dBZ as linear for plotting
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
-            x_fill[0] = np.where(x_var > x_err, x_fill[0], 10*np.log10(np.finfo(float).eps))
+            x_fill[0] = np.where(x_var > x_err, x_fill[0], 10 * np.log10(np.finfo(float).eps))
         else:
             if time.size == 1:
                 x_var = np.nanmean(x_variable, axis=0)
                 x_err = np.nanstd(x_variable, ddof=0, axis=0)
             else:
-                x_var = np.nanmean(x_variable, axis=(0,1))
-                x_err = np.nanstd(x_variable, ddof=0, axis=(0,1))
+                x_var = np.nanmean(x_variable, axis=(0, 1))
+                x_err = np.nanstd(x_variable, ddof=0, axis=(0, 1))
             x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
                 x_label = 'log '
@@ -577,9 +577,9 @@ class SubcolumnDisplay(Display):
 
         return self.axes[subplot_index]
 
-    def plot_instrument_mean_profile(self, instrument, variable, time_range=None, pressure_coords=True, 
-                                    title=None, subplot_index=(0,), log_plot=False, plot_SD=True,
-                                    Xlabel=None, Mask_array=None, x_range=None, y_range=None, **kwargs):
+    def plot_instrument_mean_profile(self, instrument, variable, time_range=None, pressure_coords=True,
+                                     title=None, subplot_index=(0,), log_plot=False, plot_SD=True,
+                                     Xlabel=None, Mask_array=None, x_range=None, y_range=None, **kwargs):
         """
         This function will plot a mean vertical profile of an instrument variable averaged over a given
         time period. The thick line will represent the mean profile along the given period, and the
@@ -640,18 +640,18 @@ class SubcolumnDisplay(Display):
             if Mask_array.shape == x_variable.shape:
                 x_variable = np.where(Mask_array <= 0, x_variable, np.nan)
             else:
-                print("Mask dimensions " + str(Mask_array.shape) +\
-                         " are different than in the requested field " +
-                         str(x_variable.shape) + " - ignoring mask")
+                print("Mask dimensions " + str(Mask_array.shape) +
+                      " are different than in the requested field " +
+                      str(x_variable.shape) + " - ignoring mask")
 
         if 'Ze' in variable:
             # Use SD as a relative error considering the dBZ units
             x_var = np.nanmean(10**(x_variable / 10), axis=0)
             x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
             x_label = ''
-            Xscale = 'linear' # treating dBZ as linear for plotting
+            Xscale = 'linear'  # treating dBZ as linear for plotting
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
-            x_fill[0] = np.where(x_var > x_err, x_fill[0], 10*np.log10(np.finfo(float).eps))
+            x_fill[0] = np.where(x_var > x_err, x_fill[0], 10 * np.log10(np.finfo(float).eps))
         else:
             x_var = np.nanmean(x_variable, axis=0)
             x_err = np.nanstd(x_variable, ddof=0, axis=0)
@@ -708,7 +708,7 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].plot(x_var, y_variable, **kwargs)
 
         if title is None:
-            self.axes[subplot_index].set_title(time)
+            self.axes[subplot_index].set_title('%s' % time_range)
         else:
             self.axes[subplot_index].set_title(title)
 
@@ -725,4 +725,3 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].set_xlim(x_lim)
 
         return self.axes[subplot_index]
-

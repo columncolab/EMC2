@@ -217,7 +217,8 @@ def calc_lidar_moments(instrument, model, is_conv,
             dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
                 instrument.mie_table[hyd_type]["p_diam"].values[0]
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
-            total_hydrometeor = column_ds[frac_names] * column_ds[n_names]
+            N_columns = len(model.ds["subcolumn"])
+            total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
             N_0 = fits_ds["N_0"].values
             mu = fits_ds["mu"].values
             num_subcolumns = model.num_subcolumns
@@ -291,7 +292,7 @@ def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor.values[:, tt, k] == 0):
+        if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
         N_D = []
         for i in range(num_subcolumns):

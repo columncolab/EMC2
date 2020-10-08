@@ -21,10 +21,12 @@ def load_mie_file(filename):
                         names=["wavelength", "p_diam", "size_parameter", "compre_real",
                                "compre_im", "scat_p", "alpha_p", "beta_p", "scat_eff",
                                "ext_eff", "backscat_eff"])
+
     my_df["alpha_p"] = my_df["alpha_p"] * 1e-12
     my_df["beta_p"] = my_df["beta_p"] * 1e-12
     my_df["p_diam"] = 2e-6 * my_df["p_diam"]
     my_df = my_df.to_xarray()
+
     my_df["wavelength"].attrs["units"] = "microns"
     my_df["wavelength"].attrs["long_name"] = "Wavelength of beam"
     my_df["wavelength"].attrs["standard_name"] = "wavelength"
@@ -41,6 +43,7 @@ def load_mie_file(filename):
     my_df["compre_real"].attrs["long_name"] = ("Complex refractive index of the sphere divided " +
                                                "by the real index of the medium (real part)")
     my_df['compre_real'].attrs["standard_name"] = "Complex_over_real_Re"
+
     my_df["compre_im"].attrs["units"] = "1"
     my_df["compre_im"].attrs["long_name"] = ("Complex refractive index of the sphere divided " +
                                              "by the real index of the medium (imaginary part)")
@@ -69,4 +72,5 @@ def load_mie_file(filename):
     my_df["backscat_eff"].attrs["units"] = "1"
     my_df["backscat_eff"].attrs["long_name"] = "Backscattering efficiency"
     my_df["backscat_eff"].attrs["standard_name"] = "Backscattering_efficiency"
+
     return my_df

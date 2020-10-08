@@ -217,7 +217,6 @@ def calc_lidar_moments(instrument, model, is_conv,
             dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
                 instrument.mie_table[hyd_type]["p_diam"].values[0]
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
-            #total_hydrometeor = column_ds[frac_names] * column_ds[n_names]
             N_columns = len(model.ds["subcolumn"])
             total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
             N_0 = fits_ds["N_0"].values

@@ -215,7 +215,7 @@ class ModelE(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
-        self.height_dim = "plm"
+        self.height_dim = "p"
         self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}

@@ -275,7 +275,6 @@ def calc_radar_moments(instrument, model, is_conv,
                 sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
             sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
 
-    print(sigma_d_numer_tot.shape)
     column_ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),
                                                           dims=column_ds["sub_col_Vd_tot_strat"].dims)
     kappa_ds = calc_radar_atm_attenuation(instrument, model)
@@ -326,7 +325,7 @@ def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, dD, 
     num_diam = len(p_diam)
     Dims = Vd_tot.shape
     for k in range(Dims[2]):
-        if total_hydrometeor.values[tt, k] == 0:
+        if total_hydrometeor[tt, k] == 0:
             continue
         N_0_tmp = fits_ds["N_0"].values[:, tt, k].astype('float64')
         N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
@@ -354,7 +353,7 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
     if tt % 50 == 0:
         print('Stratiform moment for class progress: %d/%d' % (tt, Dims[1]))
     for k in range(Dims[2]):
-        if total_hydrometeor.values[tt, k] == 0:
+        if total_hydrometeor[tt, k] == 0:
             continue
         N_0_tmp = fits_ds["N_0"][:, tt, k].values
         lambda_tmp = fits_ds["lambda"][:, tt, k].values
@@ -388,7 +387,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         print("Processing column %d" % tt)
     np.seterr(all="ignore")
     for k in range(height_dims):
-        if total_hydrometeor.values[tt, k] == 0:
+        if total_hydrometeor[tt, k] == 0:
             continue
         if num_subcolumns > 1:
             N_0_tmp = np.squeeze(N_0[:, tt, k])
@@ -436,7 +435,7 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
     moment_denom_tot = np.zeros_like(Ze)
     od_tot = np.zeros_like(Ze)
     for k in range(Dims[2]):
-        if total_hydrometeor.values[tt, k] == 0:
+        if total_hydrometeor[tt, k] == 0:
             continue
 
         p_diam = instrument.mie_table[hyd_type]["p_diam"].values

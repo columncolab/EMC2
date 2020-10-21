@@ -163,8 +163,8 @@
 
 
 <div class="viewcode-block" id="calc_mu_lambda"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda">[docs]</a><span class="k">def</span> <span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
-                   <span class="n">calc_dispersion</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dispersion_mu_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
-                   <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convective</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                   <span class="n">calc_dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dispersion_mu_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+                   <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convective</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.</span>
@@ -183,9 +183,10 @@
 <span class="sd">    hyd_type: str</span>
 <span class="sd">        The assumed hydrometeor type. Must be a hydrometeor type in Model.</span>
 <span class="sd">    calc_dispersion: bool</span>
-<span class="sd">        If False, the :math:`\mu` parameter will be fixed at 1/0.09. If True and</span>
-<span class="sd">        the hydrometeor type is &quot;cl&quot;, then the Martin et al. (1994) method</span>
-<span class="sd">        will be used to calculate :math:`\mu`.</span>
+<span class="sd">        If False, the :math:`\mu` parameter will be fixed at 1/0.09 per</span>
+<span class="sd">        Geoffroy et al. (2010). If True and the hydrometeor type is &quot;cl&quot;,</span>
+<span class="sd">        then the Martin et al. (1994) method will be used to calculate</span>
+<span class="sd">        :math:`\mu`. Otherwise, :math:`\mu` is set to  0.</span>
 <span class="sd">    dispersion_mu_bounds: 2-tuple</span>
 <span class="sd">        The lower and upper bounds for the :math:`\mu` parameter.</span>
 <span class="sd">    subcolumns: bool</span>
@@ -217,8 +218,8 @@
             <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
             <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;strat_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;conv_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;conv_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
             <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
         <span class="n">frac_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">frac_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">frac_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">frac_array</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frac_array</span><span class="p">)</span>

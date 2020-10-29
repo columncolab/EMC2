@@ -285,7 +285,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
-        return self.axes[subplot_index], cbar
+            return self.axes[subplot_index], cbar
+
+        return self.axes[subplot_index]
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
@@ -411,8 +413,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
+            return self.axes[subplot_index], cbar
 
-        return self.axes[subplot_index], cbar
+        return self.axes[subplot_index]
 
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
                                     subplot_index=(0,), log_plot=False, plot_SD=True, Xlabel=None,

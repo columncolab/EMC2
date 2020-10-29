@@ -56,23 +56,25 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
 
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")
-        model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
-        model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
         if 'reg_rng' in kwargs.keys():
-            ref_rng = kwargs['ref_args']
+            ref_rng = kwargs['ref_rng']
+            del kwargs['ref_rng']
         else:
             ref_rng = 1000
+        model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
 
     elif instrument.instrument_class.lower() == "lidar":
         print("Generating lidar moments...")
-        model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
-        model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
         if 'ext_OD' in kwargs.keys():
             ext_OD = kwargs['ext_OD']
+            del kwargs['ext_OD']
         else:
             ext_OD = instrument.ext_OD
+        model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
 
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
     else:

@@ -132,6 +132,18 @@ class RL(Instrument):
         super().__init__(wavelength=0.355 * ureg.micrometer)
         self.instrument_class = "lidar"
         self.instrument_str = "RL"
+        self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                    {'class': 'undef1', 'class_ind': 3,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 4,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'liquid', 'class_ind': 1,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
         self.K_w = np.nan
         self.eps_liq = (1.357247 + 2.4198595e-9j)**2
@@ -165,6 +177,18 @@ class HSRL(Instrument):
         super().__init__(wavelength=0.532 * ureg.micrometer)
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
+        self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                    {'class': 'undef1', 'class_ind': 3,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 4,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'liquid', 'class_ind': 1,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
         self.K_w = np.nan
         self.eps_liq = (1.337273 + 1.7570744e-9j)**2

@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.cm as cm
 
 from act.plotting import Display
 
@@ -93,8 +94,51 @@ class SubcolumnDisplay(Display):
         """
         self.axes[subplot_index].set_xlim(x_range)
 
-    def plot_subcolumn_timeseries(self, variable,
-                                  column_no, pressure_coords=True, title=None,
+    def change_plot_to_class_mask(self, cbar, class_legend=None, variable=None, cbar_label="",
+                                  cmap=None, **kwargs):
+        """
+        Updates the colorbar to show phase classification.
+
+        Parameters
+        ----------
+        cbar: Matplotlib axes handle
+            colorbar handle.
+        class_legend: list
+            Class type strings in order corresponding to mask integer values.
+            If None, using the "legend" attributes from the mask variable.
+        variable: str
+            The classification mask variable to use assuming it has a "legend" attribute
+            Raises an error when both variable and class_legend are both None.
+        cbar_label: str
+            The colorbar label. Empty string by default.
+        cmap: ListedColormap object
+            colormap to use in the colorbar. If None, using tab20c(N), where N is the number of
+            classes.
+
+        Returns
+        -------
+        cbar: Matplotlib axes handle
+            The matplotlib colorbar handle of the plot.
+        """
+        if np.logical_and(class_legend is None, variable is None):
+                raise ValueError("both the class_legend and the mask variable are None")
+
+        if class_legend is None:
+            class_legend = self.model.ds[variable].attrs["legend"]
+        l_legend = len(class_legend)
+        if cmap is None:
+            cmap = cm.get_cmap("tab20c", lut=l_legend)
+
+        cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend+0.5)
+        cm.ScalarMappable.set_cmap(cbar.mappable, cmap=cmap)
+        cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
+        cbar.set_ticklabels(class_legend)
+        cbar.set_label(cbar_label)
+
+        cbar.set_label(cbar_label)
+        return cbar
+
+    def plot_subcolumn_timeseries(self, column_no, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
                                   **kwargs):

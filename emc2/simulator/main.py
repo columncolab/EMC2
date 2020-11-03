@@ -3,11 +3,12 @@ from .subcolumn import set_stratiform_sub_col_frac, set_q_n
 from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext
 from .radar_moments import calc_radar_moments
 from .attenuation import calc_radar_Ze_min
+from .classification import lidar_classify_phase
 
 
-def make_simulated_data(model, instrument, N_columns, **kwargs):
+def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwargs):
     """
-    This procedure will make all of the subcolumns and simulated data for each subcolumn.
+    This procedure will make all of the subcolumns and simulated data for each model column.
 
     Parameters
     ----------
@@ -17,6 +18,8 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
         The instrument to make the simulated parameters for.
     N_columns: int
         The number of subcolumns to generate.
+    do_classify: bool
+        run hydrometeor classification routines when True.
 
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
@@ -77,6 +80,8 @@ def make_simulated_data(model, instrument, N_columns, **kwargs):
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
 
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
+        if do_classify is True:
+            model = lidar_classify_phase(instrument, model)
     else:
         raise ValueError("Currently, only lidars and radars are supported as instruments.")
     return model

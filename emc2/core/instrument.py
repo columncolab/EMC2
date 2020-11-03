@@ -29,6 +29,10 @@ class Instrument(object):
         The frequency of the instrument.
     wavelength: float
         The wavelength of the instrument
+    beta_p_phase_thresh: dict
+        A dictionary whose keys are the names of hydrometeor classes used for phase
+        classification using fixed thresholds.
+        sub dict for every key contains the LDR and corresponding beta_p threshold values
     ext_OD: float
         The optical depth where we have full extinction of the lidar signal.
     K_w: float
@@ -59,6 +63,7 @@ class Instrument(object):
         self.instrument_class = ""
         self.freq = np.nan
         self.wavelength = np.nan
+        self.beta_p_phase_thresh = []
         self.ext_OD = np.nan
         self.K_w = np.nan
         self.eps_liq = np.nan

@@ -13,7 +13,7 @@ from ..io import load_mie_file
 
 
 class KAZR(Instrument):
-    def __init__(self, site):
+    def __init__(self, site, *args):
         """
         This stores the information for the KAZR (Ka-band radar).
         """
@@ -68,11 +68,14 @@ class KAZR(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
 
 
 class WACR(Instrument):
-    def __init__(self, site):
+    def __init__(self, site, *args):
         """
         This stores the information for the WACR or M-WACR (W-band radars).
         """
@@ -115,17 +118,32 @@ class WACR(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieWACR_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
 
 
 class RL(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for 355 nm lidars ,e.g., ARM Raman lidar (elastic channel).
         """
         super().__init__(wavelength=0.355 * ureg.micrometer)
         self.instrument_class = "lidar"
         self.instrument_str = "RL"
+        self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                    {'class': 'undef1', 'class_ind': 3,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 4,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'liquid', 'class_ind': 1,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
         self.K_w = np.nan
         self.eps_liq = (1.357247 + 2.4198595e-9j)**2
@@ -144,11 +162,14 @@ class RL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieRL_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
 
 
 class HSRL(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for 532 nm lidars ,e.g., the High
         Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).
@@ -156,6 +177,18 @@ class HSRL(Instrument):
         super().__init__(wavelength=0.532 * ureg.micrometer)
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
+        self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                    {'class': 'undef1', 'class_ind': 3,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 4,
+                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'liquid', 'class_ind': 1,
+                                            'LDR': [0., 0.2000, 0.2001, 1.],
+                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
         self.K_w = np.nan
         self.eps_liq = (1.337273 + 1.7570744e-9j)**2
@@ -174,11 +207,14 @@ class HSRL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
 
 
 class CEIL(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for 910 nm lidars ,e.g., the CL31 ceilometer.
         """
@@ -203,11 +239,14 @@ class CEIL(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieCEIL_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
 
 
 class Ten64nm(Instrument):
-    def __init__(self):
+    def __init__(self, *args):
         """
         This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.
         """
@@ -231,4 +270,7 @@ class Ten64nm(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
-        self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")

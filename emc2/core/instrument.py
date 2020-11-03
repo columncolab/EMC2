@@ -65,6 +65,7 @@ class Instrument(object):
         self.wavelength = np.nan
         self.beta_p_phase_thresh = []
         self.ext_OD = np.nan
+        self.eta = np.nan
         self.K_w = np.nan
         self.eps_liq = np.nan
         self.location_code = ""

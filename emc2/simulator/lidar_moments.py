@@ -8,10 +8,10 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
 
-def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
+def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
     """
-    Calculates the lidar extinction mask and linear depolarization ratio for
-    the given model and lidar.
+    Calculates the lidar extinction mask (for conv+strat) and linear depolarization ratio
+    (per strat or conv) for the given model and lidar.
 
     Parameters
     ----------
@@ -52,12 +52,12 @@ def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
 
     OD_cum_p_tot = model.ds["sub_col_OD_tot_strat"].values + model.ds["sub_col_OD_tot_conv"].values
     OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0.)
-    my_diff = np.diff(OD_cum_p_tot, axis=2, prepend=0)
+    if OD_from_sfc:
+        my_diff = np.diff(OD_cum_p_tot, axis=2, prepend=0)
+    else:
+        my_diff = np.flip(np.diff(np.flip(OD_cum_p_tot, axis=2), axis=2, prepend=0), axis=2)
     ext_tmp = np.where(my_diff > 1., 1, 0)
     ext_mask = OD_cum_p_tot - ext_tmp
-
-    if not OD_from_sfc:
-        ext_mask = np.flip(ext_mask, axis=2)
 
     model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["LDR_conv"].dims)
     model.ds["ext_mask"].attrs["long_name"] = "Extinction mask"
@@ -68,7 +68,7 @@ def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
 
 
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, **kwargs):
+                       OD_from_sfc=True, parallel=True, eta=None, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -87,6 +87,9 @@ def calc_lidar_moments(instrument, model, is_conv,
         If True, then calculate optical depth from the surface.
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
+    eta: float
+        Multiple scattering coefficient. If None, using a default
+        value of 1.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
@@ -107,7 +110,9 @@ def calc_lidar_moments(instrument, model, is_conv,
     t_field = model.T_field
     z_field = model.z_field
     column_ds = model.ds
-    eta = 1
+
+    if eta is None:
+        eta = 1
 
     # Do unit conversions using pint - pressure in Pa, T in K, z in m
     p_temp = model.ds[p_field].values * getattr(ureg, model.ds[p_field].attrs["units"])
@@ -117,6 +122,10 @@ def calc_lidar_moments(instrument, model, is_conv,
     z_temp = model.ds[z_field].values * getattr(ureg, model.ds[z_field].attrs["units"])
     z_values = z_temp.to('meter').magnitude
     del p_temp, t_temp, z_temp
+
+    model = calc_theory_beta_m(model, instrument.wavelength)
+    beta_m = np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1))
+    T = np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
 
     if is_conv:
         if "conv_q_subcolumns_cl" not in model.ds.variables.keys():
@@ -154,15 +163,15 @@ def calc_lidar_moments(instrument, model, is_conv,
             model.ds["sub_col_beta_p_%s_conv" % hyd_type] = \
                 model.ds["sub_col_beta_p_%s_conv" % hyd_type].fillna(0)
             if OD_from_sfc:
-                dz = np.diff(z_values, axis=0, prepend=0)
+                dz = np.diff(z_values, axis=1, prepend=0)
                 dz = np.tile(dz, (model.num_subcolumns, 1, 1))
                 model.ds["sub_col_OD_%s_conv" % hyd_type] = np.cumsum(
-                    dz * model.ds["sub_col_alpha_p_%s_conv" % hyd_type])
+                    dz * model.ds["sub_col_alpha_p_%s_conv" % hyd_type], axis=2)
             else:
-                dz = np.diff(z_values, axis=0, prepend=0)
+                dz = np.diff(z_values, axis=1, append=0)
                 dz = np.tile(dz, (model.num_subcolumns, 1, 1))
                 model.ds["sub_col_OD_%s_conv" % hyd_type] = np.flip(np.cumsum(
-                    dz * model.ds["sub_col_alpha_p_%s_conv" % hyd_type]))
+                    np.flip(dz * model.ds["sub_col_alpha_p_%s_conv" % hyd_type], axis=2), axis=2), axis=2)
             model.ds["sub_col_beta_p_tot_conv"] += model.ds["sub_col_beta_p_%s_conv" % hyd_type]
             model.ds["sub_col_alpha_p_tot_conv"] += model.ds["sub_col_alpha_p_%s_conv" % hyd_type]
             model.ds["sub_col_OD_tot_conv"] += model.ds["sub_col_OD_%s_conv" % hyd_type]
@@ -186,9 +195,6 @@ def calc_lidar_moments(instrument, model, is_conv,
             "Optical depth from all hydrometeors in convective clouds"
         model.ds["sub_col_OD_tot_conv"].attrs["units"] = "1"
 
-        model = calc_theory_beta_m(model, instrument.wavelength)
-        beta_m = np.tile(model.ds['beta'].values, (model.num_subcolumns, 1, 1))
-        T = np.tile(t_values, (model.num_subcolumns, 1, 1))
         model.ds['sub_col_beta_att_tot_conv'] = beta_m + model.ds['sub_col_beta_p_tot_conv'] * \
             T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_conv'])
         model.ds["sub_col_beta_att_tot_conv"].attrs["long_name"] = \
@@ -249,10 +255,10 @@ def calc_lidar_moments(instrument, model, is_conv,
                 model.ds["sub_col_OD_%s_strat" % hyd_type] = np.cumsum(
                     dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2)
             else:
-                dz = np.diff(z_values, axis=1, prepend=0)
+                dz = np.diff(z_values, axis=1, append=0)
                 dz = np.tile(dz, (model.num_subcolumns, 1, 1))
                 model.ds["sub_col_OD_%s_conv" % hyd_type] = np.flip(np.cumsum(
-                    dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2), axis=2)
+                    np.flip(dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2), axis=2), axis=2)
 
             model.ds["sub_col_beta_p_%s_strat" % hyd_type].attrs["long_name"] = \
                 "Backscatter coefficient from %s in stratiform clouds" % hyd_names_dict[hyd_type]
@@ -277,6 +283,12 @@ def calc_lidar_moments(instrument, model, is_conv,
         model.ds["sub_col_OD_tot_strat"].attrs["long_name"] = \
             "Optical depth from all hydrometeors in stratiform clouds"
         model.ds["sub_col_OD_tot_strat"].attrs["units"] = "1"
+
+        model.ds['sub_col_beta_att_tot_strat'] = (beta_m + model.ds['sub_col_beta_p_tot_strat']) * \
+            T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_strat'])
+        model.ds["sub_col_beta_att_tot_strat"].attrs["long_name"] = \
+            "Attenuated total backscatter in stratiform clouds including gaseous attenuation"
+        model.ds["sub_col_beta_att_tot_strat"].attrs["units"] = "m^-1"
 
         return model
 

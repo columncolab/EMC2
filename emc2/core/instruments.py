@@ -145,6 +145,7 @@ class RL(Instrument):
                                             'LDR': [0., 0.2000, 0.2001, 1.],
                                             'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
+        self.eta = 1
         self.K_w = np.nan
         self.eps_liq = (1.357247 + 2.4198595e-9j)**2
         self.pt = np.nan
@@ -190,6 +191,7 @@ class HSRL(Instrument):
                                             'LDR': [0., 0.2000, 0.2001, 1.],
                                             'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
+        self.eta = 1
         self.K_w = np.nan
         self.eps_liq = (1.337273 + 1.7570744e-9j)**2
         self.pt = np.nan
@@ -222,6 +224,7 @@ class CEIL(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "CEIL"
         self.ext_OD = 4
+        self.eta = 1
         self.K_w = np.nan
         self.eps_liq = (1.323434 + 5.6988883e-7j)**2
         self.pt = np.nan
@@ -254,6 +257,7 @@ class Ten64nm(Instrument):
         self.instrument_class = "lidar"
         self.instrument_name = "1064nm"
         self.ext_OD = 4
+        self.eta = 1
         self.K_w = np.nan
         self.eps_liq = (1.320416 + 1.2588968e-6j)**2
         self.pt = np.nan

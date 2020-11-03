@@ -76,8 +76,15 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             del kwargs['ext_OD']
         else:
             ext_OD = instrument.ext_OD
-        model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
-        model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        if 'eta' in kwargs.keys():
+            eta = kwargs['eta']
+            del kwargs['eta']
+        else:
+            eta = instrument.eta
+        model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc,
+                parallel=parallel, eta=eta, **kwargs)
+        model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc,
+                parallel=parallel, eta=eta, **kwargs)
 
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
         if do_classify is True:

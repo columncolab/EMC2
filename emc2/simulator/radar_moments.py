@@ -25,6 +25,7 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
         'cl' (cloud liquid), 'ci' (cloud ice),
         'pl' (liquid precipitation), 'pi' (ice precipitation).
 
+
     Returns
     -------
     model: :func:`emc2.core.Model`
@@ -64,7 +65,7 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
 
 
 def calc_radar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, **kwargs):
+                       OD_from_sfc=True, parallel=True, chunk=None, **kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
@@ -83,6 +84,10 @@ def calc_radar_moments(instrument, model, is_conv,
         If True, then calculate optical depth from the surface.
     parallel: bool
         If True, then use parallelism to calculate each column quantity.
+    chunk: None or int
+        If using parallel processing, only send this number of time periods to the
+        parallel loop at one time. Sometimes Dask will crash if there are too many
+        tasks in the queue, so setting this value will help avoid that.
     Additional keyword arguments are passed into
     :func:`emc2.simulator.reflectivity.calc_radar_reflectivity_conv` and
     :func:`emc2.simulator.attenuation.calc_radar_atm_attenuation`.
@@ -202,8 +207,20 @@ def calc_radar_moments(instrument, model, is_conv,
                 alpha_p, beta_p, v_tmp, num_subcolumns, instrument, dD, p_diam)
             if parallel:
                 print("Doing parallel calculation for %s" % hyd_type)
-                tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
-                my_tuple = tt_bag.map(_calc_liquid).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    my_tuple = tt_bag.map(_calc_liquid).compute()
+                else:
+                    my_tuple = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        my_tuple += tt_bag.map(_calc_liquid).compute()
+                        j += chunk
             else:
                 my_tuple = [x for x in map(_calc_liquid, np.arange(0, Dims[1], 1))]
 
@@ -221,7 +238,20 @@ def calc_radar_moments(instrument, model, is_conv,
                 x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, dD)
             if parallel:
                 print("Doing parallel calculation for %s" % hyd_type)
-                my_tuple = tt_bag.map(_calc_other).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    my_tuple = tt_bag.map(_calc_other).compute()
+                else:
+                    my_tuple = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        my_tuple += tt_bag.map(_calc_other).compute()
+                        j += chunk
             else:
                 my_tuple = [x for x in map(_calc_other, np.arange(0, Dims[1], 1))]
             V_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in my_tuple], axis=1))
@@ -260,7 +290,20 @@ def calc_radar_moments(instrument, model, is_conv,
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
                 x, fits_ds, instrument, model, total_hydrometeor, dD, Vd_tot)
             if parallel:
-                sigma_d_numer = tt_bag.map(_calc_sigma_d_liq).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    sigma_d_numer = tt_bag.map(_calc_sigma_d_liq).compute()
+                else:
+                    sigma_d_numer = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        sigma_d_numer += tt_bag.map(_calc_sigma_d_liq).compute()
+                        j += chunk
             else:
                 sigma_d_numer = [x for x in map(_calc_sigma_d_liq, np.arange(0, Dims[1], 1))]
 
@@ -270,7 +313,20 @@ def calc_radar_moments(instrument, model, is_conv,
             _calc_sigma = lambda x: _calc_sigma_d_tot(
                 x, model, p_diam, v_tmp, fits_ds, total_hydrometeor, Vd_tot, sub_q_array, dD, beta_p)
             if parallel:
-                sigma_d_numer = tt_bag.map(_calc_sigma).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    sigma_d_numer = tt_bag.map(_calc_sigma).compute()
+                else:
+                    sigma_d_numer = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        sigma_d_numer += tt_bag.map(_calc_sigma).compute()
+                        j += chunk
             else:
                 sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
             sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))

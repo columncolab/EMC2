@@ -65,7 +65,7 @@ def calc_radar_atm_attenuation(instrument, model):
     three_hundred_t = 300. / t_temp
     gamma_l = 2.85 * (p_temp / 1013.) * (three_hundred_t)**0.626 * \
         (1 + 0.018 * rho_wv * t_temp / p_temp)
-    column_ds['kappa_wv'] = (2 * instrument.freq)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
+    kappa_wv = (2 * instrument.freq)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
         (three_hundred_t) * np.exp(-644 / t_temp) * \
         1 / ((494.4 - instrument.freq**2)**2 + 4 * instrument.freq**2) * gamma_l**2 + 1.2e-6
     f0 = 60.
@@ -81,6 +81,8 @@ def calc_radar_atm_attenuation(instrument, model):
     column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=(model.time_dim, model.height_dim))
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
+
+    column_ds['kappa_wv'] = xr.DataArray(kappa_wv.values, dims=(model.time_dim, model.height_dim))
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
     column_ds['kappa_wv'].attrs["units"] = "dB/km"
 

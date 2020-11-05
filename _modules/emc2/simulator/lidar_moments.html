@@ -166,7 +166,7 @@
 <span class="kn">from</span> <span class="nn">..core.instrument</span> <span class="kn">import</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
 
 
-<div class="viewcode-block" id="calc_LDR_and_ext"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.html#emc2.simulator.lidar_moments.calc_LDR_and_ext">[docs]</a><span class="k">def</span> <span class="nf">calc_LDR_and_ext</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ext_OD</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">LDR_per_hyd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_LDR_and_ext"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.html#emc2.simulator.lidar_moments.calc_LDR_and_ext">[docs]</a><span class="k">def</span> <span class="nf">calc_LDR_and_ext</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ext_OD</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">LDR_per_hyd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the lidar extinction mask and linear depolarization ratio for</span>
 <span class="sd">    the given model and lidar.</span>
@@ -184,7 +184,10 @@
 <span class="sd">        If a dict, the amount of LDR per hydrometeor class must be specified in</span>
 <span class="sd">        a dictionary whose keywords are the model&#39;s hydrometeor classes. If None,</span>
 <span class="sd">        the default settings from the model will be used.</span>
-<span class="sd">.</span>
+<span class="sd">    chunk: None or int</span>
+<span class="sd">        If using parallel processing, only send this number of time periods to the</span>
+<span class="sd">        parallel loop at one time. Sometimes Dask will crash if there are too many</span>
+<span class="sd">        tasks in the queue, so setting this value will help avoid that.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -226,7 +229,7 @@
 
 
 <div class="viewcode-block" id="calc_lidar_moments"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.lidar_moments.calc_lidar_moments.html#emc2.simulator.lidar_moments.calc_lidar_moments">[docs]</a><span class="k">def</span> <span class="nf">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span>
-                       <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                       <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the lidar backscatter, extinction, and optical depth</span>
 <span class="sd">    in a given column for the given lidar.</span>
@@ -245,6 +248,12 @@
 <span class="sd">        If True, then calculate optical depth from the surface.</span>
 <span class="sd">    parallel: bool</span>
 <span class="sd">        If True, use parallelism in calculating lidar parameters.</span>
+<span class="sd">    chunk: int or None</span>
+<span class="sd">        The number of entries to process in one parallel loop. None will send all of</span>
+<span class="sd">        the entries to the Dask worker queue at once. Sometimes, Dask will freeze if</span>
+<span class="sd">        too many tasks are sent at once due to memory issues, so adjusting this number</span>
+<span class="sd">        might be needed if that happens.</span>
+
 <span class="sd">    Additonal keyword arguments are passed into</span>
 <span class="sd">    :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.</span>
 
@@ -387,8 +396,20 @@
                 <span class="n">x</span><span class="p">,</span> <span class="n">N_0</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">p_diam</span><span class="p">,</span> <span class="n">total_hydrometeor</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">num_subcolumns</span><span class="p">,</span> <span class="n">dD</span><span class="p">,</span>
                 <span class="n">beta_p</span><span class="p">,</span> <span class="n">alpha_p</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">parallel</span><span class="p">:</span>
-                <span class="n">tt_bag</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
-                <span class="n">lists</span> <span class="o">=</span> <span class="n">tt_bag</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_calc_lidar</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">chunk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">tt_bag</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="n">lists</span> <span class="o">=</span> <span class="n">tt_bag</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_calc_lidar</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lists</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="o">+</span> <span class="n">chunk</span> <span class="o">&gt;=</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">ind_max</span> <span class="o">=</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ind_max</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">chunk</span>
+                        <span class="n">tt_bag</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">ind_max</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                        <span class="n">lists</span> <span class="o">+=</span> <span class="n">tt_bag</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_calc_lidar</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                        <span class="n">j</span> <span class="o">+=</span> <span class="n">chunk</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">_calc_lidar</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))]</span>
             <span class="n">beta_p_strat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lists</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>

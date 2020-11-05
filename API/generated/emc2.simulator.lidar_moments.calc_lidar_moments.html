@@ -212,7 +212,7 @@
 <h1>emc2.simulator.lidar_moments.calc_lidar_moments<a class="headerlink" href="#emc2-simulator-lidar-moments-calc-lidar-moments" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.lidar_moments.calc_lidar_moments">
-<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_lidar_moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">is_conv</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">parallel</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_lidar_moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_lidar_moments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_lidar_moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">is_conv</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">parallel</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">chunk</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_lidar_moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_lidar_moments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the lidar backscatter, extinction, and optical depth
 in a given column for the given lidar.</p>
 <dl class="field-list simple">
@@ -229,6 +229,11 @@ in a given column for the given lidar.</p>
 <dt><strong>OD_from_sfc: bool</strong></dt><dd><p>If True, then calculate optical depth from the surface.</p>
 </dd>
 <dt><strong>parallel: bool</strong></dt><dd><p>If True, use parallelism in calculating lidar parameters.</p>
+</dd>
+<dt><strong>chunk: int or None</strong></dt><dd><p>The number of entries to process in one parallel loop. None will send all of
+the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
+too many tasks are sent at once due to memory issues, so adjusting this number
+might be needed if that happens.</p>
 </dd>
 <dt><strong>Additonal keyword arguments are passed into</strong></dt><dd></dd>
 <dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.</strong></dt><dd></dd>

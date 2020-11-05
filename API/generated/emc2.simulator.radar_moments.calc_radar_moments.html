@@ -212,7 +212,7 @@
 <h1>emc2.simulator.radar_moments.calc_radar_moments<a class="headerlink" href="#emc2-simulator-radar-moments-calc-radar-moments" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.radar_moments.calc_radar_moments">
-<code class="sig-prename descclassname">emc2.simulator.radar_moments.</code><code class="sig-name descname">calc_radar_moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">is_conv</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">parallel</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_moments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">emc2.simulator.radar_moments.</code><code class="sig-name descname">calc_radar_moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">is_conv</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">parallel</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">chunk</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_moments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the reflectivity, doppler velocity, and spectral width
 in a given column for the given radar.</p>
 <dl class="field-list simple">
@@ -229,6 +229,10 @@ in a given column for the given radar.</p>
 <dt><strong>OD_from_sfc: bool</strong></dt><dd><p>If True, then calculate optical depth from the surface.</p>
 </dd>
 <dt><strong>parallel: bool</strong></dt><dd><p>If True, then use parallelism to calculate each column quantity.</p>
+</dd>
+<dt><strong>chunk: None or int</strong></dt><dd><p>If using parallel processing, only send this number of time periods to the
+parallel loop at one time. Sometimes Dask will crash if there are too many
+tasks in the queue, so setting this value will help avoid that.</p>
 </dd>
 <dt><strong>Additional keyword arguments are passed into</strong></dt><dd></dd>
 <dt><strong>:func:`emc2.simulator.reflectivity.calc_radar_reflectivity_conv` and</strong></dt><dd></dd>

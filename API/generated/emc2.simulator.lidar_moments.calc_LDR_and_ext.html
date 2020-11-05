@@ -212,30 +212,27 @@
 <h1>emc2.simulator.lidar_moments.calc_LDR_and_ext<a class="headerlink" href="#emc2-simulator-lidar-moments-calc-ldr-and-ext" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.lidar_moments.calc_LDR_and_ext">
-<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_LDR_and_ext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ext_OD</span><span class="o">=</span><span class="default_value">10.0</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">LDR_per_hyd</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_LDR_and_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_LDR_and_ext" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Calculates the lidar extinction mask and linear depolarization ratio for
+<code class="sig-prename descclassname">emc2.simulator.lidar_moments.</code><code class="sig-name descname">calc_LDR_and_ext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">ext_OD</span><span class="o">=</span><span class="default_value">10.0</span></em>, <em class="sig-param"><span class="n">OD_from_sfc</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">LDR_per_hyd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chunk</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_LDR_and_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_LDR_and_ext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the lidar extinction mask and linear depolarization ratio for
 the given model and lidar.</p>
-</div></blockquote>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>model: Model</strong></dt><dd><blockquote>
-<div><p>The model to generate the parameters for.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>ext_OD: float</dt><dd><p>The optical depth threshold for determining if the signal is extinct.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: Model</strong></dt><dd><p>The model to generate the parameters for.</p>
 </dd>
-<dt>OD_from_sfc: bool</dt><dd><p>If True, optical depth will be calculated from the surface. If False,
+<dt><strong>ext_OD: float</strong></dt><dd><p>The optical depth threshold for determining if the signal is extinct.</p>
+</dd>
+<dt><strong>OD_from_sfc: bool</strong></dt><dd><p>If True, optical depth will be calculated from the surface. If False,
 optical depth will be calculated from the top of the atmosphere.</p>
 </dd>
-<dt>LDR_per_hyd: dict or None</dt><dd><p>If a dict, the amount of LDR per hydrometeor class must be specified in
+<dt><strong>LDR_per_hyd: dict or None</strong></dt><dd><p>If a dict, the amount of LDR per hydrometeor class must be specified in
 a dictionary whose keywords are the model’s hydrometeor classes. If None,
 the default settings from the model will be used.</p>
 </dd>
-</dl>
+<dt><strong>chunk: None or int</strong></dt><dd><p>If using parallel processing, only send this number of time periods to the
+parallel loop at one time. Sometimes Dask will crash if there are too many
+tasks in the queue, so setting this value will help avoid that.</p>
 </dd>
-<dt><strong>.</strong></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>

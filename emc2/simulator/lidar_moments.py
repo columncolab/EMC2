@@ -8,7 +8,7 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
 
-def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
+def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None, chunk=None):
     """
     Calculates the lidar extinction mask and linear depolarization ratio for
     the given model and lidar.
@@ -26,7 +26,10 @@ def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
         If a dict, the amount of LDR per hydrometeor class must be specified in
         a dictionary whose keywords are the model's hydrometeor classes. If None,
         the default settings from the model will be used.
-.
+    chunk: None or int
+        If using parallel processing, only send this number of time periods to the
+        parallel loop at one time. Sometimes Dask will crash if there are too many
+        tasks in the queue, so setting this value will help avoid that.
 
     Returns
     -------
@@ -68,7 +71,7 @@ def calc_LDR_and_ext(model, ext_OD=10., OD_from_sfc=True, LDR_per_hyd=None):
 
 
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, **kwargs):
+                       OD_from_sfc=True, parallel=True, chunk=None, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -87,6 +90,12 @@ def calc_lidar_moments(instrument, model, is_conv,
         If True, then calculate optical depth from the surface.
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
+    chunk: int or None
+        The number of entries to process in one parallel loop. None will send all of
+        the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
+        too many tasks are sent at once due to memory issues, so adjusting this number
+        might be needed if that happens.
+
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
@@ -229,8 +238,20 @@ def calc_lidar_moments(instrument, model, is_conv,
                 x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, dD,
                 beta_p, alpha_p)
             if parallel:
-                tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
-                lists = tt_bag.map(_calc_lidar).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    lists = tt_bag.map(_calc_lidar).compute()
+                else:
+                    lists = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        lists += tt_bag.map(_calc_lidar).compute()
+                        j += chunk
             else:
                 lists = [x for x in map(_calc_lidar, np.arange(0, Dims[1], 1))]
             beta_p_strat = np.stack([x[0] for x in lists], axis=1)

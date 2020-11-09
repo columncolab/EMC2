@@ -8,7 +8,6 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
     """
     This function calculates the minimum detectable radar signal (Ze_min) profile
     given radar detectability at a reference rnage.
-
     Parameters
     ----------
     instrument: :py:mod:`emc2.core.Instrument`
@@ -17,7 +16,6 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
         The Model class that you wish to calculate the profile for.
     ref_rng: scalar
         Reference altitude for Ze_min
-
     Returns
     -------
     model: :py:mod:`emc2.core.Model`
@@ -135,12 +133,12 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     n_s = (n_s_ref - 1) * ((1 + alpha * 15) / (1 + alpha * T)) * (P / 1013.25) + 1
     N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c / 1e6
     sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / \
-        ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+        (N_s * (Lambda * 1e-4)**4 * N_s) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / \
-        ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+        (N_s * (Lambda * 1e-4)**4 * N_s) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     kappa = beta / raw
     sigma_180 = np.pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / \
-        ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
+        (N_s * (Lambda * 1e-4)**4 * N_s * (6 - 7 * raw_n)) * p_cos
     sigma_180_vol = sigma_180 * N_s
 
     sigma = sigma * 1e-4
@@ -150,13 +148,13 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     sigma_180 = sigma_180 * 1e-4
     sigma_180_vol = sigma_180_vol / 1e-2
 
-    Z_4_trap = np.diff(Z, axis=0) / 2.
-    summed_beta = beta[:-1, :] + beta[1:, :]
+    Z_4_trap = np.diff(Z, axis=1) / 2.
+    summed_beta = beta[:, :-1] + beta[:, 1:]
     u = np.zeros_like(beta)
     if OD_from_sfc:
-        u[1:, :] = np.cumsum(Z_4_trap * summed_beta, axis=0)
+        u[:, 1:] = np.cumsum(Z_4_trap * summed_beta, axis=1)
     else:
-        u[1:, :] = np.flip(np.cumsum(np.flip(Z_4_trap * summed_beta, axis=0), axis=0), axis=0)
+        u[:, :-1] = np.flip(np.cumsum(np.flip(Z_4_trap * summed_beta, axis=1), axis=1), axis=1)
 
     tau = np.exp(-2 * u)
 
@@ -175,7 +173,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
 
     model.ds["sigma_180_vol"] = xr.DataArray(sigma_180_vol, dims=my_dims)
     model.ds["sigma_180_vol"].attrs["long_name"] = "Volume backscatter cross section"
-    model.ds["sigma_180_vol"].attrs["units"] = "m^2"
+    model.ds["sigma_180_vol"].attrs["units"] = "m^-1"
 
     model.ds["sigma_180"] = xr.DataArray(sigma_180, dims=my_dims)
     model.ds["sigma_180"].attrs["long_name"] = "backscatter cross section per molecule"

@@ -95,7 +95,7 @@ class SubcolumnDisplay(Display):
         self.axes[subplot_index].set_xlim(x_range)
 
     def change_plot_to_class_mask(self, cbar, class_legend=None, variable=None, cbar_label="",
-                                  cmap=None, **kwargs):
+                                  cmap=None, convert_zeros_to_nan=False, **kwargs):
         """
         Updates the colorbar to show phase classification.
 
@@ -127,15 +127,24 @@ class SubcolumnDisplay(Display):
             class_legend = self.model.ds[variable].attrs["legend"]
         l_legend = len(class_legend)
         if cmap is None:
-            cmap = cm.get_cmap("tab20c", lut=l_legend)
-
-        cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend+0.5)
+            if  convert_zeros_to_nan:
+                cmap = cm.get_cmap("tab20c", lut=l_legend)
+            else:
+                cmap = cm.get_cmap("tab20c", lut=l_legend+1)            
+        if convert_zeros_to_nan:
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend+0.5)
+        else:
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=-0.5, vmax=l_legend+0.5)
         cm.ScalarMappable.set_cmap(cbar.mappable, cmap=cmap)
         cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
-        cbar.set_ticklabels(class_legend)
+        if convert_zeros_to_nan:
+            cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
+            cbar.set_ticklabels(class_legend)
+        else:
+            cbar.set_ticks([x for x in np.arange(0, l_legend+1)])
+            cbar.set_ticklabels(["clear"] + class_legend)
         cbar.set_label(cbar_label)
 
-        cbar.set_label(cbar_label)
         return cbar
 
     def plot_subcolumn_timeseries(self, column_no, pressure_coords=True, title=None,

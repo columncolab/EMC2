@@ -3,7 +3,7 @@ from .subcolumn import set_stratiform_sub_col_frac, set_q_n
 from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext
 from .radar_moments import calc_radar_moments
 from .attenuation import calc_radar_Ze_min
-from .classification import lidar_classify_phase
+from .classification import lidar_classify_phase, lidar_emulate_cosp_phase
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwargs):
@@ -81,6 +81,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             del kwargs['eta']
         else:
             eta = instrument.eta
+        if 'convert_zeros_to_nan' in kwargs.keys():
+            convert_zeros_to_nan = kwargs['convert_zeros_to_nan']
+            del kwargs['convert_zeros_to_nan']
+        else:
+            convert_zeros_to_nan = False
         model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc,
                 parallel=parallel, eta=eta, **kwargs)
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc,
@@ -88,7 +93,10 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
 
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
         if do_classify is True:
-            model = lidar_classify_phase(instrument, model)
+            model = lidar_classify_phase(instrument, model, convert_zeros_to_nan=convert_zeros_to_nan)
+            model = lidar_emulate_cosp_phase(instrument, model, eta=eta, OD_from_sfc=OD_from_sfc,
+                        convert_zeros_to_nan=convert_zeros_to_nan)
+
     else:
         raise ValueError("Currently, only lidars and radars are supported as instruments.")
     return model

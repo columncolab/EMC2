@@ -68,7 +68,7 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
 
 
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, eta=None, **kwargs):
+                       OD_from_sfc=True, parallel=True, eta=1, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -88,8 +88,7 @@ def calc_lidar_moments(instrument, model, is_conv,
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     eta: float
-        Multiple scattering coefficient. If None, using a default
-        value of 1.
+        Multiple scattering coefficient.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
@@ -110,9 +109,6 @@ def calc_lidar_moments(instrument, model, is_conv,
     t_field = model.T_field
     z_field = model.z_field
     column_ds = model.ds
-
-    if eta is None:
-        eta = 1
 
     # Do unit conversions using pint - pressure in Pa, T in K, z in m
     p_temp = model.ds[p_field].values * getattr(ureg, model.ds[p_field].attrs["units"])
@@ -195,7 +191,7 @@ def calc_lidar_moments(instrument, model, is_conv,
             "Optical depth from all hydrometeors in convective clouds"
         model.ds["sub_col_OD_tot_conv"].attrs["units"] = "1"
 
-        model.ds['sub_col_beta_att_tot_conv'] = beta_m + model.ds['sub_col_beta_p_tot_conv'] * \
+        model.ds['sub_col_beta_att_tot_conv'] = (beta_m + model.ds['sub_col_beta_p_tot_conv']) * \
             T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_conv'])
         model.ds["sub_col_beta_att_tot_conv"].attrs["long_name"] = \
             "Backscatter coefficient from all hydrometeors in convective clouds including gaseous attenuation"

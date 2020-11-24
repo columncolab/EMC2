@@ -147,7 +147,7 @@ class SubcolumnDisplay(Display):
 
         return cbar
 
-    def plot_subcolumn_timeseries(self, column_no, pressure_coords=True, title=None,
+    def plot_subcolumn_timeseries(self, variable, column_no, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
                                   **kwargs):
@@ -247,7 +247,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
-        return self.axes[subplot_index], cbar
+            return self.axes[subplot_index], cbar
+
+        return self.axes[subplot_index]
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,

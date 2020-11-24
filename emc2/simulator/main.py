@@ -3,7 +3,7 @@ from .subcolumn import set_stratiform_sub_col_frac, set_q_n
 from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext
 from .radar_moments import calc_radar_moments
 from .attenuation import calc_radar_Ze_min
-from .classification import lidar_classify_phase, lidar_emulate_cosp_phase
+from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, radar_classify_phase
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwargs):
@@ -49,13 +49,28 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         OD_from_sfc = kwargs['OD_from_sfc']
         del kwargs['OD_from_sfc']
     else:
-        OD_from_sfc = True
+        OD_from_sfc = instrument.OD_from_sfc
 
     if 'parallel' in kwargs.keys():
         parallel = kwargs['parallel']
         del kwargs['parallel']
     else:
         parallel = True
+    if 'chunk' in kwargs.keys():
+        chunk = kwargs['chunk']
+        del kwargs['chunk']
+    else:
+        chunk = None
+    if 'convert_zeros_to_nan' in kwargs.keys():
+        convert_zeros_to_nan = kwargs['convert_zeros_to_nan']
+        del kwargs['convert_zeros_to_nan']
+    else:
+        convert_zeros_to_nan = False
+    if 'mask_height_rng' in kwargs.keys():
+        mask_height_rng = kwargs['mask_height_rng']
+        del kwargs['mask_height_rng']
+    else:
+        mask_height_rng = None
 
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")
@@ -64,10 +79,16 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             del kwargs['ref_rng']
         else:
             ref_rng = 1000
-        model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
-        model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel, **kwargs)
+        model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel,
+                    chunk=chunk, **kwargs)
+        model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel,
+                    chunk=chunk, **kwargs)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
+
+        if do_classify is True:
+            model = radar_classify_phase(instrument, model, mask_height_rng=mask_height_rng,
+                        convert_zeros_to_nan=convert_zeros_to_nan)
 
     elif instrument.instrument_class.lower() == "lidar":
         print("Generating lidar moments...")
@@ -81,15 +102,10 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             del kwargs['eta']
         else:
             eta = instrument.eta
-        if 'convert_zeros_to_nan' in kwargs.keys():
-            convert_zeros_to_nan = kwargs['convert_zeros_to_nan']
-            del kwargs['convert_zeros_to_nan']
-        else:
-            convert_zeros_to_nan = False
         model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc,
-                parallel=parallel, eta=eta, **kwargs)
+                parallel=parallel, eta=eta, chunk=chunk, **kwargs)
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc,
-                parallel=parallel, eta=eta, **kwargs)
+                parallel=parallel, eta=eta, chunk=chunk, **kwargs)
 
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
         if do_classify is True:

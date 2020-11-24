@@ -147,19 +147,20 @@ class SubcolumnDisplay(Display):
 
         return cbar
 
-    def plot_subcolumn_timeseries(self, variable, column_no, pressure_coords=True, title=None,
+    def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
                                   **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+        In the case of a 2D (time x height) field, plotting a time-height curtain.
 
         Parameters
         ----------
         variable: str
             The subcolumn variable to plot.
         column_no: int
-            The subcolumn number to plot.
+            The subcolumn number to plot. By default, using the first subcolumn.
         pressure_coords: bool
             Set to true to plot in pressure coordinates, false to height coordinates.
         title: str or None
@@ -188,7 +189,10 @@ class SubcolumnDisplay(Display):
             The matplotlib colorbar handle of the plot.
         """
         ds_name = [x for x in self._arm.keys()][0]
-        my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+        if len(self.model.ds[variable].dims) == 3:
+            my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+        else:
+            my_ds = self._arm[ds_name]
         x_variable = self.model.time_dim
         if pressure_coords:
             y_variable = self.model.height_dim

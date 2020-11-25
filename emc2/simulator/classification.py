@@ -94,7 +94,7 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
     if not instrument.instrument_class.lower() == "radar":
                 raise ValueError("Instrument must be a radar!")
 
-    for cloud_class in ["strat"]:
+    for cloud_class in ["strat", "conv"]:
         mask_name = "%s_phase_mask_%s_sounding" % (cloud_class, instrument.instrument_str)
         if convert_zeros_to_nan:
             phase_mask = np.zeros_like(model.ds["mu"], dtype=np.float)
@@ -184,6 +184,8 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
     ATB_mol = np.tile(model.ds['sigma_180_vol'].values * (1.+0.0284) * model.ds['tau'].values, \
                (model.num_subcolumns, 1, 1))
 
+    Beta_all_hyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
+    OD_all_hyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
     for cloud_class in ["conv", "strat"]:
         mask_name = "%s_COSP_phase_mask" % cloud_class
         Class_legend = ["liquid", "ice", "undefined"]

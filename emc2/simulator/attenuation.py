@@ -23,7 +23,7 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
     """
 
     Ze_min = instrument.Z_min_1km + 20 * np.log10(model.ds[model.z_field]) - 20 * np.log10(ref_rng)
-    model.ds['Ze_min'] = xr.DataArray(Ze_min, dims=(model.time_dim, model.height_dim))
+    model.ds['Ze_min'] = xr.DataArray(Ze_min, dims=model.ds[model.z_field].dims)
     model.ds["Ze_min"].attrs["long_name"] = "Minimum discernable radar reflectivity factor"
     model.ds["Ze_min"].attrs["units"] = 'dBZ'
     return model
@@ -77,11 +77,11 @@ def calc_radar_atm_attenuation(instrument, model):
         gamma_l * (1. / ((instrument.freq - f0)**2 + gamma_l**2) + 1. /
                    (instrument.freq**2 + gamma_l**2))
 
-    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=(model.time_dim, model.height_dim))
+    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=model.ds[t_field].dims)
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
 
-    column_ds['kappa_wv'] = xr.DataArray(kappa_wv.values, dims=(model.time_dim, model.height_dim))
+    column_ds['kappa_wv'] = xr.DataArray(kappa_wv.values, dims=model.ds[t_field].dims)
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
     column_ds['kappa_wv'].attrs["units"] = "dB/km"
 

@@ -11,8 +11,8 @@ from ..core.instrument import ureg
 
 def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     """
-    This estimates the radar reflectivity given a profile of liquid water mixing ratio.
-    Convective DSDs are assumed.
+    This estimates the radar reflectivity using empirical Ze-q_hyd relationships, where
+        q_hyd denotes a hydrometeor class mixing ratio(convective DSDs are assumed).
 
     Parameters
     ----------
@@ -28,8 +28,8 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
 
     Returns
     -------
-    model: :func:`emc2.core.Model`
-        Returns a Model with an added reflectivity field.
+    Ze_emp: ndarray
+        Array containing the calculated empirical fit Ze-values.
     """
     if not instrument.instrument_class.lower() == "radar":
         raise ValueError("Reflectivity can only be derived from a radar!")
@@ -40,28 +40,23 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     p_field = model.p_field
     t_field = model.T_field
 
-    column_ds = model.ds
-
-    WC = column_ds[q_field] * 1e3 * column_ds[p_field] * 1e2 / (instrument.R_d * column_ds[t_field])
+    WC = model.ds[q_field] * 1e3 * model.ds[p_field] * 1e2 / (instrument.R_d * model.ds[t_field])
     if hyd_type.lower() == "cl":
-        column_ds['Ze'] = 0.031 * WC ** 1.56
+        Ze_emp = 0.031 * WC ** 1.56
     elif hyd_type.lower() == "pl":
-        column_ds['Ze'] = ((WC * 1e3) / 3.4)**1.75
+        Ze_emp = ((WC * 1e3) / 3.4)**1.75
     else:
-        Tc = column_ds[t_field] - 273.15
+        Tc = model.ds[t_field] - 273.15
         if instrument.freq >= 2e9 and instrument.freq < 4e9:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.0197 * Tc + 1.7) / 0.060) / 10.)
+            Ze_emp = 10**(((np.log10(WC) + 0.0197 * Tc + 1.7) / 0.060) / 10.)
         elif instrument.freq >= 27e9 and instrument.freq < 40e9:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.699)) / 10.)
+            Ze_emp = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.699)) / 10.)
         elif instrument.freq >= 75e9 and instrument.freq < 110e9:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) / 10.)
+            Ze_emp = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) / 10.)
         else:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.0699)) / 10.)
-    column_ds['Ze'] = 10 * np.log10(column_ds["Ze"])
-    column_ds['Ze'].attrs["long_name"] = "Radar reflectivity factor"
-    column_ds['Ze'].attrs["units"] = "dBZ"
-    model.ds = column_ds
-    return model
+            Ze_emp = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.0699)) / 10.)
+    Ze_emp = 10 * np.log10(Ze_emp.values)
+    return Ze_emp
 
 
 def calc_radar_moments(instrument, model, is_conv,
@@ -114,10 +109,11 @@ def calc_radar_moments(instrument, model, is_conv,
     if is_conv:
         q_names = model.q_names_convective
         for hyd_type in hyd_types:
-            temp_ds = calc_radar_reflectivity_conv(instrument, model, hyd_type)
+            Ze_emp = calc_radar_reflectivity_conv(instrument, model, hyd_type)
 
             var_name = "sub_col_Ze_%s_conv" % hyd_type
-            column_ds[var_name] = temp_ds.ds["Ze"]
+            column_ds[var_name] = xr.DataArray(
+                Ze_emp, dims=column_ds.conv_q_subcolumns_cl.dims)
             if "sub_col_Ze_tot_conv" in column_ds.variables.keys():
                 column_ds["sub_col_Ze_tot_conv"] += 10**(column_ds[var_name] / 10)
             else:
@@ -149,8 +145,8 @@ def calc_radar_moments(instrument, model, is_conv,
             liq_ext = liq_ext[:, np.newaxis]
         if len(atm_ext.shape) == 1:
             atm_ext = atm_ext[:, np.newaxis]
-        liq_ext = xr.DataArray(liq_ext, dims=(model.time_dim, model.height_dim))
-        atm_ext = xr.DataArray(atm_ext, dims=(model.time_dim, model.height_dim))
+        liq_ext = xr.DataArray(liq_ext, dims=kappa_ds.ds["kappa_att"].dims)
+        atm_ext = xr.DataArray(atm_ext, dims=kappa_ds.ds["kappa_att"].dims)
 
         column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"] / \
             10**(2 * liq_ext / 10.) / 10**(2 * atm_ext / 10.)

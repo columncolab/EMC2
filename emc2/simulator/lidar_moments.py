@@ -8,10 +8,9 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
 
-def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, chunk=None):
+def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
     """
-    Calculates the lidar extinction mask (for conv+strat) and linear depolarization ratio
-    (per strat or conv) for the given model and lidar.
+    Calculates total (strat+conv) lidar variables.
 
     Parameters
     ----------
@@ -26,10 +25,57 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, chunk
         If a dict, the amount of LDR per hydrometeor class must be specified in
         a dictionary whose keywords are the model's hydrometeor classes. If None,
         the default settings from the model will be used.
-    chunk: None or int
-        If using parallel processing, only send this number of time periods to the
-        parallel loop at one time. Sometimes Dask will crash if there are too many
-        tasks in the queue, so setting this value will help avoid that.
+    eta: float
+        Multiple scattering coefficient.
+
+    Returns
+    -------
+    model: Model
+        The model with the added simulated lidar parameters.
+    """
+
+
+    model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"] + model.ds["sub_col_beta_p_tot_strat"]
+    model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"] + model.ds["sub_col_alpha_p_tot_strat"]
+    model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"] + model.ds["sub_col_OD_tot_strat"]
+    model.ds["sub_col_beta_p_tot"].attrs["long_name"] = \
+        "Total backscatter coefficient (convective + stratiform)"
+    model.ds["sub_col_beta_p_tot"].attrs["units"] = "m^-1"
+    model.ds["sub_col_alpha_p_tot"].attrs["long_name"] = \
+        "Total extinction coefficient (convective + stratiform)"
+    model.ds["sub_col_alpha_p_tot"].attrs["units"] = "m^-1"
+    model.ds["sub_col_OD_tot"].attrs["long_name"] = \
+        "Total optical depth (convective + stratiform)"
+    model.ds["sub_col_OD_tot"].attrs["units"] = "1"
+    beta_m = np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1))
+    T = np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
+    model.ds['sub_col_beta_att_tot'] = (beta_m + model.ds['sub_col_beta_p_tot']) * \
+        T * np.exp(-2 * eta * model.ds['sub_col_OD_tot'])
+    model.ds["sub_col_beta_att_tot"].attrs["long_name"] = \
+        "Total attenuated backscatter coefficient (convective + stratiform)"
+    model.ds["sub_col_beta_att_tot"].attrs["units"] = "m^-1"
+
+    return model
+
+
+def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
+    """
+    Calculates the lidar extinction mask (for conv+strat) and linear depolarization ratio
+    (per strat, conv, and strat+conv) for the given model and lidar.
+
+    Parameters
+    ----------
+    model: Model
+        The model to generate the parameters for.
+    ext_OD: float
+        The optical depth threshold for determining if the signal is extinct.
+    OD_from_sfc: bool
+        If True, optical depth will be calculated from the surface. If False,
+        optical depth will be calculated from the top of the atmosphere.
+    LDR_per_hyd: dict or None
+        If a dict, the amount of LDR per hydrometeor class must be specified in
+        a dictionary whose keywords are the model's hydrometeor classes. If None,
+        the default settings from the model will be used.
 
     Returns
     -------
@@ -40,6 +86,8 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, chunk
     if LDR_per_hyd is None:
         LDR_per_hyd = model.LDR_per_hyd
 
+    numerator_tot = xr.zeros_like(model.ds["sub_col_beta_p_%s_strat" % model.hydrometeor_classes[0]])
+    denominator_tot = xr.zeros_like(model.ds["sub_col_beta_p_%s_strat" % model.hydrometeor_classes[0]])
     for cloud_class in ["conv", "strat"]:
         numerator = 0.
         denominator = 0.
@@ -49,9 +97,15 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, chunk
             numerator += model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type].magnitude
             denominator += model.ds[beta_p_key]
 
-        model.ds["LDR_%s" % cloud_class] = numerator / denominator
-        model.ds["LDR_%s" % cloud_class].attrs["long_name"] = "Linear depolarization ratio in %s" % cloud_class
-        model.ds["LDR_%s" % cloud_class].attrs["units"] = "1"
+        model.ds["sub_col_LDR_%s" % cloud_class] = numerator / denominator
+        model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = "Linear depolarization ratio in %s" % cloud_class
+        model.ds["sub_col_LDR_%s" % cloud_class].attrs["units"] = "1"
+        numerator_tot += numerator
+        denominator += denominator
+    model.ds["sub_col_LDR_tot"] = numerator_tot / denominator_tot
+    model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
+    model.ds["sub_col_LDR_tot"].attrs["units"] = "1"
+
 
     OD_cum_p_tot = model.ds["sub_col_OD_tot_strat"].values + model.ds["sub_col_OD_tot_conv"].values
     OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0.)
@@ -62,8 +116,8 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, chunk
     ext_tmp = np.where(my_diff > 1., 1, 0)
     ext_mask = OD_cum_p_tot - ext_tmp
 
-    model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["LDR_conv"].dims)
-    model.ds["ext_mask"].attrs["long_name"] = "Extinction mask"
+    model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["sub_col_LDR_conv"].dims)
+    model.ds["ext_mask"].attrs["long_name"] = "Extinction mask (convective + stratiform)"
     model.ds["ext_mask"].attrs["units"] = ("2 = Signal extinct, 1 = layer where signal becomes " +
                                            "extinct, 0 = signal not extinct")
 
@@ -202,7 +256,7 @@ def calc_lidar_moments(instrument, model, is_conv,
         model.ds['sub_col_beta_att_tot_conv'] = (beta_m + model.ds['sub_col_beta_p_tot_conv']) * \
             T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_conv'])
         model.ds["sub_col_beta_att_tot_conv"].attrs["long_name"] = \
-            "Backscatter coefficient from all hydrometeors in convective clouds including gaseous attenuation"
+            "Backscatter coefficient from all hydrometeors in convective clouds"
         model.ds["sub_col_beta_att_tot_conv"].attrs["units"] = "m^-1"
         return model
     else:
@@ -304,7 +358,7 @@ def calc_lidar_moments(instrument, model, is_conv,
         model.ds['sub_col_beta_att_tot_strat'] = (beta_m + model.ds['sub_col_beta_p_tot_strat']) * \
             T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_strat'])
         model.ds["sub_col_beta_att_tot_strat"].attrs["long_name"] = \
-            "Attenuated total backscatter in stratiform clouds including gaseous attenuation"
+            "Attenuated total backscatter in stratiform clouds"
         model.ds["sub_col_beta_att_tot_strat"].attrs["units"] = "m^-1"
 
         return model

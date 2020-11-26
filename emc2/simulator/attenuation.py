@@ -31,7 +31,7 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
 
 def calc_radar_atm_attenuation(instrument, model):
     """
-    This function calculates atmospheric attenuation due to water vapor and CO2
+    This function calculates atmospheric attenuation due to water vapor and O2
     for a given model column.
 
     Parameters

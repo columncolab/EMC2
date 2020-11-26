@@ -1,7 +1,7 @@
 from .subcolumn import set_convective_sub_col_frac, set_precip_sub_col_frac
 from .subcolumn import set_stratiform_sub_col_frac, set_q_n
-from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext
-from .radar_moments import calc_radar_moments
+from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alpha_beta
+from .radar_moments import calc_radar_moments, calc_total_reflectivity
 from .attenuation import calc_radar_Ze_min
 from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, radar_classify_phase
 
@@ -83,6 +83,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
                     chunk=chunk, **kwargs)
         model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel,
                     chunk=chunk, **kwargs)
+        model = calc_total_reflectivity(model)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
 
@@ -106,8 +107,10 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
                 parallel=parallel, eta=eta, chunk=chunk, **kwargs)
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc,
                 parallel=parallel, eta=eta, chunk=chunk, **kwargs)
+        model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
 
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
+
         if do_classify is True:
             model = lidar_classify_phase(instrument, model, convert_zeros_to_nan=convert_zeros_to_nan)
             model = lidar_emulate_cosp_phase(instrument, model, eta=eta, OD_from_sfc=OD_from_sfc,

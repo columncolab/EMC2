@@ -9,6 +9,38 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg
 
 
+def calc_total_reflectivity(model):
+    """
+    This method calculates the total (convective + stratiform) reflectivity (Ze).
+
+    Parameters
+    ----------
+    model: :func:`emc2.core.Model` class
+        The model to calculate the parameters for.
+
+
+    Returns
+    -------
+    model: :func:`emc2.core.Model`
+        The xarray Dataset containing the calculated radar moments.
+    """
+    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
+                10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
+    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
+                10**(model.ds["sub_col_Ze_tot_conv"].values / 10.), np.where(Ze_tot > 0, Ze_tot, np.nan))
+
+    model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
+    model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
+                "Total (convective + stratiform) equivalent radar reflectivity factor"
+    model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
+    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot * \
+                model.ds['hyd_ext_conv'] * model.ds['hyd_ext_strat'] * model.ds['atm_ext'])
+    model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
+                "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
+    model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"
+    return model
+
+
 def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     """
     This estimates the radar reflectivity using empirical Ze-q_hyd relationships, where
@@ -126,30 +158,35 @@ def calc_radar_moments(instrument, model, is_conv,
 
         kappa_ds = calc_radar_atm_attenuation(instrument, model)
         kappa_f = 6 * np.pi / instrument.wavelength * 1e-6 * model.Rho_hyd["cl"].magnitude
-        WC = column_ds[q_names["cl"]] + column_ds[q_names["pl"]] * 1e3 * \
+        WC = column_ds["conv_q_subcolumns_cl"] + column_ds["conv_q_subcolumns_pl"] * 1e3 * \
             column_ds[p_field] / (instrument.R_d * column_ds[t_field])
 
         WC_new = np.zeros_like(WC)
         if OD_from_sfc:
-            dz = np.diff(column_ds[z_field].values, axis=1, prepend=0.)
-            WC_new[:, 1:] = WC[:, :-1]
-            liq_ext = np.cumsum(kappa_f * dz * WC_new, axis=1)
+            dz = np.diff(column_ds[z_field].values / 1e3, axis=1, prepend=0.)
+            WC_new[:, :, 1:] = WC[:, :, :-1]
+            liq_ext = np.cumsum(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) * WC_new, axis=2)
             atm_ext = np.cumsum(kappa_ds.ds["kappa_att"].values * dz, axis=1)
         else:
-            dz = np.diff(column_ds[z_field].values, axis=1, append=0.)
-            WC_new[:, :-1] = WC[:, 1:]
-            liq_ext = np.flip(np.cumsum(np.flip(kappa_f * dz * WC_new, axis=1), axis=1), axis=1)
+            dz = np.diff(column_ds[z_field].values / 1e3, axis=1, append=0.)
+            WC_new[:, :, :-1] = WC[:, :, 1:]
+            liq_ext = np.flip(np.cumsum(np.flip(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) * \
+                            WC_new, axis=2), axis=2), axis=2)
             atm_ext = np.flip(np.cumsum(np.flip(kappa_ds.ds["kappa_att"].values * dz, axis=1), axis=1), axis=1)
 
         if len(liq_ext.shape) == 1:
             liq_ext = liq_ext[:, np.newaxis]
         if len(atm_ext.shape) == 1:
             atm_ext = atm_ext[:, np.newaxis]
-        liq_ext = xr.DataArray(liq_ext, dims=kappa_ds.ds["kappa_att"].dims)
-        atm_ext = xr.DataArray(atm_ext, dims=kappa_ds.ds["kappa_att"].dims)
 
-        column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"] / \
-            10**(2 * liq_ext / 10.) / 10**(2 * atm_ext / 10.)
+        column_ds['hyd_ext_conv'] = xr.DataArray(10**(-2 * liq_ext / 10.), dims=WC.dims)
+        column_ds['hyd_ext_conv'].attrs["long_name"] = "Two-way convective hydrometeor transmittance"
+        column_ds['hyd_ext_conv'].attrs["units"] = "1"
+        column_ds['atm_ext'] = xr.DataArray(10**(-2 * atm_ext / 10), dims=kappa_ds.ds["kappa_att"].dims)
+        column_ds['atm_ext'].attrs["long_name"] = "Two-way atmospheric transmittance due to H2O and O2"
+        column_ds['atm_ext'].attrs["units"] = "1"
+        column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"] * \
+            column_ds['hyd_ext_conv'] * column_ds['atm_ext']
         column_ds["sub_col_Ze_tot_conv"] = column_ds["sub_col_Ze_tot_conv"].where(
             column_ds["sub_col_Ze_tot_conv"] != 0)
         column_ds["sub_col_Ze_att_tot_conv"].attrs["long_name"] = \
@@ -336,17 +373,23 @@ def calc_radar_moments(instrument, model, is_conv,
 
     if OD_from_sfc:
         dz = np.diff(column_ds[z_field].values, axis=1, prepend=0.)
-        dz = np.tile(dz, (model.num_subcolumns, 1, 1))
-        od_tot = np.cumsum(dz * od_tot, axis=2)
-        atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=2)
+        od_tot = np.cumsum(np.tile(dz, (model.num_subcolumns, 1, 1)) * od_tot, axis=2)
+        atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1)
     else:
-        dz = np.diff(column_ds[z_field].values, append=0.)
-        dz = np.tile(dz, (model.num_subcolumns, 1, 1))
-        od_tot = np.flip(np.cumsum(np.flip(dz * od_tot, axis=2), axis=2), axis=2)
-        atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=2), axis=2), axis=2)
+        dz = np.diff(column_ds[z_field].values, axis=1, append=0.)
+        od_tot = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) * \
+                        od_tot, axis=2), axis=2), axis=2)
+        atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1), axis=1), axis=1)
+
+    column_ds['hyd_ext_strat'] = xr.DataArray(np.exp(-2 * od_tot), dims=kappa_ds.ds["sub_col_Ze_tot_strat"].dims)
+    column_ds['hyd_ext_strat'].attrs["long_name"] = "Two-way stratiform hydrometeor transmittance"
+    column_ds['hyd_ext_strat'].attrs["units"] = "1"
+    column_ds['atm_ext'] = xr.DataArray(10**(-2 * atm_ext / 10), dims=kappa_ds.ds["kappa_att"].dims)
+    column_ds['atm_ext'].attrs["long_name"] = "Two-way atmospheric transmittance due to H2O and O2"
+    column_ds['atm_ext'].attrs["units"] = "1"
 
     column_ds['sub_col_Ze_att_tot_strat'] = \
-        column_ds['sub_col_Ze_tot_strat'] * np.exp(-2 * od_tot) / 10**(2 * atm_ext / 10)
+        column_ds['sub_col_Ze_tot_strat'] * column_ds['hyd_ext_strat'] * column_ds['atm_ext']
     column_ds['sub_col_Ze_tot_strat'] = column_ds['sub_col_Ze_tot_strat'].where(
         column_ds['sub_col_Ze_tot_strat'] > 0)
     column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_att_tot_strat'].where(
@@ -354,7 +397,7 @@ def calc_radar_moments(instrument, model, is_conv,
     column_ds['sub_col_Ze_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_tot_strat'])
     column_ds['sub_col_Ze_att_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_att_tot_strat'])
     column_ds['sub_col_Ze_att_tot_strat'].attrs["long_name"] = \
-        "Radar reflectivity factor in stratiform clouds factoring in gaseous attenuation"
+        "Radar reflectivity factor in stratiform clouds factoring in gaseous and hydrometeor attenuation"
     column_ds['sub_col_Ze_att_tot_strat'].attrs["units"] = "dBZ"
     column_ds['sub_col_Ze_tot_strat'].attrs["long_name"] = \
         "Radar reflectivity factor in stratiform clouds"

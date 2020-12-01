@@ -42,16 +42,25 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
                 raise ValueError("no default threshold values for %s" % instrument.instrument_str)
         beta_p_phase_thresh = instrument.beta_p_phase_thresh
 
-    for cloud_class in ["conv", "strat"]:
-        mask_name = "%s_phase_mask_%s" % (cloud_class, instrument.instrument_str)
+    mask_name_str = ["strat_phase_mask_%s" % instrument.instrument_str,
+                    "conv_phase_mask_%s" % instrument.instrument_str,
+                    "phase_mask_%s_all_hyd" % instrument.instrument_str]
+    mask_long_name_str = ["%s phase classification mask (strat)" % instrument.instrument_str,
+                    "%s phase classification mask (conv)" % instrument.instrument_str,
+                    "%s phase classification mask (convective + stratiform)" % \
+                    instrument.instrument_str]
+    LDR_fieldnames = ["sub_col_LDR_strat", "sub_col_LDR_conv", "sub_col_LDR_tot"]
+    beta_p_fieldnames = ["sub_col_beta_p_tot_strat", "sub_col_beta_p_tot_conv", "sub_col_beta_p_tot"]
+    for ii in range(len(mask_name_str)):
+        mask_name = mask_name_str[ii]
         Class_legend = [""] * (len(beta_p_phase_thresh))
         if convert_zeros_to_nan:
-            phase_mask = np.zeros_like(model.ds["sub_col_LDR_%s" % cloud_class], dtype=np.float)
+            phase_mask = np.zeros_like(model.ds["sub_col_LDR_strat"], dtype=np.float)
         else:
-            phase_mask = np.zeros_like(model.ds["sub_col_LDR_%s" % cloud_class], dtype=np.uint8)
+            phase_mask = np.zeros_like(model.ds["sub_col_LDR_strat"], dtype=np.uint8)
         for class_type in range(len(beta_p_phase_thresh)):
-            phase_mask = np.where(model.ds["sub_col_beta_p_tot_%s" % cloud_class].values >= \
-                np.interp(model.ds["sub_col_LDR_%s" % cloud_class].values,
+            phase_mask = np.where(model.ds[beta_p_fieldnames[ii]].values >= \
+                np.interp(model.ds[LDR_fieldnames[ii]].values,
                 beta_p_phase_thresh[class_type]["LDR"], 
                 beta_p_phase_thresh[class_type]["beta_p"]),
                 beta_p_phase_thresh[class_type]["class_ind"], phase_mask)
@@ -60,8 +69,8 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
         if convert_zeros_to_nan:
             phase_mask = np.where(phase_mask == 0, np.nan, phase_mask)
 
-        model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
-        model.ds[mask_name].attrs["long_name"] = "%s phase classification mask" % instrument.instrument_str
+        model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["sub_col_LDR_strat"].dims)
+        model.ds[mask_name].attrs["long_name"] = mask_long_name_str[ii]
         model.ds[mask_name].attrs["units"] = "Unitless"
         model.ds[mask_name].attrs["legend"] = Class_legend
 
@@ -95,19 +104,29 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
     if not instrument.instrument_class.lower() == "radar":
                 raise ValueError("Instrument must be a radar!")
 
-    for cloud_class in ["strat", "conv"]:
-        mask_name = "%s_phase_mask_%s_sounding" % (cloud_class, instrument.instrument_str)
+    mask_name_str = ["strat_phase_mask_%s_sounding" % instrument.instrument_str,
+                    "conv_phase_mask_%s_sounding" % instrument.instrument_str,
+                    "phase_mask_%s_sounding_all_hyd" % instrument.instrument_str]
+    mask_long_name_str = ["%s-sounding cloud and precipitation detection output (strat)" % instrument.instrument_str,
+                    "%s-sounding cloud and precipitation detection output (conv)" % instrument.instrument_str,
+                    "%s-sounding cloud and precipitation detection output (convective + stratiform)" % \
+                    instrument.instrument_str]
+    Ze_fieldnames = ["sub_col_Ze_att_tot_strat", "sub_col_Ze_att_tot_conv", "sub_col_Ze_att_tot"]
+    cld_exist_cond = [model.ds["strat_frac_subcolumns_cl"].values == True,
+                    model.ds["conv_frac_subcolumns_cl"].values == True,
+                    np.logical_or(model.ds["strat_frac_subcolumns_cl"].values == True,
+                    model.ds["conv_frac_subcolumns_cl"].values == True)]
+    for ii in range(len(mask_name_str)):
+        mask_name = mask_name_str[ii]
         if convert_zeros_to_nan:
             phase_mask = np.zeros_like(model.ds["mu"], dtype=np.float)
         else:
             phase_mask = np.zeros_like(model.ds["mu"], dtype=np.uint8)
-        phase_mask = np.where(model.ds["sub_col_Ze_att_tot_%s" % cloud_class].values >=
+        phase_mask = np.where(model.ds[Ze_fieldnames[ii]].values >=
             np.tile(model.ds['Ze_min'].values, (model.num_subcolumns, 1, 1)),
             2, phase_mask)
-        phase_mask = np.where(np.logical_and(model.ds["%s_frac_subcolumns_cl" % cloud_class].values == True,
-            phase_mask != 2), 1, phase_mask)
-        phase_mask = np.where(np.logical_and(model.ds["%s_frac_subcolumns_cl" % cloud_class].values == True,
-            phase_mask == 2), 3, phase_mask)
+        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask != 2), 1, phase_mask)
+        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask == 2), 3, phase_mask)
         if mask_height_rng is not None:
             phase_mask = np.where(np.logical_or(np.tile(model.ds[model.z_field], (model.num_subcolumns, 1, 1)) <
                             mask_height_rng[0],
@@ -117,7 +136,7 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
             phase_mask = np.where(phase_mask == 0, np.nan, phase_mask)
 
         model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["mu"].dims)
-        model.ds[mask_name].attrs["long_name"] = "%s-sounding cloud and precipitation detection output" % instrument.instrument_str
+        model.ds[mask_name].attrs["long_name"] = mask_long_name_str[ii]
         model.ds[mask_name].attrs["units"] = "Unitless"
         model.ds[mask_name].attrs["legend"] = ["Cloud", "Precip", "Mixed"]
 
@@ -126,7 +145,7 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
 
 def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase_disc_curve=None,
                             atb_cross_coeff=None, cloud_SR_thresh=5., undef_SR_thresh=30.,
-                            inc_precip_hyd_atb=True, convert_zeros_to_nan=False):
+                            inc_precip_hyd_atb=True, convert_zeros_to_nan=False, output_ATB=False):
     """
     Phase classification method to emulate COSP based on attenuated total backscatter
         (ATB) analysis following Cesana and Chepfer (2013).
@@ -157,10 +176,13 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         SR values above this threshold are all set to set to "undefined").
     inc_precip_hyd_atb: bool
         If True, include precipitating classes in the calculation of ATB (not specified in
-            the referencedpaper, so likely false in actual COSP).
+            the referenced paper, so likely false in actual COSP).
     convert_zeros_to_nan: bool
         If True, saving the mask array as a float dtype (instead of uint8) and converting all
             zeros in the array to nans.
+    output_ATB: bool
+        If True, save the ATB and scattering ratio fields for each cloud type as well as for
+        all hydrometeors.
 
     Returns
     -------
@@ -185,8 +207,9 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
     ATB_mol = np.tile(model.ds['sigma_180_vol'].values * (1.+0.0284) * model.ds['tau'].values, \
                (model.num_subcolumns, 1, 1))
 
-    Beta_all_hyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
-    OD_all_hyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
+    beta_p_allhyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
+    beta_p_cross_allhyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
+    OD_allhyd = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
     for cloud_class in ["conv", "strat"]:
         mask_name = "%s_COSP_phase_mask" % cloud_class
         Class_legend = ["liquid", "ice", "undefined"]
@@ -210,10 +233,9 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             beta_p_cross[hyd_class] = ATB_cross[hyd_class] / np.exp(-2 * eta * OD[hyd_class]) / \
                     np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1)) - \
                     np.tile(model.ds['sigma_180_vol'].values * (0.0284/(1+0.0284)), (model.num_subcolumns, 1, 1))
-            ATB[hyd_class] = (beta_p[hyd_class] + beta_p_cross[hyd_class] + \
-                    np.tile(model.ds['sigma_180_vol'].values * (1.+0.0284), (model.num_subcolumns, 1, 1))) * \
-                    np.exp(-2 * eta * OD[hyd_class]) * \
-                    np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
+            beta_p_allhyd += beta_p[hyd_class]
+            beta_p_cross_allhyd += beta_p_cross[hyd_class]
+            OD_allhyd += OD[hyd_class]
         ATB_tot = (beta_p["liq"] + beta_p_cross["liq"] + beta_p["ice"] + beta_p_cross["ice"] + \
                     np.tile(model.ds['sigma_180_vol'].values * (1.+0.0284), (model.num_subcolumns, 1, 1))) * \
                     np.exp(-2 * eta * (OD["liq"] + OD["ice"])) * \
@@ -249,28 +271,89 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             phase_mask = np.where(phase_mask == 0, np.nan, phase_mask)
 
         model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
-        model.ds[mask_name].attrs["long_name"] = "COSP emulation phase classification mask"
+        model.ds[mask_name].attrs["long_name"] = "COSP emulation phase classification mask (%s)" % cloud_class
         model.ds[mask_name].attrs["units"] = "Unitless"
         model.ds[mask_name].attrs["legend"] = ["liquid", "ice", "undef"]
 
         # save ATB and SR fields for stratiform only
-        if cloud_class is "strat":
-            model.ds["COSP_ATBtot_strat"] = xr.DataArray(ATB_tot, dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
-            model.ds["COSP_ATBtot_strat"].attrs["long_name"] = "COSP emulation ATB_tot"
-            model.ds["COSP_ATBtot_strat"].attrs["units"] = "m^-1sr^-1"
-
-            model.ds["COSP_ATBcross_strat"] = xr.DataArray(ATB_cross_tot,
+        if output_ATB is True:
+            model.ds["COSP_ATBtot_%s" % cloud_class] = xr.DataArray(ATB_tot,
                         dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
-            model.ds["COSP_ATBcross_strat"].attrs["long_name"] = "COSP emulation ATB_cross"
-            model.ds["COSP_ATBcross_strat"].attrs["units"] = "m^-1sr^-1"
+            model.ds["COSP_ATBtot_%s" % cloud_class].attrs["long_name"] = \
+                        "COSP emulation ATB_tot for %s clouds" % cloud_class
+            model.ds["COSP_ATBtot_%s" % cloud_class].attrs["units"] = "m^-1sr^-1"
 
-            model.ds["COSP_SR_strat"] = xr.DataArray(SR, dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
-            model.ds["COSP_SR_strat"].attrs["long_name"] = "COSP emulation scattering ratio"
-            model.ds["COSP_SR_strat"].attrs["units"] = "m^-1sr^-1"
+            model.ds["COSP_ATBcross_%s" % cloud_class] = xr.DataArray(ATB_cross_tot,
+                        dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
+            model.ds["COSP_ATBcross_%s" % cloud_class].attrs["long_name"] = \
+                        "COSP emulation ATB_cross for %s clouds" % cloud_class
+            model.ds["COSP_ATBcross_%s" % cloud_class].attrs["units"] = "m^-1sr^-1"
+            model.ds["COSP_SR_%s" % cloud_class] = xr.DataArray(SR,
+                        dims=model.ds["sub_col_LDR_%s" % cloud_class].dims)
+            model.ds["COSP_SR_%s" % cloud_class].attrs["long_name"] = \
+                        "COSP emulation scattering ratio for %s clouds" % cloud_class
+            model.ds["COSP_SR_%s" % cloud_class].attrs["units"] = "m^-1sr^-1"
+
+    # determine phase_mask for all hydrometeors
+    ATB_tot_allhyd = (beta_p_allhyd + beta_p_cross_allhyd + \
+                np.tile(model.ds['sigma_180_vol'].values * (1.+0.0284), (model.num_subcolumns, 1, 1))) * \
+                np.exp(-2 * eta * OD_allhyd) * \
+                np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
+    ATB_cross_allhyd = (beta_p_cross_allhyd + np.tile(model.ds['sigma_180_vol'].values * \
+                (0.0284/(1.+0.0284)), (model.num_subcolumns, 1, 1))) * \
+                np.exp(-2 * eta * OD_allhyd) * \
+                np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1)) 
+
+    # Begin cloud detection and phase classification
+    mask_name = "COSP_phase_mask_all_hyd"
+    SR_allhyd = ATB_tot_allhyd / ATB_mol
+    if convert_zeros_to_nan:
+        phase_mask = np.zeros_like(model.ds["sub_col_LDR_strat"], dtype=np.float)
+    else:
+        phase_mask = np.zeros_like(model.ds["sub_col_LDR_strat"], dtype=np.uint8)
+    phase_mask = np.where(SR_allhyd > cloud_SR_thresh, 1, phase_mask)
+    phase_mask = np.where(np.logical_and(ATB_cross_allhyd > np.polyval(phase_disc_curve, ATB_tot_allhyd * 1e3) / 1e3,
+            phase_mask == 1), 2, phase_mask)
+    if OD_from_sfc:
+        reflective_mask = np.cumsum(SR_allhyd > undef_SR_thresh, axis=2)
+    else:
+        reflective_mask = np.flip(np.cumsum(np.flip(SR_allhyd, axis=2) > undef_SR_thresh, axis=2), axis=2)
+    reflective_mask = np.where(np.logical_and(SR_allhyd > undef_SR_thresh, reflective_mask == 1),
+        0, reflective_mask)
+
+    phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) > 273.15,
+                    phase_mask > 0), 1, phase_mask)
+    phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) < 233.15,
+                    phase_mask > 0), 2, phase_mask)
+    phase_mask = np.where(np.logical_and(reflective_mask > 0, phase_mask > 0), 3, phase_mask)
+    if convert_zeros_to_nan:
+        phase_mask = np.where(phase_mask == 0, np.nan, phase_mask)
+
+    model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["sub_col_LDR_strat"].dims)
+    model.ds[mask_name].attrs["long_name"] = "COSP emulation phase classification mask (convective + stratiform)"
+    model.ds[mask_name].attrs["units"] = "Unitless"
+    model.ds[mask_name].attrs["legend"] = ["liquid", "ice", "undef"]
+    if output_ATB is True:
+        model.ds["COSP_ATBtot_all_hyd"] = xr.DataArray(ATB_tot_allhyd,
+                    dims=model.ds["sub_col_LDR_strat"].dims)
+        model.ds["COSP_ATBtot_all_hyd"].attrs["long_name"] = \
+                    "COSP emulation ATB_tot (convective + stratiform)"
+        model.ds["COSP_ATBtot_all_hyd"].attrs["units"] = "m^-1sr^-1"
+
+        model.ds["COSP_ATBcross_all_hyd"] = xr.DataArray(ATB_cross_allhyd,
+                    dims=model.ds["sub_col_LDR_strat"].dims)
+        model.ds["COSP_ATBcross_all_hyd"].attrs["long_name"] = \
+                    "COSP emulation ATB_cross (convective + stratiform)"
+        model.ds["COSP_ATBcross_all_hyd"].attrs["units"] = "m^-1sr^-1"
+        model.ds["COSP_SR_all_hyd"] = xr.DataArray(SR_allhyd,
+                    dims=model.ds["sub_col_LDR_strat"].dims)
+        model.ds["COSP_SR_all_hyd"].attrs["long_name"] = \
+                    "COSP emulation scattering ratio (convective + stratiform)"
+        model.ds["COSP_SR_all_hyd"].attrs["units"] = "m^-1sr^-1"
 
     return model
 
-def calculate_phase_ratio(model, variable, mask_class, mask_all_hyd=None):
+def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None):
     """
     calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).
 
@@ -283,8 +366,8 @@ def calculate_phase_ratio(model, variable, mask_class, mask_all_hyd=None):
     mask_class: int or list
         value(s) corresponding to hydrometeor class(es) to calculate the phase ratio for
         (numerator). Phase ratio is calculated relative to the sum of all hydrometeor classes
-        in subcolumns (defined by mask_all_hyd) per time-height grid cell.
-    mask_all_hyd: int, list, or None
+        in subcolumns (defined by mask_allhyd) per time-height grid cell.
+    mask_allhyd: int, list, or None
         value(s) corresponding to all hydrometeor class(es) to calculate the phase ratio with
         (denominator). If None, using all non-zero values.
 
@@ -293,11 +376,11 @@ def calculate_phase_ratio(model, variable, mask_class, mask_all_hyd=None):
     model: Model
         The model with the added phase ratio field
     """
-    if mask_all_hyd is None:
-       mask_all_hyd = [x for x in range(1, np.nanmax(model.ds[variable].values)+1)]
+    if mask_allhyd is None:
+       mask_allhyd = [x for x in range(1, np.nanmax(model.ds[variable].values)+1)]
 
     numer_counts = np.nansum(np.isin(model.ds[variable].values, mask_class), axis=0)
-    denom_counts = np.nansum(np.isin(model.ds[variable].values, mask_all_hyd), axis=0)
+    denom_counts = np.nansum(np.isin(model.ds[variable].values, mask_allhyd), axis=0)
     denom_counts = np.where(denom_counts == 0, np.nan, denom_counts)
     PR = numer_counts / denom_counts
 
@@ -305,6 +388,6 @@ def calculate_phase_ratio(model, variable, mask_class, mask_all_hyd=None):
     model.ds[variable+"_pr"].attrs["long_name"] = variable + "phase ratio"
     model.ds[variable+"_pr"].attrs["units"] = ""
     model.ds[variable+"_pr"].attrs["hyd_numer_val"] = mask_class
-    model.ds[variable+"_pr"].attrs["hyd_denom_val"] = mask_all_hyd
+    model.ds[variable+"_pr"].attrs["hyd_denom_val"] = mask_allhyd
 
     return model

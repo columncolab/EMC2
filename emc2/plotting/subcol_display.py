@@ -114,6 +114,9 @@ class SubcolumnDisplay(Display):
         cmap: ListedColormap object
             colormap to use in the colorbar. If None, using tab20c(N), where N is the number of
             classes.
+        convert_zeros_to_nan: bool
+            If True, assuming that the plotted classification mask has all the zeros converted
+            to nans, i.e., 'convert_zeros_to_nan' was True when the classification method was called.
 
         Returns
         -------

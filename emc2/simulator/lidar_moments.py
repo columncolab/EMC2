@@ -101,7 +101,7 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
         model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = "Linear depolarization ratio in %s" % cloud_class
         model.ds["sub_col_LDR_%s" % cloud_class].attrs["units"] = "1"
         numerator_tot += numerator
-        denominator += denominator
+        denominator_tot += denominator
     model.ds["sub_col_LDR_tot"] = numerator_tot / denominator_tot
     model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
     model.ds["sub_col_LDR_tot"].attrs["units"] = "1"

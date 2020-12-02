@@ -44,3 +44,25 @@ def test_plot_instrument():
     model_display.plot_instrument_timeseries(HSRL, "beta_a_backscat", log_plot=True, cmap='magma',
                                              subplot_index=(1, ), vmin=1e-8, vmax=1e-3)
     return model_display.fig
+
+
+@pytest.mark.mpl_image_compare(tolerance=30)
+def test_plot_instrument_profile():
+    model = emc2.core.model.ModelE(emc2.test_files.TEST_SUBCOL_FILE)
+    HSRL = emc2.core.instruments.HSRL()
+    HSRL.read_arm_netcdf_file(emc2.test_files.TEST_INST_PLOT_FILE)
+
+    model_display = emc2.plotting.SubcolumnDisplay(model, ds_name="ModelE", figsize=(10, 10))
+    model_display.plot_instrument_mean_profile(HSRL, 'linear_depol', pressure_coords=False)
+    return model_display.fig
+
+@pytest.mark.mpl_image_compare(tolerance=30)
+def test_plot_classification():
+    model = emc2.core.model.ModelE(emc2.test_files.TEST_SUBCOL_FILE)
+
+    model_display = emc2.plotting.SubcolumnDisplay(model, ds_name="ModelE", figsize=(10, 10))
+    _, cb = model_display.plot_subcolumn_timeseries('phase_mask_KAZR_sounding_all_hyd', 1)
+    model_display.change_plot_to_class_mask(cb, variable="phase_mask_KAZR_sounding_all_hyd",
+                                            class_legend=["Cloud", "precip", "mixed"])
+    return model_display.fig
+

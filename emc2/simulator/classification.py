@@ -244,7 +244,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
                     (0.0284/(1.+0.0284)), (model.num_subcolumns, 1, 1))) * \
                     np.exp(-2 * eta * (OD["liq"] + OD["ice"])) * \
                     np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
-        del ATB, beta_p_cross, ATB_cross, ATB_co, OD, beta_p
+        del beta_p_cross, ATB_cross, ATB_co, OD, beta_p
 
         # Begin cloud detection and phase classification
         SR = ATB_tot / ATB_mol

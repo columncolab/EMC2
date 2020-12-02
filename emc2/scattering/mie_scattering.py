@@ -4,7 +4,7 @@ import xarray as xr
 from PyMieScatt import MieQ_withDiameterRange
 from .ref_index import calc_microwave_ref_index_ice, calc_microwave_ref_index
 
-def scat_properties_water(diams, wavelength, temperature):
+def scat_properties_water(diams, wavelength, temperature=0., pressure=1013.):
     """
     Calculate the scattering properties for a range of water spheres.
 
@@ -15,6 +15,9 @@ def scat_properties_water(diams, wavelength, temperature):
     wavelength: float
         Wavelength in cm
     temperature: float
+        Temperature in degrees C
+    pressure: float
+        Pressure in hPa
 
     Returns
     -------
@@ -32,14 +35,15 @@ def scat_properties_water(diams, wavelength, temperature):
         The ratio of backscatter/scattering efficiency.
     """
     m = calc_microwave_ref_index(wavelength, temperature)
+    nMedium = 1 + 1e-6 * (77.6 * pressure / (temperature + 273.15 + 3.75e-5 * pressure / (temperature + 273.15)**2))
     diams, qext, qsca, qabs, g, qpr, qback, qratio = MieQ_withDiameterRange(
-        m, wavelength * 1e7, nMedium=1.0003, nd=len(diams), diameterRange=(diams.min() * 1000., diams.max() * 1000.))
+        m, wavelength * 1e7, nMedium=nMedium, nd=len(diams), diameterRange=(diams.min() * 1000., diams.max() * 1000.))
 
     my_dict = {'ext_eff': qext, 'scat_eff': qsca, 'qabs': qabs,
                'g': g, 'qpr': qpr, 'backscat_eff': qback, 'qratio': qratio}
-    my_dict['alpha_p'] = my_dict['backscat_eff'] * np.pi / 4 * diams ** 2 * 1e-12
-    my_dict['beta_p'] = my_dict['ext_eff'] * np.pi / 4 * diams ** 2 * 1e-12
-    my_dict['scat_p'] = my_dict['scat_eff'] * np.pi / 4 * diams ** 2 * 1e-12
+    my_dict['alpha_p'] = my_dict['backscat_eff'] * np.pi / 4 * diams ** 2
+    my_dict['beta_p'] = my_dict['ext_eff'] * np.pi / 4 * diams ** 2
+    my_dict['scat_p'] = my_dict['scat_eff'] * np.pi / 4 * diams ** 2
     my_dict['compre_real'] = m.real * np.ones_like(qext) / 1.0003
     my_dict['compre_im'] = m.imag * np.ones_like(qext) / 1.0003
     my_dict['size_parameter'] = np.pi * diams / (wavelength * 1e4)
@@ -95,7 +99,7 @@ def scat_properties_water(diams, wavelength, temperature):
 
     return my_df
 
-def scat_properties_ice(diams, wavelength, temperature):
+def scat_properties_ice(diams, wavelength, temperature=0., pressure=1013.):
     """
     Calculate the scattering properties for a range of ice spheres.
 
@@ -106,6 +110,9 @@ def scat_properties_ice(diams, wavelength, temperature):
     wavelength: float
         Wavelength in cm
     temperature: float
+        Temperature in degrees C
+    pressure: float
+        Pressure in hPa
 
     Returns
     -------
@@ -123,8 +130,9 @@ def scat_properties_ice(diams, wavelength, temperature):
         The ratio of backscatter/scattering efficiency.
     """
     m = calc_microwave_ref_index_ice(wavelength, temperature)
+    nMedium = 1 + 1e-6 * (77.6 * pressure / (temperature + 273.15 + 3.75e-5 * pressure / (temperature + 273.15) ** 2))
     diams, qext, qsca, qabs, g, qpr, qback, qratio = MieQ_withDiameterRange(
-        m, wavelength * 1e7, nMedium=1.0003, nd=len(diams), diameterRange=(diams.min() * 1000., diams.max() * 1000.))
+        m, wavelength * 1e7, nMedium=nMedium, nd=len(diams), diameterRange=(diams.min() * 1000., diams.max() * 1000.))
 
     my_dict = {'ext_eff': qext, 'scat_eff': qsca, 'qabs': qabs,
                'g': g, 'qpr': qpr, 'backscat_eff': qback, 'qratio': qratio}

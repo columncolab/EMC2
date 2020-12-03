@@ -5,7 +5,7 @@ from ..core import Instrument, Model
 
 
 def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
-                        convert_zeros_to_nan=False):
+                        convert_zeros_to_nan=False, remove_sub_detect=True):
     """
     Phase classification based on fixed thresholds of a lidar's LDR and
     tot beta_p variables.
@@ -27,6 +27,8 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
     convert_zeros_to_nan: bool
         If True, saving the mask array as a float dtype (instead of uint8) and converting all
             zeros in the array to nans.
+    remove_sub_detect: bool
+        If True, remove hydrometeor-bearing grid cells with extinct lidar signal.
 
     Returns
     -------
@@ -50,6 +52,7 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
                     "%s phase classification mask (convective + stratiform)" % \
                     instrument.instrument_str]
     LDR_fieldnames = ["sub_col_LDR_strat", "sub_col_LDR_conv", "sub_col_LDR_tot"]
+    OD_fieldnames = ["sub_col_OD_tot_strat", "sub_col_OD_tot_conv", "sub_col_OD_tot"]
     beta_p_fieldnames = ["sub_col_beta_p_tot_strat", "sub_col_beta_p_tot_conv", "sub_col_beta_p_tot"]
     for ii in range(len(mask_name_str)):
         mask_name = mask_name_str[ii]
@@ -66,6 +69,8 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
                 beta_p_phase_thresh[class_type]["class_ind"], phase_mask)
             Class_legend[beta_p_phase_thresh[class_type]["class_ind"]-1] = \
                 beta_p_phase_thresh[class_type]["class"]
+        if remove_sub_detect:
+            phase_mask = np.where(model.ds[OD_fieldnames[ii]] > instrument.ext_OD, 0, phase_mask)
         if convert_zeros_to_nan:
             phase_mask = np.where(phase_mask == 0, np.nan, phase_mask)
 
@@ -376,11 +381,12 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None):
     model: Model
         The model with the added phase ratio field
     """
+    mask_array = model.ds[variable].values.astype(np.int8)
     if mask_allhyd is None:
-       mask_allhyd = [x for x in range(1, np.nanmax(model.ds[variable].values)+1)]
+       mask_allhyd = [x for x in range(1, np.nanmax(mask_array)+1)]
 
-    numer_counts = np.nansum(np.isin(model.ds[variable].values, mask_class), axis=0)
-    denom_counts = np.nansum(np.isin(model.ds[variable].values, mask_allhyd), axis=0)
+    numer_counts = np.nansum(np.isin(mask_array, mask_class), axis=0)
+    denom_counts = np.nansum(np.isin(mask_array, mask_allhyd), axis=0)
     denom_counts = np.where(denom_counts == 0, np.nan, denom_counts)
     PR = numer_counts / denom_counts
 

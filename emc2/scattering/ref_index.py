@@ -35,7 +35,7 @@ def calc_microwave_ref_index(wavelength, temperature=0):
     return n + k * 1j
 
 
-def calc_microwave_ref_index_ice(wavelength, temperature=0):
+def calc_microwave_ref_index_ice(wavelength, temperature=0, rho_d=0.5):
     """
     Calculate the refractive index of ice in the microwave spectrum (centimeter wavelengths).
 
@@ -45,6 +45,8 @@ def calc_microwave_ref_index_ice(wavelength, temperature=0):
         Wavelength in cm
     temperature: float
         Temperature in Celsius
+    rho_d: float
+        Effective density of dry snow in g cm-3.
 
     Returns
     -------
@@ -52,8 +54,12 @@ def calc_microwave_ref_index_ice(wavelength, temperature=0):
         The complex refractive index of ice.
     """
     c = 299792458.
-    eta_prime = 2.1884 + 0.00091 * temperature
-    eta_pprime = 0.00041 / (c / (wavelength * 1e-2))
+    rho_s = 0.550
+    rho_i = 0.91
+    Vi = rho_s / rho_i
+    f = c / (wavelength * 1e-2) / 1e9
+    eta_prime = 1 + 2 * rho_d
+    eta_pprime = 8e-4 * (0.52 * rho_d + 0.62 * rho_d ** 2)
 
     n = np.sqrt((np.sqrt(eta_prime ** 2 + eta_pprime ** 2) + eta_prime) / 2.)
     k = np.sqrt((np.sqrt(eta_prime ** 2 + eta_pprime ** 2) - eta_prime) / 2.)

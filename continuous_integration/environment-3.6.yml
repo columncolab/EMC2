@@ -19,3 +19,5 @@ dependencies:
   - metpy
   - pint=0.8.1
   - act-atmos
+  - pip:
+      pymiescatt

@@ -1,7 +1,12 @@
 import numpy as np
 import xarray as xr
 
-from PyMieScatt import MieQ_withDiameterRange
+try:
+    from PyMieScatt import MieQ_withDiameterRange
+    PYMIESCAT_AVAILABLE = True
+except:
+    PYMIESCAT_AVAILABLE = False
+
 from .ref_index import calc_microwave_ref_index_ice, calc_microwave_ref_index
 
 def scat_properties_water(diams, wavelength, temperature=0., pressure=1013.):
@@ -34,6 +39,9 @@ def scat_properties_water(diams, wavelength, temperature=0., pressure=1013.):
     qratio: np.array
         The ratio of backscatter/scattering efficiency.
     """
+    if PYMIESCAT_AVAILABLE == False:
+        raise ModuleNotFoundError("PyMieScat needs to be installed in order to use this feature!")
+
     m = calc_microwave_ref_index(wavelength, temperature)
     nMedium = 1 + 1e-6 * (77.6 * pressure / (temperature + 273.15 + 3.75e-5 * pressure / (temperature + 273.15)**2))
     diams, qext, qsca, qabs, g, qpr, qback, qratio = MieQ_withDiameterRange(
@@ -131,6 +139,8 @@ def scat_properties_ice(diams, wavelength, temperature=0., pressure=1013., rho_d
     qratio: np.array
         The ratio of backscatter/scattering efficiency.
     """
+    if PYMIESCAT_AVAILABLE == False:
+        raise ModuleNotFoundError("PyMieScat needs to be installed in order to use this feature!")
     m = calc_microwave_ref_index_ice(wavelength, temperature, rho_d)
     nMedium = 1 + 1e-6 * (77.6 * pressure / (temperature + 273.15 + 3.75e-5 * pressure / (temperature + 273.15) ** 2))
     diams, qext, qsca, qabs, g, qpr, qback, qratio = MieQ_withDiameterRange(

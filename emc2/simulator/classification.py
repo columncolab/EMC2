@@ -358,7 +358,8 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
 
     return model
 
-def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None):
+def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr=False,
+                            mpr_subcolmod=True):
     """
     calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).
 
@@ -375,25 +376,66 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None):
     mask_allhyd: int, list, or None
         value(s) corresponding to all hydrometeor class(es) to calculate the phase ratio with
         (denominator). If None, using all non-zero values.
+    mass_pr: bool
+        If True, calcuating the mass phase ratio from the model output where hydrometeors exist
+        in the classification mask. Otherwise, the frequency phase ratio (from all subcolumns).
+    mpr_subcolmod: bool
+        If True, doing subcolumn-based MPR calculation. Otherwise, simply using the model output
+        mixing ratio rata.
 
     Returns
     -------
     model: Model
         The model with the added phase ratio field
     """
-    mask_array = model.ds[variable].values.astype(np.int8)
-    if mask_allhyd is None:
-       mask_allhyd = [x for x in range(1, np.nanmax(mask_array)+1)]
+    if mass_pr is True:
+        liq_classes = ["cl", "pl"]
+        ice_classes = ["ci", "pi"]
+        if mpr_subcolmod is True:
+            mass_subcol_liq = np.zeros_like(model.ds["conv_frac_subcolumns_cl"], dtype=np.float)
+            mass_subcol_ice = np.zeros_like(model.ds["conv_frac_subcolumns_cl"], dtype=np.float)
+            for cloud_class in ["conv", "strat"]:
+                for hyd_class in liq_classes:
+                    mass_subcol_liq += np.where(model.ds[variable] > 0,
+                        model.ds["%s_q_subcolumns_%s" % (cloud_class, hyd_class)], 0)
+                for hyd_class in ice_classes:
+                    mass_subcol_ice += np.where(model.ds[variable] > 0,
+                        model.ds["%s_q_subcolumns_%s" % (cloud_class, hyd_class)], 0)
+            PR = mass_subcol_liq / (mass_subcol_liq + mass_subcol_ice)
+            PR_sum = np.nansum(mass_subcol_liq, axis=0) / (np.nansum(mass_subcol_liq, axis=0) + \
+                        np.nansum(mass_subcol_ice, axis=0))
+            model.ds[variable+"_mpr"] = xr.DataArray(PR, dims=model.ds["conv_frac_subcolumns_cl"].dims)
+            model.ds[variable+"_mpr"].attrs["long_name"] = variable + "mass phase ratio"
+            model.ds[variable+"_mpr"].attrs["units"] = ""
+            model.ds[variable+"_mpr_sum"] = xr.DataArray(PR_sum, dims=model.ds[model.T_field].dims)
+            model.ds[variable+"_mpr_sum"].attrs["long_name"] = variable + \
+                    "mass phase ratio with q summed over all hydrometeor containing mask grid cells"
+            model.ds[variable+"_mpr_sum"].attrs["units"] = ""
+        else:
+            mass_liq = np.zeros_like(model.ds[model.q_names["cl"]], dtype=np.float)
+            mass_ice = np.zeros_like(model.ds[model.q_names["cl"]], dtype=np.float)
+            for hyd_class in liq_classes:
+                mass_liq += model.ds[model.q_names[hyd_class]].values
+            for hyd_class in ice_classes:
+                mass_ice += model.ds[model.q_names[hyd_class]].values
+            PR_sum = mass_liq / (mass_liq + mass_ice)
+            model.ds["mpr_q"] = xr.DataArray(PR_sum, dims=model.ds[model.T_field].dims)
+            model.ds["mpr_q"].attrs["long_name"] = variable + \
+                    "mass phase ratio using model output fields"
+            model.ds["mpr_q"].attrs["units"] = ""
+    else:
+        mask_array = model.ds[variable].values.astype(np.int8)
+        if mask_allhyd is None:
+           mask_allhyd = [x for x in range(1, np.nanmax(mask_array)+1)]
 
-    numer_counts = np.nansum(np.isin(mask_array, mask_class), axis=0)
-    denom_counts = np.nansum(np.isin(mask_array, mask_allhyd), axis=0)
-    denom_counts = np.where(denom_counts == 0, np.nan, denom_counts)
-    PR = numer_counts / denom_counts
-
-    model.ds[variable+"_pr"] = xr.DataArray(PR, dims=model.ds[model.T_field].dims)
-    model.ds[variable+"_pr"].attrs["long_name"] = variable + "phase ratio"
-    model.ds[variable+"_pr"].attrs["units"] = ""
-    model.ds[variable+"_pr"].attrs["hyd_numer_val"] = mask_class
-    model.ds[variable+"_pr"].attrs["hyd_denom_val"] = mask_allhyd
+        numer_counts = np.nansum(np.isin(mask_array, mask_class), axis=0)
+        denom_counts = np.nansum(np.isin(mask_array, mask_allhyd), axis=0)
+        denom_counts = np.where(denom_counts == 0, np.nan, denom_counts)
+        PR = numer_counts / denom_counts
+        model.ds[variable+"_fpr"] = xr.DataArray(PR, dims=model.ds[model.T_field].dims)
+        model.ds[variable+"_fpr"].attrs["long_name"] = variable + "frequency phase ratio"
+        model.ds[variable+"_fpr"].attrs["units"] = ""
+        model.ds[variable+"_fpr"].attrs["hyd_numer_val"] = mask_class
+        model.ds[variable+"_fpr"].attrs["hyd_denom_val"] = mask_allhyd
 
     return model

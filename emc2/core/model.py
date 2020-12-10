@@ -278,11 +278,11 @@ class DHARMA(Model):
         self.T_field = "t"
         self.height_dim = "hgt"
         self.time_dim = "dom_col"
-        self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat', \
+        self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat',
                                 'pl': 'conv_dat', 'pi': 'conv_dat'}
-        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac', \
+        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                  'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac', \
+        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}

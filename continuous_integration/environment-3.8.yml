@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - python=3.8
+  - pip
   - numpy
   - scipy
   - matplotlib
@@ -19,3 +20,5 @@ dependencies:
   - metpy
   - pint=0.8.1
   - act-atmos
+  - pip:
+    - pymiescatt

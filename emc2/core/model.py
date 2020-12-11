@@ -245,6 +245,71 @@ class ModelE(Model):
         self.model_name = "ModelE"
 
 
+class DHARMA(Model):
+    def __init__(self, file_path, time_range=None):
+        """
+        This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.
+        Parameters
+        ----------
+        file_path: str
+            Path to a ModelE simulation.
+        """
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 100. * ureg.kg / (ureg.m**3)}
+        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                            'ci': 24. * ureg.dimensionless,
+                            'pl': 5.5 * ureg.dimensionless,
+                            'pi': 24.0 * ureg.dimensionless}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                            'ci': 1. * ureg.dimensionless,
+                            'pl': 0.8 * ureg.dimensionless,
+                            'pi': 0.41 * ureg.dimensionless}
+        super()._add_vel_units()
+        self.q_names = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.q_field = "q"
+        self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
+        self.p_field = "p"
+        self.z_field = "z"
+        self.T_field = "t"
+        self.height_dim = "hgt"
+        self.time_dim = "dom_col"
+        self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat',
+                                'pl': 'conv_dat', 'pi': 'conv_dat'}
+        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                                 'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
+        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                          'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
+        self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.ds = read_netcdf(file_path)
+
+        for variable in self.ds.variables.keys():
+            my_attrs = self.ds[variable].attrs
+            self.ds[variable] = self.ds[variable].astype('float64')
+            self.ds[variable].attrs = my_attrs
+        # es.keys():
+
+        # Check to make sure we are loading a single column
+        if 'lat' in [x for x in self.ds.dims.keys()]:
+            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
+                self.ds.close()
+                raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
+
+            # No need for lat and lon dimensions
+            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+
+        # crop specific model output time range (if requested)
+        if time_range is not None:
+            super()._crop_time_range(time_range)
+
+        self.model_name = "DHARMA"
+
+
 class TestModel(Model):
     """
     This is a test Model structure used only for unit testing. It is not recommended for end users.

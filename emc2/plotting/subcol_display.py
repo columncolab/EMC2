@@ -5,6 +5,7 @@ import matplotlib.colors as colors
 from act.plotting import Display
 from datetime import datetime
 
+
 class SubcolumnDisplay(Display):
     """
     This class contains modules for displaying the generated subcolumn parameters as quicklook

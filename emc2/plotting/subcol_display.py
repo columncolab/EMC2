@@ -4,6 +4,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 
 from act.plotting import Display
+from datetime import datetime
 
 
 class SubcolumnDisplay(Display):
@@ -213,11 +214,11 @@ class SubcolumnDisplay(Display):
             cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
 
         if pressure_coords:
-            x = my_ds[x_variable].values
+            x = my_ds[x_variable].values.astype(datetime)
             y = my_ds[y_variable].values
             x, y = np.meshgrid(x, y)
         else:
-            x = my_ds[x_variable].values
+            x = my_ds[x_variable].values.astype(datetime)
             y = my_ds[y_variable].values.T
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
@@ -315,7 +316,7 @@ class SubcolumnDisplay(Display):
         if cbar_label is None:
             cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
 
-        x = my_ds[x_variable].values
+        x = my_ds[x_variable].values.astype(datetime)
         y = my_ds[y_variable].values
         x, y = np.meshgrid(x, y)
         var_array = my_ds[variable].values.T

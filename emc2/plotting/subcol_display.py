@@ -253,7 +253,7 @@ class SubcolumnDisplay(Display):
         if cbar_label is None:
             cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
 
-        x = my_ds[x_variable].values
+        x = my_ds[x_variable].values.astype(datetime)
         y = my_ds[y_variable].values
         x, y = np.meshgrid(x, y)
         var_array = my_ds[variable].values.T

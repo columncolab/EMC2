@@ -25,18 +25,20 @@ def calc_total_reflectivity(model):
         The xarray Dataset containing the calculated radar moments.
     """
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
-                10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
+                      10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
-                10**(model.ds["sub_col_Ze_tot_conv"].values / 10.), np.where(Ze_tot > 0, Ze_tot, np.nan))
+                      10**(model.ds["sub_col_Ze_tot_conv"].values / 10.),
+                      np.where(Ze_tot > 0, Ze_tot, np.nan))
 
     model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
     model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
-                "Total (convective + stratiform) equivalent radar reflectivity factor"
+        "Total (convective + stratiform) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
-    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot * \
-                model.ds['hyd_ext_conv'] * model.ds['hyd_ext_strat'] * model.ds['atm_ext'])
+    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                   model.ds['hyd_ext_conv'] * model.ds['hyd_ext_strat'] *
+                                                   model.ds['atm_ext'])
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
-                "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
+        "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"
     return model
 
@@ -139,7 +141,6 @@ def calc_radar_moments(instrument, model, is_conv,
     column_ds = model.ds
 
     if is_conv:
-        q_names = model.q_names_convective
         for hyd_type in hyd_types:
             Ze_emp = calc_radar_reflectivity_conv(instrument, model, hyd_type)
 
@@ -170,8 +171,8 @@ def calc_radar_moments(instrument, model, is_conv,
         else:
             dz = np.diff(column_ds[z_field].values / 1e3, axis=1, append=0.)
             WC_new[:, :, :-1] = WC[:, :, 1:]
-            liq_ext = np.flip(np.cumsum(np.flip(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) * \
-                            WC_new, axis=2), axis=2), axis=2)
+            liq_ext = np.flip(np.cumsum(np.flip(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) *
+                              WC_new, axis=2), axis=2), axis=2)
             atm_ext = np.flip(np.cumsum(np.flip(kappa_ds.ds["kappa_att"].values * dz, axis=1), axis=1), axis=1)
 
         if len(liq_ext.shape) == 1:
@@ -377,8 +378,8 @@ def calc_radar_moments(instrument, model, is_conv,
         atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1)
     else:
         dz = np.diff(column_ds[z_field].values, axis=1, append=0.)
-        od_tot = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) * \
-                        od_tot, axis=2), axis=2), axis=2)
+        od_tot = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) *
+                         od_tot, axis=2), axis=2), axis=2)
         atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1), axis=1), axis=1)
 
     column_ds['hyd_ext_strat'] = xr.DataArray(np.exp(-2 * od_tot), dims=kappa_ds.ds["sub_col_Ze_tot_strat"].dims)

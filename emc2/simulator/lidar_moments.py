@@ -34,7 +34,6 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
         The model with the added simulated lidar parameters.
     """
 
-
     model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"] + model.ds["sub_col_beta_p_tot_strat"]
     model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"] + model.ds["sub_col_alpha_p_tot_strat"]
     model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"] + model.ds["sub_col_OD_tot_strat"]
@@ -96,16 +95,18 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
             beta_p_key = "sub_col_beta_p_%s_%s" % (hyd_type, cloud_class)
             numerator += model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type].magnitude
             denominator += model.ds[beta_p_key]
-
-        model.ds["sub_col_LDR_%s" % cloud_class] = numerator / denominator
-        model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = "Linear depolarization ratio in %s" % cloud_class
+        denominator_no_zeros = np.where(denominator == 0, 1, denominator)
+        model.ds["sub_col_LDR_%s" % cloud_class] = numerator / denominator_no_zeros
+        model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = \
+            "Linear depolarization ratio in %s" % cloud_class
         model.ds["sub_col_LDR_%s" % cloud_class].attrs["units"] = "1"
         numerator_tot += numerator
         denominator_tot += denominator
+
+    denominator_tot = np.where(denominator_tot == 0, 1, denominator_tot)
     model.ds["sub_col_LDR_tot"] = numerator_tot / denominator_tot
     model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
     model.ds["sub_col_LDR_tot"].attrs["units"] = "1"
-
 
     OD_cum_p_tot = model.ds["sub_col_OD_tot_strat"].values + model.ds["sub_col_OD_tot_conv"].values
     OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0.)

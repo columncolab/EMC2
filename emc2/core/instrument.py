@@ -29,8 +29,20 @@ class Instrument(object):
         The frequency of the instrument.
     wavelength: float
         The wavelength of the instrument
+    beta_p_phase_thresh: list of dicts or None
+        If a list, each index contains a dictionaly with class name, class integer
+        value (mask order), LDR value bounds, and the corresponding beta_p threshold
+        (thresholds are linearly interpolated between LDR values). In order for the
+        method to operate properly, the list should be arranged from the lowest to
+        highest beta_p threshold values for a given LDR, that is,
+        beta_p[i+1 | LDR=x] >= beta_p[i | LDR=x].
     ext_OD: float
         The optical depth where we have full extinction of the lidar signal.
+    OD_from_sfc: Bool
+        If True (default), optical depth will be calculated from the surface. If False,
+        optical depth will be calculated from the top of the atmosphere.
+    eta: float
+        Multiple scattering coefficient.
     K_w: float
         The index of refraction of water used for Ze calculation.
         See the ARM KAZR handbook (Widener et al. 2012)
@@ -59,7 +71,10 @@ class Instrument(object):
         self.instrument_class = ""
         self.freq = np.nan
         self.wavelength = np.nan
+        self.beta_p_phase_thresh = []
         self.ext_OD = np.nan
+        self.OD_from_sfc = True
+        self.eta = np.nan
         self.K_w = np.nan
         self.eps_liq = np.nan
         self.location_code = ""

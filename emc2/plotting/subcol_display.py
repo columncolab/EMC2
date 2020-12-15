@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.cm as cm
 
 from act.plotting import Display
 from datetime import datetime
@@ -94,20 +95,77 @@ class SubcolumnDisplay(Display):
         """
         self.axes[subplot_index].set_xlim(x_range)
 
-    def plot_subcolumn_timeseries(self, variable,
-                                  column_no, pressure_coords=True, title=None,
+    def change_plot_to_class_mask(self, cbar, class_legend=None, variable=None, cbar_label="",
+                                  cmap=None, convert_zeros_to_nan=False, **kwargs):
+        """
+        Updates the colorbar to show phase classification.
+
+        Parameters
+        ----------
+        cbar: Matplotlib axes handle
+            colorbar handle.
+        class_legend: list
+            Class type strings in order corresponding to mask integer values.
+            If None, using the "legend" attributes from the mask variable.
+        variable: str
+            The classification mask variable to use assuming it has a "legend" attribute
+            Raises an error when both variable and class_legend are both None.
+        cbar_label: str
+            The colorbar label. Empty string by default.
+        cmap: ListedColormap object
+            colormap to use in the colorbar. If None, using tab20c(N), where N is the number of
+            classes.
+        convert_zeros_to_nan: bool
+            If True, assuming that the plotted classification mask has all the zeros converted
+            to nans, i.e., 'convert_zeros_to_nan' was True when the classification method was called.
+
+        Returns
+        -------
+        cbar: Matplotlib axes handle
+            The matplotlib colorbar handle of the plot.
+        """
+        if np.logical_and(class_legend is None, variable is None):
+            raise ValueError("both the class_legend and the mask variable are None")
+
+        if class_legend is None:
+            class_legend = self.model.ds[variable].attrs["legend"]
+        l_legend = len(class_legend)
+        if cmap is None:
+            if convert_zeros_to_nan:
+                cmap = cm.get_cmap("tab20c", lut=l_legend)
+            else:
+                cmap = cm.get_cmap("tab20c", lut=l_legend + 1)
+
+        if convert_zeros_to_nan:
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend + 0.5)
+        else:
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=-0.5, vmax=l_legend + 0.5)
+        cm.ScalarMappable.set_cmap(cbar.mappable, cmap=cmap)
+        cbar.set_ticks([x for x in np.arange(1, l_legend + 1)])
+        if convert_zeros_to_nan:
+            cbar.set_ticks([x for x in np.arange(1, l_legend + 1)])
+            cbar.set_ticklabels(class_legend)
+        else:
+            cbar.set_ticks([x for x in np.arange(0, l_legend + 1)])
+            cbar.set_ticklabels(["clear"] + class_legend)
+        cbar.set_label(cbar_label)
+
+        return cbar
+
+    def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
                                   **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+        In the case of a 2D (time x height) field, plotting a time-height curtain.
 
         Parameters
         ----------
         variable: str
             The subcolumn variable to plot.
         column_no: int
-            The subcolumn number to plot.
+            The subcolumn number to plot. By default, using the first subcolumn.
         pressure_coords: bool
             Set to true to plot in pressure coordinates, false to height coordinates.
         title: str or None
@@ -136,7 +194,10 @@ class SubcolumnDisplay(Display):
             The matplotlib colorbar handle of the plot.
         """
         ds_name = [x for x in self._arm.keys()][0]
-        my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+        if len(self.model.ds[variable].dims) == 3:
+            my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+        else:
+            my_ds = self._arm[ds_name]
         x_variable = self.model.time_dim
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -195,7 +256,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
-        return self.axes[subplot_index], cbar
+            return self.axes[subplot_index], cbar
+
+        return self.axes[subplot_index]
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,
@@ -286,7 +349,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
-        return self.axes[subplot_index], cbar
+            return self.axes[subplot_index], cbar
+
+        return self.axes[subplot_index]
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
@@ -412,8 +477,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
+            return self.axes[subplot_index], cbar
 
-        return self.axes[subplot_index], cbar
+        return self.axes[subplot_index]
 
     def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
                                     subplot_index=(0,), log_plot=False, plot_SD=True, Xlabel=None,

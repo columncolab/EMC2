@@ -11,6 +11,9 @@
 ./API/generated/emc2.simulator.attenuation.calc_radar_Ze_min.html
 ./API/generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html
 ./API/generated/emc2.simulator.attenuation.calc_theory_beta_m.html
+./API/generated/emc2.simulator.classification.lidar_classify_phase.html
+./API/generated/emc2.simulator.classification.lidar_emulate_cosp_phase.html
+./API/generated/emc2.simulator.classification.radar_classify_phase.html
 ./API/generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.html
 ./API/generated/emc2.simulator.lidar_moments.calc_lidar_moments.html
 ./API/generated/emc2.simulator.main.make_simulated_data.html
@@ -40,6 +43,7 @@
 ./_modules/emc2/io/load_obs.html
 ./_modules/emc2/plotting/subcol_display.html
 ./_modules/emc2/simulator/attenuation.html
+./_modules/emc2/simulator/classification.html
 ./_modules/emc2/simulator/lidar_moments.html
 ./_modules/emc2/simulator/main.html
 ./_modules/emc2/simulator/psd.html
@@ -59,6 +63,9 @@
 ./_sources/API/generated/emc2.simulator.attenuation.calc_radar_Ze_min.rst.txt
 ./_sources/API/generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.rst.txt
 ./_sources/API/generated/emc2.simulator.attenuation.calc_theory_beta_m.rst.txt
+./_sources/API/generated/emc2.simulator.classification.lidar_classify_phase.rst.txt
+./_sources/API/generated/emc2.simulator.classification.lidar_emulate_cosp_phase.rst.txt
+./_sources/API/generated/emc2.simulator.classification.radar_classify_phase.rst.txt
 ./_sources/API/generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.rst.txt
 ./_sources/API/generated/emc2.simulator.lidar_moments.calc_lidar_moments.rst.txt
 ./_sources/API/generated/emc2.simulator.main.make_simulated_data.rst.txt

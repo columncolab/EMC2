@@ -228,6 +228,40 @@ $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subp
 </dd>
 </dl>
 <dl class="py method">
+<dt id="emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask">
+<code class="sig-name descname">change_plot_to_class_mask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cbar</span></em>, <em class="sig-param"><span class="n">class_legend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">variable</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cbar_label</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">cmap</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.change_plot_to_class_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the colorbar to show phase classification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cbar: Matplotlib axes handle</strong></dt><dd><p>colorbar handle.</p>
+</dd>
+<dt><strong>class_legend: list</strong></dt><dd><p>Class type strings in order corresponding to mask integer values.
+If None, using the “legend” attributes from the mask variable.</p>
+</dd>
+<dt><strong>variable: str</strong></dt><dd><p>The classification mask variable to use assuming it has a “legend” attribute
+Raises an error when both variable and class_legend are both None.</p>
+</dd>
+<dt><strong>cbar_label: str</strong></dt><dd><p>The colorbar label. Empty string by default.</p>
+</dd>
+<dt><strong>cmap: ListedColormap object</strong></dt><dd><p>colormap to use in the colorbar. If None, using tab20c(N), where N is the number of
+classes.</p>
+</dd>
+<dt><strong>convert_zeros_to_nan: bool</strong></dt><dd><p>If True, assuming that the plotted classification mask has all the zeros converted
+to nans, i.e., ‘convert_zeros_to_nan’ was True when the classification method was called.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile">
 <code class="sig-name descname">plot_instrument_mean_profile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">variable</span></em>, <em class="sig-param"><span class="n">time_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pressure_coords</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subplot_index</span><span class="o">=</span><span class="default_value">(0)</span></em>, <em class="sig-param"><span class="n">log_plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot_SD</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">Xlabel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Mask_array</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_instrument_mean_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function will plot a mean vertical profile of an instrument variable averaged over a given
@@ -402,14 +436,15 @@ mean and SD calculations.</p>
 
 <dl class="py method">
 <dt id="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">
-<code class="sig-name descname">plot_subcolumn_timeseries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">variable</span></em>, <em class="sig-param"><span class="n">column_no</span></em>, <em class="sig-param"><span class="n">pressure_coords</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subplot_index</span><span class="o">=</span><span class="default_value">(0)</span></em>, <em class="sig-param"><span class="n">colorbar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">cbar_label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">Mask_array</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_subcolumn_timeseries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.</p>
+<code class="sig-name descname">plot_subcolumn_timeseries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">variable</span></em>, <em class="sig-param"><span class="n">column_no</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">pressure_coords</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subplot_index</span><span class="o">=</span><span class="default_value">(0)</span></em>, <em class="sig-param"><span class="n">colorbar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">cbar_label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_plot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">Mask_array</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_subcolumn_timeseries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+In the case of a 2D (time x height) field, plotting a time-height curtain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>variable: str</strong></dt><dd><p>The subcolumn variable to plot.</p>
 </dd>
-<dt><strong>column_no: int</strong></dt><dd><p>The subcolumn number to plot.</p>
+<dt><strong>column_no: int</strong></dt><dd><p>The subcolumn number to plot. By default, using the first subcolumn.</p>
 </dd>
 <dt><strong>pressure_coords: bool</strong></dt><dd><p>Set to true to plot in pressure coordinates, false to height coordinates.</p>
 </dd>

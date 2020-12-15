@@ -199,7 +199,19 @@ simulator.</p>
 </dd>
 <dt><strong>wavelength: float</strong></dt><dd><p>The wavelength of the instrument</p>
 </dd>
+<dt><strong>beta_p_phase_thresh: list of dicts or None</strong></dt><dd><p>If a list, each index contains a dictionaly with class name, class integer
+value (mask order), LDR value bounds, and the corresponding beta_p threshold
+(thresholds are linearly interpolated between LDR values). In order for the
+method to operate properly, the list should be arranged from the lowest to
+highest beta_p threshold values for a given LDR, that is,
+beta_p[i+1 | LDR=x] &gt;= beta_p[i | LDR=x].</p>
+</dd>
 <dt><strong>ext_OD: float</strong></dt><dd><p>The optical depth where we have full extinction of the lidar signal.</p>
+</dd>
+<dt><strong>OD_from_sfc: Bool</strong></dt><dd><p>If True (default), optical depth will be calculated from the surface. If False,
+optical depth will be calculated from the top of the atmosphere.</p>
+</dd>
+<dt><strong>eta: float</strong></dt><dd><p>Multiple scattering coefficient.</p>
 </dd>
 <dt><strong>K_w: float</strong></dt><dd><p>The index of refraction of water used for Ze calculation.
 See the ARM KAZR handbook (Widener et al. 2012)</p>

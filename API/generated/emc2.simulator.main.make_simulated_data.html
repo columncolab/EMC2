@@ -100,6 +100,9 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_Ze_min.html">emc2.simulator.attenuation.calc_radar_Ze_min</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
@@ -212,8 +215,8 @@
 <h1>emc2.simulator.main.make_simulated_data<a class="headerlink" href="#emc2-simulator-main-make-simulated-data" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.main.make_simulated_data">
-<code class="sig-prename descclassname">emc2.simulator.main.</code><code class="sig-name descname">make_simulated_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">N_columns</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/main.html#make_simulated_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.main.make_simulated_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>This procedure will make all of the subcolumns and simulated data for each subcolumn.</p>
+<code class="sig-prename descclassname">emc2.simulator.main.</code><code class="sig-name descname">make_simulated_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">N_columns</span></em>, <em class="sig-param"><span class="n">do_classify</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/main.html#make_simulated_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.main.make_simulated_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This procedure will make all of the subcolumns and simulated data for each model column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -222,6 +225,8 @@
 <dt><strong>instrument: :func:`emc2.core.Instrument`</strong></dt><dd><p>The instrument to make the simulated parameters for.</p>
 </dd>
 <dt><strong>N_columns: int</strong></dt><dd><p>The number of subcolumns to generate.</p>
+</dd>
+<dt><strong>do_classify: bool</strong></dt><dd><p>run hydrometeor classification routines when True.</p>
 </dd>
 <dt><strong>Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or</strong></dt><dd></dd>
 <dt><strong>:func:`emc2.simulator.calc_radar_moments`</strong></dt><dd></dd>

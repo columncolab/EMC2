@@ -100,6 +100,9 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_Ze_min.html">emc2.simulator.attenuation.calc_radar_Ze_min</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
@@ -213,8 +216,10 @@
 <dl class="py function">
 <dt id="emc2.simulator.radar_moments.calc_radar_reflectivity_conv">
 <code class="sig-prename descclassname">emc2.simulator.radar_moments.</code><code class="sig-name descname">calc_radar_reflectivity_conv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">instrument</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">hyd_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_reflectivity_conv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_reflectivity_conv" title="Permalink to this definition">¶</a></dt>
-<dd><p>This estimates the radar reflectivity given a profile of liquid water mixing ratio.
-Convective DSDs are assumed.</p>
+<dd><dl class="simple">
+<dt>This estimates the radar reflectivity using empirical Ze-q_hyd relationships, where</dt><dd><p>q_hyd denotes a hydrometeor class mixing ratio(convective DSDs are assumed).</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -230,7 +235,7 @@ Convective DSDs are assumed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>model: <a class="reference internal" href="../core.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.core.Model()</span></code></a></dt><dd><p>Returns a Model with an added reflectivity field.</p>
+<dt>Ze_emp: ndarray</dt><dd><p>Array containing the calculated empirical fit Ze-values.</p>
 </dd>
 </dl>
 </dd>

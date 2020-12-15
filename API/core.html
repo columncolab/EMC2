@@ -211,13 +211,13 @@ constants used by EMC^2 are also stored in this module.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR" title="emc2.core.instruments.KAZR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.KAZR</span></code></a>(site)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR" title="emc2.core.instruments.KAZR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.KAZR</span></code></a>(site, *args)</p></td>
 <td><p>This stores the information for the KAZR (Ka-band radar).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL" title="emc2.core.instruments.HSRL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.HSRL</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL" title="emc2.core.instruments.HSRL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.HSRL</span></code></a>(*args)</p></td>
 <td><p>This stores the information for 532 nm lidars ,e.g., the High Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm" title="emc2.core.instruments.Ten64nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.Ten64nm</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm" title="emc2.core.instruments.Ten64nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.Ten64nm</span></code></a>(*args)</p></td>
 <td><p>This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE" title="emc2.core.model.ModelE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.ModelE</span></code></a>(file_path[, time_range])</p></td>
@@ -349,7 +349,19 @@ simulator.</p>
 </dd>
 <dt><strong>wavelength: float</strong></dt><dd><p>The wavelength of the instrument</p>
 </dd>
+<dt><strong>beta_p_phase_thresh: list of dicts or None</strong></dt><dd><p>If a list, each index contains a dictionaly with class name, class integer
+value (mask order), LDR value bounds, and the corresponding beta_p threshold
+(thresholds are linearly interpolated between LDR values). In order for the
+method to operate properly, the list should be arranged from the lowest to
+highest beta_p threshold values for a given LDR, that is,
+beta_p[i+1 | LDR=x] &gt;= beta_p[i | LDR=x].</p>
+</dd>
 <dt><strong>ext_OD: float</strong></dt><dd><p>The optical depth where we have full extinction of the lidar signal.</p>
+</dd>
+<dt><strong>OD_from_sfc: Bool</strong></dt><dd><p>If True (default), optical depth will be calculated from the surface. If False,
+optical depth will be calculated from the top of the atmosphere.</p>
+</dd>
+<dt><strong>eta: float</strong></dt><dd><p>Multiple scattering coefficient.</p>
 </dd>
 <dt><strong>K_w: float</strong></dt><dd><p>The index of refraction of water used for Ze calculation.
 See the ARM KAZR handbook (Widener et al. 2012)</p>

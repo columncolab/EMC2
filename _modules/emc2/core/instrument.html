@@ -187,8 +187,20 @@
 <span class="sd">        The frequency of the instrument.</span>
 <span class="sd">    wavelength: float</span>
 <span class="sd">        The wavelength of the instrument</span>
+<span class="sd">    beta_p_phase_thresh: list of dicts or None</span>
+<span class="sd">        If a list, each index contains a dictionaly with class name, class integer</span>
+<span class="sd">        value (mask order), LDR value bounds, and the corresponding beta_p threshold</span>
+<span class="sd">        (thresholds are linearly interpolated between LDR values). In order for the</span>
+<span class="sd">        method to operate properly, the list should be arranged from the lowest to</span>
+<span class="sd">        highest beta_p threshold values for a given LDR, that is,</span>
+<span class="sd">        beta_p[i+1 | LDR=x] &gt;= beta_p[i | LDR=x].</span>
 <span class="sd">    ext_OD: float</span>
 <span class="sd">        The optical depth where we have full extinction of the lidar signal.</span>
+<span class="sd">    OD_from_sfc: Bool</span>
+<span class="sd">        If True (default), optical depth will be calculated from the surface. If False,</span>
+<span class="sd">        optical depth will be calculated from the top of the atmosphere.</span>
+<span class="sd">    eta: float</span>
+<span class="sd">        Multiple scattering coefficient.</span>
 <span class="sd">    K_w: float</span>
 <span class="sd">        The index of refraction of water used for Ze calculation.</span>
 <span class="sd">        See the ARM KAZR handbook (Widener et al. 2012)</span>
@@ -217,7 +229,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta_p_phase_thresh</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">location_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>

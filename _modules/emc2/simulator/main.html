@@ -158,14 +158,15 @@
   <h1>Source code for emc2.simulator.main</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_convective_sub_col_frac</span><span class="p">,</span> <span class="n">set_precip_sub_col_frac</span>
 <span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">,</span> <span class="n">set_q_n</span>
-<span class="kn">from</span> <span class="nn">.lidar_moments</span> <span class="kn">import</span> <span class="n">calc_lidar_moments</span><span class="p">,</span> <span class="n">calc_LDR_and_ext</span>
-<span class="kn">from</span> <span class="nn">.radar_moments</span> <span class="kn">import</span> <span class="n">calc_radar_moments</span>
+<span class="kn">from</span> <span class="nn">.lidar_moments</span> <span class="kn">import</span> <span class="n">calc_lidar_moments</span><span class="p">,</span> <span class="n">calc_LDR_and_ext</span><span class="p">,</span> <span class="n">calc_total_alpha_beta</span>
+<span class="kn">from</span> <span class="nn">.radar_moments</span> <span class="kn">import</span> <span class="n">calc_radar_moments</span><span class="p">,</span> <span class="n">calc_total_reflectivity</span>
 <span class="kn">from</span> <span class="nn">.attenuation</span> <span class="kn">import</span> <span class="n">calc_radar_Ze_min</span>
+<span class="kn">from</span> <span class="nn">.classification</span> <span class="kn">import</span> <span class="n">lidar_classify_phase</span><span class="p">,</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">,</span> <span class="n">radar_classify_phase</span>
 
 
-<div class="viewcode-block" id="make_simulated_data"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data">[docs]</a><span class="k">def</span> <span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="make_simulated_data"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data">[docs]</a><span class="k">def</span> <span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span> <span class="n">do_classify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This procedure will make all of the subcolumns and simulated data for each subcolumn.</span>
+<span class="sd">    This procedure will make all of the subcolumns and simulated data for each model column.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -175,6 +176,8 @@
 <span class="sd">        The instrument to make the simulated parameters for.</span>
 <span class="sd">    N_columns: int</span>
 <span class="sd">        The number of subcolumns to generate.</span>
+<span class="sd">    do_classify: bool</span>
+<span class="sd">        run hydrometeor classification routines when True.</span>
 
 <span class="sd">    Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or</span>
 <span class="sd">    :func:`emc2.simulator.calc_radar_moments`</span>
@@ -204,35 +207,71 @@
         <span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;OD_from_sfc&#39;</span><span class="p">]</span>
         <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;OD_from_sfc&#39;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">OD_from_sfc</span>
 
     <span class="k">if</span> <span class="s1">&#39;parallel&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">parallel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;parallel&#39;</span><span class="p">]</span>
         <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;parallel&#39;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">parallel</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="s1">&#39;chunk&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;chunk&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;chunk&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s1">&#39;convert_zeros_to_nan&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">convert_zeros_to_nan</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;convert_zeros_to_nan&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;convert_zeros_to_nan&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">convert_zeros_to_nan</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="s1">&#39;mask_height_rng&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">mask_height_rng</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mask_height_rng&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mask_height_rng&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mask_height_rng</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;radar&quot;</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating radar moments...&quot;</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;reg_rng&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">ref_rng</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ref_args&#39;</span><span class="p">]</span>
+            <span class="n">ref_rng</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ref_rng&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ref_rng&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ref_rng</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+                                   <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+                                   <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_total_reflectivity</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_Ze_min</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ref_rng</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">do_classify</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">radar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_height_rng</span><span class="o">=</span><span class="n">mask_height_rng</span><span class="p">,</span>
+                                         <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
+
     <span class="k">elif</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lidar&quot;</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating lidar moments...&quot;</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;ext_OD&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">ext_OD</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ext_OD&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ext_OD&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ext_OD</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">ext_OD</span>
-
+        <span class="k">if</span> <span class="s1">&#39;eta&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">eta</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eta&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eta&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eta</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">eta</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+                                   <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+                                   <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_total_alpha_beta</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_LDR_and_ext</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ext_OD</span><span class="o">=</span><span class="n">ext_OD</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">do_classify</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">lidar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+                                             <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Currently, only lidars and radars are supported as instruments.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model</span></div>

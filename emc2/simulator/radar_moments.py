@@ -9,10 +9,42 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg
 
 
+def calc_total_reflectivity(model):
+    """
+    This method calculates the total (convective + stratiform) reflectivity (Ze).
+
+    Parameters
+    ----------
+    model: :func:`emc2.core.Model` class
+        The model to calculate the parameters for.
+
+
+    Returns
+    -------
+    model: :func:`emc2.core.Model`
+        The xarray Dataset containing the calculated radar moments.
+    """
+    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
+                10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
+    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
+                10**(model.ds["sub_col_Ze_tot_conv"].values / 10.), np.where(Ze_tot > 0, Ze_tot, np.nan))
+
+    model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
+    model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
+                "Total (convective + stratiform) equivalent radar reflectivity factor"
+    model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
+    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot * \
+                model.ds['hyd_ext_conv'] * model.ds['hyd_ext_strat'] * model.ds['atm_ext'])
+    model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
+                "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
+    model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"
+    return model
+
+
 def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     """
-    This estimates the radar reflectivity given a profile of liquid water mixing ratio.
-    Convective DSDs are assumed.
+    This estimates the radar reflectivity using empirical Ze-q_hyd relationships, where
+        q_hyd denotes a hydrometeor class mixing ratio(convective DSDs are assumed).
 
     Parameters
     ----------
@@ -25,10 +57,11 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
         'cl' (cloud liquid), 'ci' (cloud ice),
         'pl' (liquid precipitation), 'pi' (ice precipitation).
 
+
     Returns
     -------
-    model: :func:`emc2.core.Model`
-        Returns a Model with an added reflectivity field.
+    Ze_emp: ndarray
+        Array containing the calculated empirical fit Ze-values.
     """
     if not instrument.instrument_class.lower() == "radar":
         raise ValueError("Reflectivity can only be derived from a radar!")
@@ -39,32 +72,27 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
     p_field = model.p_field
     t_field = model.T_field
 
-    column_ds = model.ds
-
-    WC = column_ds[q_field] * 1e3 * column_ds[p_field] * 1e2 / (instrument.R_d * column_ds[t_field])
+    WC = model.ds[q_field] * 1e3 * model.ds[p_field] * 1e2 / (instrument.R_d * model.ds[t_field])
     if hyd_type.lower() == "cl":
-        column_ds['Ze'] = 0.031 * WC ** 1.56
+        Ze_emp = 0.031 * WC ** 1.56
     elif hyd_type.lower() == "pl":
-        column_ds['Ze'] = ((WC * 1e3) / 3.4)**1.75
+        Ze_emp = ((WC * 1e3) / 3.4)**1.75
     else:
-        Tc = column_ds[t_field] - 273.15
+        Tc = model.ds[t_field] - 273.15
         if instrument.freq >= 2e9 and instrument.freq < 4e9:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.0197 * Tc + 1.7) / 0.060) / 10.)
+            Ze_emp = 10**(((np.log10(WC) + 0.0197 * Tc + 1.7) / 0.060) / 10.)
         elif instrument.freq >= 27e9 and instrument.freq < 40e9:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.699)) / 10.)
+            Ze_emp = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.699)) / 10.)
         elif instrument.freq >= 75e9 and instrument.freq < 110e9:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) / 10.)
+            Ze_emp = 10**(((np.log10(WC) + 0.00706 * Tc + 0.992) / (0.000580 * Tc + 0.0923)) / 10.)
         else:
-            column_ds['Ze'] = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.0699)) / 10.)
-    column_ds['Ze'] = 10 * np.log10(column_ds["Ze"])
-    column_ds['Ze'].attrs["long_name"] = "Radar reflectivity factor"
-    column_ds['Ze'].attrs["units"] = "dBZ"
-    model.ds = column_ds
-    return model
+            Ze_emp = 10**(((np.log10(WC) + 0.0186 * Tc + 1.63) / (0.000242 * Tc + 0.0699)) / 10.)
+    Ze_emp = 10 * np.log10(Ze_emp.values)
+    return Ze_emp
 
 
 def calc_radar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, **kwargs):
+                       OD_from_sfc=True, parallel=True, chunk=None, **kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
@@ -83,6 +111,10 @@ def calc_radar_moments(instrument, model, is_conv,
         If True, then calculate optical depth from the surface.
     parallel: bool
         If True, then use parallelism to calculate each column quantity.
+    chunk: None or int
+        If using parallel processing, only send this number of time periods to the
+        parallel loop at one time. Sometimes Dask will crash if there are too many
+        tasks in the queue, so setting this value will help avoid that.
     Additional keyword arguments are passed into
     :func:`emc2.simulator.reflectivity.calc_radar_reflectivity_conv` and
     :func:`emc2.simulator.attenuation.calc_radar_atm_attenuation`.
@@ -109,10 +141,11 @@ def calc_radar_moments(instrument, model, is_conv,
     if is_conv:
         q_names = model.q_names_convective
         for hyd_type in hyd_types:
-            temp_ds = calc_radar_reflectivity_conv(instrument, model, hyd_type)
+            Ze_emp = calc_radar_reflectivity_conv(instrument, model, hyd_type)
 
             var_name = "sub_col_Ze_%s_conv" % hyd_type
-            column_ds[var_name] = temp_ds.ds["Ze"]
+            column_ds[var_name] = xr.DataArray(
+                Ze_emp, dims=column_ds.conv_q_subcolumns_cl.dims)
             if "sub_col_Ze_tot_conv" in column_ds.variables.keys():
                 column_ds["sub_col_Ze_tot_conv"] += 10**(column_ds[var_name] / 10)
             else:
@@ -125,31 +158,35 @@ def calc_radar_moments(instrument, model, is_conv,
 
         kappa_ds = calc_radar_atm_attenuation(instrument, model)
         kappa_f = 6 * np.pi / instrument.wavelength * 1e-6 * model.Rho_hyd["cl"].magnitude
-        WC = column_ds[q_names["cl"]] + column_ds[q_names["pl"]] * 1e3 * \
+        WC = column_ds["conv_q_subcolumns_cl"] + column_ds["conv_q_subcolumns_pl"] * 1e3 * \
             column_ds[p_field] / (instrument.R_d * column_ds[t_field])
-        dz = np.diff(column_ds[z_field].values, axis=0,
-                     prepend=0.)
 
+        WC_new = np.zeros_like(WC)
         if OD_from_sfc:
-            WC_new = np.zeros_like(WC)
-            WC_new[:, 1:] = WC[:, :-1]
-            liq_ext = np.cumsum(kappa_f * dz * WC_new, axis=1)
+            dz = np.diff(column_ds[z_field].values / 1e3, axis=1, prepend=0.)
+            WC_new[:, :, 1:] = WC[:, :, :-1]
+            liq_ext = np.cumsum(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) * WC_new, axis=2)
             atm_ext = np.cumsum(kappa_ds.ds["kappa_att"].values * dz, axis=1)
         else:
-            WC_new = np.zeros_like(WC)
-            WC_new[:, 1:] = WC[:, :-1]
-            liq_ext = np.flip(np.cumsum(kappa_f * dz * WC_new), axis=1)
-            atm_ext = np.flip(np.cumsum(kappa_ds.ds["kappa_att"].values * dz), axis=1)
+            dz = np.diff(column_ds[z_field].values / 1e3, axis=1, append=0.)
+            WC_new[:, :, :-1] = WC[:, :, 1:]
+            liq_ext = np.flip(np.cumsum(np.flip(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) * \
+                            WC_new, axis=2), axis=2), axis=2)
+            atm_ext = np.flip(np.cumsum(np.flip(kappa_ds.ds["kappa_att"].values * dz, axis=1), axis=1), axis=1)
 
         if len(liq_ext.shape) == 1:
             liq_ext = liq_ext[:, np.newaxis]
         if len(atm_ext.shape) == 1:
             atm_ext = atm_ext[:, np.newaxis]
-        liq_ext = xr.DataArray(liq_ext, dims=(model.time_dim, model.height_dim))
-        atm_ext = xr.DataArray(atm_ext, dims=(model.time_dim, model.height_dim))
 
-        column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"] / \
-            10**(2 * liq_ext / 10.) / 10**(2 * atm_ext / 10.)
+        column_ds['hyd_ext_conv'] = xr.DataArray(10**(-2 * liq_ext / 10.), dims=WC.dims)
+        column_ds['hyd_ext_conv'].attrs["long_name"] = "Two-way convective hydrometeor transmittance"
+        column_ds['hyd_ext_conv'].attrs["units"] = "1"
+        column_ds['atm_ext'] = xr.DataArray(10**(-2 * atm_ext / 10), dims=kappa_ds.ds["kappa_att"].dims)
+        column_ds['atm_ext'].attrs["long_name"] = "Two-way atmospheric transmittance due to H2O and O2"
+        column_ds['atm_ext'].attrs["units"] = "1"
+        column_ds["sub_col_Ze_att_tot_conv"] = column_ds["sub_col_Ze_tot_conv"] * \
+            column_ds['hyd_ext_conv'] * column_ds['atm_ext']
         column_ds["sub_col_Ze_tot_conv"] = column_ds["sub_col_Ze_tot_conv"].where(
             column_ds["sub_col_Ze_tot_conv"] != 0)
         column_ds["sub_col_Ze_att_tot_conv"].attrs["long_name"] = \
@@ -186,7 +223,7 @@ def calc_radar_moments(instrument, model, is_conv,
             instrument.mie_table[hyd_type]["p_diam"].values[0]
         fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         N_columns = len(model.ds["subcolumn"])
-        total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
+        total_hydrometeor = model.ds[frac_names] * column_ds[model.N_field[hyd_type]]
         p_diam = instrument.mie_table[hyd_type]["p_diam"].values
         alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
         beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -203,8 +240,21 @@ def calc_radar_moments(instrument, model, is_conv,
                 alpha_p, beta_p, v_tmp, num_subcolumns, instrument, dD, p_diam)
             if parallel:
                 print("Doing parallel calculation for %s" % hyd_type)
-                tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
-                my_tuple = tt_bag.map(_calc_liquid).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    my_tuple = tt_bag.map(_calc_liquid).compute()
+                else:
+                    my_tuple = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        print(" Processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        my_tuple += tt_bag.map(_calc_liquid).compute()
+                        j += chunk
             else:
                 my_tuple = [x for x in map(_calc_liquid, np.arange(0, Dims[1], 1))]
 
@@ -222,7 +272,21 @@ def calc_radar_moments(instrument, model, is_conv,
                 x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, dD)
             if parallel:
                 print("Doing parallel calculation for %s" % hyd_type)
-                my_tuple = tt_bag.map(_calc_other).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    my_tuple = tt_bag.map(_calc_other).compute()
+                else:
+                    my_tuple = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        print(" Processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        my_tuple += tt_bag.map(_calc_other).compute()
+                        j += chunk
             else:
                 my_tuple = [x for x in map(_calc_other, np.arange(0, Dims[1], 1))]
 
@@ -262,7 +326,21 @@ def calc_radar_moments(instrument, model, is_conv,
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
                 x, fits_ds, instrument, model, total_hydrometeor, dD, Vd_tot)
             if parallel:
-                sigma_d_numer = tt_bag.map(_calc_sigma_d_liq).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    sigma_d_numer = tt_bag.map(_calc_sigma_d_liq).compute()
+                else:
+                    sigma_d_numer = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        print(" Processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        sigma_d_numer += tt_bag.map(_calc_sigma_d_liq).compute()
+                        j += chunk
             else:
                 sigma_d_numer = [x for x in map(_calc_sigma_d_liq, np.arange(0, Dims[1], 1))]
 
@@ -272,7 +350,21 @@ def calc_radar_moments(instrument, model, is_conv,
             _calc_sigma = lambda x: _calc_sigma_d_tot(
                 x, model, p_diam, v_tmp, fits_ds, total_hydrometeor, Vd_tot, sub_q_array, dD, beta_p)
             if parallel:
-                sigma_d_numer = tt_bag.map(_calc_sigma).compute()
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                    sigma_d_numer = tt_bag.map(_calc_sigma).compute()
+                else:
+                    sigma_d_numer = []
+                    j = 0
+                    while j < Dims[1]:
+                        if j + chunk >= Dims[1]:
+                            ind_max = Dims[1]
+                        else:
+                            ind_max = j + chunk
+                        print(" Processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        sigma_d_numer += tt_bag.map(_calc_sigma).compute()
+                        j += chunk
             else:
                 sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
             sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
@@ -282,18 +374,24 @@ def calc_radar_moments(instrument, model, is_conv,
     kappa_ds = calc_radar_atm_attenuation(instrument, model)
 
     if OD_from_sfc:
-        dz = np.diff(column_ds[z_field].values, axis=1, prepend=0)
-        dz = np.tile(dz, (Dims[0], 1, 1))
-        od_tot = np.cumsum(dz * od_tot, axis=1)
-        atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=2)
+        dz = np.diff(column_ds[z_field].values, axis=1, prepend=0.)
+        od_tot = np.cumsum(np.tile(dz, (model.num_subcolumns, 1, 1)) * od_tot, axis=2)
+        atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1)
     else:
-        dz = np.diff(column_ds[z_field].values, prepend=0)
-        dz = np.tile(dz, (Dims[0], 1, 1))
-        od_tot = np.flip(np.cumsum(np.flip(dz * od_tot, axis=1), axis=1), axis=2)
-        atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1), axis=1), axis=2)
+        dz = np.diff(column_ds[z_field].values, axis=1, append=0.)
+        od_tot = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) * \
+                        od_tot, axis=2), axis=2), axis=2)
+        atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1), axis=1), axis=1)
+
+    column_ds['hyd_ext_strat'] = xr.DataArray(np.exp(-2 * od_tot), dims=kappa_ds.ds["sub_col_Ze_tot_strat"].dims)
+    column_ds['hyd_ext_strat'].attrs["long_name"] = "Two-way stratiform hydrometeor transmittance"
+    column_ds['hyd_ext_strat'].attrs["units"] = "1"
+    column_ds['atm_ext'] = xr.DataArray(10**(-2 * atm_ext / 10), dims=kappa_ds.ds["kappa_att"].dims)
+    column_ds['atm_ext'].attrs["long_name"] = "Two-way atmospheric transmittance due to H2O and O2"
+    column_ds['atm_ext'].attrs["units"] = "1"
 
     column_ds['sub_col_Ze_att_tot_strat'] = \
-        column_ds['sub_col_Ze_tot_strat'] * np.exp(-2 * od_tot) / 10**(2 * atm_ext / 10)
+        column_ds['sub_col_Ze_tot_strat'] * column_ds['hyd_ext_strat'] * column_ds['atm_ext']
     column_ds['sub_col_Ze_tot_strat'] = column_ds['sub_col_Ze_tot_strat'].where(
         column_ds['sub_col_Ze_tot_strat'] > 0)
     column_ds['sub_col_Ze_att_tot_strat'] = column_ds['sub_col_Ze_att_tot_strat'].where(
@@ -301,7 +399,7 @@ def calc_radar_moments(instrument, model, is_conv,
     column_ds['sub_col_Ze_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_tot_strat'])
     column_ds['sub_col_Ze_att_tot_strat'] = 10 * np.log10(column_ds['sub_col_Ze_att_tot_strat'])
     column_ds['sub_col_Ze_att_tot_strat'].attrs["long_name"] = \
-        "Radar reflectivity factor in stratiform clouds factoring in gaseous attenuation"
+        "Radar reflectivity factor in stratiform clouds factoring in gaseous and hydrometeor attenuation"
     column_ds['sub_col_Ze_att_tot_strat'].attrs["units"] = "dBZ"
     column_ds['sub_col_Ze_tot_strat'].attrs["long_name"] = \
         "Radar reflectivity factor in stratiform clouds"

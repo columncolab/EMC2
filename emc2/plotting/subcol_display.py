@@ -95,7 +95,7 @@ class SubcolumnDisplay(Display):
         self.axes[subplot_index].set_xlim(x_range)
 
     def change_plot_to_class_mask(self, cbar, class_legend=None, variable=None, cbar_label="",
-                                  cmap=None, **kwargs):
+                                  cmap=None, convert_zeros_to_nan=False, **kwargs):
         """
         Updates the colorbar to show phase classification.
 
@@ -114,6 +114,9 @@ class SubcolumnDisplay(Display):
         cmap: ListedColormap object
             colormap to use in the colorbar. If None, using tab20c(N), where N is the number of
             classes.
+        convert_zeros_to_nan: bool
+            If True, assuming that the plotted classification mask has all the zeros converted
+            to nans, i.e., 'convert_zeros_to_nan' was True when the classification method was called.
 
         Returns
         -------
@@ -127,30 +130,40 @@ class SubcolumnDisplay(Display):
             class_legend = self.model.ds[variable].attrs["legend"]
         l_legend = len(class_legend)
         if cmap is None:
-            cmap = cm.get_cmap("tab20c", lut=l_legend)
-
-        cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend+0.5)
+            if  convert_zeros_to_nan:
+                cmap = cm.get_cmap("tab20c", lut=l_legend)
+            else:
+                cmap = cm.get_cmap("tab20c", lut=l_legend+1)            
+        if convert_zeros_to_nan:
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend+0.5)
+        else:
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=-0.5, vmax=l_legend+0.5)
         cm.ScalarMappable.set_cmap(cbar.mappable, cmap=cmap)
         cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
-        cbar.set_ticklabels(class_legend)
+        if convert_zeros_to_nan:
+            cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
+            cbar.set_ticklabels(class_legend)
+        else:
+            cbar.set_ticks([x for x in np.arange(0, l_legend+1)])
+            cbar.set_ticklabels(["clear"] + class_legend)
         cbar.set_label(cbar_label)
 
-        cbar.set_label(cbar_label)
         return cbar
 
-    def plot_subcolumn_timeseries(self, column_no, pressure_coords=True, title=None,
+    def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
                                   **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+        In the case of a 2D (time x height) field, plotting a time-height curtain.
 
         Parameters
         ----------
         variable: str
             The subcolumn variable to plot.
         column_no: int
-            The subcolumn number to plot.
+            The subcolumn number to plot. By default, using the first subcolumn.
         pressure_coords: bool
             Set to true to plot in pressure coordinates, false to height coordinates.
         title: str or None
@@ -179,7 +192,10 @@ class SubcolumnDisplay(Display):
             The matplotlib colorbar handle of the plot.
         """
         ds_name = [x for x in self._arm.keys()][0]
-        my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+        if len(self.model.ds[variable].dims) == 3:
+            my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+        else:
+            my_ds = self._arm[ds_name]
         x_variable = self.model.time_dim
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -238,7 +254,9 @@ class SubcolumnDisplay(Display):
         if colorbar:
             cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
             cbar.set_label(cbar_label)
-        return self.axes[subplot_index], cbar
+            return self.axes[subplot_index], cbar
+
+        return self.axes[subplot_index]
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,

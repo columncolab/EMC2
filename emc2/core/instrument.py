@@ -102,6 +102,7 @@ class Instrument(object):
             self.wavelength = wavelength.to('micrometer').magnitude
 
         self.mie_table = {}
+        self.c6_table = {}
         self.ds = None
 
     def read_arm_netcdf_file(self, filename, **kwargs):

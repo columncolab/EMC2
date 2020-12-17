@@ -279,8 +279,6 @@ def calc_lidar_moments(instrument, model, is_conv,
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
             model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-            dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
-                instrument.mie_table[hyd_type]["p_diam"].values[0]
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             N_columns = len(model.ds["subcolumn"])
             total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
@@ -292,7 +290,7 @@ def calc_lidar_moments(instrument, model, is_conv,
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
             alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
             _calc_lidar = lambda x: _calc_strat_lidar_properties(
-                x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, dD,
+                x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, p_diam,
                 beta_p, alpha_p)
             if parallel:
                 if chunk is None:
@@ -367,7 +365,7 @@ def calc_lidar_moments(instrument, model, is_conv,
 
 
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,
-                                 hyd_type, num_subcolumns, dD, beta_p, alpha_p):
+                                 hyd_type, num_subcolumns, D, beta_p, alpha_p):
     Dims = total_hydrometeor.shape
     num_diam = len(p_diam)
     beta_p_strat = np.zeros((num_subcolumns, Dims[2]))
@@ -387,10 +385,8 @@ def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor
         N_D = np.stack(N_D, axis=0)
 
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
-        beta_p_strat[:, k] = (
-            Calc_tmp[:, ::num_diam - 1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+        beta_p_strat[:, k] = np.trapz(Calc_tmp, x=D, axis=1).astype('float64')
         Calc_tmp = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
-        alpha_p_strat[:, k] = (
-            Calc_tmp[:, ::num_diam - 1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+        alpha_p_strat[:, k] = np.trapz(Calc_tmp, x=D, axis=1).astype('float64')
 
     return beta_p_strat, alpha_p_strat

@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 from .instrument import Instrument, ureg, quantity
-from ..io import load_mie_file
+from ..io import load_mie_file, load_c6_file
 
 
 class KAZR(Instrument):
@@ -73,7 +73,8 @@ class KAZR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat")
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
-
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
 
 class WACR(Instrument):
     def __init__(self, site, *args):
@@ -124,6 +125,8 @@ class WACR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_WACR_8col_agg_rough_270K.dat", True)
 
 
 class RL(Instrument):
@@ -170,6 +173,8 @@ class RL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
 
 
 class HSRL(Instrument):
@@ -217,6 +222,8 @@ class HSRL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
 
 
 class CEIL(Instrument):
@@ -251,6 +258,8 @@ class CEIL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
 
 
 class Ten64nm(Instrument):
@@ -284,6 +293,8 @@ class Ten64nm(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
 
 
 class CALIOP(Instrument):
@@ -309,7 +320,7 @@ class CALIOP(Instrument):
                                      'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
         self.OD_from_sfc = False
-        self.eta = 1
+        self.eta = 0.7
         self.K_w = np.nan
         self.eps_liq = (1.337273 + 1.7570744e-9j) ** 2
         self.pt = np.nan
@@ -331,3 +342,6 @@ class CALIOP(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+

@@ -25,18 +25,20 @@ def calc_total_reflectivity(model):
         The xarray Dataset containing the calculated radar moments.
     """
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
-                10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
+                      10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
-                10**(model.ds["sub_col_Ze_tot_conv"].values / 10.), np.where(Ze_tot > 0, Ze_tot, np.nan))
+                      10**(model.ds["sub_col_Ze_tot_conv"].values / 10.),
+                      np.where(Ze_tot > 0, Ze_tot, np.nan))
 
     model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
     model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
-                "Total (convective + stratiform) equivalent radar reflectivity factor"
+        "Total (convective + stratiform) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
-    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot * \
-                model.ds['hyd_ext_conv'] * model.ds['hyd_ext_strat'] * model.ds['atm_ext'])
+    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                   model.ds['hyd_ext_conv'] * model.ds['hyd_ext_strat'] *
+                                                   model.ds['atm_ext'])
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
-                "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
+        "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"
     return model
 
@@ -92,7 +94,7 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
 
 
 def calc_radar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, chunk=None, **kwargs):
+                       OD_from_sfc=True, parallel=True, chunk=None, mie_for_ice=True, **kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
@@ -115,6 +117,9 @@ def calc_radar_moments(instrument, model, is_conv,
         If using parallel processing, only send this number of time periods to the
         parallel loop at one time. Sometimes Dask will crash if there are too many
         tasks in the queue, so setting this value will help avoid that.
+    mie_for_ice: bool
+        If True, using full mie caculation LUTs. Otherwise, currently using the C6
+        scattering LUTs for 8-column aggregate at 270 K.
     Additional keyword arguments are passed into
     :func:`emc2.simulator.reflectivity.calc_radar_reflectivity_conv` and
     :func:`emc2.simulator.attenuation.calc_radar_atm_attenuation`.
@@ -139,7 +144,6 @@ def calc_radar_moments(instrument, model, is_conv,
     column_ds = model.ds
 
     if is_conv:
-        q_names = model.q_names_convective
         for hyd_type in hyd_types:
             Ze_emp = calc_radar_reflectivity_conv(instrument, model, hyd_type)
 
@@ -170,8 +174,8 @@ def calc_radar_moments(instrument, model, is_conv,
         else:
             dz = np.diff(column_ds[z_field].values / 1e3, axis=1, append=0.)
             WC_new[:, :, :-1] = WC[:, :, 1:]
-            liq_ext = np.flip(np.cumsum(np.flip(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) * \
-                            WC_new, axis=2), axis=2), axis=2)
+            liq_ext = np.flip(np.cumsum(np.flip(np.tile(kappa_f * dz, (model.num_subcolumns, 1, 1)) *
+                              WC_new, axis=2), axis=2), axis=2)
             atm_ext = np.flip(np.cumsum(np.flip(kappa_ds.ds["kappa_att"].values * dz, axis=1), axis=1), axis=1)
 
         if len(liq_ext.shape) == 1:
@@ -219,14 +223,17 @@ def calc_radar_moments(instrument, model, is_conv,
             np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
         column_ds["sub_col_sigma_d_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=column_ds.strat_q_subcolumns_cl.dims)
-        dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
-            instrument.mie_table[hyd_type]["p_diam"].values[0]
         fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         N_columns = len(model.ds["subcolumn"])
         total_hydrometeor = model.ds[frac_names] * column_ds[model.N_field[hyd_type]]
-        p_diam = instrument.mie_table[hyd_type]["p_diam"].values
-        alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
-        beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+            p_diam = instrument.c6_table["8col_agg"]["D_eq_vol_sphere"].values
+            beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
+            alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+        else:
+            p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+            beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+            alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
         num_subcolumns = model.num_subcolumns
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = -v_tmp.magnitude
@@ -237,7 +244,7 @@ def calc_radar_moments(instrument, model, is_conv,
 
             _calc_liquid = lambda x: _calculate_observables_liquid(
                 x, total_hydrometeor, N_0, lambdas, mu,
-                alpha_p, beta_p, v_tmp, num_subcolumns, instrument, dD, p_diam)
+                alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam)
             if parallel:
                 print("Doing parallel calculation for %s" % hyd_type)
                 if chunk is None:
@@ -269,7 +276,7 @@ def calc_radar_moments(instrument, model, is_conv,
         else:
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_other = lambda x: _calculate_other_observables(
-                x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, dD)
+                x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, p_diam, mie_for_ice)
             if parallel:
                 print("Doing parallel calculation for %s" % hyd_type)
                 if chunk is None:
@@ -324,7 +331,7 @@ def calc_radar_moments(instrument, model, is_conv,
         if hyd_type == "cl":
             Vd_tot = column_ds["sub_col_Vd_tot_strat"].values
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
-                x, fits_ds, instrument, model, total_hydrometeor, dD, Vd_tot)
+                x, fits_ds, instrument, model, total_hydrometeor, p_diam, Vd_tot)
             if parallel:
                 if chunk is None:
                     tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
@@ -347,8 +354,16 @@ def calc_radar_moments(instrument, model, is_conv,
             sigma_d_numer_tot = np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
         else:
             sub_q_array = column_ds["strat_q_subcolumns_%s" % hyd_type].values
+            if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+                p_diam = instrument.c6_table["8col_agg"]["D_eq_vol_sphere"].values
+                beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
+                alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+            else:
+                p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+                beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+                alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
             _calc_sigma = lambda x: _calc_sigma_d_tot(
-                x, model, p_diam, v_tmp, fits_ds, total_hydrometeor, Vd_tot, sub_q_array, dD, beta_p)
+                x, model, v_tmp, fits_ds, total_hydrometeor, Vd_tot, sub_q_array, p_diam, beta_p)
             if parallel:
                 if chunk is None:
                     tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
@@ -379,8 +394,8 @@ def calc_radar_moments(instrument, model, is_conv,
         atm_ext = np.cumsum(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1)
     else:
         dz = np.diff(column_ds[z_field].values, axis=1, append=0.)
-        od_tot = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) * \
-                        od_tot, axis=2), axis=2), axis=2)
+        od_tot = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) *
+                         od_tot, axis=2), axis=2), axis=2)
         atm_ext = np.flip(np.cumsum(np.flip(dz / 1e3 * kappa_ds.ds['kappa_att'].values, axis=1), axis=1), axis=1)
 
     column_ds['hyd_ext_strat'] = xr.DataArray(np.exp(-2 * od_tot), dims=kappa_ds.ds["sub_col_Ze_tot_strat"].dims)
@@ -415,13 +430,12 @@ def calc_radar_moments(instrument, model, is_conv,
     return model
 
 
-def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, dD, Vd_tot):
+def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, p_diam, Vd_tot):
     hyd_type = "cl"
     sigma_d_numer = np.zeros((model.num_subcolumns, total_hydrometeor.shape[1]), dtype='float64')
     moment_denom = np.zeros((model.num_subcolumns, total_hydrometeor.shape[1]), dtype='float64')
     if tt % 50 == 0:
         print('Stratiform moment for class cl progress: %d/%d' % (tt, total_hydrometeor.shape[1]))
-    p_diam = instrument.mie_table[hyd_type]["p_diam"].values
     num_diam = len(p_diam)
     Dims = Vd_tot.shape
     for k in range(Dims[2]):
@@ -435,16 +449,16 @@ def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, dD, 
         N_D = N_0_tmp * d_diam_tmp ** mu_temp * np.exp(-lambda_tmp * d_diam_tmp)
         Calc_tmp = np.tile(
             instrument.mie_table[hyd_type]["beta_p"].values, (model.num_subcolumns, 1)) * N_D.T
-        moment_denom = np.trapz(Calc_tmp, dx=dD, axis=1).astype('float64')
+        moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = -v_tmp.magnitude.astype('float64')
         Calc_tmp2 = (v_tmp - np.tile(Vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
-        sigma_d_numer[:, k] = np.trapz(Calc_tmp2, dx=dD, axis=1)
+        sigma_d_numer[:, k] = np.trapz(Calc_tmp2, x=p_diam, axis=1)
 
     return sigma_d_numer, moment_denom
 
 
-def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_tot, sub_q_array, dD, beta_p):
+def _calc_sigma_d_tot(tt, model, v_tmp, fits_ds, total_hydrometeor, vd_tot, sub_q_array, p_diam, beta_p):
     Dims = vd_tot.shape
     sigma_d_numer = np.zeros((model.num_subcolumns, total_hydrometeor.shape[1]), dtype='float64')
     moment_denom = np.zeros((model.num_subcolumns, total_hydrometeor.shape[1]), dtype='float64')
@@ -465,16 +479,16 @@ def _calc_sigma_d_tot(tt, model, p_diam, v_tmp, fits_ds, total_hydrometeor, vd_t
         N_D = np.stack(N_D, axis=1).astype('float64')
 
         Calc_tmp = np.tile(beta_p, (model.num_subcolumns, 1)) * N_D.T
-        moment_denom = np.trapz(Calc_tmp, dx=dD, axis=1).astype('float64')
+        moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
         Calc_tmp2 = (v_tmp - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
-        Calc_tmp2 = np.trapz(Calc_tmp2, dx=dD, axis=1)
+        Calc_tmp2 = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         sigma_d_numer[:, k] = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
 
     return sigma_d_numer, moment_denom
 
 
 def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
-                                  alpha_p, beta_p, v_tmp, num_subcolumns, instrument, dD, p_diam):
+                                  alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam):
     height_dims = N_0.shape[2]
     V_d_numer_tot = np.zeros((num_subcolumns, height_dims))
     V_d = np.zeros((num_subcolumns, height_dims))
@@ -506,16 +520,16 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         N_D = np.stack(N_D, axis=0)
 
         Calc_tmp = beta_p * N_D
-        tmp_od = np.trapz(alpha_p * N_D, dx=dD)
-        moment_denom = np.trapz(Calc_tmp, dx=dD, axis=1).astype('float64')
+        tmp_od = np.trapz(alpha_p * N_D, x=p_diam)
+        moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
         Ze[:, k] = \
             (moment_denom * instrument.wavelength ** 4) / (instrument.K_w * np.pi ** 5) * 1e-6
 
         Calc_tmp2 = v_tmp * Calc_tmp.astype('float64')
-        V_d_numer = np.trapz(Calc_tmp2, dx=dD, axis=1)
+        V_d_numer = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         V_d[:, k] = V_d_numer / moment_denom
         Calc_tmp2 = (v_tmp - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
-        sigma_d_numer = np.trapz(Calc_tmp2, dx=dD, axis=1)
+        sigma_d_numer = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         sigma_d[:, k] = np.sqrt(sigma_d_numer / moment_denom)
         V_d_numer_tot[:, k] += V_d_numer
         moment_denom_tot[:, k] += moment_denom
@@ -524,7 +538,8 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
     return V_d_numer_tot, moment_denom_tot, od_tot, Ze, V_d, sigma_d
 
 
-def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, dD):
+def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrument, sub_q_array,
+                                  hyd_type, p_diam, mie_for_ice):
     Dims = sub_q_array.shape
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
@@ -538,7 +553,6 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
         if total_hydrometeor[tt, k] == 0:
             continue
 
-        p_diam = instrument.mie_table[hyd_type]["p_diam"].values
         num_diam = len(p_diam)
         N_D = []
         for i in range(model.num_subcolumns):
@@ -546,24 +560,30 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
             lambda_tmp = fits_ds["lambda"][i, tt, k].values
             N_D.append(N_0_tmp * np.exp(-lambda_tmp * p_diam))
         N_D = np.stack(N_D, axis=0)
-        Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values,
-                           (model.num_subcolumns, 1)) * N_D
-        tmp_od = np.tile(
-            instrument.mie_table[hyd_type]["alpha_p"].values, (model.num_subcolumns, 1)) * N_D
-        tmp_od = np.trapz(tmp_od, dx=dD, axis=1)
+        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+            Calc_tmp = np.tile(instrument.c6_table["8col_agg"]["beta_p"].values,
+                               (model.num_subcolumns, 1)) * N_D
+            tmp_od = np.tile(
+                instrument.c6_table["8col_agg"]["alpha_p"].values, (model.num_subcolumns, 1)) * N_D
+        else:
+            Calc_tmp = np.tile(instrument.mie_table[hyd_type]["beta_p"].values,
+                               (model.num_subcolumns, 1)) * N_D
+            tmp_od = np.tile(
+                instrument.mie_table[hyd_type]["alpha_p"].values, (model.num_subcolumns, 1)) * N_D
+        tmp_od = np.trapz(tmp_od, x=p_diam, axis=1)
         tmp_od = np.where(sub_q_array[:, tt, k] == 0, 0, tmp_od)
-        moment_denom = np.trapz(Calc_tmp, dx=dD, axis=1)
+        moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1)
         moment_denom = np.where(sub_q_array[:, tt, k] == 0, 0, moment_denom)
         Ze[:, k] = \
             (moment_denom * instrument.wavelength ** 4) / (instrument.K_w * np.pi ** 5) * 1e-6
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = -v_tmp.magnitude
         Calc_tmp2 = Calc_tmp * v_tmp
-        V_d_numer = np.trapz(Calc_tmp2, axis=1, dx=dD)
+        V_d_numer = np.trapz(Calc_tmp2, axis=1, x=p_diam)
         V_d_numer = np.where(sub_q_array[:, tt, k] == 0, 0, V_d_numer)
         V_d[:, k] = V_d_numer / moment_denom
         Calc_tmp2 = (v_tmp - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
-        Calc_tmp2 = np.trapz(Calc_tmp2, axis=1, dx=dD)
+        Calc_tmp2 = np.trapz(Calc_tmp2, axis=1, x=p_diam)
         sigma_d_numer = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
         sigma_d[:, k] = np.sqrt(sigma_d_numer / moment_denom)
         V_d_numer_tot[:, k] += V_d_numer

@@ -73,7 +73,7 @@ class Instrument(object):
         self.wavelength = np.nan
         self.beta_p_phase_thresh = []
         self.ext_OD = np.nan
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.eta = np.nan
         self.K_w = np.nan
         self.eps_liq = np.nan
@@ -102,6 +102,7 @@ class Instrument(object):
             self.wavelength = wavelength.to('micrometer').magnitude
 
         self.mie_table = {}
+        self.c6_table = {}
         self.ds = None
 
     def read_arm_netcdf_file(self, filename, **kwargs):

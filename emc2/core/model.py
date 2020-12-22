@@ -249,7 +249,6 @@ class DHARMA(Model):
     def __init__(self, file_path, time_range=None):
         """
         This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.
-
         Parameters
         ----------
         file_path: str
@@ -279,15 +278,21 @@ class DHARMA(Model):
         self.T_field = "t"
         self.height_dim = "hgt"
         self.time_dim = "dom_col"
-        self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat', \
+        self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat',
                                 'pl': 'conv_dat', 'pi': 'conv_dat'}
-        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac', \
+        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                  'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac', \
+        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = read_netcdf(file_path)
+
+        for variable in self.ds.variables.keys():
+            my_attrs = self.ds[variable].attrs
+            self.ds[variable] = self.ds[variable].astype('float64')
+            self.ds[variable].attrs = my_attrs
+        # es.keys():
 
         # Check to make sure we are loading a single column
         if 'lat' in [x for x in self.ds.dims.keys()]:
@@ -411,7 +416,7 @@ class TestConvection(Model):
         cldssci = np.zeros_like(heights) * ureg.dimensionless
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights[np.newaxis, :], dims=('time', 'height'))
+        heights = xr.DataArray(heights.magnitude[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
@@ -518,8 +523,8 @@ class TestAllStratiform(Model):
     It is not recommended for end users.
     """
     def __init__(self):
-        q = np.linspace(0, 1, 1000) * ureg.gram / ureg.kilogram
-        N = 100 * np.ones_like(q) * (ureg.centimeter ** -3)
+        q = np.linspace(0, 2, 1000) * ureg.gram / ureg.kilogram
+        N = 300 * np.ones_like(q) * (ureg.centimeter ** -3)
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC').magnitude

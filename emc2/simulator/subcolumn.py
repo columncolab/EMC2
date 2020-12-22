@@ -376,14 +376,12 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         q_array = model.ds[model.q_names_stratiform[hyd_type]].astype('float64').values
         q_name = "strat_q_subcolumns_%s" % hyd_type
         n_name = "strat_n_subcolumns_%s" % hyd_type
-        subcolumn_dims = model.ds[model.q_names_stratiform[hyd_type]].dims
     else:
         frac_fieldname = 'conv_frac_subcolumns_%s' % hyd_type
         hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
         sub_hyd_profs = model.ds[frac_fieldname]
         q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
         q_name = "conv_q_subcolumns_%s" % hyd_type
-        subcolumn_dims = model.ds[model.q_names_convective[hyd_type]].dims
 
     q_ic_mean = q_array / hyd_profs
     q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)

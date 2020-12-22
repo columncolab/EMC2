@@ -124,27 +124,28 @@ class SubcolumnDisplay(Display):
             The matplotlib colorbar handle of the plot.
         """
         if np.logical_and(class_legend is None, variable is None):
-                raise ValueError("both the class_legend and the mask variable are None")
+            raise ValueError("both the class_legend and the mask variable are None")
 
         if class_legend is None:
             class_legend = self.model.ds[variable].attrs["legend"]
         l_legend = len(class_legend)
         if cmap is None:
-            if  convert_zeros_to_nan:
+            if convert_zeros_to_nan:
                 cmap = cm.get_cmap("tab20c", lut=l_legend)
             else:
-                cmap = cm.get_cmap("tab20c", lut=l_legend+1)            
+                cmap = cm.get_cmap("tab20c", lut=l_legend + 1)
+
         if convert_zeros_to_nan:
-            cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend+0.5)
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend + 0.5)
         else:
-            cm.ScalarMappable.set_clim(cbar.mappable, vmin=-0.5, vmax=l_legend+0.5)
+            cm.ScalarMappable.set_clim(cbar.mappable, vmin=-0.5, vmax=l_legend + 0.5)
         cm.ScalarMappable.set_cmap(cbar.mappable, cmap=cmap)
-        cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
+        cbar.set_ticks([x for x in np.arange(1, l_legend + 1)])
         if convert_zeros_to_nan:
-            cbar.set_ticks([x for x in np.arange(1, l_legend+1)])
+            cbar.set_ticks([x for x in np.arange(1, l_legend + 1)])
             cbar.set_ticklabels(class_legend)
         else:
-            cbar.set_ticks([x for x in np.arange(0, l_legend+1)])
+            cbar.set_ticks([x for x in np.arange(0, l_legend + 1)])
             cbar.set_ticklabels(["clear"] + class_legend)
         cbar.set_label(cbar_label)
 
@@ -619,9 +620,9 @@ class SubcolumnDisplay(Display):
         if 'alpha' in kwargs.keys():
             kwargs['alpha'] = 1
         if 'Ze' in variable:
-            self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable, **kwargs)
+            self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable, color='k')
         else:
-            self.axes[subplot_index].plot(x_var, y_variable, **kwargs)
+            self.axes[subplot_index].plot(x_var, y_variable, color='k')
 
         if title is None:
             self.axes[subplot_index].set_title(time)

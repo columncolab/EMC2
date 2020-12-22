@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 from .instrument import Instrument, ureg, quantity
-from ..io import load_mie_file
+from ..io import load_mie_file, load_c6_file
 
 
 class KAZR(Instrument):
@@ -23,7 +23,7 @@ class KAZR(Instrument):
         self.instrument_class = "radar"
         self.instrument_str = "KAZR"
         self.ext_OD = np.nan
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.K_w = 0.88
         self.eps_liq = (5.489262 + 2.8267679j)**2
         if site.lower() == "ena":
@@ -70,10 +70,11 @@ class KAZR(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat")
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
-
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
 
 class WACR(Instrument):
     def __init__(self, site, *args):
@@ -86,7 +87,7 @@ class WACR(Instrument):
         self.instrument_class = "radar"
         self.instrument_str = "WACR"
         self.ext_OD = np.nan
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.K_w = 0.84
         self.eps_liq = (3.468221 + 2.1423486j)**2
         if site.lower() == "sgp":
@@ -121,9 +122,11 @@ class WACR(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieWACR_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_WACR_8col_agg_rough_270K.dat", True)
 
 
 class RL(Instrument):
@@ -135,22 +138,22 @@ class RL(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "RL"
         self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
-                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
-                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                     'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
                                     {'class': 'undef1', 'class_ind': 3,
-                                            'LDR': [0., 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                     'LDR': [0., 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 0., 0.]},
                                     {'class': 'undef2', 'class_ind': 4,
-                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
                                     {'class': 'liquid', 'class_ind': 1,
-                                            'LDR': [0., 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
+                                     'LDR': [0., 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.eta = 1
         self.K_w = np.nan
-        self.eps_liq = (1.357247 + 2.4198595e-9j)**2
+        self.eps_liq = (1.357247 + 2.4198595e-9j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -167,9 +170,11 @@ class RL(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/MieRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieRL_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
 
 
 class HSRL(Instrument):
@@ -182,22 +187,22 @@ class HSRL(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
         self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
-                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
-                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                     'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
                                     {'class': 'undef1', 'class_ind': 3,
-                                            'LDR': [0., 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                     'LDR': [0., 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 0., 0.]},
                                     {'class': 'undef2', 'class_ind': 4,
-                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
                                     {'class': 'liquid', 'class_ind': 1,
-                                            'LDR': [0., 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
+                                     'LDR': [0., 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.eta = 1
         self.K_w = np.nan
-        self.eps_liq = (1.337273 + 1.7570744e-9j)**2
+        self.eps_liq = (1.337273 + 1.7570744e-9j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -214,9 +219,11 @@ class HSRL(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
 
 
 class CEIL(Instrument):
@@ -228,10 +235,10 @@ class CEIL(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "CEIL"
         self.ext_OD = 4
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.eta = 1
         self.K_w = np.nan
-        self.eps_liq = (1.323434 + 5.6988883e-7j)**2
+        self.eps_liq = (1.323434 + 5.6988883e-7j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -248,9 +255,11 @@ class CEIL(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieCEIL_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
 
 
 class Ten64nm(Instrument):
@@ -262,10 +271,10 @@ class Ten64nm(Instrument):
         self.instrument_class = "lidar"
         self.instrument_name = "1064nm"
         self.ext_OD = 4
-        self.OD_from_sfc=True
+        self.OD_from_sfc = True
         self.eta = 1
         self.K_w = np.nan
-        self.eps_liq = (1.320416 + 1.2588968e-6j)**2
+        self.eps_liq = (1.320416 + 1.2588968e-6j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -281,9 +290,11 @@ class Ten64nm(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
 
 
 class CALIOP(Instrument):
@@ -296,22 +307,22 @@ class CALIOP(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
         self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
-                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
-                                            'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
+                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                     'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
                                     {'class': 'undef1', 'class_ind': 3,
-                                            'LDR': [0., 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 2e-5, 0., 0.]},
+                                     'LDR': [0., 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 0., 0.]},
                                     {'class': 'undef2', 'class_ind': 4,
-                                            'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
                                     {'class': 'liquid', 'class_ind': 1,
-                                            'LDR': [0., 0.2000, 0.2001, 1.],
-                                            'beta_p': [2e-5, 1e-3, 0., 0.]}]
+                                     'LDR': [0., 0.2000, 0.2001, 1.],
+                                     'beta_p': [2e-5, 1e-3, 0., 0.]}]
         self.ext_OD = 4
-        self.OD_from_sfc=False
-        self.eta = 1
+        self.OD_from_sfc = False
+        self.eta = 0.7
         self.K_w = np.nan
-        self.eps_liq = (1.337273 + 1.7570744e-9j)**2
+        self.eps_liq = (1.337273 + 1.7570744e-9j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -328,6 +339,9 @@ class CALIOP(Instrument):
         self.mie_table["pl"] = load_mie_file(data_path + "/MieHSRL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieHSRL_ci.dat")
         if 'DHARMA' in args:
-            self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat") # pi1 for 100 kg/m^2 (DHARMA)
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+

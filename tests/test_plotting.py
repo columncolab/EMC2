@@ -56,6 +56,7 @@ def test_plot_instrument_profile():
     model_display.plot_instrument_mean_profile(HSRL, 'linear_depol', pressure_coords=False)
     return model_display.fig
 
+
 @pytest.mark.mpl_image_compare(tolerance=30)
 def test_plot_classification():
     model = emc2.core.model.ModelE(emc2.test_files.TEST_SUBCOL_FILE)
@@ -65,4 +66,3 @@ def test_plot_classification():
     model_display.change_plot_to_class_mask(cb, variable="phase_mask_KAZR_sounding_all_hyd",
                                             class_legend=["Cloud", "precip", "mixed"])
     return model_display.fig
-

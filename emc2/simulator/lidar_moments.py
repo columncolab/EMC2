@@ -34,7 +34,6 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
         The model with the added simulated lidar parameters.
     """
 
-
     model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"] + model.ds["sub_col_beta_p_tot_strat"]
     model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"] + model.ds["sub_col_alpha_p_tot_strat"]
     model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"] + model.ds["sub_col_OD_tot_strat"]
@@ -96,16 +95,18 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
             beta_p_key = "sub_col_beta_p_%s_%s" % (hyd_type, cloud_class)
             numerator += model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type].magnitude
             denominator += model.ds[beta_p_key]
-
-        model.ds["sub_col_LDR_%s" % cloud_class] = numerator / denominator
-        model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = "Linear depolarization ratio in %s" % cloud_class
+        denominator_no_zeros = np.where(denominator == 0, 1, denominator)
+        model.ds["sub_col_LDR_%s" % cloud_class] = numerator / denominator_no_zeros
+        model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = \
+            "Linear depolarization ratio in %s" % cloud_class
         model.ds["sub_col_LDR_%s" % cloud_class].attrs["units"] = "1"
         numerator_tot += numerator
         denominator_tot += denominator
+
+    denominator_tot = np.where(denominator_tot == 0, 1, denominator_tot)
     model.ds["sub_col_LDR_tot"] = numerator_tot / denominator_tot
     model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
     model.ds["sub_col_LDR_tot"].attrs["units"] = "1"
-
 
     OD_cum_p_tot = model.ds["sub_col_OD_tot_strat"].values + model.ds["sub_col_OD_tot_conv"].values
     OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0.)
@@ -125,7 +126,8 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
 
 
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, **kwargs):
+                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, mie_for_ice=True,
+                       **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -151,6 +153,9 @@ def calc_lidar_moments(instrument, model, is_conv,
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
+    mie_for_ice: bool
+        If True, using full mie caculation LUTs. Otherwise, currently using the C6
+        scattering LUTs for 8-column severly roughned aggregate.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
@@ -265,6 +270,7 @@ def calc_lidar_moments(instrument, model, is_conv,
         Dims = column_ds["strat_q_subcolumns_cl"].values.shape
         for hyd_type in ["pi", "pl", "ci", "cl"]:
             frac_names = "strat_frac_subcolumns_%s" % hyd_type
+            n_names = "strat_n_subcolumns_%s" % hyd_type
             print("Generating stratiform lidar variables for hydrometeor class %s" % hyd_type)
             if hyd_type == "pi":
                 model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
@@ -277,20 +283,23 @@ def calc_lidar_moments(instrument, model, is_conv,
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
             model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-            dD = instrument.mie_table[hyd_type]["p_diam"].values[1] - \
-                instrument.mie_table[hyd_type]["p_diam"].values[0]
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             N_columns = len(model.ds["subcolumn"])
             total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
             N_0 = fits_ds["N_0"].values
             mu = fits_ds["mu"].values
             num_subcolumns = model.num_subcolumns
-            p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+            if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+                p_diam = instrument.c6_table["8col_agg"]["D_eq_proj_sphere"].values
+                beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
+                alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+            else:
+                p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+                beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+                alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
             lambdas = fits_ds["lambda"].values
-            beta_p = instrument.mie_table[hyd_type]["beta_p"].values
-            alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
             _calc_lidar = lambda x: _calc_strat_lidar_properties(
-                x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, dD,
+                x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, p_diam,
                 beta_p, alpha_p)
             if parallel:
                 if chunk is None:
@@ -365,7 +374,7 @@ def calc_lidar_moments(instrument, model, is_conv,
 
 
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,
-                                 hyd_type, num_subcolumns, dD, beta_p, alpha_p):
+                                 hyd_type, num_subcolumns, D, beta_p, alpha_p):
     Dims = total_hydrometeor.shape
     num_diam = len(p_diam)
     beta_p_strat = np.zeros((num_subcolumns, Dims[2]))
@@ -385,10 +394,8 @@ def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor
         N_D = np.stack(N_D, axis=0)
 
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
-        beta_p_strat[:, k] = (
-            Calc_tmp[:, ::num_diam - 1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+        beta_p_strat[:, k] = np.trapz(Calc_tmp, x=D, axis=1).astype('float64')
         Calc_tmp = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
-        alpha_p_strat[:, k] = (
-            Calc_tmp[:, ::num_diam - 1].sum(axis=1) / 2 + Calc_tmp[:, 1:-1].sum(axis=1)) * dD
+        alpha_p_strat[:, k] = np.trapz(Calc_tmp, x=D, axis=1).astype('float64')
 
     return beta_p_strat, alpha_p_strat

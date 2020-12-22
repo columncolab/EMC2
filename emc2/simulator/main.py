@@ -71,6 +71,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         del kwargs['mask_height_rng']
     else:
         mask_height_rng = None
+    if 'mie_for_ice' in kwargs.keys():
+        mie_for_ice = kwargs['mie_for_ice']
+        del kwargs['mie_for_ice']
+    else:
+        mie_for_ice = True
 
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")
@@ -80,9 +85,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         else:
             ref_rng = 1000
         model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel,
-                                   chunk=chunk, **kwargs)
+                                   chunk=chunk, mie_for_ice=mie_for_ice, **kwargs)
         model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel,
-                                   chunk=chunk, **kwargs)
+                                   chunk=chunk, mie_for_ice=mie_for_ice, **kwargs)
         model = calc_total_reflectivity(model)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
@@ -104,9 +109,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         else:
             eta = instrument.eta
         model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc,
-                                   parallel=parallel, eta=eta, chunk=chunk, **kwargs)
+                                   parallel=parallel, eta=eta, chunk=chunk,
+                                   mie_for_ice=mie_for_ice, **kwargs)
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc,
-                                   parallel=parallel, eta=eta, chunk=chunk, **kwargs)
+                                   parallel=parallel, eta=eta, chunk=chunk,
+                                   mie_for_ice=mie_for_ice, **kwargs)
         model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
 

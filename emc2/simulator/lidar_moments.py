@@ -126,7 +126,8 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
 
 
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, **kwargs):
+                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, mie_for_ice=True,
+                       **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -152,6 +153,9 @@ def calc_lidar_moments(instrument, model, is_conv,
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
+    mie_for_ice: bool
+        If True, using full mie caculation LUTs. Otherwise, currently using the C6
+        scattering LUTs for 8-column severly roughned aggregate.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
@@ -285,10 +289,15 @@ def calc_lidar_moments(instrument, model, is_conv,
             N_0 = fits_ds["N_0"].values
             mu = fits_ds["mu"].values
             num_subcolumns = model.num_subcolumns
-            p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+            if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+                p_diam = instrument.c6_table["8col_agg"]["D_eq_proj_sphere"].values
+                beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
+                alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+            else:
+                p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+                beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+                alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
             lambdas = fits_ds["lambda"].values
-            beta_p = instrument.mie_table[hyd_type]["beta_p"].values
-            alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
             _calc_lidar = lambda x: _calc_strat_lidar_properties(
                 x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, p_diam,
                 beta_p, alpha_p)

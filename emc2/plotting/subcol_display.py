@@ -620,9 +620,9 @@ class SubcolumnDisplay(Display):
         if 'alpha' in kwargs.keys():
             kwargs['alpha'] = 1
         if 'Ze' in variable:
-            self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable, color='k')
+            self.axes[subplot_index].plot(10 * np.log10(x_var), y_variable, **kwargs)
         else:
-            self.axes[subplot_index].plot(x_var, y_variable, color='k')
+            self.axes[subplot_index].plot(x_var, y_variable, **kwargs)
 
         if title is None:
             self.axes[subplot_index].set_title(time)

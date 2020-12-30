@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 def load_mie_file(filename):
     """
@@ -23,9 +23,10 @@ def load_mie_file(filename):
                                "ext_eff", "backscat_eff"])
 
     my_df["alpha_p"] = my_df["alpha_p"] * 1e-12
-    my_df["beta_p"] = my_df["beta_p"] * 1e-12
+    my_df["beta_p"] = my_df["beta_p"] * 1e-12 / (4 * np.pi)
     my_df["scat_p"] = my_df["scat_p"] * 1e-12
     my_df["p_diam"] = 2e-6 * my_df["p_diam"]
+    my_df["backscat_eff"] = my_df["backscat_eff"] / (4 * np.pi)
     my_df = my_df.to_xarray()
 
     my_df["wavelength"].attrs["units"] = "microns"

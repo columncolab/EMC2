@@ -22,6 +22,10 @@ class Model():
     Rho_hyd: dict
        A dictionary whose keys are the names of the model's hydrometeor classes and
        whose values are the density of said hydrometeors in :math:`kg\ m^{-3}`
+    fluffy: dict
+       A dictionary whose keys are the names of the model's ice hydrometeor classes and
+       whose values are the ice fluffiness factor for the fwd calculations using r_e,
+       where values of 0 - equal volume sphere, 1 - fluffy sphere i.e., diameter = maximum dimension.
     lidar_ratio: dict
        A dictionary whose keys are the names of the model's hydrometeor classes and
        whose values are the lidar_ratio of said hydrometeors.
@@ -58,6 +62,7 @@ class Model():
 
     def __init__(self):
         self.Rho_hyd = {}
+        self.fluffy = {}
         self.lidar_ratio = {}
         self.LDR_per_hyd = {}
         self.vel_param_a = {}
@@ -195,6 +200,7 @@ class ModelE(Model):
         """
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
+        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
                             'pl': 5.5 * ureg.dimensionless,

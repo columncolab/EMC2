@@ -12,7 +12,6 @@ import numpy as np
 from act.io.armfiles import read_netcdf
 from .instrument import ureg, quantity
 
-
 class Model():
     """
     This class stores the model specific parameters for the radar simulator.

@@ -5,8 +5,8 @@ from scipy.special import gamma
 
 
 def calc_mu_lambda(model, hyd_type="cl",
-                   calc_dispersion=True, dispersion_mu_bounds=(2, 15),
-                   subcolumns=False, convective=True):
+                   calc_dispersion=False, dispersion_mu_bounds=(2, 15),
+                   subcolumns=False, convective=False):
 
     """
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
@@ -25,9 +25,10 @@ def calc_mu_lambda(model, hyd_type="cl",
     hyd_type: str
         The assumed hydrometeor type. Must be a hydrometeor type in Model.
     calc_dispersion: bool
-        If False, the :math:`\mu` parameter will be fixed at 1/0.09. If True and
-        the hydrometeor type is "cl", then the Martin et al. (1994) method
-        will be used to calculate :math:`\mu`.
+        If False, the :math:`\mu` parameter will be fixed at 1/0.09 per
+        Geoffroy et al. (2010). If True and the hydrometeor type is "cl",
+        then the Martin et al. (1994) method will be used to calculate
+        :math:`\mu`. Otherwise, :math:`\mu` is set to  0.
     dispersion_mu_bounds: 2-tuple
         The lower and upper bounds for the :math:`\mu` parameter.
     subcolumns: bool
@@ -59,8 +60,8 @@ def calc_mu_lambda(model, hyd_type="cl",
             q_name = "strat_q_subcolumns_%s" % hyd_type
             frac_name = model.strat_frac_names[hyd_type]
         else:
-            N_name = "strat_n_subcolumns_%s" % hyd_type
-            q_name = "strat_q_subcolumns_%s" % hyd_type
+            N_name = "conv_n_subcolumns_%s" % hyd_type
+            q_name = "conv_q_subcolumns_%s" % hyd_type
             frac_name = model.conv_frac_names[hyd_type]
         frac_array = np.tile(model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
         frac_array = np.where(frac_array == 0, 1, frac_array)

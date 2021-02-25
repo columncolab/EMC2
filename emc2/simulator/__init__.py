@@ -12,6 +12,10 @@ simulator in EMC^2.
     attenuation.calc_radar_atm_attenuation
     attenuation.calc_theory_beta_m
     attenuation.calc_radar_Ze_min
+    classification.lidar_classify_phase
+    classification.radar_classify_phase
+    classification.lidar_emulate_cosp_phase
+
     psd.calc_mu_lambda
     radar_moments.calc_radar_reflectivity_conv
     radar_moments.calc_radar_moments
@@ -25,6 +29,7 @@ simulator in EMC^2.
 """
 
 from . import attenuation
+from . import classification
 from . import radar_moments
 from . import lidar_moments
 from . import psd

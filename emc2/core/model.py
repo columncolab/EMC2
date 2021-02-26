@@ -217,11 +217,11 @@ class ModelE(Model):
         super()._add_vel_units()
         self.q_names = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_field = "q"
-        self.N_field = {'cl': 'nclic', 'ci': 'nciic', 'pl': 'npl', 'pi': 'npi'}
+        self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
-        self.height_dim = "plm"
+        self.height_dim = "p"
         self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
@@ -422,7 +422,7 @@ class TestConvection(Model):
         cldssci = np.zeros_like(heights) * ureg.dimensionless
         times = xr.DataArray(np.array([0]), dims=('time'))
         times.attrs["units"] = "seconds"
-        heights = xr.DataArray(heights[np.newaxis, :], dims=('time', 'height'))
+        heights = xr.DataArray(heights.magnitude[np.newaxis, :], dims=('time', 'height'))
         heights.attrs['units'] = "meter"
         heights.attrs["long_name"] = "Height above MSL"
 
@@ -529,8 +529,8 @@ class TestAllStratiform(Model):
     It is not recommended for end users.
     """
     def __init__(self):
-        q = np.linspace(0, 1, 1000) * ureg.gram / ureg.kilogram
-        N = 100 * np.ones_like(q) * (ureg.centimeter ** -3)
+        q = np.linspace(0, 2, 1000) * ureg.gram / ureg.kilogram
+        N = 300 * np.ones_like(q) * (ureg.centimeter ** -3)
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC').magnitude

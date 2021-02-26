@@ -8,7 +8,6 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
     """
     This function calculates the minimum detectable radar signal (Ze_min) profile
     given radar detectability at a reference rnage.
-
     Parameters
     ----------
     instrument: :py:mod:`emc2.core.Instrument`
@@ -17,14 +16,14 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
         The Model class that you wish to calculate the profile for.
     ref_rng: scalar
         Reference altitude for Ze_min
-
     Returns
     -------
     model: :py:mod:`emc2.core.Model`
         The Model class that will store the Ze_min profile.
     """
 
-    model.ds["Ze_min"] = instrument.Z_min_1km + 20 * np.log10(model.ds[model.height_dim]) - 20 * np.log10(ref_rng)
+    Ze_min = instrument.Z_min_1km + 20 * np.log10(model.ds[model.z_field]) - 20 * np.log10(ref_rng)
+    model.ds['Ze_min'] = xr.DataArray(Ze_min, dims=model.ds[model.z_field].dims)
     model.ds["Ze_min"].attrs["long_name"] = "Minimum discernable radar reflectivity factor"
     model.ds["Ze_min"].attrs["units"] = 'dBZ'
     return model
@@ -32,7 +31,7 @@ def calc_radar_Ze_min(instrument, model, ref_rng=1000):
 
 def calc_radar_atm_attenuation(instrument, model):
     """
-    This function calculates atmospheric attenuation due to water vapor and CO2
+    This function calculates atmospheric attenuation due to water vapor and O2
     for a given model column.
 
     Parameters
@@ -65,7 +64,7 @@ def calc_radar_atm_attenuation(instrument, model):
     three_hundred_t = 300. / t_temp
     gamma_l = 2.85 * (p_temp / 1013.) * (three_hundred_t)**0.626 * \
         (1 + 0.018 * rho_wv * t_temp / p_temp)
-    column_ds['kappa_wv'] = (2 * instrument.freq)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
+    kappa_wv = (2 * instrument.freq)**2 * rho_wv * (three_hundred_t)**1.5 * gamma_l * \
         (three_hundred_t) * np.exp(-644 / t_temp) * \
         1 / ((494.4 - instrument.freq**2)**2 + 4 * instrument.freq**2) * gamma_l**2 + 1.2e-6
     f0 = 60.
@@ -78,9 +77,11 @@ def calc_radar_atm_attenuation(instrument, model):
         gamma_l * (1. / ((instrument.freq - f0)**2 + gamma_l**2) + 1. /
                    (instrument.freq**2 + gamma_l**2))
 
-    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=(model.time_dim, model.height_dim))
+    column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=model.ds[t_field].dims)
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"
+
+    column_ds['kappa_wv'] = xr.DataArray(kappa_wv.values, dims=model.ds[t_field].dims)
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
     column_ds['kappa_wv'].attrs["units"] = "dB/km"
 
@@ -135,12 +136,12 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     n_s = (n_s_ref - 1) * ((1 + alpha * 15) / (1 + alpha * T)) * (P / 1013.25) + 1
     N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c / 1e6
     sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / \
-        ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+        (N_s * (Lambda * 1e-4)**4 * N_s) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / \
-        ((Lambda * 1e-4)**4 * N_s**2) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
+        (N_s * (Lambda * 1e-4)**4 * N_s) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     kappa = beta / raw
     sigma_180 = np.pi**2 * (n_s**2 - 1)**2 * 2 * (2 + raw_n) / \
-        ((Lambda * 1e-4)**4 * N_s**2 * (6 - 7 * raw_n)) * p_cos
+        (N_s * (Lambda * 1e-4)**4 * N_s * (6 - 7 * raw_n)) * p_cos
     sigma_180_vol = sigma_180 * N_s
 
     sigma = sigma * 1e-4
@@ -150,13 +151,13 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     sigma_180 = sigma_180 * 1e-4
     sigma_180_vol = sigma_180_vol / 1e-2
 
-    Z_4_trap = np.diff(Z, axis=0) / 2.
-    summed_beta = beta[:-1, :] + beta[1:, :]
+    Z_4_trap = np.diff(Z, axis=1) / 2.
+    summed_beta = beta[:, :-1] + beta[:, 1:]
     u = np.zeros_like(beta)
     if OD_from_sfc:
-        u[1:, :] = np.cumsum(Z_4_trap * summed_beta, axis=0)
+        u[:, 1:] = np.cumsum(Z_4_trap * summed_beta, axis=1)
     else:
-        u[1:, :] = np.flip(np.cumsum(np.flip(Z_4_trap * summed_beta, axis=0), axis=0), axis=0)
+        u[:, :-1] = np.flip(np.cumsum(np.flip(Z_4_trap * summed_beta, axis=1), axis=1), axis=1)
 
     tau = np.exp(-2 * u)
 
@@ -175,7 +176,7 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
 
     model.ds["sigma_180_vol"] = xr.DataArray(sigma_180_vol, dims=my_dims)
     model.ds["sigma_180_vol"].attrs["long_name"] = "Volume backscatter cross section"
-    model.ds["sigma_180_vol"].attrs["units"] = "m^2"
+    model.ds["sigma_180_vol"].attrs["units"] = "m^-1"
 
     model.ds["sigma_180"] = xr.DataArray(sigma_180, dims=my_dims)
     model.ds["sigma_180"].attrs["long_name"] = "backscatter cross section per molecule"

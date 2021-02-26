@@ -52,13 +52,13 @@ def scat_properties_water(diams, wavelength, temperature=0., pressure=1013.):
 
     my_dict = {'ext_eff': qext, 'scat_eff': qsca, 'qabs': qabs,
                'g': g, 'qpr': qpr, 'backscat_eff': qback, 'qratio': qratio}
-    my_dict['alpha_p'] = my_dict['ext_eff'] * np.pi / 4 * diams ** 2
-    my_dict['beta_p'] = my_dict['backscat_eff'] * np.pi / 4 * diams ** 2
-    my_dict['scat_p'] = my_dict['scat_eff'] * np.pi / 4 * diams ** 2
+    my_dict['alpha_p'] = my_dict['ext_eff'] * np.pi / 4 * diams ** 2 * 1e-18
+    my_dict['beta_p'] = my_dict['backscat_eff'] * np.pi / 4 * diams ** 2 * 1e-18
+    my_dict['scat_p'] = my_dict['scat_eff'] * np.pi / 4 * diams ** 2 * 1e-18
     my_dict['compre_real'] = m.real * np.ones_like(qext) / 1.0003
     my_dict['compre_im'] = m.imag * np.ones_like(qext) / 1.0003
     my_dict['size_parameter'] = np.pi * diams / (wavelength * 1e4)
-    my_dict['p_diam'] = diams * 1e-6
+    my_dict['p_diam'] = diams * 1e-9
     my_dict['wavelength'] = wavelength * 1e4 * np.ones_like(qext)
     my_df = xr.Dataset(my_dict)
 
@@ -154,13 +154,13 @@ def scat_properties_ice(diams, wavelength, temperature=0., pressure=1013., rho_d
 
     my_dict = {'ext_eff': qext, 'scat_eff': qsca, 'qabs': qabs,
                'g': g, 'qpr': qpr, 'backscat_eff': qback, 'qratio': qratio}
-    my_dict['alpha_p'] = my_dict['ext_eff'] * np.pi / 4 * diams ** 2
-    my_dict['beta_p'] = my_dict['backscat_eff'] * np.pi / 4 * diams ** 2
-    my_dict['scat_p'] = my_dict['scat_eff'] * np.pi / 4 * diams ** 2
+    my_dict['alpha_p'] = my_dict['ext_eff'] * np.pi / 4 * diams ** 2 * 1e-18
+    my_dict['beta_p'] = my_dict['backscat_eff'] * np.pi / 4 * diams ** 2 * 1e-18
+    my_dict['scat_p'] = my_dict['scat_eff'] * np.pi / 4 * diams ** 2 * 1e-18
     my_dict['compre_real'] = m.real * np.ones_like(qext) / 1.0003
     my_dict['compre_im'] = m.imag * np.ones_like(qext) / 1.0003
     my_dict['size_parameter'] = np.pi * diams / (wavelength * 1e4)
-    my_dict['p_diam'] = diams * 1e-6
+    my_dict['p_diam'] = diams * 1e-9
     my_dict['wavelength'] = wavelength * 1e4 * np.ones_like(qext)
     my_df = xr.Dataset(my_dict)
 

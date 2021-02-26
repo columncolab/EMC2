@@ -13,6 +13,7 @@ from ..io import load_mie_file
 from ..scattering import calc_microwave_ref_index_ice, calc_microwave_ref_index
 from ..scattering import scat_properties_ice, scat_properties_water
 
+
 class KAZR(Instrument):
     def __init__(self, site):
         """
@@ -277,9 +278,9 @@ class NEXRAD(Instrument):
         self.tau_md = 4.71
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
         ds = load_mie_file(data_path + "/Mie1064nm_liq.dat")
-        self.mie_table["cl"] = scat_properties_water(ds.p_diam * 1e6, 10., 0.)
-        self.mie_table["pl"] = scat_properties_water(ds.p_diam * 1e6, 10., 0.)
+        self.mie_table["cl"] = scat_properties_water(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        self.mie_table["pl"] = scat_properties_water(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
         ds = load_mie_file(data_path + "/Mie1064nm_ci.dat")
-        self.mie_table["ci"] = scat_properties_ice(ds.p_diam * 1e6, 10., 0.)
+        self.mie_table["ci"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
         ds = load_mie_file(data_path + "/Mie1064nm_pi.dat")
-        self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, 10., 0.)
+        self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)

@@ -12,6 +12,7 @@ import numpy as np
 from act.io.armfiles import read_netcdf
 from .instrument import ureg, quantity
 
+
 class Model():
     """
     This class stores the model specific parameters for the radar simulator.
@@ -53,6 +54,10 @@ class Model():
        The name of the height dimension in the model.
     model_name: str
        The name of the model (used for plotting).
+    x_dim: str
+       The name of the x dimension of the model.
+    y_dim: str
+       The name of the y dimension of the model.
     """
 
     def __init__(self):
@@ -75,6 +80,8 @@ class Model():
         self.time_dim = "time"
         self.height_dim = "height"
         self.model_name = "empty_model"
+        self.x_dim = None
+        self.y_dim = None
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():

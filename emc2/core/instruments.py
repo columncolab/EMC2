@@ -338,7 +338,7 @@ class NEXRAD(Instrument):
         ds = load_mie_file(data_path + "/Mie1064nm_pi.dat")
         self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
         self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, 10., 0.)
-        
+
 
 class CALIOP(Instrument):
     def __init__(self, *args):

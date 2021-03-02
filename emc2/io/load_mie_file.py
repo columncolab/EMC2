@@ -71,7 +71,7 @@ def load_mie_file(filename):
     my_df["ext_eff"].attrs["long_name"] = "Extinction efficiency"
     my_df["ext_eff"].attrs["standard_name"] = "Extinction_efficiency"
 
-    my_df["backscat_eff"].attrs["units"] = "1"
+    my_df["backscat_eff"].attrs["units"] = "sr^-1"
     my_df["backscat_eff"].attrs["long_name"] = "Backscattering efficiency"
     my_df["backscat_eff"].attrs["standard_name"] = "Backscattering_efficiency"
 

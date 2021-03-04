@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 
 
-def set_convective_sub_col_frac(model, hyd_type, N_columns=None):
+def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_frac=False):
     """
     Sets the hydrometeor fraction due to convection in each subcolumn.
 
@@ -18,6 +18,10 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None):
         Therefore, after those are generated this must either be
         equal to None or the number of subcolumns in the model. Setting this to None will
         use the number of subcolumns in the model parameter.
+    use_rad_frac: bool
+        When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
+        using the microphysics scheme (note that these schemes do not necessarily
+        use exactly the same cloud fraction logic).
 
     Returns
     -------
@@ -35,7 +39,10 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None):
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
-    data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
+    if use_rad_frac:
+        data_frac = np.round(model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns)
+    else:
+        data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
 
     # In case we only have one time step
     if len(data_frac.shape) == 1:
@@ -57,7 +64,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None):
     return model
 
 
-def set_stratiform_sub_col_frac(model):
+def set_stratiform_sub_col_frac(model, use_rad_frac=False):
     """
     Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.
 
@@ -65,6 +72,10 @@ def set_stratiform_sub_col_frac(model):
     ----------
     model: :py:func: `emc2.core.Model`
         The model we are generating the subcolumns of stratiform fraction for.
+    use_rad_frac: bool
+        When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
+        using the microphysics scheme (note that these schemes do not necessarily
+        use exactly the same cloud fraction logic).
 
     Returns
     -------
@@ -84,9 +95,13 @@ def set_stratiform_sub_col_frac(model):
     conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
     N_columns = len(model.ds["subcolumn"])
     subcolumn_dims = conv_profs1.dims
-    data_frac1 = model.ds[model.strat_frac_names["cl"]]
+    if use_rad_frac:
+        data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
+        data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
+    else:
+        data_frac1 = model.ds[model.strat_frac_names["cl"]]
+        data_frac2 = model.ds[model.strat_frac_names["ci"]]
     data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
-    data_frac2 = model.ds[model.strat_frac_names["ci"]]
     data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
     full_overcast_cl_ci = 0
 
@@ -202,7 +217,7 @@ def set_stratiform_sub_col_frac(model):
     return model
 
 
-def set_precip_sub_col_frac(model, convective=True, N_columns=None):
+def set_precip_sub_col_frac(model, convective=True, N_columns=None, use_rad_frac=False):
     """
     Sets the hydrometeor fraction due to precipitation in each subcolumn. This
     module works for both stratiform and convective precipitation.
@@ -218,6 +233,10 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
         Use this to set the number of subcolumns in the model. This can only
         be set once. After the number of subcolumns is set, use None to make
         EMC2 automatically detect the number of subcolumns.
+    use_rad_frac: bool
+        When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
+        using the microphysics scheme (note that these schemes do not necessarily
+        use exactly the same cloud fraction logic).
 
     Returns
     -------
@@ -236,8 +255,12 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
     if convective:
-        data_frac1 = model.ds[model.conv_frac_names['pl']]
-        data_frac2 = model.ds[model.conv_frac_names['pi']]
+        if use_rad_frac:
+            data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
+            data_frac2 = model.ds[model.conv_frac_names_for_rad['pi']]
+        else:
+            data_frac1 = model.ds[model.conv_frac_names['pl']]
+            data_frac2 = model.ds[model.conv_frac_names['pi']]
         out_prof_name1 = 'conv_frac_subcolumns_pl'
         out_prof_name2 = 'conv_frac_subcolumns_pi'
         out_prof_long_name1 = 'Liquid precipitation present? [convective]'
@@ -245,8 +268,12 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
         in_prof_cloud_name_liq = 'conv_frac_subcolumns_cl'
         in_prof_cloud_name_ice = 'conv_frac_subcolumns_ci'
     else:
-        data_frac1 = model.ds[model.strat_frac_names['pl']]
-        data_frac2 = model.ds[model.strat_frac_names['pi']]
+        if use_rad_frac:
+            data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
+            data_frac2 = model.ds[model.strat_frac_names_for_rad['pi']]
+        else:
+            data_frac1 = model.ds[model.strat_frac_names['pl']]
+            data_frac2 = model.ds[model.strat_frac_names['pi']]
         out_prof_name1 = 'strat_frac_subcolumns_pl'
         out_prof_name2 = 'strat_frac_subcolumns_pi'
         in_prof_cloud_name_liq = 'strat_frac_subcolumns_cl'
@@ -330,7 +357,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None):
     return model
 
 
-def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
+def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_frac=False):
     """
 
     This function distributes the mixing ratio and number concentration into the subcolumns.
@@ -348,7 +375,11 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         Set to True to horizontally distribute the mixing ratio according to
         Morrison and Gettleman (2008)
     inv_rel_var: float
-        The inverse of the relative variance for the p.d.f. in Morrison and Gettleman (2008)
+        The inverse of the relative subgrid qc PDF variance in Morrison and Gettleman (2008)
+    use_rad_frac: bool
+        When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
+        using the microphysics scheme (note that these schemes do not necessarily
+        use exactly the same cloud fraction logic).
 
     Returns
     -------
@@ -367,7 +398,10 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
 
     if not is_conv:
         frac_fieldname = 'strat_frac_subcolumns_%s' % hyd_type
-        hyd_profs = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
+        if use_rad_frac:
+            hyd_profs = model.ds[model.strat_frac_names_for_rad[hyd_type]].astype('float64').values
+        else:     
+            hyd_profs = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
         N_profs = model.ds[model.N_field[hyd_type]].astype('float64').values
         N_profs = N_profs / hyd_profs
         sub_hyd_profs = model.ds[frac_fieldname].values
@@ -378,7 +412,10 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1):
         n_name = "strat_n_subcolumns_%s" % hyd_type
     else:
         frac_fieldname = 'conv_frac_subcolumns_%s' % hyd_type
-        hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
+        if use_rad_frac:
+            hyd_profs = model.ds[model.conv_frac_names_for_rad[hyd_type]].astype('float64').values
+        else:
+            hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
         sub_hyd_profs = model.ds[frac_fieldname]
         q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
         q_name = "conv_q_subcolumns_%s" % hyd_type

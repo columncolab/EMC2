@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 import dask.bag as db
+from time import time
 
 from ..core import Instrument, Model
 from .attenuation import calc_theory_beta_m
@@ -33,18 +34,23 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
     model: Model
         The model with the added simulated lidar parameters.
     """
+    if OD_from_sfc:
+        OD_str = "layer base"
+    else:
+        OD_str = "layer top"
 
-    model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"] + model.ds["sub_col_beta_p_tot_strat"]
-    model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"] + model.ds["sub_col_alpha_p_tot_strat"]
-    model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"] + model.ds["sub_col_OD_tot_strat"]
+    model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"].fillna(0) + model.ds["sub_col_beta_p_tot_strat"].fillna(0)
+    model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"].fillna(0) + \
+        model.ds["sub_col_alpha_p_tot_strat"].fillna(0)
+    model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"].fillna(0) + model.ds["sub_col_OD_tot_strat"].fillna(0)
     model.ds["sub_col_beta_p_tot"].attrs["long_name"] = \
         "Total backscatter coefficient (convective + stratiform)"
-    model.ds["sub_col_beta_p_tot"].attrs["units"] = "m^-1"
+    model.ds["sub_col_beta_p_tot"].attrs["units"] = "m^-1 sr^-1"
     model.ds["sub_col_alpha_p_tot"].attrs["long_name"] = \
         "Total extinction coefficient (convective + stratiform)"
     model.ds["sub_col_alpha_p_tot"].attrs["units"] = "m^-1"
     model.ds["sub_col_OD_tot"].attrs["long_name"] = \
-        "Total optical depth (convective + stratiform)"
+        "Total cumulative optical depth at %s (convective + stratiform)" % OD_str
     model.ds["sub_col_OD_tot"].attrs["units"] = "1"
     beta_m = np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1))
     T = np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
@@ -52,7 +58,7 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
         T * np.exp(-2 * eta * model.ds['sub_col_OD_tot'])
     model.ds["sub_col_beta_att_tot"].attrs["long_name"] = \
         "Total attenuated backscatter coefficient (convective + stratiform)"
-    model.ds["sub_col_beta_att_tot"].attrs["units"] = "m^-1"
+    model.ds["sub_col_beta_att_tot"].attrs["units"] = "m^-1 sr^-1"
 
     return model
 
@@ -85,25 +91,30 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
     if LDR_per_hyd is None:
         LDR_per_hyd = model.LDR_per_hyd
 
+    if OD_from_sfc:
+        OD_str = ("layer base", "from surface")
+    else:
+        OD_str = ("layer top", "from TOA")
+
     numerator_tot = xr.zeros_like(model.ds["sub_col_beta_p_%s_strat" % model.hydrometeor_classes[0]])
     denominator_tot = xr.zeros_like(model.ds["sub_col_beta_p_%s_strat" % model.hydrometeor_classes[0]])
-    for cloud_class in ["conv", "strat"]:
+    for cloud_str in ["conv", "strat"]:
         numerator = 0.
         denominator = 0.
 
         for hyd_type in model.hydrometeor_classes:
-            beta_p_key = "sub_col_beta_p_%s_%s" % (hyd_type, cloud_class)
-            numerator += model.ds[beta_p_key] * model.LDR_per_hyd[hyd_type].magnitude
-            denominator += model.ds[beta_p_key]
-        denominator_no_zeros = np.where(denominator == 0, 1, denominator)
-        model.ds["sub_col_LDR_%s" % cloud_class] = numerator / denominator_no_zeros
-        model.ds["sub_col_LDR_%s" % cloud_class].attrs["long_name"] = \
-            "Linear depolarization ratio in %s" % cloud_class
-        model.ds["sub_col_LDR_%s" % cloud_class].attrs["units"] = "1"
+            beta_p_key = "sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)
+            numerator += model.ds[beta_p_key].fillna(0) * model.LDR_per_hyd[hyd_type].magnitude
+            denominator += model.ds[beta_p_key].fillna(0)
+        denominator_no_zeros = np.where(denominator > 0, denominator, np.nan)
+        model.ds["sub_col_LDR_%s" % cloud_str] = numerator / denominator_no_zeros
+        model.ds["sub_col_LDR_%s" % cloud_str].attrs["long_name"] = \
+            "Linear depolarization ratio in %s" % cloud_str
+        model.ds["sub_col_LDR_%s" % cloud_str].attrs["units"] = "1"
         numerator_tot += numerator
         denominator_tot += denominator
 
-    denominator_tot = np.where(denominator_tot == 0, 1, denominator_tot)
+    denominator_tot = np.where(denominator_tot > 0, denominator_tot, np.nan)
     model.ds["sub_col_LDR_tot"] = numerator_tot / denominator_tot
     model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
     model.ds["sub_col_LDR_tot"].attrs["units"] = "1"
@@ -118,16 +129,355 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
     ext_mask = OD_cum_p_tot - ext_tmp
 
     model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["sub_col_LDR_conv"].dims)
-    model.ds["ext_mask"].attrs["long_name"] = "Extinction mask (convective + stratiform)"
+    model.ds["ext_mask"].attrs["long_name"] = "Extinction mask at %s based on optical thickness considerations \
+        (convective + stratiform; calculated %s)" % OD_str
     model.ds["ext_mask"].attrs["units"] = ("2 = Signal extinct, 1 = layer where signal becomes " +
                                            "extinct, 0 = signal not extinct")
 
     return model
 
 
+def accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc=True, **kwargs):
+    """
+    Accumulate optical thickness from TOA or the surface.
+
+    Parameters
+    ----------
+    model: Model
+        The model to generate the parameters for.
+    is_conv: bool
+        True if the cell is convective
+    z_values: ndarray
+        model output height array in m.
+    hyd_type: string
+        hydrometeor class name to include in calcuation.
+    OD_from_sfc: bool
+        If True, then calculate optical depth from the surface.
+
+    Returns
+    -------
+    model: Model
+        The model with the added simulated lidar parameters.
+    """
+    if is_conv:
+        cloud_str = "conv"
+    else:
+        cloud_str = "strat"
+
+    Dims = model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].shape
+    if OD_from_sfc:
+        dz = np.tile(np.diff(z_values, axis=1, prepend=0.), (model.num_subcolumns, 1, 1))
+        model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(np.cumsum(
+            dz * np.concatenate((np.zeros(Dims[:2] + (1,)),
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:,:,:-1]), axis=2), axis=2),
+            dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
+    else:
+        dz = np.tile(np.diff(z_values, axis=1, append=0.), (model.num_subcolumns, 1, 1))
+        model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(np.flip(np.cumsum(
+            np.flip(dz * np.concatenate((model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:,:,1:],
+            np.zeros(Dims[:2] + (1,))), axis=2), axis=2), axis=2), axis=2),
+            dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
+
+    return model
+
+
+def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_values,
+                         OD_from_sfc=True, hyd_types=None, **kwargs):
+    """
+    Calculates the lidar stratiform or convective backscatter, extinction, and
+    optical depth in a sub-columns using empirical formulation from literature.
+
+    Parameters
+    ----------
+    instrument: Instrument
+        The instrument to simulate. The instrument must be a lidar.
+    model: Model
+        The model to generate the parameters for.
+    is_conv: bool
+        True if the cell is convective
+    p_values: ndarray
+        model output pressure array in Pa.
+    t_values: ndarray
+        model output temperature array in K.
+    z_values: ndarray
+        model output height array in m.
+    OD_from_sfc: bool
+        If True, then calculate optical depth from the surface.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using 4 classes if None.
+
+    Returns
+    -------
+    model: Model
+        The model with the added simulated lidar parameters.
+    """
+    if hyd_types is None:
+        hyd_types = ["cl", "ci", "pl", "pi"]
+
+    if is_conv:
+        cloud_str = "conv"
+    else:
+        cloud_str = "strat"
+
+    Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
+    model.ds['sub_col_beta_p_tot_%s' % cloud_str] = xr.DataArray(
+        np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+    model.ds['sub_col_alpha_p_tot_%s' % cloud_str] = xr.DataArray(
+        np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+    model.ds['sub_col_OD_tot_%s' % cloud_str] = xr.DataArray(
+        np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+
+    for hyd_type in hyd_types:
+        WC = model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * p_values / \
+            (instrument.R_d * t_values)
+        if is_conv:
+            empr_array = model.ds[model.conv_re_fields[hyd_type]].values
+
+        else:
+            empr_array = model.ds[model.strat_re_fields[hyd_type]].values
+        if hyd_type == "cl" or hyd_type == "pl":
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                (3 * WC) / (2 * model.Rho_hyd[hyd_type] * 1e-6 * \
+                            np.tile(empr_array, (model.num_subcolumns, 1, 1))),
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        else:
+            temp = t_values
+            a = 0.00532 * ((temp - 273.15) + 90)**2.55
+            b = 1.31 * np.exp(0.0047 * (temp - 273.15))
+            a = np.tile(a, (model.num_subcolumns, 1, 1))
+            b = np.tile(b, (model.num_subcolumns, 1, 1))
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type,cloud_str)] = xr.DataArray(
+                (WC / a)**(1 / b), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = \
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] / \
+            model.lidar_ratio[hyd_type].magnitude
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = \
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = \
+            model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
+        model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc)
+
+        model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
+        model.ds["sub_col_alpha_p_tot_%s" % cloud_str] += \
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)]
+        model.ds["sub_col_OD_tot_%s" % cloud_str] += model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)]
+    return model
+
+
+def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=True,
+                    hyd_types=None, mie_for_ice=False, **kwargs):
+    """
+    Calculates the lidar stratiform or convective backscatter, extinction, and
+    optical depth in a sub-columns using bulk scattering LUTs assuming geometric
+    scatterers (radiation scheme logic).
+    Effective radii for each hydrometeor class must be provided (in model.ds).
+
+    Parameters
+    ----------
+    instrument: Instrument
+        The instrument to simulate. The instrument must be a lidar.
+    model: Model
+        The model to generate the parameters for.
+    is_conv: bool
+        True if the cell is convective
+    p_values: ndarray
+        model output pressure array in Pa.
+    z_values: ndarray
+        model output height array in m.
+    OD_from_sfc: bool
+        If True, then calculate optical depth from the surface.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using 4 classes if None.
+    mie_for_ice: bool
+        If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
+        scattering LUTs for 8-column severly roughned aggregate.
+
+    Returns
+    -------
+    model: Model
+        The model with the added simulated lidar parameters.
+    """
+    if hyd_types is None:
+        hyd_types = ["cl", "ci", "pl", "pi"]
+
+    if is_conv:
+        cloud_str = "conv"
+        re_fields = model.conv_re_fields
+    else:
+        cloud_str = "strat"
+        re_fields = model.strat_re_fields
+    
+    Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
+    model.ds['sub_col_beta_p_tot_%s' % cloud_str] = xr.DataArray(
+        np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+    model.ds['sub_col_alpha_p_tot_%s' % cloud_str] = xr.DataArray(
+        np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+    model.ds['sub_col_OD_tot_%s' % cloud_str] = xr.DataArray(
+        np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+
+    rhoa_dz = np.tile(np.abs(np.diff(p_values, axis=1, append=0.)) / instrument.g,
+            (model.num_subcolumns, 1, 1))
+    dz = np.tile(np.diff(z_values, axis=1, append=0.), (model.num_subcolumns, 1, 1))
+    for hyd_type in hyd_types:
+        if hyd_type[-1] == 'l':
+            rho_b = model.Rho_hyd[hyd_type] # bulk water
+            re_array = np.tile(model.ds[re_fields[hyd_type]], (model.num_subcolumns, 1, 1))
+        else:
+            rho_b = instrument.rho_i # bulk ice
+            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type]/rho_b + \
+                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type]/rho_b)**(1/3)
+            re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
+                        (model.num_subcolumns, 1, 1))
+
+        tau_hyd = np.where(model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] > 0,
+            3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz / \
+            (2 * rho_b * re_array * 1e-6), 0)
+        A_hyd = tau_hyd / (2 * dz) # model assumes geometric scatterers
+
+        if np.isin(hyd_type, ["ci", "pi"]):
+            if mie_for_ice:
+                r_eff_bulk = instrument.bulk_table["mie_ice"]["r_e"].values
+                Qback_bulk = instrument.bulk_table["mie_ice"]["Q_back"].values
+                Qext_bulk = instrument.bulk_table["mie_ice"]["Q_ext"].values
+            else:
+                r_eff_bulk = instrument.bulk_table["8col_agg"]["r_e"].values
+                Qback_bulk = instrument.bulk_table["8col_agg"]["Q_back"].values
+                Qext_bulk = instrument.bulk_table["8col_agg"]["Q_ext"].values
+        else:
+            r_eff_bulk = instrument.bulk_table["mie_liq"]["r_e"].values
+            Qback_bulk = instrument.bulk_table["mie_liq"]["Q_back"].values
+            Qext_bulk = instrument.bulk_table["mie_liq"]["Q_ext"].values
+
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+            np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd,
+            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+            np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd,
+            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc)
+
+        model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
+        model.ds["sub_col_alpha_p_tot_%s" % cloud_str] += \
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)]
+        model.ds["sub_col_OD_tot_%s" % cloud_str] += model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)]
+
+    return model
+
+
+def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
+                    hyd_types=None, mie_for_ice=False, parallel=True, chunk=None, **kwargs):
+    """
+    Calculates the lidar backscatter, extinction, and optical depth
+    in a given column for the given lidar using the microphysics (MG2) logic.
+
+    Parameters
+    ----------
+    instrument: Instrument
+        The instrument to simulate. The instrument must be a lidar.
+    model: Model
+        The model to generate the parameters for.
+    is_conv: bool
+        True if the cell is convective
+    z_values: ndarray
+        model output height array in m.
+    OD_from_sfc: bool
+        If True, then calculate optical depth from the surface.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using 4 classes if None.
+    mie_for_ice: bool
+        If True, using full mie caculation LUTs. Otherwise, currently using the C6
+        scattering LUTs for 8-column severly roughned aggregate.
+    parallel: bool
+        If True, use parallelism in calculating lidar parameters.
+    chunk: int or None
+        The number of entries to process in one parallel loop. None will send all of
+        the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
+        too many tasks are sent at once due to memory issues, so adjusting this number
+        might be needed if that happens.
+    Additonal keyword arguments are passed into
+    :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
+
+    Returns
+    -------
+    model: Model
+        The model with the added simulated lidar parameters.
+    """
+    if hyd_types is None:
+        hyd_types = ["cl", "ci", "pl", "pi"]
+
+    Dims = model.ds["strat_q_subcolumns_cl"].values.shape
+    for hyd_type in hyd_types:
+        frac_names = "strat_frac_subcolumns_%s" % hyd_type
+        print("Generating stratiform lidar variables for hydrometeor class %s" % hyd_type)
+        if not np.isin("sub_col_beta_p_tot_strat", [x for x in model.ds.keys()]):
+            model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+            model.ds["sub_col_alpha_p_tot_strat"] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+            model.ds["sub_col_OD_tot_strat"] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+        model.ds["sub_col_beta_p_%s_strat" % hyd_type] = xr.DataArray(
+            np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+        model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
+            np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+        fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+        N_columns = len(model.ds["subcolumn"])
+        total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
+        N_0 = fits_ds["N_0"].values
+        mu = fits_ds["mu"].values
+        num_subcolumns = model.num_subcolumns
+        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+            p_diam = instrument.c6_table["8col_agg"]["D_eq_proj_sphere"].values
+            beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
+            alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+        else:
+            p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+            beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+            alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
+        lambdas = fits_ds["lambda"].values
+        _calc_lidar = lambda x: _calc_strat_lidar_properties(
+            x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, p_diam,
+            beta_p, alpha_p)
+        if parallel:
+            if chunk is None:
+                tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                lists = tt_bag.map(_calc_lidar).compute()
+            else:
+                lists = []
+                j = 0
+                while j < Dims[1]:
+                    if j + chunk >= Dims[1]:
+                        ind_max = Dims[1]
+                    else:
+                        ind_max = j + chunk
+                    print(" Processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                    tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                    lists += tt_bag.map(_calc_lidar).compute()
+                    j += chunk
+        else:
+            lists = [x for x in map(_calc_lidar, np.arange(0, Dims[1], 1))]
+        beta_p_strat = np.stack([x[0] for x in lists], axis=1)
+        alpha_p_strat = np.stack([x[1] for x in lists], axis=1)
+
+        model.ds["sub_col_beta_p_%s_strat" % hyd_type][:, :, :] = beta_p_strat
+        model.ds["sub_col_alpha_p_%s_strat" % hyd_type][:, :, :] = alpha_p_strat
+        model.ds["sub_col_beta_p_%s_strat" % hyd_type] = \
+            model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
+        model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = \
+            model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
+        model = accumulate_OD(model, False, z_values, hyd_type, OD_from_sfc)
+
+        model.ds["sub_col_beta_p_tot_strat"] += model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
+        model.ds["sub_col_alpha_p_tot_strat"] += model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
+        model.ds["sub_col_OD_tot_strat"] += model.ds["sub_col_OD_%s_strat" % hyd_type].fillna(0)
+
+    return model
+
+
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, mie_for_ice=True,
-                       **kwargs):
+                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, mie_for_ice=False,
+                       use_rad_logic=True, use_empiric_calc=False, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -140,8 +490,6 @@ def calc_lidar_moments(instrument, model, is_conv,
         The model to generate the parameters for.
     is_conv: bool
         True if the cell is convective
-    z_field: str
-        The name of the altitude field to use.
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     parallel: bool
@@ -156,6 +504,19 @@ def calc_lidar_moments(instrument, model, is_conv,
     mie_for_ice: bool
         If True, using full mie caculation LUTs. Otherwise, currently using the C6
         scattering LUTs for 8-column severly roughned aggregate.
+    use_rad_logic: bool
+        When True using radiation scheme logic in calculations, which includes using
+        the cloud fraction fields utilized in a model radiative scheme, as well as bulk
+        scattering LUTs (effective radii dependent scattering variables). Otherwise, and
+        only in the stratiform case, using the microphysics scheme logic, which includes
+        the cloud fraction fields utilized by the model microphysics scheme and single
+        particle scattering LUTs.
+        NOTE: because of its single-particle calculation method, the microphysics
+        approach is significantly slower than the radiation approach. Also, the cloud
+        fraction logic in these  schemes does not necessarilytly fully overlap.
+    use_empirical_calc: bool
+        When True using empirical relations from literature for the fwd calculations
+        (the cloud fraction still follows the scheme logic set by use_rad_logic).
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
 
@@ -166,8 +527,26 @@ def calc_lidar_moments(instrument, model, is_conv,
     """
 
     hyd_types = ["cl", "ci", "pl", "pi"]
+
+    if is_conv:
+        cloud_str = "conv"
+        cloud_str_full = "convective"
+        if np.logical_and(not use_empiric_calc, not use_rad_logic):
+            use_rad_logic = True # Force rad scheme logic if in conv scheme
+    else:
+        cloud_str = "strat"
+        cloud_str_full = "stratiform"
+
+    if OD_from_sfc:
+        OD_str = "layer base"
+    else:
+        OD_str = "layer top"
+
     if not instrument.instrument_class.lower() == "lidar":
         raise ValueError("Instrument must be a lidar!")
+
+    if "%s_q_subcolumns_cl" % cloud_str not in model.ds.variables.keys():
+        raise KeyError("Water mixing ratio in %s subcolumns must be generated first!" % cloud_str_full)
 
     hyd_names_dict = {'cl': 'cloud liquid particles', 'pl': 'liquid precipitation',
                       'ci': 'cloud ice particles', 'pi': 'liquid ice precipitation'}
@@ -175,7 +554,6 @@ def calc_lidar_moments(instrument, model, is_conv,
     p_field = model.p_field
     t_field = model.T_field
     z_field = model.z_field
-    column_ds = model.ds
 
     # Do unit conversions using pint - pressure in Pa, T in K, z in m
     p_temp = model.ds[p_field].values * getattr(ureg, model.ds[p_field].attrs["units"])
@@ -190,186 +568,52 @@ def calc_lidar_moments(instrument, model, is_conv,
     beta_m = np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1))
     T = np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
 
-    if is_conv:
-        if "conv_q_subcolumns_cl" not in model.ds.variables.keys():
-            raise KeyError("Water mixing ratio in convective subcolumns must be generated first!")
-        Dims = model.ds["conv_q_subcolumns_cl"].values.shape
-        model.ds['sub_col_beta_p_tot_conv'] = xr.DataArray(
-            np.zeros(Dims), dims=model.ds["conv_q_subcolumns_cl"].dims)
-        model.ds['sub_col_alpha_p_tot_conv'] = xr.DataArray(
-            np.zeros(Dims), dims=model.ds["conv_q_subcolumns_cl"].dims)
-        model.ds['sub_col_OD_tot_conv'] = xr.DataArray(
-            np.zeros(Dims), dims=model.ds["conv_q_subcolumns_cl"].dims)
-
-        for hyd_type in hyd_types:
-            WC = model.ds["conv_q_subcolumns_%s" % hyd_type] * p_values / \
-                (instrument.R_d * t_values)
-            empr_array = model.ds[model.re_fields[hyd_type]].values
-            if hyd_type == "cl" or hyd_type == "pl":
-                model.ds["sub_col_alpha_p_%s_conv" % hyd_type] = xr.DataArray(
-                    (3 * WC) / (2 * model.Rho_hyd[hyd_type] * 1e-3 *
-                                np.tile(empr_array, (model.num_subcolumns, 1, 1))),
-                    dims=model.ds["conv_q_subcolumns_cl"].dims)
-            else:
-                temp = t_values
-                a = 0.00532 * ((temp - 273.15) + 90)**2.55
-                b = 1.31 * np.exp(0.0047 * (temp - 273.15))
-                a = np.tile(a, (model.num_subcolumns, 1, 1))
-                b = np.tile(b, (model.num_subcolumns, 1, 1))
-                model.ds["sub_col_alpha_p_%s_conv" % hyd_type] = xr.DataArray(
-                    WC / (a**(1 / b)), dims=model.ds["conv_q_subcolumns_cl"].dims)
-
-            model.ds["sub_col_beta_p_%s_conv" % hyd_type] = model.ds["sub_col_alpha_p_%s_conv" % hyd_type] / \
-                model.lidar_ratio[hyd_type].magnitude
-            model.ds["sub_col_alpha_p_%s_conv" % hyd_type] = \
-                model.ds["sub_col_alpha_p_%s_conv" % hyd_type].fillna(0)
-            model.ds["sub_col_beta_p_%s_conv" % hyd_type] = \
-                model.ds["sub_col_beta_p_%s_conv" % hyd_type].fillna(0)
-            if OD_from_sfc:
-                dz = np.diff(z_values, axis=1, prepend=0.)
-                dz = np.tile(dz, (model.num_subcolumns, 1, 1))
-                model.ds["sub_col_OD_%s_conv" % hyd_type] = np.cumsum(
-                    dz * model.ds["sub_col_alpha_p_%s_conv" % hyd_type], axis=2)
-            else:
-                dz = np.diff(z_values, axis=1, append=0.)
-                dz = np.tile(dz, (model.num_subcolumns, 1, 1))
-                model.ds["sub_col_OD_%s_conv" % hyd_type] = np.flip(np.cumsum(
-                    np.flip(dz * model.ds["sub_col_alpha_p_%s_conv" % hyd_type], axis=2), axis=2), axis=2)
-            model.ds["sub_col_beta_p_tot_conv"] += model.ds["sub_col_beta_p_%s_conv" % hyd_type]
-            model.ds["sub_col_alpha_p_tot_conv"] += model.ds["sub_col_alpha_p_%s_conv" % hyd_type]
-            model.ds["sub_col_OD_tot_conv"] += model.ds["sub_col_OD_%s_conv" % hyd_type]
-            model.ds["sub_col_beta_p_%s_conv" % hyd_type].attrs["long_name"] = \
-                "Backscatter coefficient from %s in convective clouds" % hyd_names_dict[hyd_type]
-            model.ds["sub_col_beta_p_%s_conv" % hyd_type].attrs["units"] = "m^-1"
-            model.ds["sub_col_alpha_p_%s_conv" % hyd_type].attrs["long_name"] = \
-                "Extinction coefficient from %s in convective clouds" % hyd_names_dict[hyd_type]
-            model.ds["sub_col_alpha_p_%s_conv" % hyd_type].attrs["units"] = "m^-1"
-            model.ds["sub_col_OD_%s_conv" % hyd_type].attrs["long_name"] = \
-                "Optical depth from %s in convective clouds" % hyd_names_dict[hyd_type]
-            model.ds["sub_col_OD_%s_conv" % hyd_type].attrs["units"] = "1"
-
-        model.ds["sub_col_beta_p_tot_conv"].attrs["long_name"] = \
-            "Backscatter coefficient from all hydrometeors in convective clouds"
-        model.ds["sub_col_beta_p_tot_conv"].attrs["units"] = "m^-1"
-        model.ds["sub_col_alpha_p_tot_conv"].attrs["long_name"] = \
-            "Extinction coefficient from all hydrometeors in convective clouds"
-        model.ds["sub_col_alpha_p_tot_conv"].attrs["units"] = "m^-1"
-        model.ds["sub_col_OD_tot_conv"].attrs["long_name"] = \
-            "Optical depth from all hydrometeors in convective clouds"
-        model.ds["sub_col_OD_tot_conv"].attrs["units"] = "1"
-
-        model.ds['sub_col_beta_att_tot_conv'] = (beta_m + model.ds['sub_col_beta_p_tot_conv']) * \
-            T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_conv'])
-        model.ds["sub_col_beta_att_tot_conv"].attrs["long_name"] = \
-            "Backscatter coefficient from all hydrometeors in convective clouds"
-        model.ds["sub_col_beta_att_tot_conv"].attrs["units"] = "m^-1"
-        return model
+    t0 = time()
+    if use_empiric_calc:
+        print("Generating %s lidar variables using empirical formulation" % cloud_str_full)
+        model = calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_values,
+            OD_from_sfc=OD_from_sfc, hyd_types=hyd_types)
+    elif use_rad_logic:
+        print("Generating %s lidar variables using radiation logic" % cloud_str_full)
+        model = calc_lidar_bulk(instrument, model, is_conv, p_values, z_values,
+            OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types)
     else:
-        if "strat_q_subcolumns_cl" not in model.ds.variables.keys():
-            raise KeyError("Water mixing ratio in convective subcolumns must be generated first!")
-        Dims = column_ds["strat_q_subcolumns_cl"].values.shape
-        for hyd_type in ["pi", "pl", "ci", "cl"]:
-            frac_names = "strat_frac_subcolumns_%s" % hyd_type
-            print("Generating stratiform lidar variables for hydrometeor class %s" % hyd_type)
-            if hyd_type == "pi":
-                model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
-                    np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-                model.ds["sub_col_alpha_p_tot_strat"] = xr.DataArray(
-                    np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-                model.ds["sub_col_OD_tot_strat"] = xr.DataArray(
-                    np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-            model.ds["sub_col_beta_p_%s_strat" % hyd_type] = xr.DataArray(
-                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-            model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
-                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-            fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
-            N_columns = len(model.ds["subcolumn"])
-            total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
-            N_0 = fits_ds["N_0"].values
-            mu = fits_ds["mu"].values
-            num_subcolumns = model.num_subcolumns
-            if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-                p_diam = instrument.c6_table["8col_agg"]["D_eq_proj_sphere"].values
-                beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
-                alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
-            else:
-                p_diam = instrument.mie_table[hyd_type]["p_diam"].values
-                beta_p = instrument.mie_table[hyd_type]["beta_p"].values
-                alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
-            lambdas = fits_ds["lambda"].values
-            _calc_lidar = lambda x: _calc_strat_lidar_properties(
-                x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, p_diam,
-                beta_p, alpha_p)
-            if parallel:
-                if chunk is None:
-                    tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
-                    lists = tt_bag.map(_calc_lidar).compute()
-                else:
-                    lists = []
-                    j = 0
-                    while j < Dims[1]:
-                        if j + chunk >= Dims[1]:
-                            ind_max = Dims[1]
-                        else:
-                            ind_max = j + chunk
-                        print(" Processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
-                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
-                        lists += tt_bag.map(_calc_lidar).compute()
-                        j += chunk
-            else:
-                lists = [x for x in map(_calc_lidar, np.arange(0, Dims[1], 1))]
-            beta_p_strat = np.stack([x[0] for x in lists], axis=1)
-            alpha_p_strat = np.stack([x[1] for x in lists], axis=1)
+        print("Generating %s lidar variables using microphysics logic (slowest processing)" % cloud_str_full)
+        calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=OD_from_sfc,
+            hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk)
 
-            model.ds["sub_col_beta_p_%s_strat" % hyd_type][:, :, :] = beta_p_strat
-            model.ds["sub_col_alpha_p_%s_strat" % hyd_type][:, :, :] = alpha_p_strat
-            model.ds["sub_col_beta_p_%s_strat" % hyd_type] = \
-                model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
-            model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = \
-                model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
+    for hyd_type in hyd_types:
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
+            "Backscatter coefficient from %s in %s clouds" % (hyd_names_dict[hyd_type], cloud_str_full)
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "m^-1 sr^-1"
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
+            "Extinction coefficient from %s in %s clouds" % (hyd_names_dict[hyd_type], cloud_str_full)
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "m^-1"
+        model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
+            "Cumulative optical depth at %s from %s in %s clouds" % \
+            (OD_str, hyd_names_dict[hyd_type], cloud_str_full)
+        model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "1"
 
-            if OD_from_sfc:
-                dz = np.diff(z_values, axis=1, prepend=0.)
-                dz = np.tile(dz, (model.num_subcolumns, 1, 1))
-                model.ds["sub_col_OD_%s_strat" % hyd_type] = np.cumsum(
-                    dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2)
-            else:
-                dz = np.diff(z_values, axis=1, append=0.)
-                dz = np.tile(dz, (model.num_subcolumns, 1, 1))
-                model.ds["sub_col_OD_%s_strat" % hyd_type] = np.flip(np.cumsum(
-                    np.flip(dz * model.ds["sub_col_alpha_p_%s_strat" % hyd_type], axis=2), axis=2), axis=2)
+    model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["long_name"] = \
+        "Backscatter coefficient from all hydrometeors in %s clouds" % cloud_str_full
+    model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["long_name"] = \
+        "Extinction coefficient from all hydrometeors in %s clouds" % cloud_str_full
+    model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["units"] = "m^-1"
+    model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["long_name"] = \
+        "Cumulative optical depth at %s from all hydrometeors in %s clouds" % \
+        (OD_str, cloud_str_full)
+    model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["units"] = "1"
 
-            model.ds["sub_col_beta_p_%s_strat" % hyd_type].attrs["long_name"] = \
-                "Backscatter coefficient from %s in stratiform clouds" % hyd_names_dict[hyd_type]
-            model.ds["sub_col_beta_p_%s_strat" % hyd_type].attrs["units"] = "m^-1"
-            model.ds["sub_col_alpha_p_%s_strat" % hyd_type].attrs["long_name"] = \
-                "Extinction coefficient from %s in stratiform clouds" % hyd_names_dict[hyd_type]
-            model.ds["sub_col_alpha_p_%s_strat" % hyd_type].attrs["units"] = "m^-1"
-            model.ds["sub_col_OD_%s_strat" % hyd_type].attrs["long_name"] = \
-                "Optical depth from %s in stratiform clouds" % hyd_names_dict[hyd_type]
-            model.ds["sub_col_OD_%s_strat" % hyd_type].attrs["units"] = "1"
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str] = (beta_m + model.ds["sub_col_beta_p_tot_%s" % cloud_str]) * \
+        T * np.exp(-2 * eta * model.ds["sub_col_OD_tot_%s" % cloud_str])
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["long_name"] = \
+        "Total attenuated backscatter in %s clouds" % cloud_str_full
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["units"] = "m^-1 sr^-1"
 
-            model.ds["sub_col_beta_p_tot_strat"] += model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
-            model.ds["sub_col_alpha_p_tot_strat"] += model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
-            model.ds["sub_col_OD_tot_strat"] += model.ds["sub_col_OD_%s_strat" % hyd_type].fillna(0)
+    print("Done! total processing time = %.2fs" % (time() - t0))
 
-        model.ds["sub_col_beta_p_tot_strat"].attrs["long_name"] = \
-            "Backscatter coefficient from all hydrometeors in stratiform clouds"
-        model.ds["sub_col_beta_p_tot_strat"].attrs["units"] = "m^-1"
-        model.ds["sub_col_alpha_p_tot_strat"].attrs["long_name"] = \
-            "Extinction coefficient from all hydrometeors in stratiform clouds"
-        model.ds["sub_col_alpha_p_tot_strat"].attrs["units"] = "m^-1"
-        model.ds["sub_col_OD_tot_strat"].attrs["long_name"] = \
-            "Optical depth from all hydrometeors in stratiform clouds"
-        model.ds["sub_col_OD_tot_strat"].attrs["units"] = "1"
-
-        model.ds['sub_col_beta_att_tot_strat'] = (beta_m + model.ds['sub_col_beta_p_tot_strat']) * \
-            T * np.exp(-2 * eta * model.ds['sub_col_OD_tot_strat'])
-        model.ds["sub_col_beta_att_tot_strat"].attrs["long_name"] = \
-            "Attenuated total backscatter in stratiform clouds"
-        model.ds["sub_col_beta_att_tot_strat"].attrs["units"] = "m^-1"
-
-        return model
+    return model
 
 
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,

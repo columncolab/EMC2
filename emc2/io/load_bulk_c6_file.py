@@ -22,10 +22,9 @@ def load_bulk_c6_file(filename):
                     names=["r_e", "Q_scat", "Q_ext", "Q_back", "Q_back_cross",
                             "LDR", "lidar_ratio"])
 
-    my_df["r_e"] = my_df["r_e"] * 1e-6
     my_df = my_df.to_xarray()
 
-    my_df["r_e"].attrs["units"] = "meters"
+    my_df["r_e"].attrs["units"] = "microns"
     my_df["r_e"].attrs["long_name"] = "Effective radius of hydrometeor class"
     my_df['r_e'].attrs["standard_name"] = "Effective radius"
 

@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 
 
-def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_frac=False):
+def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=True):
     """
     Sets the hydrometeor fraction due to convection in each subcolumn.
 
@@ -18,7 +18,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_frac=Fa
         Therefore, after those are generated this must either be
         equal to None or the number of subcolumns in the model. Setting this to None will
         use the number of subcolumns in the model parameter.
-    use_rad_frac: bool
+    use_rad_logic: bool
         When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
         using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
@@ -39,7 +39,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_frac=Fa
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
-    if use_rad_frac:
+    if use_rad_logic:
         data_frac = np.round(model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns)
     else:
         data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
@@ -64,7 +64,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_frac=Fa
     return model
 
 
-def set_stratiform_sub_col_frac(model, use_rad_frac=False):
+def set_stratiform_sub_col_frac(model, use_rad_logic=True):
     """
     Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.
 
@@ -72,7 +72,7 @@ def set_stratiform_sub_col_frac(model, use_rad_frac=False):
     ----------
     model: :py:func: `emc2.core.Model`
         The model we are generating the subcolumns of stratiform fraction for.
-    use_rad_frac: bool
+    use_rad_logic: bool
         When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
         using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
@@ -95,7 +95,7 @@ def set_stratiform_sub_col_frac(model, use_rad_frac=False):
     conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
     N_columns = len(model.ds["subcolumn"])
     subcolumn_dims = conv_profs1.dims
-    if use_rad_frac:
+    if use_rad_logic:
         data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
         data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
     else:
@@ -217,7 +217,7 @@ def set_stratiform_sub_col_frac(model, use_rad_frac=False):
     return model
 
 
-def set_precip_sub_col_frac(model, convective=True, N_columns=None, use_rad_frac=False):
+def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True):
     """
     Sets the hydrometeor fraction due to precipitation in each subcolumn. This
     module works for both stratiform and convective precipitation.
@@ -226,14 +226,14 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None, use_rad_frac
     ----------
     model: :py:func: `emc2.core.Model`
         The model we are generating the subcolumns of stratiform fraction for.
-    convective: bool
+    is_conv: bool
         Set to True to generate subcolumns for convective precipitation.
         Set to False to generate subcolumns for stratiform precipitation.
     N_columns: int or None
         Use this to set the number of subcolumns in the model. This can only
         be set once. After the number of subcolumns is set, use None to make
         EMC2 automatically detect the number of subcolumns.
-    use_rad_frac: bool
+    use_rad_logic: bool
         When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
         using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
@@ -254,8 +254,8 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None, use_rad_frac
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
-    if convective:
-        if use_rad_frac:
+    if is_conv:
+        if use_rad_logic:
             data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
             data_frac2 = model.ds[model.conv_frac_names_for_rad['pi']]
         else:
@@ -268,7 +268,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None, use_rad_frac
         in_prof_cloud_name_liq = 'conv_frac_subcolumns_cl'
         in_prof_cloud_name_ice = 'conv_frac_subcolumns_ci'
     else:
-        if use_rad_frac:
+        if use_rad_logic:
             data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
             data_frac2 = model.ds[model.strat_frac_names_for_rad['pi']]
         else:
@@ -357,7 +357,7 @@ def set_precip_sub_col_frac(model, convective=True, N_columns=None, use_rad_frac
     return model
 
 
-def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_frac=False):
+def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad_logic=True):
     """
 
     This function distributes the mixing ratio and number concentration into the subcolumns.
@@ -372,13 +372,15 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_
     is_conv: bool
         Set to True to calculate the mixing ratio assuming convective clouds.
     qc_flag: bool
-        Set to True to horizontally distribute the mixing ratio according to
-        Morrison and Gettleman (2008)
+        Set to True to horizontally distribute the mixing ratio (allowing sub-grid variability)
+        according to Morrison and Gettleman (2008). qc_flag is set to False in case use_rad_logic
+        and/or is_conv are True (both cases do not follow the Morrison scheme).
     inv_rel_var: float
         The inverse of the relative subgrid qc PDF variance in Morrison and Gettleman (2008)
-    use_rad_frac: bool
-        When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
-        using the microphysics scheme (note that these schemes do not necessarily
+    use_rad_logic: bool
+        When True using the cloud fraction utilized in a model radiative scheme and also implementing
+        uniformly distributed qc (setting qc_flag to False) to maintain radiation scheme logic.
+        Otherwise, using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
 
     Returns
@@ -396,9 +398,11 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_
     if model.num_subcolumns == 0:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
 
+    if np.logical_or(use_rad_logic, is_conv):
+        qc_flag = False
     if not is_conv:
         frac_fieldname = 'strat_frac_subcolumns_%s' % hyd_type
-        if use_rad_frac:
+        if use_rad_logic:
             hyd_profs = model.ds[model.strat_frac_names_for_rad[hyd_type]].astype('float64').values
         else:     
             hyd_profs = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
@@ -412,7 +416,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_
         n_name = "strat_n_subcolumns_%s" % hyd_type
     else:
         frac_fieldname = 'conv_frac_subcolumns_%s' % hyd_type
-        if use_rad_frac:
+        if use_rad_logic:
             hyd_profs = model.ds[model.conv_frac_names_for_rad[hyd_type]].astype('float64').values
         else:
             hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
@@ -420,9 +424,9 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_
         q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
         q_name = "conv_q_subcolumns_%s" % hyd_type
 
-    q_ic_mean = q_array / hyd_profs
-    q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
     if qc_flag:
+        q_ic_mean = np.where(q_array > 0, q_array / hyd_profs, 0)
+        q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
         tot_hyd_in_sub = sub_hyd_profs.sum(axis=0)
         q_profs = np.zeros_like(sub_hyd_profs, dtype=float)
 
@@ -450,7 +454,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=True, inv_rel_var=1, use_rad_
                         (1 + counter_4_valid)
 
     else:
-        q_profs = q_array / hyd_profs
+        q_profs = np.where(q_array > 0, q_array / hyd_profs, 0)
         q_profs = np.tile(q_profs, (model.num_subcolumns, 1, 1))
         q_profs = np.where(sub_hyd_profs, q_profs, 0)
 

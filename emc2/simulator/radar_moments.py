@@ -94,7 +94,8 @@ def calc_radar_reflectivity_conv(instrument, model, hyd_type):
 
 
 def calc_radar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, chunk=None, mie_for_ice=True, **kwargs):
+                       OD_from_sfc=True, parallel=True, chunk=None, mie_for_ice=True, use_rad_logic=True,
+                       use_empiric_calc=False, **kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.

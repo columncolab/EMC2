@@ -23,14 +23,15 @@ def load_c6_file(filename, is_radar):
     if is_radar is True:
         my_df = pd.read_csv(filename,
                         names=["frequency", "p_diam", "p_diam_eq_A", "p_diam_eq_V",
-                               "V", "A", "beta_p", "scat_p", "alpha_p", "ldr"])
+                               "V", "A", "beta_p", "scat_p", "alpha_p", "beta_p_cross"])
     else:
         my_df = pd.read_csv(filename,
                         names=["wavelength", "p_diam", "p_diam_eq_A", "p_diam_eq_V",
-                               "V", "A", "beta_p", "scat_p", "alpha_p", "ldr"])
+                               "V", "A", "beta_p", "scat_p", "alpha_p", "beta_p_cross"])
 
     my_df["alpha_p"] = my_df["alpha_p"] * 1e-12
     my_df["beta_p"] = my_df["beta_p"] * 1e-12
+    my_df["beta_p_cross"] = my_df["beta_p_cross"] * 1e-12
     my_df["scat_p"] = my_df["scat_p"] * 1e-12
     my_df["p_diam"] = 1e-6 * my_df["p_diam"]
     my_df["p_diam_eq_A"] = 1e-6 * my_df["p_diam_eq_A"]
@@ -73,15 +74,15 @@ def load_c6_file(filename, is_radar):
     my_df["scat_p"].attrs["standard_name"] = "Scat_cross_section"
 
     my_df["beta_p"].attrs["units"] = "meters^2"
-    my_df["beta_p"].attrs["long_name"] = "Back scattering cross section"
+    my_df["beta_p"].attrs["long_name"] = "Backscattering cross section"
     my_df["beta_p"].attrs["standard_name"] = "Scat_cross_section_back"
 
     my_df["alpha_p"].attrs["units"] = "meters^2"
     my_df["alpha_p"].attrs["long_name"] = "Extinction cross section"
     my_df["alpha_p"].attrs["standard_name"] = "Ext_cross_section"
 
-    my_df["ldr"].attrs["units"] = "1"
-    my_df["ldr"].attrs["long_name"] = "Linear depolarization ratio"
-    my_df["ldr"].attrs["standard_name"] = "LDR"
+    my_df["beta_p_cross"].attrs["units"] = "meters^2"
+    my_df["beta_p_cross"].attrs["long_name"] = "Cross-polar backscattering cross section"
+    my_df["beta_p_cross"].attrs["standard_name"] = "Scat_cross_section_back_crosspol"
 
     return my_df

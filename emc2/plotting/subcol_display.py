@@ -49,6 +49,9 @@ class SubcolumnDisplay(Display):
 
     def _switch_model(self, model):
         """
+        Replace the processed model data in the SubcolumnDisplay object with a different
+        processed model data allowing full compitability with Display object (e.g., plotting
+        output from multiple processing methods using the SubcolumnDisplay plotting routines).
 
         Parameters
         ----------
@@ -540,7 +543,7 @@ class SubcolumnDisplay(Display):
         else:
             y_variable = my_ds[self.model.z_field]
             y_label = 'Height [m]'
-        if my_ds[x_variable].size > 1:
+        if len(my_ds[x_variable].shape) > 1:
             y_variable = np.nanmean(y_variable, axis=0)
 
         x_variable = my_ds[variable].values

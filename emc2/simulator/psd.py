@@ -6,7 +6,7 @@ from scipy.special import gamma
 
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=False, dispersion_mu_bounds=(2, 15),
-                   subcolumns=False, convective=False):
+                   subcolumns=False, is_conv=False):
 
     """
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
@@ -17,6 +17,10 @@ def calc_mu_lambda(model, hyd_type="cl",
 
     Where :math:`N_{0}` is the intercept, :math:`\lambda` is the slope, and
     :math:`\mu` is the dispersion.
+
+    Note: this method only accepts the microphysical cloud fraction in order to maintain
+    consistency because the PSD calculation is necessarily related only to the MG2 scheme
+    without assumption related to the radiation logic
 
     Parameters
     ----------
@@ -34,7 +38,7 @@ def calc_mu_lambda(model, hyd_type="cl",
     subcolumns: bool
         If True, the fit parameters will be generated for the generated subcolumns
         rather than the model data itself.
-    convective: bool
+    is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
     Returns
     -------
@@ -55,7 +59,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         N_name = model.N_field[hyd_type]
         q_name = model.q_names_stratiform[hyd_type]
     else:
-        if not convective:
+        if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "strat_q_subcolumns_%s" % hyd_type
             frac_name = model.strat_frac_names[hyd_type]

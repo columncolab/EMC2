@@ -22,6 +22,10 @@ class Model():
     Rho_hyd: dict
        A dictionary whose keys are the names of the model's hydrometeor classes and
        whose values are the density of said hydrometeors in :math:`kg\ m^{-3}`
+    fluffy: dict
+       A dictionary whose keys are the names of the model's ice hydrometeor classes and
+       whose values are the ice fluffiness factor for the fwd calculations using r_e,
+       where values of 0 - equal volume sphere, 1 - fluffy sphere i.e., diameter = maximum dimension.
     lidar_ratio: dict
        A dictionary whose keys are the names of the model's hydrometeor classes and
        whose values are the lidar_ratio of said hydrometeors.
@@ -48,16 +52,36 @@ class Model():
     conv_frac_names: dict
        A dictionary containing the names of the convective fraction corresponding to each
        hydrometeor class in the model.
+    strat_frac_names: dict
+       A dictionary containing the names of the stratiform fraction corresponding to each
+       hydrometeor class in the model.
+    conv_frac_names_for_rad: dict
+       A dictionary containing the names of the convective fraction corresponding to each
+       hydrometeor class in the model for the radiation scheme.
+    strat_frac_names_for_rad: dict
+       A dictionary containing the names of the stratiform fraction corresponding to each
+       hydrometeor class in the model for the radiation scheme.
+    conv_re_fields: dict
+       A dictionary containing the names of the effective radii of each convective
+       hydrometeor class
+    strat_re_fields: dict
+       A dictionary containing the names of the effective radii of each stratiform
+       hydrometeor class
     time_dim: str
        The name of the time dimension in the model.
     height_dim: str
        The name of the height dimension in the model.
     model_name: str
        The name of the model (used for plotting).
+    x_dim: str
+       The name of the x dimension of the model.
+    y_dim: str
+       The name of the y dimension of the model.
     """
 
     def __init__(self):
         self.Rho_hyd = {}
+        self.fluffy = {}
         self.lidar_ratio = {}
         self.LDR_per_hyd = {}
         self.vel_param_a = {}
@@ -72,10 +96,16 @@ class Model():
         self.qp_field = {}
         self.conv_frac_names = {}
         self.strat_frac_names = {}
+        self.conv_frac_names_for_rad = {}
+        self.strat_frac_names_for_rad = {}
+        self.conv_re_fields = {}
+        self.strat_re_fields = {}
         self.ds = None
         self.time_dim = "time"
         self.height_dim = "height"
         self.model_name = "empty_model"
+        self.x_dim = None
+        self.y_dim = None
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -195,6 +225,7 @@ class ModelE(Model):
         """
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
+        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
                             'pl': 5.5 * ureg.dimensionless,
@@ -219,7 +250,10 @@ class ModelE(Model):
         self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
-        self.re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
+        self.conv_frac_names_for_rad = {'cl': 'cldmcr', 'ci': 'cldmcr', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names_for_rad = {'cl': 'cldssr', 'ci': 'cldssr', 'pl': 'cldssr', 'pi': 'cldssr'}
+        self.conv_re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
+        self.strat_re_fields = {'cl': 're_sscl', 'ci': 're_ssci', 'pi': 're_sspi', 'pl': 're_sspl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = read_netcdf(file_path)
@@ -282,7 +316,9 @@ class DHARMA(Model):
                                 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                  'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+        self.conv_re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                          'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.strat_re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
@@ -503,7 +539,8 @@ class TestConvection(Model):
         super()._add_vel_units()
         self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
-        self.re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
+        self.conv_re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
+        self.strat_re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
@@ -636,7 +673,8 @@ class TestAllStratiform(Model):
         super()._add_vel_units()
         self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
-        self.re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
+        self.conv_re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
+        self.strat_re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
@@ -749,7 +787,8 @@ class TestHalfAndHalf(Model):
         super()._add_vel_units()
         self.q_names_convective = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
-        self.re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
+        self.conv_re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
+        self.strat_re_fields = {'cl': 're_cl', 'ci': 're_cl', 'pl': 're_pl', 'pi': 're_pl'}
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"

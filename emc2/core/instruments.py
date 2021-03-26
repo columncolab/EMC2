@@ -9,7 +9,9 @@ import numpy as np
 import os
 
 from .instrument import Instrument, ureg, quantity
-from ..io import load_mie_file, load_c6_file
+from ..io import load_mie_file, load_c6_file, load_bulk_c6_file
+from ..scattering import calc_microwave_ref_index_ice, calc_microwave_ref_index
+from ..scattering import scat_properties_ice, scat_properties_water
 
 
 class KAZR(Instrument):
@@ -75,6 +77,10 @@ class KAZR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_ice.dat")
 
 class WACR(Instrument):
     def __init__(self, site, *args):
@@ -127,6 +133,10 @@ class WACR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_WACR_8col_agg_rough_270K.dat", True)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_ice.dat")
 
 
 class RL(Instrument):
@@ -175,6 +185,10 @@ class RL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_RL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_RL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_RL_C6PSD_mie_ice.dat")
 
 
 class HSRL(Instrument):
@@ -224,6 +238,10 @@ class HSRL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
 
 
 class CEIL(Instrument):
@@ -260,6 +278,10 @@ class CEIL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_ice.dat")
 
 
 class Ten64nm(Instrument):
@@ -289,12 +311,72 @@ class Ten64nm(Instrument):
         self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
+        self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
         if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
+
+
+class NEXRAD(Instrument):
+    def __init__(self):
+        """
+        This stores the information for the NOAA NEXRAD radar.
+        K_w: float
+            The index of refraction of water used for Ze calculation.
+            See the ARM KAZR handbook (Widener et al. 2012)
+        eps_liq: float
+            The complex dielectric constant for liquid water.
+        pt: float
+            Transmitting power in Watts.
+        theta: float
+            3 dB beam width in degrees
+        gain: float
+            The antenna gain in linear units.
+        Z_min_1km: float
+            The minimum detectable signal at 1 km in dBZ
+        lr: float
+            Attenuation based on the the general attributes in the spectra files.
+        pr_noise_ge: float
+            Minimum detectable signal in mW.
+        tau_ge: float
+            Pulse width in mus.
+        tau_md: float
+            Pulse width in mus.
+        """
+        super().__init__(frequency=3.0 * ureg.GHz)
+        self.instrument_class = "radar"
+        self.instrument_name = "nexrad"
+        self.ext_OD = np.nan
+        self.K_w = 0.92
+        self.eps_liq = calc_microwave_ref_index(self.wavelength * 1e-4, 0.)**2
+        self.theta = 0.96
+        self.pt = 500000.
+        self.gain = 10**4.58
+        self.Z_min_1km = -20
+        self.lr = np.nan
+        self.pr_noise_ge = 0.
+        self.tau_ge = 1.57
+        self.tau_md = 4.71
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        ds = load_mie_file(data_path + "/Mie1064nm_liq.dat")
+        self.mie_table["cl"] = scat_properties_water(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        self.mie_table["pl"] = scat_properties_water(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        ds = load_mie_file(data_path + "/Mie1064nm_ci.dat")
+        self.mie_table["ci"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        ds = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, 10., 0.)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
 
 
 class CALIOP(Instrument):
@@ -344,4 +426,8 @@ class CALIOP(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
 

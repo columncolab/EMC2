@@ -58,7 +58,7 @@ def scat_properties_water(diams, wavelength, temperature=0., pressure=1013.):
     my_dict['compre_real'] = m.real * np.ones_like(qext) / 1.0003
     my_dict['compre_im'] = m.imag * np.ones_like(qext) / 1.0003
     my_dict['size_parameter'] = np.pi * diams / (wavelength * 1e4)
-    my_dict['p_diam'] = diams * 1e-6
+    my_dict['p_diam'] = diams * 1e-9
     my_dict['wavelength'] = wavelength * 1e4 * np.ones_like(qext)
     my_df = xr.Dataset(my_dict)
 
@@ -160,7 +160,7 @@ def scat_properties_ice(diams, wavelength, temperature=0., pressure=1013., rho_d
     my_dict['compre_real'] = m.real * np.ones_like(qext) / 1.0003
     my_dict['compre_im'] = m.imag * np.ones_like(qext) / 1.0003
     my_dict['size_parameter'] = np.pi * diams / (wavelength * 1e4)
-    my_dict['p_diam'] = diams * 1e-6
+    my_dict['p_diam'] = diams * 1e-9
     my_dict['wavelength'] = wavelength * 1e4 * np.ones_like(qext)
     my_df = xr.Dataset(my_dict)
 

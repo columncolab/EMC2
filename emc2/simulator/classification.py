@@ -140,7 +140,7 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
         if convert_zeros_to_nan:
             phase_mask = np.where(phase_mask == 0, np.nan, phase_mask)
 
-        model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["mu"].dims)
+        model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["strat_frac_subcolumns_cl"].dims)
         model.ds[mask_name].attrs["long_name"] = mask_long_name_str[ii]
         model.ds[mask_name].attrs["units"] = "Unitless"
         model.ds[mask_name].attrs["legend"] = ["Cloud", "Precip", "Mixed"]

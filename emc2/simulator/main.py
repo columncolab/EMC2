@@ -80,10 +80,13 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
     else:
         mask_height_rng = None
     if 'mie_for_ice' in kwargs.keys():
-        mie_for_ice = kwargs['mie_for_ice']
+        mie_for_ice = {"conv": kwargs['mie_for_ice'], "strat": kwargs['mie_for_ice']}
         del kwargs['mie_for_ice']
     else:
-        mie_for_ice = False
+        if use_rad_logic:
+            mie_for_ice = {"conv": False, "strat": False}
+        else:
+            mie_for_ice = {"conv": False, "strat": True} # use True for strat (micro), False for conv (rad)
     if 'use_empiric_calc' in kwargs.keys():
         use_empiric_calc = kwargs['use_empiric_calc']
         del kwargs['use_empiric_calc']
@@ -98,10 +101,10 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         else:
             ref_rng = 1000
         model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel,
-                                   chunk=chunk, mie_for_ice=mie_for_ice, use_rad_logic=use_rad_logic,
+                                   chunk=chunk, mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
                                    use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel,
-                                   chunk=chunk, mie_for_ice=mie_for_ice, use_rad_logic=use_rad_logic,
+                                   chunk=chunk, mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
                                    use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_reflectivity(model)
 
@@ -125,11 +128,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             eta = instrument.eta
         model = calc_lidar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc,
                                    parallel=parallel, eta=eta, chunk=chunk,
-                                   mie_for_ice=mie_for_ice, use_rad_logic=use_rad_logic,
+                                   mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
                                    use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_lidar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc,
                                    parallel=parallel, eta=eta, chunk=chunk,
-                                   mie_for_ice=mie_for_ice, use_rad_logic=use_rad_logic,
+                                   mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
                                    use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)

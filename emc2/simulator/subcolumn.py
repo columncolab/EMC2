@@ -40,8 +40,10 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
     if use_rad_logic:
+        method_str = "Radiation logic"
         data_frac = np.round(model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns)
     else:
+        method_str = "Microphysics logic"
         data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
 
     # In case we only have one time step
@@ -60,6 +62,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
     model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["units"] = "boolean"
     model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["long_name"] = (
         "Is there hydrometeors of type %s in each subcolumn?" % hyd_type)
+    model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["Processing method"] = method_str
 
     return model
 
@@ -96,9 +99,11 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True):
     N_columns = len(model.ds["subcolumn"])
     subcolumn_dims = conv_profs1.dims
     if use_rad_logic:
+        method_str = "Radiation logic"
         data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
         data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
     else:
+        method_str = "Microphysics logic"
         data_frac1 = model.ds[model.strat_frac_names["cl"]]
         data_frac2 = model.ds[model.strat_frac_names["ci"]]
     data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
@@ -211,9 +216,11 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True):
     model.ds['strat_frac_subcolumns_cl'].attrs["long_name"] = \
         "Liquid cloud particles present? [stratiform]"
     model.ds['strat_frac_subcolumns_cl'].attrs["units"] = "0 = no, 1 = yes"
+    model.ds['strat_frac_subcolumns_cl'].attrs["Processing method"] = method_str
     model.ds['strat_frac_subcolumns_ci'].attrs["long_name"] = \
         "Liquid cloud particles present? [stratiform]"
     model.ds['strat_frac_subcolumns_ci'].attrs["units"] = "0 = no, 1 = yes"
+    model.ds['strat_frac_subcolumns_ci'].attrs["Processing method"] = method_str
     return model
 
 
@@ -256,9 +263,11 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True):
 
     if is_conv:
         if use_rad_logic:
+            method_str = "Radiation logic"
             data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
             data_frac2 = model.ds[model.conv_frac_names_for_rad['pi']]
         else:
+            method_str = "Microphysics logic"
             data_frac1 = model.ds[model.conv_frac_names['pl']]
             data_frac2 = model.ds[model.conv_frac_names['pi']]
         out_prof_name1 = 'conv_frac_subcolumns_pl'
@@ -269,9 +278,11 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True):
         in_prof_cloud_name_ice = 'conv_frac_subcolumns_ci'
     else:
         if use_rad_logic:
+            method_str = "Radiation logic"
             data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
             data_frac2 = model.ds[model.strat_frac_names_for_rad['pi']]
         else:
+            method_str = "Microphysics logic"
             data_frac1 = model.ds[model.strat_frac_names['pl']]
             data_frac2 = model.ds[model.strat_frac_names['pi']]
         out_prof_name1 = 'strat_frac_subcolumns_pl'
@@ -352,8 +363,10 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True):
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     model.ds[out_prof_name1].attrs["long_name"] = out_prof_long_name1
     model.ds[out_prof_name1].attrs["units"] = "0 = no, 1 = yes"
+    model.ds[out_prof_name1].attrs["Processing method"] = method_str
     model.ds[out_prof_name2].attrs["long_name"] = out_prof_long_name2
     model.ds[out_prof_name2].attrs["units"] = "0 = no, 1 = yes"
+    model.ds[out_prof_name2].attrs["Processing method"] = method_str
     return model
 
 
@@ -403,8 +416,10 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
     if not is_conv:
         frac_fieldname = 'strat_frac_subcolumns_%s' % hyd_type
         if use_rad_logic:
+            method_str = "Radiation logic"
             hyd_profs = model.ds[model.strat_frac_names_for_rad[hyd_type]].astype('float64').values
-        else:     
+        else:
+            method_str = "Microphysics logic"
             hyd_profs = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
         N_profs = model.ds[model.N_field[hyd_type]].astype('float64').values
         N_profs = N_profs / hyd_profs
@@ -417,8 +432,10 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
     else:
         frac_fieldname = 'conv_frac_subcolumns_%s' % hyd_type
         if use_rad_logic:
+            method_str = "Radiation logic"
             hyd_profs = model.ds[model.conv_frac_names_for_rad[hyd_type]].astype('float64').values
         else:
+            method_str = "Microphysics logic"
             hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
         sub_hyd_profs = model.ds[frac_fieldname]
         q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
@@ -462,11 +479,13 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
     model.ds[q_name] = xr.DataArray(q_profs, dims=model.ds[frac_fieldname].dims)
     model.ds[q_name].attrs["long_name"] = "q in subcolumns"
     model.ds[q_name].attrs["units"] = "kg/kg"
+    model.ds[q_name].attrs["Processing method"] = method_str
     if not is_conv:
         N_profs = np.where(np.isnan(N_profs), 0, N_profs)
         model.ds[n_name] = xr.DataArray(N_profs, dims=model.ds[frac_fieldname].dims)
         model.ds[n_name].attrs["long_name"] = "N in subcolumns"
         model.ds[n_name].attrs["units"] = "cm-3"
+        model.ds[n_name].attrs["Processing method"] = method_str
 
     return model
 

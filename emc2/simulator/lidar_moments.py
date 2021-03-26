@@ -31,7 +31,7 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
 
     Returns
     -------
-    model: Model
+    model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
     if OD_from_sfc:
@@ -84,7 +84,7 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
 
     Returns
     -------
-    model: Model
+    model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
 
@@ -139,7 +139,7 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
 
 def accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc=True, **kwargs):
     """
-    Accumulate optical thickness from TOA or the surface.
+    Accumulates optical thickness from TOA or the surface.
 
     Parameters
     ----------
@@ -156,7 +156,7 @@ def accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc=True, **kwargs
 
     Returns
     -------
-    model: Model
+    model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
     if is_conv:
@@ -205,10 +205,12 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
         list of hydrometeor names to include in calcuation. using 4 classes if None.
+    Additonal keyword arguments are passed into
+    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
     Returns
     -------
-    model: Model
+    model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
     if hyd_types is None:
@@ -241,6 +243,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
                             np.tile(empr_array, (model.num_subcolumns, 1, 1))),
                 dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
         else:
+            # Heymsfield et al. (2014)
             temp = t_values
             a = 0.00532 * ((temp - 273.15) + 90)**2.55
             b = 1.31 * np.exp(0.0047 * (temp - 273.15))
@@ -256,12 +259,13 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = \
             model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
-        model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc)
+        model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc, **kwargs)
 
         model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
         model.ds["sub_col_alpha_p_tot_%s" % cloud_str] += \
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)]
         model.ds["sub_col_OD_tot_%s" % cloud_str] += model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)]
+
     return model
 
 
@@ -292,10 +296,12 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     mie_for_ice: bool
         If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
         scattering LUTs for 8-column severly roughned aggregate.
+    Additonal keyword arguments are passed into
+    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
     Returns
     -------
-    model: Model
+    model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
     if hyd_types is None:
@@ -355,7 +361,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
             np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd,
             dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
-        model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc)
+        model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc, **kwargs)
 
         model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
         model.ds["sub_col_alpha_p_tot_%s" % cloud_str] += \
@@ -365,7 +371,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     return model
 
 
-def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
+def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
                     hyd_types=None, mie_for_ice=False, parallel=True, chunk=None, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
@@ -377,8 +383,6 @@ def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
         The instrument to simulate. The instrument must be a lidar.
     model: Model
         The model to generate the parameters for.
-    is_conv: bool
-        True if the cell is convective
     z_values: ndarray
         model output height array in m.
     OD_from_sfc: bool
@@ -396,11 +400,12 @@ def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
     Additonal keyword arguments are passed into
-    :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
+    :py:func:`emc2.psd.calc_mu_lambda`.
+    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
     Returns
     -------
-    model: Model
+    model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
     if hyd_types is None:
@@ -428,7 +433,7 @@ def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
         mu = fits_ds["mu"].values
         num_subcolumns = model.num_subcolumns
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.c6_table["8col_agg"]["D_eq_proj_sphere"].values
+            p_diam = instrument.c6_table["8col_agg"]["p_diam_eq_V"].values
             beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
             alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
         else:
@@ -440,6 +445,7 @@ def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
             x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, num_subcolumns, p_diam,
             beta_p, alpha_p)
         if parallel:
+            print("Doing parallel lidar calculations for %s" % hyd_type)
             if chunk is None:
                 tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
                 lists = tt_bag.map(_calc_lidar).compute()
@@ -466,7 +472,7 @@ def calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=True,
             model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
         model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = \
             model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
-        model = accumulate_OD(model, False, z_values, hyd_type, OD_from_sfc)
+        model = accumulate_OD(model, False, z_values, hyd_type, OD_from_sfc, **kwargs)
 
         model.ds["sub_col_beta_p_tot_strat"] += model.ds["sub_col_beta_p_%s_strat" % hyd_type].fillna(0)
         model.ds["sub_col_alpha_p_tot_strat"] += model.ds["sub_col_alpha_p_%s_strat" % hyd_type].fillna(0)
@@ -518,12 +524,16 @@ def calc_lidar_moments(instrument, model, is_conv,
         When True using empirical relations from literature for the fwd calculations
         (the cloud fraction still follows the scheme logic set by use_rad_logic).
     Additonal keyword arguments are passed into
-    :py:func:`emc2.simulator.lidar_moments.calc_LDR_and_ext`.
+    :py:func:`emc2.psd.calc_mu_lambda`.
+    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
+    :py:func:`emc2.simulator.lidar_moments.calc_lidar_empirical`.
+    :py:func:`emc2.simulator.lidar_moments.calc_lidar_bulk`.
+    :py:func:`emc2.simulator.lidar_moments.calc_lidar_micro`.
 
     Returns
     -------
-    model: Model
-        The model with the added simulated lidar parameters.
+    model: :func:`emc2.core.Model`
+        The model dataset with the added simulated lidar parameters.
     """
 
     hyd_types = ["cl", "ci", "pl", "pi"]
@@ -538,18 +548,22 @@ def calc_lidar_moments(instrument, model, is_conv,
         cloud_str_full = "stratiform"
 
     if OD_from_sfc:
-        OD_str = "layer base"
+        OD_str = "model layer base"
     else:
-        OD_str = "layer top"
+        OD_str = "model layer top"
+
+    if use_empiric_calc:
+        scat_str = "Empirical (no utilized scattering database)"
+    elif mie_for_ice:
+        scat_str = "Mie"
+    else:
+        scat_str = "C6"
 
     if not instrument.instrument_class.lower() == "lidar":
         raise ValueError("Instrument must be a lidar!")
 
     if "%s_q_subcolumns_cl" % cloud_str not in model.ds.variables.keys():
         raise KeyError("Water mixing ratio in %s subcolumns must be generated first!" % cloud_str_full)
-
-    hyd_names_dict = {'cl': 'cloud liquid particles', 'pl': 'liquid precipitation',
-                      'ci': 'cloud ice particles', 'pi': 'liquid ice precipitation'}
 
     p_field = model.p_field
     t_field = model.T_field
@@ -571,45 +585,62 @@ def calc_lidar_moments(instrument, model, is_conv,
     t0 = time()
     if use_empiric_calc:
         print("Generating %s lidar variables using empirical formulation" % cloud_str_full)
+        method_str = "Empirical"
         model = calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_values,
-            OD_from_sfc=OD_from_sfc, hyd_types=hyd_types)
+            OD_from_sfc=OD_from_sfc, hyd_types=hyd_types, **kwargs)
     elif use_rad_logic:
         print("Generating %s lidar variables using radiation logic" % cloud_str_full)
+        method_str = "Bulk (radiation logic)"
         model = calc_lidar_bulk(instrument, model, is_conv, p_values, z_values,
-            OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types)
+            OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types, **kwargs)
     else:
         print("Generating %s lidar variables using microphysics logic (slowest processing)" % cloud_str_full)
-        calc_lidar_micro(instrument, model, is_conv, z_values, OD_from_sfc=OD_from_sfc,
-            hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk)
+        method_str = "LUTs (microphysics logic)"
+        calc_lidar_micro(instrument, model, z_values, OD_from_sfc=OD_from_sfc,
+            hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk, **kwargs)
 
     for hyd_type in hyd_types:
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
-            "Backscatter coefficient from %s in %s clouds" % (hyd_names_dict[hyd_type], cloud_str_full)
+            "Particulate backscatter cross section from %s %s hydrometeors" % (cloud_str_full, hyd_type)
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "m^-1 sr^-1"
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
         model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
-            "Extinction coefficient from %s in %s clouds" % (hyd_names_dict[hyd_type], cloud_str_full)
+            "Particulate extinction cross section from %s %s hydrometeors" % (cloud_str_full, hyd_type)
         model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "m^-1"
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
-            "Cumulative optical depth at %s from %s in %s clouds" % \
-            (OD_str, hyd_names_dict[hyd_type], cloud_str_full)
+            "Cumulative optical depth at %s from %s %s hydrometeors" % \
+            (OD_str, cloud_str_full, hyd_type)
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "1"
+        model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
+        model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
 
     model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["long_name"] = \
-        "Backscatter coefficient from all hydrometeors in %s clouds" % cloud_str_full
+        "Backscatter coefficient from all %s hydrometeors" % cloud_str_full
     model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["Processing method"] = method_str
+    model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
     model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["long_name"] = \
-        "Extinction coefficient from all hydrometeors in %s clouds" % cloud_str_full
+        "Extinction coefficient from all %s hydrometeors" % cloud_str_full
     model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["units"] = "m^-1"
+    model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["Processing method"] = method_str
+    model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
     model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["long_name"] = \
-        "Cumulative optical depth at %s from all hydrometeors in %s clouds" % \
+        "Cumulative optical depth at %s from all %s hydrometeors" % \
         (OD_str, cloud_str_full)
     model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["units"] = "1"
+    model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["Processing method"] = method_str
+    model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
 
     model.ds["sub_col_beta_att_tot_%s" % cloud_str] = (beta_m + model.ds["sub_col_beta_p_tot_%s" % cloud_str]) * \
         T * np.exp(-2 * eta * model.ds["sub_col_OD_tot_%s" % cloud_str])
     model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["long_name"] = \
-        "Total attenuated backscatter in %s clouds" % cloud_str_full
+        "Total attenuated backscatter from all %s hydrometeors (including atmospheric extinction)" % cloud_str_full
     model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["Processing method"] = method_str
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
 
     print("Done! total processing time = %.2fs" % (time() - t0))
 

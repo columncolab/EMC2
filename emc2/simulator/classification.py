@@ -229,7 +229,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             for class_name in hyd_groups[hyd_class]:
                 beta_p[hyd_class] += np.nan_to_num( \
                                         model.ds['sub_col_beta_p_%s_%s' % (class_name, cloud_class)].values)
-                OD[hyd_class] += model.ds['sub_col_OD_%s_%s' % (class_name, cloud_class)].values
+                OD[hyd_class] += np.nan_to_num(model.ds['sub_col_OD_%s_%s' % (class_name, cloud_class)].values)
             ATB_co[hyd_class] = (np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1)) +
                                  beta_p[hyd_class]) * \
                                  np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1)) * \
@@ -361,7 +361,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
 
 
 def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr=False,
-                          mpr_subcolmod=True):
+                          mpr_subcolmod=False):
     """
     calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).
 
@@ -383,7 +383,7 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
         in the classification mask. Otherwise, the frequency phase ratio (from all subcolumns).
     mpr_subcolmod: bool
         If True, doing subcolumn-based MPR calculation. Otherwise, simply using the model output
-        mixing ratio rata.
+        mixing ratio data.
 
     Returns
     -------

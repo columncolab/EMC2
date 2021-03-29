@@ -435,7 +435,7 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
         numer_counts = np.nansum(np.isin(mask_array, mask_class), axis=0)
         denom_counts = np.nansum(np.isin(mask_array, mask_allhyd), axis=0)
         denom_counts = np.where(denom_counts == 0, np.nan, denom_counts)
-        PR = numer_counts / denom_counts
+        PR = np.nan_to_num(numer_counts) / denom_counts
         model.ds[variable + "_fpr"] = xr.DataArray(PR, dims=model.ds[model.T_field].dims)
         model.ds[variable + "_fpr"].attrs["long_name"] = variable + "frequency phase ratio"
         model.ds[variable + "_fpr"].attrs["units"] = ""

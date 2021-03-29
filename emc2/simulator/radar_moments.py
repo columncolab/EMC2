@@ -201,8 +201,8 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
             Ze_emp.values, dims=model.ds[q_field].dims)
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp
 
-    kappa_f = 6 * np.pi / (instrument.wavelength * 1e-6 * model.Rho_hyd["cl"].magnitude) * \
-        ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag / 1e-3 # dB m^3 g^-1 km^-1 
+    kappa_f = 6 * np.pi / (instrument.wavelength * model.Rho_hyd["cl"].magnitude) * \
+        ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag * 4.34e6 # dB m^3 g^-1 km^-1
     model = accumulate_attenuation(model, is_conv, z_values, WC_tot * kappa_f, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=True, **kwargs)
 

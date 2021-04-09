@@ -450,6 +450,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                         j += chunk
             else:
                 my_tuple = [x for x in map(_calc_other, np.arange(0, Dims[1], 1))]
+
             V_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in my_tuple], axis=1))
             moment_denom_tot += np.nan_to_num(np.stack([x[1] for x in my_tuple], axis=1))
             hyd_ext = np.nan_to_num(np.stack([x[2] for x in my_tuple], axis=1))
@@ -609,8 +610,6 @@ def calc_radar_moments(instrument, model, is_conv,
         The xarray Dataset containing the calculated radar moments.
     """
 
-    # We don't care about invalid value errors
-    # np.seterr(divide='ignore', invalid='ignore')
     hyd_types = ["cl", "ci", "pl", "pi"]
 
     if is_conv:

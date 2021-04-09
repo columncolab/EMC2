@@ -17,13 +17,15 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
     model: Model
         The model output to classify.
     beta_p_phase_thresh: list of dicts or None
-        If a list, each index contains a dictionary with class name, class integer
-        value (mask order), LDR value bounds, and the corresponding beta_p threshold
-        (thresholds are linearly interpolated between LDR values). In order for the
+        If a list, each element contains a dictionary with class name, class integer
+        value (mask order starting at 1), LDR value bounds, and the corresponding beta_p threshold
+        (thresholds are linearly interpolated in log10 scale between LDR values). In order for the
         method to operate properly, the list should be arranged from the lowest to
-        highest beta_p threshold values for a given LDR, that is,
-        beta_p[i+1 | LDR=x] >= beta_p[i | LDR=x]. class integer values of 0 = clear.
-        When None, the default settings from the instrument will be used.
+        highest beta_p threshold values for a given LDR, that is, (where i is the list element)
+        beta_p[i+1 | LDR=x] >= beta_p[i | LDR=x]. Set class integer values of 1 or higher = clear
+        (because of a very high beta_p value).
+        When None, the default settings from the instrument object will be used (available only for
+        beta resolving lidar classes).
     convert_zeros_to_nan: bool
         If True, saving the mask array as a float dtype (instead of uint8) and converting all
             zeros in the array to nans.
@@ -62,10 +64,11 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
         else:
             phase_mask = np.zeros_like(model.ds["sub_col_LDR_strat"], dtype=np.uint8)
         for class_type in range(len(beta_p_phase_thresh)):
-            phase_mask = np.where(model.ds[beta_p_fieldnames[ii]].values >=
+            phase_mask = np.where(np.where(model.ds[beta_p_fieldnames[ii]].values > 0,
+                                  np.log10(model.ds[beta_p_fieldnames[ii]].values), np.nan) >=
                                   np.interp(model.ds[LDR_fieldnames[ii]].values,
                                   beta_p_phase_thresh[class_type]["LDR"],
-                                  beta_p_phase_thresh[class_type]["beta_p"]),
+                                  np.log10(beta_p_phase_thresh[class_type]["beta_p"])),
                                   beta_p_phase_thresh[class_type]["class_ind"], phase_mask)
             Class_legend[beta_p_phase_thresh[class_type]["class_ind"] - 1] = \
                 beta_p_phase_thresh[class_type]["class"]
@@ -129,9 +132,9 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
         else:
             phase_mask = np.zeros_like(model.ds["conv_frac_subcolumns_cl"], dtype=np.uint8)
         phase_mask = np.where(model.ds[Ze_fieldnames[ii]].values >=
-                              np.tile(model.ds['Ze_min'].values, (model.num_subcolumns, 1, 1)), 2, phase_mask)
-        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask != 2), 1, phase_mask)
-        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask == 2), 3, phase_mask)
+                              np.tile(model.ds['Ze_min'].values, (model.num_subcolumns, 1, 1)), 3, phase_mask) # Precip
+        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask != 3), 1, phase_mask) # Cloud
+        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask == 3), 2, phase_mask) # Mixed
         if mask_height_rng is not None:
             phase_mask = np.where(
                 np.logical_or(np.tile(model.ds[model.z_field], (model.num_subcolumns, 1, 1)) < mask_height_rng[0],
@@ -143,7 +146,7 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
         model.ds[mask_name] = xr.DataArray(phase_mask, dims=model.ds["strat_frac_subcolumns_cl"].dims)
         model.ds[mask_name].attrs["long_name"] = mask_long_name_str[ii]
         model.ds[mask_name].attrs["units"] = "Unitless"
-        model.ds[mask_name].attrs["legend"] = ["Cloud", "Precip", "Mixed"]
+        model.ds[mask_name].attrs["legend"] = ["Cloud", "Mixed", "Precip"]
 
     return model
 

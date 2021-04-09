@@ -148,17 +148,17 @@ class RL(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "RL"
         self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
-                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 1.],
                                      'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
-                                    {'class': 'undef1', 'class_ind': 3,
-                                     'LDR': [0., 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 2e-5, 0., 0.]},
-                                    {'class': 'undef2', 'class_ind': 4,
-                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 3,
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 2e-6, 9e-6, 1., 1.]},
+                                    {'class': 'undef1', 'class_ind': 4,
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 1.41421e-4, 1e-3, 1., 1.]},
                                     {'class': 'liquid', 'class_ind': 1,
-                                     'LDR': [0., 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 1e-3, 0., 0.]}]
+                                     'LDR': [0., 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 1e-3, 1., 1.]}]
         self.ext_OD = 4
         self.OD_from_sfc = True
         self.eta = 1
@@ -201,17 +201,17 @@ class HSRL(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
         self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
-                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 1.],
                                      'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
-                                    {'class': 'undef1', 'class_ind': 3,
-                                     'LDR': [0., 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 2e-5, 0., 0.]},
-                                    {'class': 'undef2', 'class_ind': 4,
-                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 3,
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 2e-6, 9e-6, 1., 1.]},
+                                    {'class': 'undef1', 'class_ind': 4,
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 1.41421e-4, 1e-3, 1., 1.]},
                                     {'class': 'liquid', 'class_ind': 1,
-                                     'LDR': [0., 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 1e-3, 0., 0.]}]
+                                     'LDR': [0., 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 1e-3, 1., 1.]}]
         self.ext_OD = 4
         self.OD_from_sfc = True
         self.eta = 1
@@ -389,17 +389,17 @@ class CALIOP(Instrument):
         self.instrument_class = "lidar"
         self.instrument_str = "HSRL"
         self.beta_p_phase_thresh = [{'class': 'ice', 'class_ind': 2,
-                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 1.],
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 1.],
                                      'beta_p': [2e-5, 2e-5, 2e-6, 5e-7, 5e-7]},
-                                    {'class': 'undef1', 'class_ind': 3,
-                                     'LDR': [0., 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 2e-5, 0., 0.]},
-                                    {'class': 'undef2', 'class_ind': 4,
-                                     'LDR': [0., 0.1000, 0.1001, 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 2e-5, 1.41421e-6, 1e-3, 0., 0.]},
+                                    {'class': 'undef2', 'class_ind': 3,
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 2e-6, 9e-6, 1., 1.]},
+                                    {'class': 'undef1', 'class_ind': 4,
+                                     'LDR': [0., 0.1, 0.100001, 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 2e-5, 1.41421e-4, 1e-3, 1., 1.]},
                                     {'class': 'liquid', 'class_ind': 1,
-                                     'LDR': [0., 0.2000, 0.2001, 1.],
-                                     'beta_p': [2e-5, 1e-3, 0., 0.]}]
+                                     'LDR': [0., 0.2, 0.200001, 1.],
+                                     'beta_p': [2e-5, 1e-3, 1., 1.]}]
         self.ext_OD = 4
         self.OD_from_sfc = False
         self.eta = 0.7

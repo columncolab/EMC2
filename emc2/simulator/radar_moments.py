@@ -610,8 +610,6 @@ def calc_radar_moments(instrument, model, is_conv,
         The xarray Dataset containing the calculated radar moments.
     """
 
-    # We don't care about invalid value errors
-    # np.seterr(divide='ignore', invalid='ignore')
     hyd_types = ["cl", "ci", "pl", "pi"]
 
     if is_conv:

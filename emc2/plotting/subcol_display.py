@@ -483,7 +483,7 @@ class SubcolumnDisplay(Display):
 
         return self.axes[subplot_index]
 
-    def plot_subcolumn_mean_profile(self, variable, time, pressure_coords=True, title=None,
+    def plot_subcolumn_mean_profile(self, variable, time=None, pressure_coords=True, title=None,
                                     subplot_index=(0,), log_plot=False, plot_SD=True, Xlabel=None,
                                     Mask_array=None, x_range=None, y_range=None, **kwargs):
         """
@@ -528,14 +528,17 @@ class SubcolumnDisplay(Display):
 
         ds_name = [x for x in self._arm.keys()][0]
         x_variable = self.model.time_dim
-        if np.logical_or(type(time) is tuple, type(time) is str):
-            time = np.array(time)
-        if time.size == 1:
-            my_ds = self._arm[ds_name].sel({x_variable: time}, method='nearest')
+        if time is not None:
+            if np.logical_or(type(time) is tuple, type(time) is str):
+                time = np.array(time)
+            if time.size == 1:
+                my_ds = self._arm[ds_name].sel({x_variable: time}, method='nearest')
+            else:
+                time_ind = np.logical_and(self._arm[ds_name][x_variable] >= time[0],
+                                          self._arm[ds_name][x_variable] < time[1])
+                my_ds = self._arm[ds_name].isel({x_variable: time_ind})
         else:
-            time_ind = np.logical_and(self._arm[ds_name][x_variable] >= time[0],
-                                      self._arm[ds_name][x_variable] < time[1])
-            my_ds = self._arm[ds_name].isel({x_variable: time_ind})
+            my_ds = self._arm[ds_name]
 
         if pressure_coords:
             y_variable = my_ds[self.model.p_field]
@@ -543,7 +546,7 @@ class SubcolumnDisplay(Display):
         else:
             y_variable = my_ds[self.model.z_field]
             y_label = 'Height [m]'
-        if len(my_ds[x_variable].shape) > 1:
+        if len(y_variable.shape) > 1:
             y_variable = np.nanmean(y_variable, axis=0)
 
         x_variable = my_ds[variable].values
@@ -558,10 +561,10 @@ class SubcolumnDisplay(Display):
 
         if 'Ze' in variable:
             # Use SD as a relative error considering the dBZ units
-            if time.size == 1:
+            if len(x_variable.shape) == 2:
                 x_var = np.nanmean(10**(x_variable / 10), axis=0)
                 x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
-            else:
+            elif len(x_variable.shape) == 3:
                 x_var = np.nanmean(10**(x_variable / 10), axis=(0, 1))
                 x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=(0, 1))
             x_label = ''
@@ -569,10 +572,10 @@ class SubcolumnDisplay(Display):
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
             x_fill[0] = np.where(x_var > x_err, x_fill[0], 10 * np.log10(np.finfo(float).eps))
         else:
-            if time.size == 1:
+            if len(x_variable.shape) == 2:
                 x_var = np.nanmean(x_variable, axis=0)
                 x_err = np.nanstd(x_variable, ddof=0, axis=0)
-            else:
+            elif len(x_variable.shape) == 3:
                 x_var = np.nanmean(x_variable, axis=(0, 1))
                 x_err = np.nanstd(x_variable, ddof=0, axis=(0, 1))
             x_fill = np.array([x_var - x_err, x_var + x_err])

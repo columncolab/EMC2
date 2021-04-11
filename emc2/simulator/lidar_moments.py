@@ -198,7 +198,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
     p_values: ndarray
         model output pressure array in Pa.
     t_values: ndarray
-        model output temperature array in K.
+        model output temperature array in C.
     z_values: ndarray
         model output height array in m.
     OD_from_sfc: bool
@@ -231,7 +231,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
 
     for hyd_type in hyd_types:
         WC = model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * p_values / \
-            (instrument.R_d * t_values)
+            (instrument.R_d * (t_values + 273.15))
         if is_conv:
             empr_array = model.ds[model.conv_re_fields[hyd_type]].values
 
@@ -244,9 +244,8 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
                 dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
         else:
             # Heymsfield et al. (2014)
-            temp = t_values
-            a = 0.00532 * ((temp - 273.15) + 90)**2.55
-            b = 1.31 * np.exp(0.0047 * (temp - 273.15))
+            a = 0.00532 * (t_values + 90)**2.55
+            b = 1.31 * np.exp(0.0047 * t_values)
             a = np.tile(a, (model.num_subcolumns, 1, 1))
             b = np.tile(b, (model.num_subcolumns, 1, 1))
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type,cloud_str)] = xr.DataArray(
@@ -573,7 +572,7 @@ def calc_lidar_moments(instrument, model, is_conv,
     p_temp = model.ds[p_field].values * getattr(ureg, model.ds[p_field].attrs["units"])
     p_values = p_temp.to('pascal').magnitude
     t_temp = quantity(model.ds[t_field].values, model.ds[t_field].attrs["units"])
-    t_values = t_temp.to('kelvin').magnitude
+    t_values = t_temp.to('celsius').magnitude
     z_temp = model.ds[z_field].values * getattr(ureg, model.ds[z_field].attrs["units"])
     z_values = z_temp.to('meter').magnitude
     del p_temp, t_temp, z_temp

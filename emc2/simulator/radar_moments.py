@@ -137,7 +137,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
     p_values: ndarray
         model output pressure array in Pa.
     t_values: ndarray
-        model output temperature array in K.
+        model output temperature array in C.
     z_values: ndarray
         model output height array in m.
     atm_ext: ndarray
@@ -190,7 +190,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
             if instrument.freq >= 2e9 and instrument.freq < 4e9:
                 Ze_emp = 10**(((np.log10(WC) + 0.0197 * t_values + 1.7) / 0.060) / 10.)
             elif instrument.freq >= 27e9 and instrument.freq < 40e9:
-                Ze_emp = 10**(((np.log10(WC) + 0.0186 * t_values + 1.63) / (0.000242 * t_values + 0.699)) / 10.)
+                Ze_emp = 10**(((np.log10(WC) + 0.0186 * t_values + 1.63) / (0.000242 * t_values + 0.0699)) / 10.)
             elif instrument.freq >= 75e9 and instrument.freq < 110e9:
                 Ze_emp = 10**(((np.log10(WC) + 0.00706 * t_values + 0.992) / (0.000580 * t_values + 0.0923)) / 10.)
             else:

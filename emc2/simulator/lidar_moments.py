@@ -66,7 +66,8 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
 def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
     """
     Calculates the lidar extinction mask (for conv+strat) and linear depolarization ratio
-    (per strat, conv, and strat+conv) for the given model and lidar.
+    (per strat, conv, and strat+conv) for the given model and lidar. Run after calculating
+    'sub_col_OD_tot'.
 
     Parameters
     ----------
@@ -119,14 +120,13 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
     model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
     model.ds["sub_col_LDR_tot"].attrs["units"] = "1"
 
-    OD_cum_p_tot = model.ds["sub_col_OD_tot_strat"].values + model.ds["sub_col_OD_tot_conv"].values
-    OD_cum_p_tot = np.where(OD_cum_p_tot > ext_OD, 2, 0.)
+    OD_cum_p_tot = np.where(model.ds["sub_col_OD_tot"].values > ext_OD, 2, 0.)
     if OD_from_sfc:
-        my_diff = np.diff(OD_cum_p_tot, axis=2, prepend=0)
+        my_diff = np.diff(OD_cum_p_tot, axis=2, append=0)
     else:
-        my_diff = np.flip(np.diff(np.flip(OD_cum_p_tot, axis=2), axis=2, prepend=0), axis=2)
-    ext_tmp = np.where(my_diff > 1., 1, 0)
-    ext_mask = OD_cum_p_tot - ext_tmp
+        my_diff = np.flip(np.diff(np.flip(OD_cum_p_tot, axis=2), axis=2, append=0), axis=2)
+    ext_tmp = np.where(my_diff > 0., 1, 0)
+    ext_mask = OD_cum_p_tot + ext_tmp
 
     model.ds["ext_mask"] = xr.DataArray(ext_mask, dims=model.ds["sub_col_LDR_conv"].dims)
     model.ds["ext_mask"].attrs["long_name"] = "Extinction mask at %s based on optical thickness considerations \

@@ -419,12 +419,12 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
                 "mass phase ratio with q summed over all hydrometeor containing mask grid cells"
             model.ds[variable + "_mpr_sum"].attrs["units"] = ""
         else:
-            mass_liq = np.zeros_like(model.ds[model.q_names["cl"]], dtype=np.float)
-            mass_ice = np.zeros_like(model.ds[model.q_names["cl"]], dtype=np.float)
+            mass_liq = np.zeros_like(model.ds[model.q_names_stratiform["cl"]], dtype=np.float)
+            mass_ice = np.zeros_like(model.ds[model.q_names_stratiform["cl"]], dtype=np.float)
             for hyd_class in liq_classes:
-                mass_liq += model.ds[model.q_names[hyd_class]].values
+                mass_liq += model.ds[model.q_names_stratiform[hyd_class]].values
             for hyd_class in ice_classes:
-                mass_ice += model.ds[model.q_names[hyd_class]].values
+                mass_ice += model.ds[model.q_names_stratiform[hyd_class]].values
             PR_sum = mass_liq / (mass_liq + mass_ice)
             model.ds["mpr_q"] = xr.DataArray(PR_sum, dims=model.ds[model.T_field].dims)
             model.ds["mpr_q"].attrs["long_name"] = variable + \

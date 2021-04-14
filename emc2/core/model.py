@@ -240,7 +240,6 @@ class ModelE(Model):
                             'pl': 0.8 * ureg.dimensionless,
                             'pi': 0.41 * ureg.dimensionless}
         super()._add_vel_units()
-        self.q_names = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p_3d"
@@ -305,7 +304,6 @@ class DHARMA(Model):
                             'pl': 0.8 * ureg.dimensionless,
                             'pi': 0.41 * ureg.dimensionless}
         super()._add_vel_units()
-        self.q_names = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
         self.p_field = "p"

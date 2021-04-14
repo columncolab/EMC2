@@ -42,6 +42,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
     if use_rad_logic:
         method_str = "Radiation logic"
         data_frac = np.round(model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns)
+        data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
     else:
         method_str = "Microphysics logic"
         data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
@@ -101,7 +102,9 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True):
     if use_rad_logic:
         method_str = "Radiation logic"
         data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
+        data_frac1 = data_frac1.where(model.ds[model.q_names_stratiform["cl"]] > 0, 0)
         data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
+        data_frac2 = data_frac2.where(model.ds[model.q_names_stratiform["ci"]] > 0, 0)
     else:
         method_str = "Microphysics logic"
         data_frac1 = model.ds[model.strat_frac_names["cl"]]
@@ -265,7 +268,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True):
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
+            data_frac1 = data_frac1.where(model.ds[model.q_names_convective["pl"]] > 0, 0)
             data_frac2 = model.ds[model.conv_frac_names_for_rad['pi']]
+            data_frac2 = data_frac2.where(model.ds[model.q_names_convective["pi"]] > 0, 0)
         else:
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.conv_frac_names['pl']]
@@ -280,7 +285,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True):
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
+            data_frac1.where(model.ds[model.q_names_stratiform["pl"]] > 0, 0)
             data_frac2 = model.ds[model.strat_frac_names_for_rad['pi']]
+            data_frac2.where(model.ds[model.q_names_stratiform["pi"]] > 0, 0)
         else:
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.strat_frac_names['pl']]
@@ -417,15 +424,16 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         frac_fieldname = 'strat_frac_subcolumns_%s' % hyd_type
         if use_rad_logic:
             method_str = "Radiation logic"
-            hyd_profs = model.ds[model.strat_frac_names_for_rad[hyd_type]].astype('float64').values
+            data_frac = model.ds[model.strat_frac_names_for_rad[hyd_type]].astype('float64').values
+            data_frac = np.where(model.ds[model.q_names_stratiform[hyd_type]].values > 0, data_frac, 0)
         else:
             method_str = "Microphysics logic"
-            hyd_profs = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
+            data_frac = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
         N_profs = model.ds[model.N_field[hyd_type]].astype('float64').values
-        N_profs = N_profs / hyd_profs
-        sub_hyd_profs = model.ds[frac_fieldname].values
+        N_profs = N_profs / data_frac
+        sub_data_frac = model.ds[frac_fieldname].values
         N_profs = np.tile(N_profs, (model.num_subcolumns, 1, 1))
-        N_profs = np.where(sub_hyd_profs, N_profs, 0)
+        N_profs = np.where(sub_data_frac, N_profs, 0)
         q_array = model.ds[model.q_names_stratiform[hyd_type]].astype('float64').values
         q_name = "strat_q_subcolumns_%s" % hyd_type
         n_name = "strat_n_subcolumns_%s" % hyd_type
@@ -433,23 +441,24 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         frac_fieldname = 'conv_frac_subcolumns_%s' % hyd_type
         if use_rad_logic:
             method_str = "Radiation logic"
-            hyd_profs = model.ds[model.conv_frac_names_for_rad[hyd_type]].astype('float64').values
+            data_frac = model.ds[model.conv_frac_names_for_rad[hyd_type]].astype('float64').values
+            data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
         else:
             method_str = "Microphysics logic"
-            hyd_profs = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
-        sub_hyd_profs = model.ds[frac_fieldname]
+            data_frac = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
+        sub_data_frac = model.ds[frac_fieldname]
         q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
         q_name = "conv_q_subcolumns_%s" % hyd_type
 
     if qc_flag:
-        q_ic_mean = np.where(q_array > 0, q_array / hyd_profs, 0)
+        q_ic_mean = np.where(q_array > 0, q_array / data_frac, 0)
         q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
-        tot_hyd_in_sub = sub_hyd_profs.sum(axis=0)
-        q_profs = np.zeros_like(sub_hyd_profs, dtype=float)
+        tot_hyd_in_sub = sub_data_frac.sum(axis=0)
+        q_profs = np.zeros_like(sub_data_frac, dtype=float)
 
-        for j in range(hyd_profs.shape[1]):
-            for tt in range(hyd_profs.shape[0] - 1, -1, -1):
-                hyd_in_sub_loc = np.where(sub_hyd_profs[:, tt, j])[0]
+        for j in range(data_frac.shape[1]):
+            for tt in range(data_frac.shape[0] - 1, -1, -1):
+                hyd_in_sub_loc = np.where(sub_data_frac[:, tt, j])[0]
                 if tot_hyd_in_sub[tt, j] == 1:
                     q_profs[hyd_in_sub_loc, tt, j] = q_ic_mean[tt, j]
                 elif tot_hyd_in_sub[tt, j] > 1:
@@ -471,9 +480,9 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
                         (1 + counter_4_valid)
 
     else:
-        q_profs = np.where(q_array > 0, q_array / hyd_profs, 0)
+        q_profs = np.where(q_array > 0, q_array / data_frac, 0)
         q_profs = np.tile(q_profs, (model.num_subcolumns, 1, 1))
-        q_profs = np.where(sub_hyd_profs, q_profs, 0)
+        q_profs = np.where(sub_data_frac, q_profs, 0)
 
     q_profs = np.where(np.isnan(q_profs), 0, q_profs)
     model.ds[q_name] = xr.DataArray(q_profs, dims=model.ds[frac_fieldname].dims)

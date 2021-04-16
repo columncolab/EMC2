@@ -1,5 +1,5 @@
 from .subcolumn import set_convective_sub_col_frac, set_precip_sub_col_frac
-from .subcolumn import set_stratiform_sub_col_frac, set_q_n
+from .subcolumn import set_stratiform_sub_col_frac, set_q_n, subcolumns_les
 from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alpha_beta
 from .radar_moments import calc_radar_moments, calc_total_reflectivity
 from .attenuation import calc_radar_Ze_min
@@ -16,8 +16,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         The model to make the simulated parameters for.
     instrument: :func:`emc2.core.Instrument`
         The instrument to make the simulated parameters for.
-    N_columns: int
-        The number of subcolumns to generate.
+    N_columns: int or None
+        The number of subcolumns to generate. Set to None to automatically
+        detect from LES 4D data.
     do_classify: bool
         run hydrometeor classification routines when True.
 
@@ -31,20 +32,53 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
     """
     print("## Creating subcolumns...")
     hydrometeor_classes = model.conv_frac_names.keys()
-    for hyd_type in hydrometeor_classes:
-        model = set_convective_sub_col_frac(model, hyd_type, N_columns=N_columns)
+    
+    if 'xind_range' in kwargs.keys():
+        xind_range = kwargs['xind_range']
+        del kwargs['xind_range']
+    else:
+        xind_range = None
 
-    model = set_stratiform_sub_col_frac(model)
-    model = set_precip_sub_col_frac(model, convective=False)
-    model = set_precip_sub_col_frac(model, convective=True)
-    for hyd_type in hydrometeor_classes:
-        if hyd_type != 'cl':
-            model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
-            model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
-        else:
-            model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
-            model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+    if 'yind_range' in kwargs.keys():
+        yind_range = kwargs['yind_range']
+        del kwargs['yind_range']
+    else:
+        xind_range = None
 
+    if 'lat_range' in kwargs.keys():
+        lat_range = kwargs['lat_range']
+        del kwargs['lat_range']
+    else:
+        lat_range = None
+
+    if 'lon_range' in kwargs.keys():
+        lon_range = kwargs['lon_range']
+        del kwargs['lon_range']
+    else:
+        lon_range = None
+
+    if N_columns is not None:
+        for hyd_type in hydrometeor_classes:
+            model = set_convective_sub_col_frac(
+                model, hyd_type, N_columns=N_columns)
+    
+        model = set_stratiform_sub_col_frac(model)
+        model = set_precip_sub_col_frac(model, convective=False)
+        model = set_precip_sub_col_frac(model, convective=True)
+        for hyd_type in hydrometeor_classes:
+            if hyd_type != 'cl':
+                model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
+                model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+            else:
+                model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
+                model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+        LES_mode = False
+    else:
+        model = subcolumns_les(
+            model, lat_range=lat_range, lon_range=lon_range,
+            xind_range=xind_range, yind_range=yind_range)
+        LES_mode = True
+ 
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']
         del kwargs['OD_from_sfc']
@@ -79,17 +113,22 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             del kwargs['ref_rng']
         else:
             ref_rng = 1000
-        model = calc_radar_moments(instrument, model, False, OD_from_sfc=OD_from_sfc, parallel=parallel,
-                                   chunk=chunk, **kwargs)
-        model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel,
-                                   chunk=chunk, **kwargs)
+        model = calc_radar_moments(
+            instrument, model, False,
+            OD_from_sfc=OD_from_sfc, parallel=parallel,
+            chunk=chunk, LES_mode=LES_mode, **kwargs)
+        model = calc_radar_moments(
+            instrument, model, True,
+            OD_from_sfc=OD_from_sfc,
+            parallel=parallel, LES_mode=LES_mode, chunk=chunk, **kwargs)
         model = calc_total_reflectivity(model)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
 
         if do_classify is True:
-            model = radar_classify_phase(instrument, model, mask_height_rng=mask_height_rng,
-                                         convert_zeros_to_nan=convert_zeros_to_nan)
+            model = radar_classify_phase(
+                instrument, model, mask_height_rng=mask_height_rng,
+                convert_zeros_to_nan=convert_zeros_to_nan)
 
     elif instrument.instrument_class.lower() == "lidar":
         print("Generating lidar moments...")

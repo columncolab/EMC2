@@ -6,7 +6,7 @@ from scipy.special import gamma
 
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=False, dispersion_mu_bounds=(2, 15),
-                   subcolumns=False, convective=False):
+                   subcolumns=False, convective=False, LES_mode=False):
 
     """
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
@@ -36,6 +36,9 @@ def calc_mu_lambda(model, hyd_type="cl",
         rather than the model data itself.
     convective: bool
         If True, calculate from convective properties. IF false, do stratiform.
+    LES_mode: bool
+        If True, then assume each point is a subcolumn.
+
     Returns
     -------
     model: :py:mod:`emc2.core.Model`
@@ -58,12 +61,23 @@ def calc_mu_lambda(model, hyd_type="cl",
         if not convective:
             N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "strat_q_subcolumns_%s" % hyd_type
-            frac_name = model.strat_frac_names[hyd_type]
+            if not LES_mode:
+                frac_name = model.strat_frac_names[hyd_type]
+            else:
+                frac_name = "strat_frac_subcolumns_%s" % hyd_type
         else:
             N_name = "conv_n_subcolumns_%s" % hyd_type
             q_name = "conv_q_subcolumns_%s" % hyd_type
-            frac_name = model.conv_frac_names[hyd_type]
-        frac_array = np.tile(model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
+            if not LES_mode:
+                frac_name = model.conv_frac_names[hyd_type]
+            else:
+                frac_name = "conv_frac_subcolumns_%s" % hyd_type
+
+        if not LES_mode:
+            frac_array = np.tile(
+                model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
+        else:
+            frac_array = model.ds[frac_name].values
         frac_array = np.where(frac_array == 0, 1, frac_array)
     Rho_hyd = model.Rho_hyd[hyd_type].magnitude
     column_ds = model.ds

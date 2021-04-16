@@ -11,6 +11,13 @@ import numpy as np
 
 from act.io.armfiles import read_netcdf
 from .instrument import ureg, quantity
+from netCDF4 import Dataset
+
+try:
+    from wrf import tk, getvar, ALL_TIMES
+    WRF_PYTHON_AVAILABLE = True
+except ImportError:
+    WRF_PYTHON_AVAILABLE = False
 
 
 class Model():
@@ -82,6 +89,8 @@ class Model():
         self.model_name = "empty_model"
         self.x_dim = None
         self.y_dim = None
+        self.lat_name = None
+        self.lon_name = None
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -229,7 +238,7 @@ class ModelE(Model):
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = read_netcdf(file_path)
-
+        
         # Check to make sure we are loading a single column
         if 'lat' in [x for x in self.ds.dims.keys()]:
             if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
@@ -251,14 +260,135 @@ class ModelE(Model):
         self.model_name = "ModelE"
 
 
+class WRF(Model):
+    def __init__(self, file_path, 
+                 z_range=None, time_range=None, w_thresh=1,
+                 t=None):
+        """
+        This load a WRF simulation and all of the necessary parameters from
+        the simulation.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to WRF simulation.
+        time_range: tuple or None
+            Start and end time to include. If this is None, the entire
+            simulation will be included.
+        z_range: numpy array or None
+            The z levels of the vertical grid you want to use. By default,
+            the levels are 0 m to 15000 m, increasing by 500 m.
+        w_thresh: float
+            The threshold of vertical velocity for defining a grid cell
+            as convective.
+        t: int or None
+            The timestep number to subset the WRF data into. Set to None to 
+            load all of the data 
+        """
+        if not WRF_PYTHON_AVAILABLE:
+            raise ModuleNotFoundError("wrf-python must be installed in " + \
+                                      "order to read WRF data.")
+
+        if z_range is None:
+            z_range = np.arange(0., 15000., 500.)
+
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
+                        'ci': 500. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3),
+                        'pi': 100. * ureg.kg / (ureg.m**3)}
+        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                            'ci': 24. * ureg.dimensionless,
+                            'pl': 5.5 * ureg.dimensionless,
+                            'pi': 24.0 * ureg.dimensionless}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                            'ci': 1. * ureg.dimensionless,
+                            'pl': 0.8 * ureg.dimensionless,
+                            'pi': 0.41 * ureg.dimensionless}
+        super()._add_vel_units()
+        self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE', 
+                        'pl': 'QRAIN', 'qpi': 'QSNOW'}
+        self.q_field = "QVAPOR"
+        self.N_field = {'cl': 'QNCLOUD', 'ci': 'QNICE',
+                        'pl': 'QNRAIN', 'pi': 'QNSNOW'}
+        self.p_field = "pressure"
+        self.z_field = "Z"
+        self.T_field = "T"
+        self.conv_frac_names = {'cl': 'conv_frac', 'ci': 'conv_frac',
+                                'pl': 'conv_frac', 'pi': 'conv_frac'}
+        self.strat_frac_names = {'cl': 'strat_frac', 'ci': 'strat_frac',
+                                 'pl': 'strat_frac', 'pi': 'strat_frac'}
+        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                          'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
+                                   'pl': 'qplc', 'pi': 'qpic'}
+        self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
+                                   'pl': 'qpls', 'pi': 'qpis'}
+        
+        ds = xr.open_dataset(file_path)
+        wrfin = Dataset(file_path)
+        self.ds = {}
+        self.ds["pressure"] = ds["P"] + ds["PB"] 
+        self.ds["pressure"].attrs["units"] = "hPa"
+        self.ds["Z"] = getvar(wrfin, "z", units="m", timeidx=ALL_TIMES)
+        self.ds["T"] = getvar(wrfin, "tk", timeidx=ALL_TIMES)
+        self.ds["T"] = self.ds["T"] + 273.15
+        self.ds["T"].attrs["units"] = "K"
+        W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
+        where_conv = np.where(W.values > w_thresh, 1, 0)
+        self.ds["conv_frac"] = xr.DataArray(
+            where_conv,
+            dims=('Time', 'bottom_top', 'north_south', 'east_west'))
+        self.ds["strat_frac"] = xr.DataArray(
+            1 - where_conv,
+            dims=('Time', 'bottom_top', 'north_south', 'east_west'))
+        self.ds["qclc"] = ds["QCLOUD"] * where_conv 
+        self.ds["qcic"] = ds["QICE"] * where_conv
+        self.ds["qplc"] = ds["QRAIN"] * where_conv
+        self.ds["qpic"] = ds["QSNOW"] * where_conv
+        self.ds["qcls"] = ds["QCLOUD"] * (1 - where_conv)
+        self.ds["qcis"] = ds["QICE"] * (1 - where_conv)
+        self.ds["qpls"] = ds["QRAIN"] * (1 - where_conv)
+        self.ds["qpis"] = ds["QSNOW"] * (1 - where_conv)
+        self.ds["QNCLOUD"] = ds["QNCLOUD"]
+        self.ds["QNRAIN"] = ds["QNRAIN"]
+        self.ds["QNSNOW"] = ds["QNSNOW"]
+        self.ds["QNICE"] = ds["QNICE"]
+        self.ds["QVAPOR"] = ds["QVAPOR"]
+        self.time_dim = "Time"
+        self.height_dim = "bottom_top"
+        self.model_name = "WRF"
+        self.lat_name = "XLAT"
+        self.lon_name = "XLONG"
+        wrfin.close()
+        for keys in self.ds.keys():
+            try:
+                self.ds[keys] = self.ds[keys].drop("XTIME")
+            except:
+                continue
+        self.ds = xr.Dataset(self.ds)
+        # crop specific model output time range (if requested)
+        if time_range is not None:
+            super()._crop_time_range(time_range)
+
+
 class DHARMA(Model):
     def __init__(self, file_path, time_range=None):
         """
-        This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.
+        This loads a DHARMA simulation with all of the necessary parameters
+        for EMC^2 to run.
+        
         Parameters
         ----------
         file_path: str
             Path to a ModelE simulation.
+        time_range: tuple or None
+            Start and end time to include. If this is None, the entire
+            simulation will be included.
         """
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 100. * ureg.kg / (ureg.m**3)}

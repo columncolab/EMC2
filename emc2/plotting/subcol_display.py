@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
+import matplotlib.dates as mdates
 
 from act.plotting import Display
 
@@ -240,6 +241,9 @@ class SubcolumnDisplay(Display):
         if x_range is not None:
             self.axes[subplot_index].set_xlim(x_range)
 
+        if np.issubdtype(x.dtype, np.datetime64):
+            x = mdates.date2num([y for y in x])
+
         if log_plot is True:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
@@ -335,6 +339,9 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].set_ylim(y_range)
         if x_range is not None:
             self.axes[subplot_index].set_xlim(x_range)
+
+        if np.issubdtype(x.dtype, np.datetime64):
+            x = mdates.date2num([y for y in x])
 
         if log_plot is True:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)

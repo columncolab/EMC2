@@ -44,7 +44,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="emc2.simulator.lidar_moments.calc_LDR_and_ext" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html" />
-    <link rel="prev" title="emc2.simulator.radar_moments.calc_radar_reflectivity_conv" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html" /> 
+    <link rel="prev" title="emc2.simulator.psd.calc_mu_lambda" href="emc2.simulator.psd.calc_mu_lambda.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
@@ -218,7 +217,7 @@
 <h1>emc2.simulator.radar_moments.calc_radar_moments<a class="headerlink" href="#emc2-simulator-radar-moments-calc-radar-moments" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.radar_moments.calc_radar_moments">
-<code class="sig-prename descclassname"><span class="pre">emc2.simulator.radar_moments.</span></code><code class="sig-name descname"><span class="pre">calc_radar_moments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OD_from_sfc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_moments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">emc2.simulator.radar_moments.</span></code><code class="sig-name descname"><span class="pre">calc_radar_moments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OD_from_sfc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mie_for_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_empiric_calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_moments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the reflectivity, doppler velocity, and spectral width
 in a given column for the given radar.</p>
 <dl class="field-list simple">
@@ -240,9 +239,28 @@ in a given column for the given radar.</p>
 parallel loop at one time. Sometimes Dask will crash if there are too many
 tasks in the queue, so setting this value will help avoid that.</p>
 </dd>
-<dt><strong>Additional keyword arguments are passed into</strong></dt><dd></dd>
-<dt><strong>:func:`emc2.simulator.reflectivity.calc_radar_reflectivity_conv` and</strong></dt><dd></dd>
-<dt><strong>:func:`emc2.simulator.attenuation.calc_radar_atm_attenuation`.</strong></dt><dd></dd>
+<dt><strong>mie_for_ice: bool</strong></dt><dd><p>If True, using full mie caculation LUTs. Otherwise, currently using the C6
+scattering LUTs for 8-column aggregate at 270 K.</p>
+</dd>
+<dt><strong>use_rad_logic: bool</strong></dt><dd><p>When True using radiation scheme logic in calculations, which includes using
+the cloud fraction fields utilized in a model radiative scheme, as well as bulk
+scattering LUTs (effective radii dependent scattering variables). Otherwise, and
+only in the stratiform case, using the microphysics scheme logic, which includes
+the cloud fraction fields utilized by the model microphysics scheme and single
+particle scattering LUTs.
+NOTE: because of its single-particle calculation method, the microphysics
+approach is significantly slower than the radiation approach. Also, the cloud
+fraction logic in these  schemes does not necessarilytly fully overlap.</p>
+</dd>
+<dt><strong>use_empirical_calc: bool</strong></dt><dd><p>When True using empirical relations from literature for the fwd calculations
+(the cloud fraction still follows the scheme logic set by use_rad_logic).</p>
+</dd>
+<dt><strong>Additonal keyword arguments are passed into</strong></dt><dd></dd>
+<dt><strong>:py:func:`emc2.simulator.psd.calc_mu_lambda`.</strong></dt><dd></dd>
+<dt><strong>:py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.</strong></dt><dd></dd>
+<dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_radar_empirical`.</strong></dt><dd></dd>
+<dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_radar_bulk`.</strong></dt><dd></dd>
+<dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_radar_micro`.</strong></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -263,7 +281,7 @@ tasks in the queue, so setting this value will help avoid that.</p>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html" class="btn btn-neutral float-right" title="emc2.simulator.lidar_moments.calc_LDR_and_ext" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html" class="btn btn-neutral float-left" title="emc2.simulator.radar_moments.calc_radar_reflectivity_conv" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="emc2.simulator.psd.calc_mu_lambda.html" class="btn btn-neutral float-left" title="emc2.simulator.psd.calc_mu_lambda" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

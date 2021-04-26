@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
@@ -218,12 +217,16 @@
 <h1>emc2.simulator.subcolumn.set_stratiform_sub_col_frac<a class="headerlink" href="#emc2-simulator-subcolumn-set-stratiform-sub-col-frac" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.subcolumn.set_stratiform_sub_col_frac">
-<code class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></code><code class="sig-name descname"><span class="pre">set_stratiform_sub_col_frac</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_stratiform_sub_col_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_stratiform_sub_col_frac" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></code><code class="sig-name descname"><span class="pre">set_stratiform_sub_col_frac</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_stratiform_sub_col_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_stratiform_sub_col_frac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>model: :py:func: `emc2.core.Model`</strong></dt><dd><p>The model we are generating the subcolumns of stratiform fraction for.</p>
+</dd>
+<dt><strong>use_rad_logic: bool</strong></dt><dd><p>When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
+using the microphysics scheme (note that these schemes do not necessarily
+use exactly the same cloud fraction logic).</p>
 </dd>
 </dl>
 </dd>

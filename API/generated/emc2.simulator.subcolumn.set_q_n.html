@@ -107,7 +107,6 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
@@ -220,7 +219,7 @@
 <h1>emc2.simulator.subcolumn.set_q_n<a class="headerlink" href="#emc2-simulator-subcolumn-set-q-n" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="emc2.simulator.subcolumn.set_q_n">
-<code class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></code><code class="sig-name descname"><span class="pre">set_q_n</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_rel_var</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_q_n"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_q_n" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></code><code class="sig-name descname"><span class="pre">set_q_n</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qc_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_rel_var</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_q_n"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_q_n" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function distributes the mixing ratio and number concentration into the subcolumns.
 For <span class="math notranslate nohighlight">\(q_c\)</span>, the horizontal distribution follows Equation 8 of Morrison and Gettelman (2008).</p>
 <dl class="field-list simple">
@@ -232,10 +231,16 @@ For <span class="math notranslate nohighlight">\(q_c\)</span>, the horizontal di
 </dd>
 <dt><strong>is_conv: bool</strong></dt><dd><p>Set to True to calculate the mixing ratio assuming convective clouds.</p>
 </dd>
-<dt><strong>qc_flag: bool</strong></dt><dd><p>Set to True to horizontally distribute the mixing ratio according to
-Morrison and Gettleman (2008)</p>
+<dt><strong>qc_flag: bool</strong></dt><dd><p>Set to True to horizontally distribute the mixing ratio (allowing sub-grid variability)
+according to Morrison and Gettleman (2008). qc_flag is set to False in case use_rad_logic
+and/or is_conv are True (both cases do not follow the Morrison scheme).</p>
 </dd>
-<dt><strong>inv_rel_var: float</strong></dt><dd><p>The inverse of the relative variance for the p.d.f. in Morrison and Gettleman (2008)</p>
+<dt><strong>inv_rel_var: float</strong></dt><dd><p>The inverse of the relative subgrid qc PDF variance in Morrison and Gettleman (2008)</p>
+</dd>
+<dt><strong>use_rad_logic: bool</strong></dt><dd><p>When True using the cloud fraction utilized in a model radiative scheme and also implementing
+uniformly distributed qc (setting qc_flag to False) to maintain radiation scheme logic.
+Otherwise, using the microphysics scheme (note that these schemes do not necessarily
+use exactly the same cloud fraction logic).</p>
 </dd>
 </dl>
 </dd>

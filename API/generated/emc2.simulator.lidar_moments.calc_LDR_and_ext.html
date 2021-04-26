@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
@@ -220,7 +219,8 @@
 <dt id="emc2.simulator.lidar_moments.calc_LDR_and_ext">
 <code class="sig-prename descclassname"><span class="pre">emc2.simulator.lidar_moments.</span></code><code class="sig-name descname"><span class="pre">calc_LDR_and_ext</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_OD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OD_from_sfc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LDR_per_hyd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/lidar_moments.html#calc_LDR_and_ext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.lidar_moments.calc_LDR_and_ext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the lidar extinction mask (for conv+strat) and linear depolarization ratio
-(per strat, conv, and strat+conv) for the given model and lidar.</p>
+(per strat, conv, and strat+conv) for the given model and lidar. Run after calculating
+‘sub_col_OD_tot’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -239,7 +239,7 @@ the default settings from the model will be used.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>model: Model</dt><dd><p>The model with the added simulated lidar parameters.</p>
+<dt>model: <a class="reference internal" href="../core.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.core.Model()</span></code></a></dt><dd><p>The model with the added simulated lidar parameters.</p>
 </dd>
 </dl>
 </dd>

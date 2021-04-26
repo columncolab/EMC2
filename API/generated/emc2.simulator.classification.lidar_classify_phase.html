@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_reflectivity_conv.html">emc2.simulator.radar_moments.calc_radar_reflectivity_conv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
@@ -228,13 +227,15 @@ tot beta_p variables.</p>
 </dd>
 <dt><strong>model: Model</strong></dt><dd><p>The model output to classify.</p>
 </dd>
-<dt><strong>beta_p_phase_thresh: list of dicts or None</strong></dt><dd><p>If a list, each index contains a dictionary with class name, class integer
-value (mask order), LDR value bounds, and the corresponding beta_p threshold
-(thresholds are linearly interpolated between LDR values). In order for the
+<dt><strong>beta_p_phase_thresh: list of dicts or None</strong></dt><dd><p>If a list, each element contains a dictionary with class name, class integer
+value (mask order starting at 1), LDR value bounds, and the corresponding beta_p threshold
+(thresholds are linearly interpolated in log10 scale between LDR values). In order for the
 method to operate properly, the list should be arranged from the lowest to
-highest beta_p threshold values for a given LDR, that is,
-beta_p[i+1 | LDR=x] &gt;= beta_p[i | LDR=x]. class integer values of 0 = clear.
-When None, the default settings from the instrument will be used.</p>
+highest beta_p threshold values for a given LDR, that is, (where i is the list element)
+beta_p[i+1 | LDR=x] &gt;= beta_p[i | LDR=x]. Set class integer values of 1 or higher = clear
+(because of a very high beta_p value).
+When None, the default settings from the instrument object will be used (available only for
+beta resolving lidar classes).</p>
 </dd>
 <dt><strong>convert_zeros_to_nan: bool</strong></dt><dd><dl class="simple">
 <dt>If True, saving the mask array as a float dtype (instead of uint8) and converting all</dt><dd><p>zeros in the array to nans.</p>

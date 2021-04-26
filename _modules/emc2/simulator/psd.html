@@ -167,7 +167,7 @@
 
 <div class="viewcode-block" id="calc_mu_lambda"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda">[docs]</a><span class="k">def</span> <span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
                    <span class="n">calc_dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dispersion_mu_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
-                   <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convective</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                   <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.</span>
@@ -178,6 +178,10 @@
 
 <span class="sd">    Where :math:`N_{0}` is the intercept, :math:`\lambda` is the slope, and</span>
 <span class="sd">    :math:`\mu` is the dispersion.</span>
+
+<span class="sd">    Note: this method only accepts the microphysical cloud fraction in order to maintain</span>
+<span class="sd">    consistency because the PSD calculation is necessarily related only to the MG2 scheme</span>
+<span class="sd">    without assumption related to the radiation logic</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -195,7 +199,7 @@
 <span class="sd">    subcolumns: bool</span>
 <span class="sd">        If True, the fit parameters will be generated for the generated subcolumns</span>
 <span class="sd">        rather than the model data itself.</span>
-<span class="sd">    convective: bool</span>
+<span class="sd">    is_conv: bool</span>
 <span class="sd">        If True, calculate from convective properties. IF false, do stratiform.</span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -216,7 +220,7 @@
         <span class="n">N_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
         <span class="n">q_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">convective</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_conv</span><span class="p">:</span>
             <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;strat_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
             <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
             <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
@@ -232,9 +236,9 @@
     <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s2">&quot;cl&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">calc_dispersion</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">subcolumns</span><span class="p">:</span>
-                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>
+                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">frac_array</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>
+                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">frac_array</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>
             <span class="n">mus</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">mus</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mus</span> <span class="o">&lt;</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mus</span><span class="p">)</span>
             <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mus</span> <span class="o">&gt;</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mus</span><span class="p">)</span>

@@ -39,10 +39,12 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
     else:
         OD_str = "layer top"
 
-    model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"].fillna(0) + model.ds["sub_col_beta_p_tot_strat"].fillna(0)
+    model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"].fillna(0) + \
+                                     model.ds["sub_col_beta_p_tot_strat"].fillna(0)
     model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"].fillna(0) + \
         model.ds["sub_col_alpha_p_tot_strat"].fillna(0)
-    model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"].fillna(0) + model.ds["sub_col_OD_tot_strat"].fillna(0)
+    model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"].fillna(0) + \
+                                 model.ds["sub_col_OD_tot_strat"].fillna(0)
     model.ds["sub_col_beta_p_tot"].attrs["long_name"] = \
         "Total backscatter coefficient (convective + stratiform)"
     model.ds["sub_col_beta_p_tot"].attrs["units"] = "m^-1 sr^-1"
@@ -169,14 +171,14 @@ def accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc=True, **kwargs
         dz = np.tile(np.diff(z_values, axis=1, prepend=0.), (model.num_subcolumns, 1, 1))
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(np.cumsum(
             dz * np.concatenate((np.zeros(Dims[:2] + (1,)),
-            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:,:,:-1]), axis=2), axis=2),
-            dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
+                                 model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:, :, :-1]), axis=2),
+                                 axis=2), dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
     else:
         dz = np.tile(np.diff(z_values, axis=1, append=0.), (model.num_subcolumns, 1, 1))
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(np.flip(np.cumsum(
             np.flip(dz * np.concatenate((model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:,:,1:],
-            np.zeros(Dims[:2] + (1,))), axis=2), axis=2), axis=2), axis=2),
-            dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
+                    np.zeros(Dims[:2] + (1,))), axis=2), axis=2), axis=2), axis=2),
+                    dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
 
     return model
 
@@ -239,7 +241,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
             empr_array = model.ds[model.strat_re_fields[hyd_type]].values
         if hyd_type == "cl" or hyd_type == "pl":
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-                (3 * WC) / (2 * model.Rho_hyd[hyd_type] * 1e-6 * \
+                (3 * WC) / (2 * model.Rho_hyd[hyd_type] * 1e-6 *
                             np.tile(empr_array, (model.num_subcolumns, 1, 1))),
                 dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
         else:
@@ -248,7 +250,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
             b = 1.31 * np.exp(0.0047 * t_values)
             a = np.tile(a, (model.num_subcolumns, 1, 1))
             b = np.tile(b, (model.num_subcolumns, 1, 1))
-            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type,cloud_str)] = xr.DataArray(
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 (WC / a)**(1 / b), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
 
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = \
@@ -312,7 +314,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     else:
         cloud_str = "strat"
         re_fields = model.strat_re_fields
-    
+
     Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
     model.ds['sub_col_beta_p_tot_%s' % cloud_str] = xr.DataArray(
         np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
@@ -322,15 +324,15 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
 
     rhoa_dz = np.tile(np.abs(np.diff(p_values, axis=1, append=0.)) / instrument.g,
-            (model.num_subcolumns, 1, 1))
+                      (model.num_subcolumns, 1, 1))
     dz = np.tile(np.diff(z_values, axis=1, append=0.), (model.num_subcolumns, 1, 1))
     for hyd_type in hyd_types:
         if hyd_type[-1] == 'l':
-            rho_b = model.Rho_hyd[hyd_type] # bulk water
+            rho_b = model.Rho_hyd[hyd_type]  # bulk water
             re_array = np.tile(model.ds[re_fields[hyd_type]], (model.num_subcolumns, 1, 1))
         else:
-            rho_b = instrument.rho_i # bulk ice
-            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type]/rho_b + \
+            rho_b = instrument.rho_i  # bulk ice
+            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type] / rho_b + \
                 (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type]/rho_b)**(1/3)
             re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
                         (model.num_subcolumns, 1, 1))

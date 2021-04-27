@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 def load_mie_file(filename):
     """
     Loads the Mie parameters from a file.

@@ -78,8 +78,6 @@ Authors
 `EMC2` was written by `Robert Jackson <rjackson@anl.gov>`_ and `Israel Silber <ixs34@psu.edu>`_.
 Collaborators and Contributors include `Scott Collis <scollis@anl.gov>`_, and Ann Fridlind (NASA GISS). 
 
-EMC2's microphysics logic code  was ported from code written in MATLAB by Israel Silber at Penn State.
-
 References
 ----------
 

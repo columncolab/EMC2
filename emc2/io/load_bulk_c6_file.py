@@ -3,7 +3,7 @@ import pandas as pd
 
 def load_bulk_c6_file(filename):
     """
-    Loads bulk ice or liquid scattering LUTs from a file 
+    Loads bulk ice or liquid scattering LUTs from a file
     (by default using the PSD used in the C6 collection).
 
     Parameters
@@ -19,8 +19,8 @@ def load_bulk_c6_file(filename):
     """
 
     my_df = pd.read_csv(filename,
-                    names=["r_e", "Q_scat", "Q_ext", "Q_back", "Q_back_cross",
-                            "LDR", "lidar_ratio"])
+                        names=["r_e", "Q_scat", "Q_ext", "Q_back", "Q_back_cross",
+                               "LDR", "lidar_ratio"])
 
     my_df = my_df.to_xarray()
 

@@ -22,12 +22,12 @@ def load_c6_file(filename, is_radar):
 
     if is_radar is True:
         my_df = pd.read_csv(filename,
-                        names=["frequency", "p_diam", "p_diam_eq_A", "p_diam_eq_V",
-                               "V", "A", "beta_p", "scat_p", "alpha_p", "beta_p_cross"])
+                            names=["frequency", "p_diam", "p_diam_eq_A", "p_diam_eq_V",
+                                   "V", "A", "beta_p", "scat_p", "alpha_p", "beta_p_cross"])
     else:
         my_df = pd.read_csv(filename,
-                        names=["wavelength", "p_diam", "p_diam_eq_A", "p_diam_eq_V",
-                               "V", "A", "beta_p", "scat_p", "alpha_p", "beta_p_cross"])
+                            names=["wavelength", "p_diam", "p_diam_eq_A", "p_diam_eq_V",
+                                   "V", "A", "beta_p", "scat_p", "alpha_p", "beta_p_cross"])
 
     my_df["alpha_p"] = my_df["alpha_p"] * 1e-12
     my_df["beta_p"] = my_df["beta_p"] * 1e-12

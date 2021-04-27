@@ -164,7 +164,7 @@
 
 <div class="viewcode-block" id="load_bulk_c6_file"><a class="viewcode-back" href="../../../API/generated/emc2.io.load_bulk_c6_file.html#emc2.io.load_bulk_c6_file">[docs]</a><span class="k">def</span> <span class="nf">load_bulk_c6_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads bulk ice or liquid scattering LUTs from a file </span>
+<span class="sd">    Loads bulk ice or liquid scattering LUTs from a file</span>
 <span class="sd">    (by default using the PSD used in the C6 collection).</span>
 
 <span class="sd">    Parameters</span>
@@ -180,8 +180,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">my_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
-                    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;r_e&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_scat&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_ext&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_back&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_back_cross&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;LDR&quot;</span><span class="p">,</span> <span class="s2">&quot;lidar_ratio&quot;</span><span class="p">])</span>
+                        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;r_e&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_scat&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_ext&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_back&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_back_cross&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;LDR&quot;</span><span class="p">,</span> <span class="s2">&quot;lidar_ratio&quot;</span><span class="p">])</span>
 
     <span class="n">my_df</span> <span class="o">=</span> <span class="n">my_df</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
 

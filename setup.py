@@ -15,7 +15,7 @@ def read(filename):
 
 setup(
     name="emc2",
-    version="1.0.0"
+    version="1.0.0",
     url="https://github.com/columncolab/EMC2",
     license='MIT',
 

@@ -132,9 +132,10 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
         else:
             phase_mask = np.zeros_like(model.ds["conv_frac_subcolumns_cl"], dtype=np.uint8)
         phase_mask = np.where(model.ds[Ze_fieldnames[ii]].values >=
-                              np.tile(model.ds['Ze_min'].values, (model.num_subcolumns, 1, 1)), 3, phase_mask) # Precip
-        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask != 3), 1, phase_mask) # Cloud
-        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask == 3), 2, phase_mask) # Mixed
+                              np.tile(model.ds['Ze_min'].values,
+                                      (model.num_subcolumns, 1, 1)), 3, phase_mask)  # Precip
+        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask != 3), 1, phase_mask)  # Cloud
+        phase_mask = np.where(np.logical_and(cld_exist_cond[ii], phase_mask == 3), 2, phase_mask)  # Mixed
         if mask_height_rng is not None:
             phase_mask = np.where(
                 np.logical_or(np.tile(model.ds[model.z_field], (model.num_subcolumns, 1, 1)) < mask_height_rng[0],
@@ -230,13 +231,13 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             OD[hyd_class] = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
             beta_p[hyd_class] = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
             for class_name in hyd_groups[hyd_class]:
-                beta_p[hyd_class] += np.nan_to_num( \
-                                        model.ds['sub_col_beta_p_%s_%s' % (class_name, cloud_class)].values)
+                beta_p[hyd_class] += np.nan_to_num(
+                    model.ds['sub_col_beta_p_%s_%s' % (class_name, cloud_class)].values)
                 OD[hyd_class] += np.nan_to_num(model.ds['sub_col_OD_%s_%s' % (class_name, cloud_class)].values)
             ATB_co[hyd_class] = (np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1)) +
-                                 beta_p[hyd_class]) * \
-                                 np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1)) * \
-                                 np.exp(-2 * eta * OD[hyd_class])
+                                 beta_p[hyd_class]) * np.tile(
+                model.ds['tau'].values, (model.num_subcolumns, 1, 1)) * \
+                np.exp(-2 * eta * OD[hyd_class])
             ATB_cross[hyd_class] = np.polyval(atb_cross_coeff[hyd_class], ATB_co[hyd_class] * 1e3) / 1e3
             beta_p_cross[hyd_class] = ATB_cross[hyd_class] / np.exp(-2 * eta * OD[hyd_class]) / \
                 np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1)) - \
@@ -246,12 +247,12 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             OD_allhyd += OD[hyd_class]
         ATB_tot = (beta_p["liq"] + beta_p_cross["liq"] + beta_p["ice"] + beta_p_cross["ice"] +
                    np.tile(model.ds['sigma_180_vol'].values * (1. + 0.0284), (model.num_subcolumns, 1, 1))) * \
-                   np.exp(-2 * eta * (OD["liq"] + OD["ice"])) * \
-                   np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
+            np.exp(-2 * eta * (OD["liq"] + OD["ice"])) * \
+            np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
         ATB_cross_tot = (beta_p_cross["liq"] + beta_p_cross["ice"] + np.tile(model.ds['sigma_180_vol'].values *
                          (0.0284 / (1. + 0.0284)), (model.num_subcolumns, 1, 1))) * \
-                         np.exp(-2 * eta * (OD["liq"] + OD["ice"])) * \
-                         np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
+            np.exp(-2 * eta * (OD["liq"] + OD["ice"])) * \
+            np.tile(model.ds['tau'].values, (model.num_subcolumns, 1, 1))
         del beta_p_cross, ATB_cross, ATB_co, OD, beta_p
 
         # Begin cloud detection and phase classification

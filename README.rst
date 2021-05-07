@@ -46,7 +46,7 @@ $ conda install -c conda-forge emc2
 In addition, if you want to build EMC² from source and install, type in the following commands::
 
 $ git clone https://github.com/columncolab/EMC2
-$ cd EMC²
+$ cd EMC2
 $ pip install .
 
 Requirements

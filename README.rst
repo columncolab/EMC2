@@ -5,8 +5,8 @@ EMC²: the Earth Model Column Collaboratory
     :target: https://pypi.python.org/pypi/emc2
     :alt: Latest PyPI version
 
-.. image:: https://travis-ci.org/columncolab/EMC².png
-   :target: https://travis-ci.org/columncolab/EMC²
+.. image:: https://travis-ci.org/columncolab/EMC2.png
+   :target: https://travis-ci.org/columncolab/EMC2
    :alt: Latest Travis CI build status
 
 An open source framework for atmospheric model and observational column comparison.
@@ -33,7 +33,7 @@ Detailed description will soon be provided in a dedicated manuscript (Silber et 
 Usage
 -----
 
-For details on how to use EMC², please see the Documentation (https://columncolab.github.io/EMC²).
+For details on how to use EMC², please see the Documentation (https://columncolab.github.io/EMC2).
 
 Installation
 ------------
@@ -45,7 +45,7 @@ $ conda install -c conda-forge emc2
 
 In addition, if you want to build EMC² from source and install, type in the following commands::
 
-$ git clone https://github.com/columncolab/EMC²
+$ git clone https://github.com/columncolab/EMC2
 $ cd EMC²
 $ pip install .
 

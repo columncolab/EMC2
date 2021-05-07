@@ -41,7 +41,7 @@ forward-modeled phase in order to perform a robust evaluation against available 
 
    installation
    usage/index.rst
-   EMC²example.ipynb
+   EMC2example.ipynb
    contributing
    API/index.rst
 

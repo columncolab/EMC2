@@ -33,6 +33,8 @@ Detailed description will soon be provided in a dedicated manuscript (Silber et 
 Usage
 -----
 
+For details on how to use EMC², please see the Documentation (https://columncolab.github.io/EMC²).
+
 Installation
 ------------
 

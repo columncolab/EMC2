@@ -1,22 +1,22 @@
-.. EMC^2 documentation master file, created by
+.. EMC² documentation master file, created by
    sphinx-quickstart on Thu Oct 17 09:39:03 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to EMC^2's documentation!
+Welcome to EMC²'s documentation!
 =================================
 
-The Earth Model Column Collaboratory (EMC^2) is an open source framework for conducting
+The Earth Model Column Collaboratory (EMC²) is an open source framework for conducting
 intercomparisons between columns from earth system models and observations from
 remote sensing instruments such as radars and lidars.
 
 
-The Earth Model Column Collaboratory (EMC2) will build on past work comparing remotely sensed
+The Earth Model Column Collaboratory (EMC²) will build on past work comparing remotely sensed
 measurements in the column to earth system and global climate models (GCMs) and their single-column models
 (SCMs) (Lamer et al. 2018; Swales et al. 2018) by building an open source software framework to:
 
     Represent both ARM and GCM columns in the Python programming language building on the
-    Atmospheric Community Toolkit (ACT, Theisen et. al. 2019) and leveraging the EMC2 team’s
+    Atmospheric Community Toolkit (ACT, Theisen et. al. 2019) and leveraging the EMC² team’s
     success with Py-ART (Helmus and Collis 2016).
 
     Scale GCM outputs (using the cloud fraction) to compare with sub-grid-scale column measurements

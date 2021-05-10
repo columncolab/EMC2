@@ -1,4 +1,4 @@
-EMC2: the Earth Model Column Collaboratory
+EMC²: the Earth Model Column Collaboratory
 ==========================================
 
 .. image:: https://img.shields.io/pypi/v/emc2.svg
@@ -12,15 +12,15 @@ EMC2: the Earth Model Column Collaboratory
 An open source framework for atmospheric model and observational column comparison.
 Supported by the Atmospheric Systems Research (ASR) program of the United States Department of Energy.
 
-The Earth Model Column Collaboratory (EMC2) is inspired from past work comparing remotely sensed zenith-pointing
+The Earth Model Column Collaboratory (EMC²) is inspired from past work comparing remotely sensed zenith-pointing
 measurements to earth system and global climate models (GCMs) and their single-column model modes (SCMs)
 (e.g., Lamer et al. 2018; Swales et al. 2018)
 
-EMC2 provides an open source software framework to:
+EMC² provides an open source software framework to:
 
 1. Represent both ARM measurements and GCM columns in the Python programming
    language building on the Atmospheric Community Toolkit (ACT, Theisen et. al. 2019)
-   and leveraging the EMC2 team’s success with Py-ART (Helmus and Collis 2016).
+   and leveraging the EMC² team’s success with Py-ART (Helmus and Collis 2016).
 2. Scale GCM outputs (using the cloud fraction) to compare with sub-grid-scale column measurements
    using a modular sub column generator designed to run off-line on time series extracted from
    existing GCM/SCM output.
@@ -33,17 +33,17 @@ Detailed description will soon be provided in a dedicated manuscript (Silber et 
 Usage
 -----
 
-For details on how to use EMC^2, please see the Documentation (https://columncolab.github.io/EMC2).
+For details on how to use EMC², please see the Documentation (https://columncolab.github.io/EMC2).
 
 Installation
 ------------
 
-In order to install EMC^2, you can use either pip or anaconda. In a terminal, simply type either of::
+In order to install EMC², you can use either pip or anaconda. In a terminal, simply type either of::
 
 $ pip install emc2
 $ conda install -c conda-forge emc2
 
-In addition, if you want to build EMC^2 from source and install, type in the following commands::
+In addition, if you want to build EMC² from source and install, type in the following commands::
 
 $ git clone https://github.com/columncolab/EMC2
 $ cd EMC2
@@ -52,7 +52,7 @@ $ pip install .
 Requirements
 ^^^^^^^^^^^^
 
-EMC^2 requires Python 3.6+ as well as: 
+EMC² requires Python 3.6+ as well as: 
    * Atmoshperic Community Toolkit (https://arm-doe.github.io/ACT). 
    * Numpy (https://numpy.org)
    * Scipy (https://scipy.org)
@@ -77,7 +77,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 Authors
 -------
 
-`EMC2` was written by `Robert Jackson <rjackson@anl.gov>`_ and `Israel Silber <ixs34@psu.edu>`_.
+`EMC²` was written by `Robert Jackson <rjackson@anl.gov>`_ and `Israel Silber <ixs34@psu.edu>`_.
 Collaborators and Contributors include `Scott Collis <scollis@anl.gov>`_, and Ann Fridlind (NASA GISS). 
 
 References

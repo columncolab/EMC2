@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../../emc2'))
 # -- Project information -----------------------------------------------------
 
 project = 'EMC^2'
-copyright = '2019, Bobby Jackson'
-author = 'Bobby Jackson'
+copyright = '2021, Bobby Jackson, Israel Silber'
+author = 'Bobby Jackson, Israel Silber'
 
 
 # -- General configuration ---------------------------------------------------

@@ -93,7 +93,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         if use_rad_logic:
             mie_for_ice = {"conv": False, "strat": False}
         else:
-            mie_for_ice = {"conv": False, "strat": True} # use True for strat (micro), False for conv (rad)
+            mie_for_ice = {"conv": False, "strat": True}  # use True for strat (micro), False for conv (rad)
     if 'use_empiric_calc' in kwargs.keys():
         use_empiric_calc = kwargs['use_empiric_calc']
         del kwargs['use_empiric_calc']

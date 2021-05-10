@@ -25,16 +25,17 @@ def calc_total_reflectivity(model):
         The xarray Dataset containing the calculated radar moments.
     """
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
-                      10**(model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
+                      10 ** (model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
-                      10**(model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
+                      10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
 
     model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
     model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
     model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
-                                                   model.ds['hyd_ext_conv'].fillna(1) * model.ds['hyd_ext_strat'].fillna(1) *
+                                                   model.ds['hyd_ext_conv'].fillna(1) * model.ds[
+                                                       'hyd_ext_strat'].fillna(1) *
                                                    model.ds['atm_ext'].fillna(1))
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
@@ -91,24 +92,26 @@ def accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext, OD_from_s
     Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
     if OD_from_sfc:
         dz = np.diff(z_values / 1e3, axis=1, prepend=0.)
-        hyd_ext = np.cumsum(np.tile(dz, (model.num_subcolumns, 1, 1)) * \
-            np.concatenate((np.zeros(Dims[:2] + (1,)), hyd_ext[:,:,:-1]), axis=2), axis=2)
+        hyd_ext = np.cumsum(np.tile(dz, (model.num_subcolumns, 1, 1)) *
+                            np.concatenate((np.zeros(Dims[:2] + (1,)), hyd_ext[:, :, :-1]), axis=2), axis=2)
         atm_ext = np.cumsum(dz * np.concatenate((np.zeros((Dims[1],) + (1,)),
-            atm_ext[:,:-1]), axis=1), axis=1)
+                                                 atm_ext[:, :-1]), axis=1), axis=1)
     else:
         dz = np.diff(z_values / 1e3, axis=1, append=0.)
-        hyd_ext = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) * \
-            np.concatenate((hyd_ext[:,:,1:], np.zeros(Dims[:2] + (1,))), axis=2), axis=2), axis=2), axis=2)
-        atm_ext = np.flip(np.cumsum(np.flip(dz * np.concatenate((atm_ext[:,1:],
-            np.zeros((Dims[1],) + (1,))), axis=1), axis=1), axis=1), axis=1)
+        hyd_ext = np.flip(np.cumsum(np.flip(np.tile(dz, (model.num_subcolumns, 1, 1)) *
+                                            np.concatenate((hyd_ext[:, :, 1:], np.zeros(Dims[:2] + (1,))), axis=2),
+                                            axis=2), axis=2), axis=2)
+        atm_ext = np.flip(np.cumsum(np.flip(dz * np.concatenate((atm_ext[:, 1:],
+                                                                 np.zeros((Dims[1],) + (1,))), axis=1), axis=1),
+                                    axis=1), axis=1)
 
     if use_empiric_calc:
-        model.ds['hyd_ext_%s' % cloud_str] = xr.DataArray(10**(-2 * hyd_ext / 10.),
-            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        model.ds['hyd_ext_%s' % cloud_str] = xr.DataArray(10 ** (-2 * hyd_ext / 10.),
+                                                          dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
     else:
         model.ds['hyd_ext_%s' % cloud_str] = \
             xr.DataArray(np.exp(-2 * hyd_ext), dims=model.ds["sub_col_Ze_tot_%s" % cloud_str].dims)
-    model.ds['atm_ext'] = xr.DataArray(10**(-2 * atm_ext / 10), dims=model.ds[model.T_field].dims)
+    model.ds['atm_ext'] = xr.DataArray(10 ** (-2 * atm_ext / 10), dims=model.ds[model.T_field].dims)
 
     model.ds['hyd_ext_%s' % cloud_str].attrs["long_name"] = \
         "Two-way %s hydrometeor transmittance at %s" % (cloud_str, OD_str)
@@ -121,7 +124,7 @@ def accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext, OD_from_s
 
 
 def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_values, atm_ext,
-                                 OD_from_sfc=True, use_empiric_calc=False, hyd_types=None, **kwargs):
+                         OD_from_sfc=True, use_empiric_calc=False, hyd_types=None, **kwargs):
     """
     Calculates the radar stratiform or convective reflectivity and attenuation
     in a sub-columns using empirical formulation from literature.
@@ -171,30 +174,30 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
 
     for hyd_type in hyd_types:
         q_field = "%s_q_subcolumns_%s" % (cloud_str, hyd_type)
-        p_field = model.p_field
-        t_field = model.T_field
-
         WC_tot = np.zeros(Dims)
         WC = model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * p_values / \
-            (instrument.R_d * (t_values +273.15)) * 1e3
+            (instrument.R_d * (t_values + 273.15)) * 1e3
         # Fox and Illingworth (1997)
         if hyd_type.lower() == "cl":
             Ze_emp = 0.031 * WC ** 1.56
             WC_tot += WC
         # Hagen and Yuter (2003)
         elif hyd_type.lower() == "pl":
-            Ze_emp = ((WC * 1e3) / 3.4)**1.75
+            Ze_emp = ((WC * 1e3) / 3.4) ** 1.75
             WC_tot += WC
         else:
             # Hogan et al. (2006)
-            if instrument.freq >= 2e9 and instrument.freq < 4e9:
-                Ze_emp = 10**(((np.log10(WC) + 0.0197 * t_values + 1.7) / 0.060) / 10.)
-            elif instrument.freq >= 27e9 and instrument.freq < 40e9:
-                Ze_emp = 10**(((np.log10(WC) + 0.0186 * t_values + 1.63) / (0.000242 * t_values + 0.0699)) / 10.)
-            elif instrument.freq >= 75e9 and instrument.freq < 110e9:
-                Ze_emp = 10**(((np.log10(WC) + 0.00706 * t_values + 0.992) / (0.000580 * t_values + 0.0923)) / 10.)
+            if 2e9 <= instrument.freq < 4e9:
+                Ze_emp = 10 ** (((np.log10(WC) + 0.0197 * t_values + 1.7) / 0.060) / 10.)
+            elif 27e9 <= instrument.freq < 40e9:
+                Ze_emp = 10 ** (((np.log10(WC) + 0.0186 * t_values + 1.63) /
+                                 (0.000242 * t_values + 0.0699)) / 10.)
+            elif 75e9 <= instrument.freq < 110e9:
+                Ze_emp = 10 ** (((np.log10(WC) + 0.00706 * t_values + 0.992) /
+                                 (0.000580 * t_values + 0.0923)) / 10.)
             else:
-                Ze_emp = 10**(((np.log10(WC) + 0.0186 * t_values + 1.63) / (0.000242 * t_values + 0.0699)) / 10.)
+                Ze_emp = 10 ** (((np.log10(WC) + 0.0186 * t_values + 1.63) /
+                                 (0.000242 * t_values + 0.0699)) / 10.)
 
         var_name = "sub_col_Ze_%s_%s" % (hyd_type, cloud_str)
         model.ds[var_name] = xr.DataArray(
@@ -202,7 +205,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp
 
     kappa_f = 6 * np.pi / (instrument.wavelength * model.Rho_hyd["cl"].magnitude) * \
-        ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag * 4.34e6 # dB m^3 g^-1 km^-1
+        ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag * 4.34e6  # dB m^3 g^-1 km^-1
     model = accumulate_attenuation(model, is_conv, z_values, WC_tot * kappa_f, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=True, **kwargs)
 
@@ -213,7 +216,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                     hyd_types=None, mie_for_ice=False, **kwargs):
     """
     Calculates the radar stratiform or convective reflectivity and attenuation
-    in a sub-columns using bulk scattering LUTs assuming geometric scatterers 
+    in a sub-columns using bulk scattering LUTs assuming geometric scatterers
     (radiation scheme logic).
     Effective radii for each hydrometeor class must be provided (in model.ds).
 
@@ -262,23 +265,23 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     hyd_ext = np.zeros(Dims)
 
     rhoa_dz = np.tile(np.abs(np.diff(p_values, axis=1, append=0.)) / instrument.g,
-            (model.num_subcolumns, 1, 1))
+                      (model.num_subcolumns, 1, 1))
     dz = np.tile(np.diff(z_values, axis=1, append=0.), (model.num_subcolumns, 1, 1))
     for hyd_type in hyd_types:
         if hyd_type[-1] == 'l':
-            rho_b = model.Rho_hyd[hyd_type] # bulk water
+            rho_b = model.Rho_hyd[hyd_type]  # bulk water
             re_array = np.tile(model.ds[re_fields[hyd_type]], (model.num_subcolumns, 1, 1))
         else:
-            rho_b = instrument.rho_i # bulk ice
-            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type]/rho_b + \
-                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type]/rho_b)**(1/3)
+            rho_b = instrument.rho_i  # bulk ice
+            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type] / rho_b + \
+                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
             re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
-                        (model.num_subcolumns, 1, 1))
+                               (model.num_subcolumns, 1, 1))
 
         tau_hyd = np.where(model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] > 0,
-            3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz / \
-            (2 * rho_b * re_array * 1e-6), 0)
-        A_hyd = tau_hyd / (2 * dz) # model assumes geometric scatterers
+                           3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz /
+                           (2 * rho_b * re_array * 1e-6), 0)
+        A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
 
         if np.isin(hyd_type, ["ci", "pi"]):
             if mie_for_ice:
@@ -309,7 +312,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
 
 def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
-                    hyd_types=None, mie_for_ice=True, parallel=True, chunk=None, **kwargs):
+                     hyd_types=None, mie_for_ice=True, parallel=True, chunk=None, **kwargs):
     """
     Calculates the first 3 radar moments (reflectivity, mean Doppler velocity and spectral
     width) in a given column for the given radar using the microphysics (MG2) logic.
@@ -472,7 +475,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["units"] = "m s-1"
         model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["Processing method"] = method_str
     model.ds["sub_col_Vd_tot_strat"] = xr.DataArray(V_d_numer_tot / moment_denom_tot,
-                                                     dims=model.ds["sub_col_Ze_tot_strat"].dims)
+                                                    dims=model.ds["sub_col_Ze_tot_strat"].dims)
     print("Now calculating total spectral width (this may take some time)")
     for hyd_type in hyd_types:
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
@@ -537,7 +540,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
 
     model.ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),
-                                                          dims=model.ds["sub_col_Vd_tot_strat"].dims)
+                                                         dims=model.ds["sub_col_Vd_tot_strat"].dims)
 
     model = accumulate_attenuation(model, False, z_values, hyd_ext, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=False, **kwargs)
@@ -622,15 +625,10 @@ def calc_radar_moments(instrument, model, is_conv,
         cloud_str = "conv"
         cloud_str_full = "convective"
         if np.logical_and(not use_empiric_calc, not use_rad_logic):
-            use_rad_logic = True # Force rad scheme logic if in conv scheme
+            use_rad_logic = True  # Force rad scheme logic if in conv scheme
     else:
         cloud_str = "strat"
         cloud_str_full = "stratiform"
-
-    if OD_from_sfc:
-        OD_str = "model layer base"
-    else:
-        OD_str = "model layer top"
 
     if use_empiric_calc:
         scat_str = "Empirical (no utilized scattering database)"
@@ -666,21 +664,24 @@ def calc_radar_moments(instrument, model, is_conv,
         print("Generating %s radar variables using empirical formulation" % cloud_str_full)
         method_str = "Empirical"
         model = calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_values,
-            atm_ext, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types, **kwargs)
+                                     atm_ext, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types, **kwargs)
     elif use_rad_logic:
         print("Generating %s radar variables using radiation logic" % cloud_str_full)
         method_str = "Bulk (radiation logic)"
         model = calc_radar_bulk(instrument, model, is_conv, p_values, z_values,
-            atm_ext, OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types, **kwargs)
+                                atm_ext, OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types,
+                                **kwargs)
     else:
         print("Generating %s radar variables using microphysics logic (slowest processing)" % cloud_str_full)
         method_str = "LUTs (microphysics logic)"
         calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=OD_from_sfc,
-            hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk, **kwargs)
+                         hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk, **kwargs)
 
     for hyd_type in hyd_types:
-        model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = 10 * np.log10(model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)])
-        model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].where(
+        model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = 10 * np.log10(
+            model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)])
+        model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = model.ds[
+            "sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].where(
             np.isfinite(model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)]))
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
             "Equivalent radar reflectivity factor from %s %s hydrometeors" % (cloud_str_full, hyd_type)
@@ -823,7 +824,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 
 
 def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrument, sub_q_array,
-                                  hyd_type, p_diam, mie_for_ice):
+                                 hyd_type, p_diam, mie_for_ice):
     Dims = sub_q_array.shape
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))

@@ -40,11 +40,11 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
         OD_str = "layer top"
 
     model.ds["sub_col_beta_p_tot"] = model.ds["sub_col_beta_p_tot_conv"].fillna(0) + \
-                                     model.ds["sub_col_beta_p_tot_strat"].fillna(0)
+        model.ds["sub_col_beta_p_tot_strat"].fillna(0)
     model.ds["sub_col_alpha_p_tot"] = model.ds["sub_col_alpha_p_tot_conv"].fillna(0) + \
         model.ds["sub_col_alpha_p_tot_strat"].fillna(0)
     model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_conv"].fillna(0) + \
-                                 model.ds["sub_col_OD_tot_strat"].fillna(0)
+        model.ds["sub_col_OD_tot_strat"].fillna(0)
     model.ds["sub_col_beta_p_tot"].attrs["long_name"] = \
         "Total backscatter coefficient (convective + stratiform)"
     model.ds["sub_col_beta_p_tot"].attrs["units"] = "m^-1 sr^-1"
@@ -172,13 +172,13 @@ def accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc=True, **kwargs
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(np.cumsum(
             dz * np.concatenate((np.zeros(Dims[:2] + (1,)),
                                  model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:, :, :-1]), axis=2),
-                                 axis=2), dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
+            axis=2), dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
     else:
         dz = np.tile(np.diff(z_values, axis=1, append=0.), (model.num_subcolumns, 1, 1))
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(np.flip(np.cumsum(
-            np.flip(dz * np.concatenate((model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:,:,1:],
-                    np.zeros(Dims[:2] + (1,))), axis=2), axis=2), axis=2), axis=2),
-                    dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
+            np.flip(dz * np.concatenate((model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)][:, :, 1:],
+                                         np.zeros(Dims[:2] + (1,))), axis=2), axis=2), axis=2), axis=2),
+            dims=model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)].dims)
 
     return model
 
@@ -246,12 +246,12 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
                 dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
         else:
             # Heymsfield et al. (2014)
-            a = 0.00532 * (t_values + 90)**2.55
+            a = 0.00532 * (t_values + 90) ** 2.55
             b = 1.31 * np.exp(0.0047 * t_values)
             a = np.tile(a, (model.num_subcolumns, 1, 1))
             b = np.tile(b, (model.num_subcolumns, 1, 1))
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-                (WC / a)**(1 / b), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+                (WC / a) ** (1 / b), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
 
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = \
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] / \
@@ -333,14 +333,14 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         else:
             rho_b = instrument.rho_i  # bulk ice
             fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type] / rho_b + \
-                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type]/rho_b)**(1/3)
+                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
             re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
-                        (model.num_subcolumns, 1, 1))
+                               (model.num_subcolumns, 1, 1))
 
         tau_hyd = np.where(model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] > 0,
-            3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz / \
-            (2 * rho_b * re_array * 1e-6), 0)
-        A_hyd = tau_hyd / (2 * dz) # model assumes geometric scatterers
+                           3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz /
+                           (2 * rho_b * re_array * 1e-6), 0)
+        A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
 
         if np.isin(hyd_type, ["ci", "pi"]):
             if mie_for_ice:
@@ -373,7 +373,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
 
 
 def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
-                    hyd_types=None, mie_for_ice=False, parallel=True, chunk=None, **kwargs):
+                     hyd_types=None, mie_for_ice=False, parallel=True, chunk=None, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar using the microphysics (MG2) logic.
@@ -550,7 +550,7 @@ def calc_lidar_moments(instrument, model, is_conv,
         cloud_str = "conv"
         cloud_str_full = "convective"
         if np.logical_and(not use_empiric_calc, not use_rad_logic):
-            use_rad_logic = True # Force rad scheme logic if in conv scheme
+            use_rad_logic = True  # Force rad scheme logic if in conv scheme
     else:
         cloud_str = "strat"
         cloud_str_full = "stratiform"
@@ -595,17 +595,17 @@ def calc_lidar_moments(instrument, model, is_conv,
         print("Generating %s lidar variables using empirical formulation" % cloud_str_full)
         method_str = "Empirical"
         model = calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_values,
-            OD_from_sfc=OD_from_sfc, hyd_types=hyd_types, **kwargs)
+                                     OD_from_sfc=OD_from_sfc, hyd_types=hyd_types, **kwargs)
     elif use_rad_logic:
         print("Generating %s lidar variables using radiation logic" % cloud_str_full)
         method_str = "Bulk (radiation logic)"
         model = calc_lidar_bulk(instrument, model, is_conv, p_values, z_values,
-            OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types, **kwargs)
+                                OD_from_sfc=OD_from_sfc, mie_for_ice=mie_for_ice, hyd_types=hyd_types, **kwargs)
     else:
         print("Generating %s lidar variables using microphysics logic (slowest processing)" % cloud_str_full)
         method_str = "LUTs (microphysics logic)"
         calc_lidar_micro(instrument, model, z_values, OD_from_sfc=OD_from_sfc,
-            hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk, **kwargs)
+                         hyd_types=hyd_types, mie_for_ice=mie_for_ice, parallel=parallel, chunk=chunk, **kwargs)
 
     for hyd_type in hyd_types:
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
@@ -642,7 +642,8 @@ def calc_lidar_moments(instrument, model, is_conv,
     model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["Processing method"] = method_str
     model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
 
-    model.ds["sub_col_beta_att_tot_%s" % cloud_str] = (beta_m + model.ds["sub_col_beta_p_tot_%s" % cloud_str]) * \
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str] = (
+        beta_m + model.ds["sub_col_beta_p_tot_%s" % cloud_str]) * \
         T * np.exp(-2 * eta * model.ds["sub_col_OD_tot_%s" % cloud_str])
     model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["long_name"] = \
         "Total attenuated backscatter from all %s hydrometeors (including atmospheric extinction)" % cloud_str_full
@@ -658,7 +659,6 @@ def calc_lidar_moments(instrument, model, is_conv,
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,
                                  hyd_type, num_subcolumns, D, beta_p, alpha_p):
     Dims = total_hydrometeor.shape
-    num_diam = len(p_diam)
     beta_p_strat = np.zeros((num_subcolumns, Dims[2]))
     alpha_p_strat = np.zeros((num_subcolumns, Dims[2]))
 

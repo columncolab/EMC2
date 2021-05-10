@@ -34,8 +34,10 @@
 ./EMC2example.ipynb
 ./_downloads/0a2aa0c4f58078fa414bc2940e859b4f/auto_examples_jupyter.zip
 ./_downloads/7417f3bcb6ced8c409e5ef6b289cb6fd/auto_examples_python.zip
-./_images/EMC2example_11_1.png
-./_images/EMC2example_13_1.png
+./_images/EMC2example_11_0.png
+./_images/EMC2example_12_0.png
+./_images/EMC2example_14_0.png
+./_images/EMC2example_16_0.png
 ./_images/Kazr_refl.png
 ./_modules/emc2/core/instrument.html
 ./_modules/emc2/core/instruments.html

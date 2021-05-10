@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>emc2.core (emc2.core) &mdash; EMC^2  documentation</title>
@@ -13,6 +14,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
@@ -33,12 +36,13 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -95,7 +99,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">EMC^2 Usage guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html">EMC^2 demo notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">emc2.core (emc2.core)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
@@ -204,7 +208,7 @@
     text-align: unset;
 }
 </style>
-<span class="target" id="module-emc2.core"></span><div class="section" id="emc2-core-emc2-core">
+<span class="target" id="module-emc2.core"></span><section id="emc2-core-emc2-core">
 <h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Permalink to this headline">¶</a></h1>
 <p>The procedures in this module contain the core data structures of EMC^2.
 In particular, the Instrument class that describes the characteristics
@@ -239,12 +243,12 @@ constants used by EMC^2 are also stored in this module.</p>
 <p>In addition the <code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.core.quantity()</span></code> is equivalent to pint’s
 UnitRegistry().Quantity object. This allows for the use of quantities
 with units, making EMC^2 unit aware.</p>
-</div>
+</section>
 <div class="toctree-wrapper compound">
 </div>
 <dl class="py class">
-<dt id="emc2.core.Model">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">emc2.core.</span></code><code class="sig-name descname"><span class="pre">Model</span></code><a class="reference internal" href="../_modules/emc2/core/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="emc2.core.Model">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="reference internal" href="../_modules/emc2/core/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class stores the model specific parameters for the radar simulator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
@@ -310,15 +314,15 @@ hydrometeor class</p>
 </dl>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="emc2.core.Model.hydrometeor_classes">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hydrometeor_classes</span></code><a class="headerlink" href="#emc2.core.Model.hydrometeor_classes" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="emc2.core.Model.hydrometeor_classes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">hydrometeor_classes</span></span><a class="headerlink" href="#emc2.core.Model.hydrometeor_classes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The list of hydrometeor classes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="emc2.core.Model.load_subcolumns_from_netcdf">
-<code class="sig-name descname"><span class="pre">load_subcolumns_from_netcdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.load_subcolumns_from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.load_subcolumns_from_netcdf" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="emc2.core.Model.load_subcolumns_from_netcdf">
+<span class="sig-name descname"><span class="pre">load_subcolumns_from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.load_subcolumns_from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.load_subcolumns_from_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load all of the subcolumn data from a previously saved netCDF file.
 The dataset being loaded must match the current number of subcolumns if there are any
 generated.</p>
@@ -332,22 +336,22 @@ generated.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="emc2.core.Model.num_hydrometeor_classes">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_hydrometeor_classes</span></code><a class="headerlink" href="#emc2.core.Model.num_hydrometeor_classes" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="emc2.core.Model.num_hydrometeor_classes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_hydrometeor_classes</span></span><a class="headerlink" href="#emc2.core.Model.num_hydrometeor_classes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of hydrometeor classes</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="emc2.core.Model.num_subcolumns">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_subcolumns</span></code><a class="headerlink" href="#emc2.core.Model.num_subcolumns" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="emc2.core.Model.num_subcolumns">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_subcolumns</span></span><a class="headerlink" href="#emc2.core.Model.num_subcolumns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the number of subcolumns in the model. Will
 return 0 if the number of subcolumns has not yet been set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="emc2.core.Model.subcolumns_to_netcdf">
-<code class="sig-name descname"><span class="pre">subcolumns_to_netcdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.subcolumns_to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.subcolumns_to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="emc2.core.Model.subcolumns_to_netcdf">
+<span class="sig-name descname"><span class="pre">subcolumns_to_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.subcolumns_to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.subcolumns_to_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -362,8 +366,8 @@ return 0 if the number of subcolumns has not yet been set.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="emc2.core.Instrument">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">emc2.core.</span></code><code class="sig-name descname"><span class="pre">Instrument</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="emc2.core.Instrument">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the base class which holds the information needed to contain the instrument parameters for the
 simulator.</p>
 <dl class="field-list simple">
@@ -416,8 +420,8 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="emc2.core.Instrument.read_arm_netcdf_file">
-<code class="sig-name descname"><span class="pre">read_arm_netcdf_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="emc2.core.Instrument.read_arm_netcdf_file">
+<span class="sig-name descname"><span class="pre">read_arm_netcdf_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a netCDF file that corresponds to ARM standards.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,7 +450,7 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2019, Bobby Jackson.
+        &#169; Copyright 2021, Bobby Jackson, Israel Silber.
 
     </p>
   </div>

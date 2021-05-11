@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.dates as mdates
+import warnings
 
 from act.plotting import Display
 
@@ -568,23 +569,27 @@ class SubcolumnDisplay(Display):
 
         if 'Ze' in variable:
             # Use SD as a relative error considering the dBZ units
-            if len(x_variable.shape) == 2:
-                x_var = np.nanmean(10**(x_variable / 10), axis=0)
-                x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
-            elif len(x_variable.shape) == 3:
-                x_var = np.nanmean(10**(x_variable / 10), axis=(0, 1))
-                x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=(0, 1))
+            with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                if len(x_variable.shape) == 2:
+                    x_var = np.nanmean(10**(x_variable / 10), axis=0)
+                    x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
+                elif len(x_variable.shape) == 3:
+                    x_var = np.nanmean(10**(x_variable / 10), axis=(0, 1))
+                    x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=(0, 1))
             x_label = ''
             Xscale = 'linear'  # treating dBZ as linear for plotting
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
             x_fill[0] = np.where(x_var > x_err, x_fill[0], 10 * np.log10(np.finfo(float).eps))
         else:
-            if len(x_variable.shape) == 2:
-                x_var = np.nanmean(x_variable, axis=0)
-                x_err = np.nanstd(x_variable, ddof=0, axis=0)
-            elif len(x_variable.shape) == 3:
-                x_var = np.nanmean(x_variable, axis=(0, 1))
-                x_err = np.nanstd(x_variable, ddof=0, axis=(0, 1))
+            with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                if len(x_variable.shape) == 2:
+                    x_var = np.nanmean(x_variable, axis=0)
+                    x_err = np.nanstd(x_variable, ddof=0, axis=0)
+                elif len(x_variable.shape) == 3:
+                    x_var = np.nanmean(x_variable, axis=(0, 1))
+                    x_err = np.nanstd(x_variable, ddof=0, axis=(0, 1))
             x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
                 x_label = 'log '
@@ -724,16 +729,20 @@ class SubcolumnDisplay(Display):
                       str(x_variable.shape) + " - ignoring mask")
 
         if 'Ze' in variable:
-            # Use SD as a relative error considering the dBZ units
-            x_var = np.nanmean(10**(x_variable / 10), axis=0)
-            x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
+            with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                # Use SD as a relative error considering the dBZ units
+                x_var = np.nanmean(10**(x_variable / 10), axis=0)
+                x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
             x_label = ''
             Xscale = 'linear'  # treating dBZ as linear for plotting
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
             x_fill[0] = np.where(x_var > x_err, x_fill[0], 10 * np.log10(np.finfo(float).eps))
         else:
-            x_var = np.nanmean(x_variable, axis=0)
-            x_err = np.nanstd(x_variable, ddof=0, axis=0)
+            with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                x_var = np.nanmean(x_variable, axis=0)
+                x_err = np.nanstd(x_variable, ddof=0, axis=0)
             x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
                 x_label = 'log '

@@ -30,8 +30,8 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
         The Model object with the convective fraction in each subcolumn added.
     """
     np.seterr(divide='ignore', invalid='ignore')
-    if model.num_subcolumns == 0 and N_columns is None:
-        raise RuntimeError("The number of subcolumns must be specified in the model!")
+    if N_columns is None and model.num_subcolumns == 0:
+       N_columns = model.ds.dims['subcolumn'] 
 
     if model.num_subcolumns != N_columns and model.num_subcolumns != 0 and N_columns is not None:
         raise ValueError("The number of subcolumns has already been specified (%d) and != %d" %

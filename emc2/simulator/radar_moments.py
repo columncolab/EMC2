@@ -439,7 +439,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_other = lambda x: _calculate_other_observables(
                 x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, p_diam, mie_for_ice)
->
+
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
                 if chunk is None:

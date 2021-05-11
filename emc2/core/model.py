@@ -349,6 +349,12 @@ class WRF(Model):
                                 'pl': 'conv_frac', 'pi': 'conv_frac'}
         self.strat_frac_names = {'cl': 'strat_frac', 'ci': 'strat_frac',
                                  'pl': 'strat_frac', 'pi': 'strat_frac'}
+        self.conv_frac_names_for_rad = {
+            'cl': 'conv_frac', 'ci': 'conv_frac',
+            'pl': 'conv_frac', 'pi': 'conv_frac'}
+        self.strat_frac_names_for_rad = {
+            'cl': 'strat_frac', 'ci': 'strat_frac',
+            'pl': 'strat_frac', 'pi': 'strat_frac'}
         self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',

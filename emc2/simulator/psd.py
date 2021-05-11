@@ -6,7 +6,7 @@ from scipy.special import gamma
 
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=False, dispersion_mu_bounds=(2, 15),
-                   subcolumns=False, is_conv=False):
+                   subcolumns=False, is_conv=False, **kwargs):
 
     """
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.

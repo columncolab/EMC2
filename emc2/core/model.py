@@ -190,7 +190,8 @@ class Model():
         # Get all relevant variables to save:
         var_dict = {}
         for my_var in self.ds.variables.keys():
-            if "sub_col" in my_var or "strat_" in my_var or "conv_" in my_var:
+            if "sub_col" in my_var or "strat_" in my_var or "conv_" in my_var or "_tot" \
+               in my_var or "subcol" in my_var:
                 var_dict[my_var] = self.ds[my_var]
 
         out_ds = xr.Dataset(var_dict)

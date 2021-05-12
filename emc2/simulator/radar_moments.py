@@ -568,6 +568,7 @@ def calc_radar_moments(instrument, model, is_conv,
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
+
     NOTE:
     When starting a parallel task (in microphysics approach), it is recommended
     to wrap the top-level python script calling the EMC^2 processing ('lines_of_code')

@@ -9,7 +9,7 @@ from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, rada
 def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
-    
+
     NOTE:
     When starting a parallel task (in microphysics approach), it is recommended
     to wrap the top-level python script calling the EMC^2 processing ('lines_of_code')

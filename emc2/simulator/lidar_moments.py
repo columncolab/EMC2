@@ -489,6 +489,13 @@ def calc_lidar_moments(instrument, model, is_conv,
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
 
+    NOTE:
+    When starting a parallel task (in microphysics approach), it is recommended
+    to wrap the top-level python script calling the EMC^2 processing ('lines_of_code')
+    with the following command (just below the 'import' statements):
+    if __name__ == “__main__”:
+        lines_of_code
+
     Parameters
     ----------
     instrument: Instrument

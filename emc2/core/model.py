@@ -186,13 +186,12 @@ class Model():
         file_name: str
             The name of the file to save to.
         """
-
-        # Get all relevant variables to save:
+        # Set all relevant variables to save:
+        vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr"]
         var_dict = {}
         for my_var in self.ds.variables.keys():
-            if "sub_col" in my_var or "strat_" in my_var or "conv_" in my_var:
+            if np.any([x in my_var for x in vars_to_keep]):
                 var_dict[my_var] = self.ds[my_var]
-
         out_ds = xr.Dataset(var_dict)
         out_ds.to_netcdf(file_name)
 

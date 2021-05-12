@@ -703,6 +703,9 @@
                 <span class="n">sigma_d_numer</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">_calc_sigma</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Dims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))]</span>
             <span class="n">sigma_d_numer_tot</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sigma_d_numer</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sub_col_sigma_d_tot_strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_d_numer_tot</span> <span class="o">/</span> <span class="n">moment_denom_tot</span><span class="p">),</span>
                                                          <span class="n">dims</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sub_col_Vd_tot_strat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
 
@@ -729,6 +732,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the reflectivity, doppler velocity, and spectral width</span>
 <span class="sd">    in a given column for the given radar.</span>
+
+<span class="sd">    NOTE:</span>
+<span class="sd">    When starting a parallel task (in microphysics approach), it is recommended</span>
+<span class="sd">    to wrap the top-level python script calling the EMC^2 processing (&#39;lines_of_code&#39;)</span>
+<span class="sd">    with the following command (just below the &#39;import&#39; statements):</span>
+<span class="sd">    if __name__ == “__main__”:</span>
+<span class="sd">        lines_of_code</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

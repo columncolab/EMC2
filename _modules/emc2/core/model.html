@@ -350,13 +350,12 @@
 <span class="sd">        file_name: str</span>
 <span class="sd">            The name of the file to save to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Get all relevant variables to save:</span>
+        <span class="c1"># Set all relevant variables to save:</span>
+        <span class="n">vars_to_keep</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sub_col&quot;</span><span class="p">,</span> <span class="s2">&quot;subcol&quot;</span><span class="p">,</span> <span class="s2">&quot;strat_&quot;</span><span class="p">,</span> <span class="s2">&quot;conv_&quot;</span><span class="p">,</span> <span class="s2">&quot;_tot&quot;</span><span class="p">,</span> <span class="s2">&quot;_ext&quot;</span><span class="p">,</span> <span class="s2">&quot;_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;_min&quot;</span><span class="p">,</span> <span class="s2">&quot;mpr&quot;</span><span class="p">,</span> <span class="s2">&quot;fpr&quot;</span><span class="p">]</span>
         <span class="n">var_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">my_var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="s2">&quot;sub_col&quot;</span> <span class="ow">in</span> <span class="n">my_var</span> <span class="ow">or</span> <span class="s2">&quot;strat_&quot;</span> <span class="ow">in</span> <span class="n">my_var</span> <span class="ow">or</span> <span class="s2">&quot;conv_&quot;</span> <span class="ow">in</span> <span class="n">my_var</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="n">my_var</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vars_to_keep</span><span class="p">]):</span>
                 <span class="n">var_dict</span><span class="p">[</span><span class="n">my_var</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">my_var</span><span class="p">]</span>
-
         <span class="n">out_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">var_dict</span><span class="p">)</span>
         <span class="n">out_ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span></div>
 

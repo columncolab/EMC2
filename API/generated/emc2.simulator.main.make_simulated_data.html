@@ -223,6 +223,14 @@
 <dt class="sig sig-object py" id="emc2.simulator.main.make_simulated_data">
 <span class="sig-prename descclassname"><span class="pre">emc2.simulator.main.</span></span><span class="sig-name descname"><span class="pre">make_simulated_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_classify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/main.html#make_simulated_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.main.make_simulated_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>This procedure will make all of the subcolumns and simulated data for each model column.</p>
+<p>NOTE:
+When starting a parallel task (in microphysics approach), it is recommended
+to wrap the top-level python script calling the EMC^2 processing (‘lines_of_code’)
+with the following command (just below the ‘import’ statements):
+if __name__ == “__main__”:</p>
+<blockquote>
+<div><p>lines_of_code</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">

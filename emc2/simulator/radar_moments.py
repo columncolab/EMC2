@@ -539,6 +539,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
             sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
 
+    model.ds["lambda"].values = model.ds["lambda"].values.astype("float64")
+    model.ds["N_0"].values = model.ds["N_0"].values.astype("float64")
+
     model.ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),
                                                          dims=model.ds["sub_col_Vd_tot_strat"].dims)
 

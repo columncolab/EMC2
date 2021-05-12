@@ -190,7 +190,7 @@ class Model():
         vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr"]
         var_dict = {}
         for my_var in self.ds.variables.keys():
-            if np.any([x in my_var for x in vars_to_keep])
+            if np.any([x in my_var for x in vars_to_keep]):
                 var_dict[my_var] = self.ds[my_var]
         out_ds = xr.Dataset(var_dict)
         out_ds.to_netcdf(file_name)

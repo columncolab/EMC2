@@ -64,8 +64,8 @@ class KAZR(Instrument):
         This stores the information for the KAZR (Ka-band radar).
         """
         super().__init__(frequency=34.860 * ureg.GHz)
-        if site.lower() not in ["sgp", "nsa", "awr", "ena"]:
-            raise ValueError("Site must be one of 'sgp', 'ena', 'nsa', or 'awr'!")
+        if site.lower() not in ["sgp", "nsa", "awr", "ena", "mos"]:
+            raise ValueError("Site must be one of 'sgp', 'ena', 'nsa', 'awr', or 'mos'!")
         self.instrument_class = "radar"
         self.instrument_str = "KAZR"
         self.ext_OD = np.nan
@@ -92,6 +92,9 @@ class KAZR(Instrument):
         elif site.lower() == "awr":
             self.gain = 10**5.273
             self.Z_min_1km = -45.5
+        elif site.lower() == "mos":
+            self.gain = 10**5.273
+            self.Z_min_1km = -41.6
         else:
             self.gain = np.nan
             self.Z_min_1km = -56.5
@@ -144,8 +147,8 @@ class WACR(Instrument):
         This stores the information for the WACR or M-WACR (W-band radars).
         """
         super().__init__(frequency=95.04 * ureg.GHz)
-        if site.lower() not in ["sgp", "awr"]:
-            raise ValueError("Site must be one of 'sgp' or 'awr'!")
+        if site.lower() not in ["sgp", "awr", "mos"]:
+            raise ValueError("Site must be one of 'sgp' 'awr', or 'mos'!")
         self.instrument_class = "radar"
         self.instrument_str = "WACR"
         self.ext_OD = np.nan

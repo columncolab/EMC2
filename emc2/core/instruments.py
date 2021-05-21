@@ -384,7 +384,7 @@ class Ten64nm(Instrument):
         self.eta = 1
         self.K_w = np.nan
         if supercooled:
-            self.eps_liq = (1.3235222 + 1.2181699-6j) ** 2
+            self.eps_liq = (1.3235222 + 1.2181699e-6j) ** 2
         else:
             self.eps_liq = (1.320416 + 1.2588968e-6j) ** 2
         self.pt = np.nan

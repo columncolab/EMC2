@@ -1,4 +1,4 @@
-emc2.core.instruments.KAZR
+﻿emc2.core.instruments.KAZR
 ==========================
 
 .. currentmodule:: emc2.core.instruments
@@ -14,6 +14,7 @@ emc2.core.instruments.KAZR
    .. autosummary::
    
       ~KAZR.__init__
+      ~KAZR.read_arm_netcdf_file
    
    
 

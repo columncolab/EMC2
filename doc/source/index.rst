@@ -7,21 +7,23 @@ Welcome to EMC²'s documentation!
 =================================
 
 The Earth Model Column Collaboratory (EMC²) is an open source framework for conducting
-intercomparisons between columns from earth system models and observations from
-remote sensing instruments such as radars and lidars.
+intercomparisons between columns from climate and earth system models and observations
+from remote sensing instruments such as radars and lidars.
 
-The Earth Model Column Collaboratory (EMC²) is inspired from past work comparing remotely
-sensed zenith-pointing measurements to earth system and global climate models (GCMs) and
-their single-column model modes (SCMs) (e.g., Lamer et al. 2018; Swales et al. 2018).
+EMC² is inspired from past work comparing remotely-sensed zenith-pointing measurements
+to earth system and global climate models (GCMs) and their single-column model modes
+(SCMs) (e.g., Lamer et al. 2018; Swales et al. 2018).
 
 EMC² provides an open source software framework to:
 
 1. Represent both ARM measurements and GCM columns in the Python programming language
 building on the Atmospheric Community Toolkit (ACT, Theisen et. al. 2019) and leveraging 
 the EMC² team’s success with Py-ART (Helmus and Collis 2016).
+
 2. Scale GCM outputs (using the cloud fraction) to compare with sub-grid-scale column
 measurements using a modular sub column generator designed to run off-line on time series
 extracted from existing GCM/SCM output.
+
 3. Enable a suite of comparisons between ARM (and other) column measurements and the
 GCM model subcolumns.
 

@@ -4,8 +4,7 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Construction of the Model object &mdash; EMC^2  documentation</title>
@@ -14,8 +13,6 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
@@ -36,13 +33,12 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -109,7 +105,6 @@
 <li class="toctree-l2"><a class="reference internal" href="running.html#visualization-of-results">Visualization of results</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../API/index.html">API Reference</a></li>
 </ul>
 
@@ -204,7 +199,7 @@
     text-align: unset;
 }
 </style>
-<section id="construction-of-the-model-object">
+<div class="section" id="construction-of-the-model-object">
 <h1>Construction of the Model object<a class="headerlink" href="#construction-of-the-model-object" title="Permalink to this headline">¶</a></h1>
 <p>EMC^2 uses the <a class="reference internal" href="../API/core.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></a> object to know what fields to load from a given
 file in order to obtain the required information. In order to define your
@@ -314,7 +309,7 @@ $                       &#39;pi&#39;: 0.41 * ureg.dimensionless}
 $   super()._add_vel_units()
 </pre></div>
 </div>
-<section id="references">
+<div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <p>Locatelli, J. D., and Hobbs, P. V. (1974), Fall speeds and masses
 of solid precipitation particles, J. Geophys. Res., 79( 15), 2185– 2197,
@@ -328,8 +323,8 @@ and A.J. Illingworth, 2007: Refinements to Ice Particle Mass Dimensional
 and Terminal Velocity Relationships for Ice Clouds. Part II: Evaluation
 and Parameterizations of Ensemble Ice Particle Sedimentation Velocities.
 J. Atmos. Sci., 64, 1068–1088, <a class="reference external" href="https://doi.org/10.1175/JAS3900.1">https://doi.org/10.1175/JAS3900.1</a></p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

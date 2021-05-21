@@ -171,7 +171,7 @@ class WACR(Instrument):
             self.Z_min_1km = -46.0
         else:
             self.gain = 10**3.78
-            self.Z_min_1km = -40.0
+            self.Z_min_1km = -40.0  # 0.2 s increments
         if site.lower() == "sgp":
             self.tau_ge = 0.3
             self.lr = np.nan

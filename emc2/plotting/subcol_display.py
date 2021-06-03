@@ -254,8 +254,8 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
-        if isinstance(hatched_mask,str):
-            hatch = hatch_mask
+        if isinstance(hatched_mask, str):
+            hatch = hatched_mask
             hatched_mask = True
         else:
             hatch = '\\/...'
@@ -366,8 +366,8 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
-        if isinstance(hatched_mask,str):
-            hatch = hatch_mask
+        if isinstance(hatched_mask, str):
+            hatch = hatched_mask
             hatched_mask = True
         else:
             hatch = '\\/...'
@@ -500,8 +500,8 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
-        if isinstance(hatched_mask,str):
-            hatch = hatch_mask
+        if isinstance(hatched_mask, str):
+            hatch = hatched_mask
             hatched_mask = True
         else:
             hatch = '\\/...'

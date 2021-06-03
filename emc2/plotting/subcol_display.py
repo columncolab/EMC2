@@ -158,8 +158,8 @@ class SubcolumnDisplay(Display):
 
     def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
-                                  log_plot=False, Mask_array=None, x_range=None, y_range=None,
-                                  **kwargs):
+                                  log_plot=False, Mask_array=None, hatched_mask=False,
+                                  x_range=None, y_range=None, **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
         In the case of a 2D (time x height) field, plotting a time-height curtain.
@@ -184,6 +184,10 @@ class SubcolumnDisplay(Display):
             Set to true to plot variable in logarithmic space.
         Mask_array: bool, int, or float (same dims as "variable")
             Set to true or to other values greater than 0 in grid cells to make them transparent.
+        hatched_mask: bool or str
+            True - masked areas show masked '/' pattern, False - Masked area is transparent,
+            str - use the str as the hatch pattern (see:
+            https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
         x_range: tuple, list, or None
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
@@ -232,7 +236,8 @@ class SubcolumnDisplay(Display):
         if Mask_array is not None:
             Mask_array = Mask_array.T
             if Mask_array.shape == var_array.shape:
-                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+                if not hatched_mask:
+                    var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
                 print("Mask dimensions " + str(Mask_array.shape) +
                       " are different than in the requested field " +
@@ -249,6 +254,14 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if isinstance(hatched_mask,str):
+            hatch = hatch_mask
+            hatched_mask = True
+        else:
+            hatch = '\\/...'
+        if hatched_mask:
+            self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                            hatch=hatch, alpha=0.)
 
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +
@@ -269,8 +282,8 @@ class SubcolumnDisplay(Display):
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,
-                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
-                                   **kwargs):
+                                   log_plot=False, Mask_array=None, hatched_mask=False,
+                                   x_range=None, y_range=None, **kwargs):
         """
         Plots timeseries of a given instrument variable.
 
@@ -292,6 +305,10 @@ class SubcolumnDisplay(Display):
             Set to true to plot variable in logarithmic space.
         Mask_array: bool, int, or float (same dims as "variable")
             Set to true or to other values greater than 0 in grid cells to make them transparent.
+        hatched_mask: bool or str
+            True - masked areas show masked '/' pattern, False - Masked area is transparent,
+            str - use the str as the hatch pattern (see:
+            https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
         x_range: tuple, list, or None
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
@@ -331,7 +348,8 @@ class SubcolumnDisplay(Display):
         if Mask_array is not None:
             Mask_array = Mask_array.T
             if Mask_array.shape == var_array.shape:
-                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+                if not hatched_mask:
+                    var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
                 print("Mask dimensions " + str(Mask_array.shape) +
                       " are different than in the requested field " +
@@ -348,6 +366,14 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if isinstance(hatched_mask,str):
+            hatch = hatch_mask
+            hatched_mask = True
+        else:
+            hatch = '\\/...'
+        if hatched_mask:
+            self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                            hatch=hatch, alpha=0.)
         if title is None:
             self.axes[subplot_index].set_title(instrument.instrument_str + ' ' +
                                                np.datetime_as_string(my_ds.time[0].values))
@@ -365,7 +391,8 @@ class SubcolumnDisplay(Display):
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
-                            log_plot=False, Mask_array=None, x_range=None, y_range=None, **kwargs):
+                            log_plot=False, Mask_array=None, hatched_mask=False,
+                            x_range=None, y_range=None, **kwargs):
         """
         Plots the single profile of subcolumns for a given time period.
 
@@ -388,7 +415,12 @@ class SubcolumnDisplay(Display):
         log_plot: bool
             Set to true to plot variable in logarithmic space.
         Mask_array: bool, int, or float (same dims as "variable")
-            Set to true or to other values greater than 0 in grid cells to make them transparent.
+            Set to true or to other values greater than 0 in grid cells to make them transparent
+            or hatched.
+        hatched_mask: bool or str
+            True - masked areas show masked '/' pattern, False - Masked area is transparent,
+            str - use the str as the hatch pattern (see:
+            https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
         x_range: tuple, list, or None
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
@@ -454,7 +486,8 @@ class SubcolumnDisplay(Display):
         if Mask_array is not None:
             Mask_array = Mask_array.T
             if Mask_array.shape == var_array.shape:
-                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+                if not hatched_mask:
+                    var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
                 print("Mask dimensions " + str(Mask_array.shape) +
                       " are different than in the requested field " +
@@ -467,6 +500,14 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if isinstance(hatched_mask,str):
+            hatch = hatch_mask
+            hatched_mask = True
+        else:
+            hatch = '\\/...'
+        if hatched_mask:
+            self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                            hatch=hatch, alpha=0.)
         if title is None:
             time_title = ""
             if isinstance(time, str):
@@ -557,9 +598,10 @@ class SubcolumnDisplay(Display):
         if len(y_variable.shape) > 1:
             y_variable = np.nanmean(y_variable, axis=0)
 
-        x_variable = my_ds[variable].values
+        x_variable = my_ds[variable].squeeze().values
         x_variable = np.ma.masked_where(~np.isfinite(x_variable), x_variable)
         if Mask_array is not None:
+            Mask_array = Mask_array.squeeze()  # prevent singleton dimension issues
             if Mask_array.shape == x_variable.shape:
                 x_variable = np.where(Mask_array <= 0, x_variable, np.nan)
             else:

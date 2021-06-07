@@ -100,7 +100,6 @@ class SubcolumnDisplay(Display):
             SD = np.nanstd(variable, axis=axis)
         return Mean, SD
 
-
     def set_yrng(self, subplot_index, y_range):
         """
         Set the Y axes limits of the subplot

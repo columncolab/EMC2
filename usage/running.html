@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Creating your simulated variables &mdash; EMC^2  documentation</title>
@@ -13,6 +14,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
@@ -33,19 +36,20 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="../EMC2example.html" />
+    <link rel="next" title="EMC² Demo Notebook" href="../EMC2example.html" />
     <link rel="prev" title="Construction of the Model object" href="model.html" /> 
 </head>
 
@@ -107,6 +111,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#visualization-of-results">Visualization of results</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../API/index.html">API Reference</a></li>
 </ul>
 
@@ -201,14 +206,14 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="creating-your-simulated-variables">
+<section id="creating-your-simulated-variables">
 <h1>Creating your simulated variables<a class="headerlink" href="#creating-your-simulated-variables" title="Permalink to this headline">¶</a></h1>
 <p>Once you have created the <a class="reference internal" href="../API/core.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></a> and <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> objects creating
 the simulated variables is as easy as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ my_model = emc2.simulator.main.make_simulated_data(my_model, my_instrument, num_columns)
 </pre></div>
 </div>
-<div class="section" id="cloud-microphysical-parameters">
+<section id="cloud-microphysical-parameters">
 <h2>Cloud microphysical parameters<a class="headerlink" href="#cloud-microphysical-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Once you have done this, the model will make several variables related to the subcolumn microphysical properties
 as well as the simulated moments. The microphysical properties output by EMC^2 consist of the number concentration,
@@ -416,8 +421,8 @@ liquid water mixing ratio, and cloud fraction in each subcolumn.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="simulated-radar-variables">
+</section>
+<section id="simulated-radar-variables">
 <h2>Simulated radar variables<a class="headerlink" href="#simulated-radar-variables" title="Permalink to this headline">¶</a></h2>
 <p>In addition, if you are simulating a radar, EMC^2 will output the following parameters for each
 model generated subcolumn.</p>
@@ -730,8 +735,8 @@ model generated subcolumn.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="simulated-lidar-variables">
+</section>
+<section id="simulated-lidar-variables">
 <h2>Simulated lidar variables<a class="headerlink" href="#simulated-lidar-variables" title="Permalink to this headline">¶</a></h2>
 <p>If you are simulating a lidar, EMC^2 will output the following variables:</p>
 <table class="docutils align-default">
@@ -1019,9 +1024,9 @@ model generated subcolumn.</p>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="visualization-of-results">
+</section>
+</section>
+<section id="visualization-of-results">
 <h1>Visualization of results<a class="headerlink" href="#visualization-of-results" title="Permalink to this headline">¶</a></h1>
 <p><code class="code docutils literal notranslate"><span class="pre">model.ds</span></code> is a standard xarray dataset that includes all of xarray’s plotting capabilities. Therefore,
 you can plot any of these parameters for a given subcolumn simply by doing:</p>
@@ -1040,7 +1045,7 @@ $ display.plot(&#39;reflectivity_copol&#39;, cmap=&#39;act_HomeyerRainbow&#39;, 
 <img alt="../_images/Kazr_refl.png" src="../_images/Kazr_refl.png" />
 <p>For more information on ACT’s plotting routines click <a class="reference external" href="https://arm-doe.github.io/ACT/API/plotting.html">here</a>.
 In the future we plan on integrating ACT’s Display module to make this process even easier.</p>
-</div>
+</section>
 
 
            </div>
@@ -1048,7 +1053,7 @@ In the future we plan on integrating ACT’s Display module to make this process
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../EMC2example.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../EMC2example.html" class="btn btn-neutral float-right" title="EMC² Demo Notebook" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="model.html" class="btn btn-neutral float-left" title="Construction of the Model object" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

@@ -31,8 +31,13 @@
 ./API/plotting.html
 ./API/simulator.html
 ./EMC2example.html
+./EMC2example.ipynb
 ./_downloads/0a2aa0c4f58078fa414bc2940e859b4f/auto_examples_jupyter.zip
 ./_downloads/7417f3bcb6ced8c409e5ef6b289cb6fd/auto_examples_python.zip
+./_images/EMC2example_12_0.png
+./_images/EMC2example_13_0.png
+./_images/EMC2example_15_0.png
+./_images/EMC2example_17_0.png
 ./_images/Kazr_refl.png
 ./_modules/emc2/core/instrument.html
 ./_modules/emc2/core/instruments.html
@@ -168,7 +173,6 @@
 ./_static/plus.png
 ./_static/pygments.css
 ./_static/searchtools.js
-./_static/underscore-1.12.0.js
 ./_static/underscore-1.13.1.js
 ./_static/underscore.js
 ./genindex.html

@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Construction of the EMC^2 Instrument Object &mdash; EMC^2  documentation</title>
@@ -13,6 +14,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
@@ -33,12 +36,13 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -102,6 +106,7 @@
 <li class="toctree-l2"><a class="reference internal" href="running.html#visualization-of-results">Visualization of results</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../API/index.html">API Reference</a></li>
 </ul>
 
@@ -196,7 +201,7 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="construction-of-the-emc-2-instrument-object">
+<section id="construction-of-the-emc-2-instrument-object">
 <h1>Construction of the EMC^2 Instrument Object<a class="headerlink" href="#construction-of-the-emc-2-instrument-object" title="Permalink to this headline">¶</a></h1>
 <p>The <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> object contains all of the information that is needed
 for EMC^2 to both visualize instrument data as well as the instrument specific parameters
@@ -260,8 +265,8 @@ $         self.mie_table[&quot;ci&quot;] = load_mie_file(data_path + &quot;/MieH
 $         self.mie_table[&quot;pi&quot;] = load_mie_file(data_path + &quot;/MieHSRL_pi.dat&quot;)
 </pre></div>
 </div>
-</div>
-<div class="section" id="addition-of-more-wavelengths-format-of-mie-tables">
+</section>
+<section id="addition-of-more-wavelengths-format-of-mie-tables">
 <h1>Addition of more wavelengths - format of Mie tables<a class="headerlink" href="#addition-of-more-wavelengths-format-of-mie-tables" title="Permalink to this headline">¶</a></h1>
 <p>If you wish to use an instrument with a different wavelength than what is currently used in EMC^2,
 then you must generate the Mie scattering parameters using your favorite Mie scattering code for
@@ -322,7 +327,7 @@ refraction of the sphere</p></td>
 </tbody>
 </table>
 <p>These mie tables must be generated for the four precipitation classes.</p>
-</div>
+</section>
 
 
            </div>

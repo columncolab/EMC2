@@ -7,7 +7,8 @@ from ..core.instrument import ureg, quantity
 def calc_radar_Ze_min(instrument, model, ref_rng=1000):
     """
     This function calculates the minimum detectable radar signal (Ze_min) profile
-    given radar detectability at a reference rnage.
+    given radar detectability at a reference range.
+
     Parameters
     ----------
     instrument: :py:mod:`emc2.core.Instrument`

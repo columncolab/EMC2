@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import gmean, gstd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -64,6 +65,40 @@ class SubcolumnDisplay(Display):
         self._arm.pop(self.model.model_name)
         self.model = model
         self._arm.update({self.model.model_name: self.model.ds})
+
+    def calc_mean_and_sd(self, variable, use_geom_mean=False, axis=None):
+        """
+        This function calculates geometric or arithmetic mean and SD of arrays.
+
+        Parameters
+        ----------
+        variable: np.ndarray
+            array to use for calculation.
+        axis: int, tuple, or None
+            axis along which to calculate the mean and SD. None for calcualtion over the
+            full array (single output value).
+        use_geom_mean: str or bool
+            if True, then using geometric mean and SD, If False, using arithmetic mean and SD.
+
+        Returns
+        -------
+        Mean: np.ndarray
+            array of calculated mean.
+        SD: np.ndarray
+            array of calculated SD.
+        """
+        if use_geom_mean:
+            if np.any(variable <= 0):
+                print("Negative values exist in array - will be ignored in geomteric SD calculation")
+            finite_arr = np.logical_and(np.isfinite(variable), variable > 0)
+            n_finite_elem = np.sum(finite_arr, axis=axis)
+            variable_tmp = np.where(finite_arr, variable, np.nan)
+            Mean = np.exp((1 / n_finite_elem) * np.nansum(np.log(variable_tmp), axis=axis))
+            SD = np.exp(np.nanstd(np.log(variable_tmp), axis=axis))
+        else:
+            Mean = np.nanmean(variable, axis=axis)
+            SD = np.nanstd(variable, axis=axis)
+        return Mean, SD
 
     def set_yrng(self, subplot_index, y_range):
         """
@@ -158,8 +193,8 @@ class SubcolumnDisplay(Display):
 
     def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
-                                  log_plot=False, Mask_array=None, x_range=None, y_range=None,
-                                  **kwargs):
+                                  log_plot=False, Mask_array=None, hatched_mask=False,
+                                  x_range=None, y_range=None, **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
         In the case of a 2D (time x height) field, plotting a time-height curtain.
@@ -184,6 +219,10 @@ class SubcolumnDisplay(Display):
             Set to true to plot variable in logarithmic space.
         Mask_array: bool, int, or float (same dims as "variable")
             Set to true or to other values greater than 0 in grid cells to make them transparent.
+        hatched_mask: bool or str
+            True - masked areas show masked '/' pattern, False - Masked area is transparent,
+            str - use the str as the hatch pattern (see:
+            https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
         x_range: tuple, list, or None
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
@@ -232,7 +271,8 @@ class SubcolumnDisplay(Display):
         if Mask_array is not None:
             Mask_array = Mask_array.T
             if Mask_array.shape == var_array.shape:
-                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+                if not hatched_mask:
+                    var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
                 print("Mask dimensions " + str(Mask_array.shape) +
                       " are different than in the requested field " +
@@ -249,6 +289,14 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if isinstance(hatched_mask, str):
+            hatch = hatched_mask
+            hatched_mask = True
+        else:
+            hatch = '\\/...'
+        if hatched_mask:
+            self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                            hatch=hatch, alpha=0.)
 
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +
@@ -269,8 +317,8 @@ class SubcolumnDisplay(Display):
 
     def plot_instrument_timeseries(self, instrument, variable, title=None,
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,
-                                   log_plot=False, Mask_array=None, x_range=None, y_range=None,
-                                   **kwargs):
+                                   log_plot=False, Mask_array=None, hatched_mask=False,
+                                   x_range=None, y_range=None, **kwargs):
         """
         Plots timeseries of a given instrument variable.
 
@@ -292,6 +340,10 @@ class SubcolumnDisplay(Display):
             Set to true to plot variable in logarithmic space.
         Mask_array: bool, int, or float (same dims as "variable")
             Set to true or to other values greater than 0 in grid cells to make them transparent.
+        hatched_mask: bool or str
+            True - masked areas show masked '/' pattern, False - Masked area is transparent,
+            str - use the str as the hatch pattern (see:
+            https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
         x_range: tuple, list, or None
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
@@ -331,7 +383,8 @@ class SubcolumnDisplay(Display):
         if Mask_array is not None:
             Mask_array = Mask_array.T
             if Mask_array.shape == var_array.shape:
-                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+                if not hatched_mask:
+                    var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
                 print("Mask dimensions " + str(Mask_array.shape) +
                       " are different than in the requested field " +
@@ -348,6 +401,14 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if isinstance(hatched_mask, str):
+            hatch = hatched_mask
+            hatched_mask = True
+        else:
+            hatch = '\\/...'
+        if hatched_mask:
+            self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                            hatch=hatch, alpha=0.)
         if title is None:
             self.axes[subplot_index].set_title(instrument.instrument_str + ' ' +
                                                np.datetime_as_string(my_ds.time[0].values))
@@ -365,7 +426,8 @@ class SubcolumnDisplay(Display):
 
     def plot_single_profile(self, variable, time, pressure_coords=True, title=None,
                             subplot_index=(0,), colorbar=True, cbar_label=None,
-                            log_plot=False, Mask_array=None, x_range=None, y_range=None, **kwargs):
+                            log_plot=False, Mask_array=None, hatched_mask=False,
+                            x_range=None, y_range=None, **kwargs):
         """
         Plots the single profile of subcolumns for a given time period.
 
@@ -388,7 +450,12 @@ class SubcolumnDisplay(Display):
         log_plot: bool
             Set to true to plot variable in logarithmic space.
         Mask_array: bool, int, or float (same dims as "variable")
-            Set to true or to other values greater than 0 in grid cells to make them transparent.
+            Set to true or to other values greater than 0 in grid cells to make them transparent
+            or hatched.
+        hatched_mask: bool or str
+            True - masked areas show masked '/' pattern, False - Masked area is transparent,
+            str - use the str as the hatch pattern (see:
+            https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
         x_range: tuple, list, or None
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
@@ -454,7 +521,8 @@ class SubcolumnDisplay(Display):
         if Mask_array is not None:
             Mask_array = Mask_array.T
             if Mask_array.shape == var_array.shape:
-                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+                if not hatched_mask:
+                    var_array = np.where(Mask_array <= 0, var_array, np.nan)
             else:
                 print("Mask dimensions " + str(Mask_array.shape) +
                       " are different than in the requested field " +
@@ -467,6 +535,14 @@ class SubcolumnDisplay(Display):
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+        if isinstance(hatched_mask, str):
+            hatch = hatched_mask
+            hatched_mask = True
+        else:
+            hatch = '\\/...'
+        if hatched_mask:
+            self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                            hatch=hatch, alpha=0.)
         if title is None:
             time_title = ""
             if isinstance(time, str):
@@ -493,7 +569,7 @@ class SubcolumnDisplay(Display):
 
     def plot_subcolumn_mean_profile(self, variable, time=None, pressure_coords=True, title=None,
                                     subplot_index=(0,), log_plot=False, plot_SD=True, Xlabel=None,
-                                    Mask_array=None, x_range=None, y_range=None, **kwargs):
+                                    Mask_array=None, x_range=None, y_range=None, use_geom_mean=False, **kwargs):
         """
         This function will plot a mean vertical profile of a subcolumn variable for a given time period. The
         thick line will represent the mean profile along the subcolumns, and the shading represents one
@@ -525,6 +601,10 @@ class SubcolumnDisplay(Display):
             The x range of the plot.
         y_range: tuple, list, or None
             The y range of the plot.
+        use_geom_mean: str or bool
+            if True, then using geometric mean and SD, If False, using arithmetic mean and SD, if "auto"
+            then choosing based on typical variable scales (e.g., geometric for reflectivity and backscatter,
+            and arithmetic for V_D.
         kwargs
 
         Returns
@@ -533,6 +613,17 @@ class SubcolumnDisplay(Display):
             The matplotlib axes handle of the plot.
 
         """
+        vars_for_gmean = ["alpha", "beta", "OD", "Ze", "backscatter", "extinction", "reflectivity"]
+
+        if isinstance(use_geom_mean, str):
+            if use_geom_mean == "auto":
+                if np.any([x in variable for x in vars_for_gmean]):
+                    use_geom_mean = True
+                else:
+                    use_geom_mean = False
+            else:
+                print("'use_geom_mean' is an unknown string. Using arithmetic mean and SD")
+                use_geom_mean = False
 
         ds_name = [x for x in self._arm.keys()][0]
         x_variable = self.model.time_dim
@@ -557,9 +648,10 @@ class SubcolumnDisplay(Display):
         if len(y_variable.shape) > 1:
             y_variable = np.nanmean(y_variable, axis=0)
 
-        x_variable = my_ds[variable].values
+        x_variable = my_ds[variable].squeeze().values
         x_variable = np.ma.masked_where(~np.isfinite(x_variable), x_variable)
         if Mask_array is not None:
+            Mask_array = Mask_array.squeeze()  # prevent singleton dimension issues
             if Mask_array.shape == x_variable.shape:
                 x_variable = np.where(Mask_array <= 0, x_variable, np.nan)
             else:
@@ -568,15 +660,12 @@ class SubcolumnDisplay(Display):
                       str(x_variable.shape) + " - ignoring mask")
 
         if 'Ze' in variable:
-            # Use SD as a relative error considering the dBZ units
             with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
                 warnings.simplefilter("ignore", category=RuntimeWarning)
                 if len(x_variable.shape) == 2:
-                    x_var = np.nanmean(10**(x_variable / 10), axis=0)
-                    x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
+                    x_var, x_err = self.calc_mean_and_sd(10**(x_variable / 10), use_geom_mean, axis=0)
                 elif len(x_variable.shape) == 3:
-                    x_var = np.nanmean(10**(x_variable / 10), axis=(0, 1))
-                    x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=(0, 1))
+                    x_var, x_err = self.calc_mean_and_sd(10**(x_variable / 10), use_geom_mean, axis=(0, 1))
             x_label = ''
             Xscale = 'linear'  # treating dBZ as linear for plotting
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
@@ -585,11 +674,9 @@ class SubcolumnDisplay(Display):
             with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
                 warnings.simplefilter("ignore", category=RuntimeWarning)
                 if len(x_variable.shape) == 2:
-                    x_var = np.nanmean(x_variable, axis=0)
-                    x_err = np.nanstd(x_variable, ddof=0, axis=0)
+                    x_var, x_err = self.calc_mean_and_sd(x_variable, use_geom_mean, axis=0)
                 elif len(x_variable.shape) == 3:
-                    x_var = np.nanmean(x_variable, axis=(0, 1))
-                    x_err = np.nanstd(x_variable, ddof=0, axis=(0, 1))
+                    x_var, x_err = self.calc_mean_and_sd(x_variable, use_geom_mean, axis=(0, 1))
             x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
                 x_label = 'log '
@@ -663,7 +750,8 @@ class SubcolumnDisplay(Display):
 
     def plot_instrument_mean_profile(self, instrument, variable, time_range=None, pressure_coords=True,
                                      title=None, subplot_index=(0,), log_plot=False, plot_SD=True,
-                                     Xlabel=None, Mask_array=None, x_range=None, y_range=None, **kwargs):
+                                     Xlabel=None, Mask_array=None, x_range=None, y_range=None,
+                                     use_geom_mean=False, **kwargs):
         """
         This function will plot a mean vertical profile of an instrument variable averaged over a given
         time period. The thick line will represent the mean profile along the given period, and the
@@ -696,6 +784,10 @@ class SubcolumnDisplay(Display):
             The x range of the plot.
         y_range: tuple, list, or None
             The y range of the plot.
+        use_geom_mean: str or bool
+            if True, then using geometric mean and SD, If False, using arithmetic mean and SD, if "auto"
+            then choosing based on typical variable scales (e.g., geometric for reflectivity and backscatter,
+            and arithmetic for V_D.
         kwargs
 
         Returns
@@ -703,6 +795,16 @@ class SubcolumnDisplay(Display):
         axes: Matplotlib axes handle
             The matplotlib axes handle of the plot.
         """
+        vars_for_gmean = ["alpha", "beta", "OD", "Ze", "backscatter", "extinction", "reflectivity"]
+        if isinstance(use_geom_mean, str):
+            if use_geom_mean == "auto":
+                if np.any([x in variable for x in vars_for_gmean]):
+                    use_geom_mean = True
+                else:
+                    use_geom_mean = False
+            else:
+                print("'use_geom_mean' is an unknown string. Using arithmetic mean and SD")
+                use_geom_mean = False
 
         my_ds = instrument.ds
         if 'range' in my_ds.keys():
@@ -731,9 +833,7 @@ class SubcolumnDisplay(Display):
         if 'Ze' in variable:
             with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
                 warnings.simplefilter("ignore", category=RuntimeWarning)
-                # Use SD as a relative error considering the dBZ units
-                x_var = np.nanmean(10**(x_variable / 10), axis=0)
-                x_err = np.nanstd(10**(x_variable / 10), ddof=0, axis=0)
+                x_var, x_err = self.calc_mean_and_sd(10**(x_variable / 10), use_geom_mean, axis=0)
             x_label = ''
             Xscale = 'linear'  # treating dBZ as linear for plotting
             x_fill = np.array(10 * np.log10([x_var - x_err, x_var + x_err]))
@@ -741,8 +841,7 @@ class SubcolumnDisplay(Display):
         else:
             with warnings.catch_warnings():  # Ignore "mean of slice" warning common with nan values.
                 warnings.simplefilter("ignore", category=RuntimeWarning)
-                x_var = np.nanmean(x_variable, axis=0)
-                x_err = np.nanstd(x_variable, ddof=0, axis=0)
+                x_var, x_err = self.calc_mean_and_sd(x_variable, use_geom_mean, axis=0)
             x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
                 x_label = 'log '
@@ -811,5 +910,3 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].set_xlim(x_range)
         else:
             self.axes[subplot_index].set_xlim(x_lim)
-
-        return self.axes[subplot_index]

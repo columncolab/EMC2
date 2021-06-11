@@ -25,17 +25,4 @@ def test_re():
     my_model = emc2.simulator.psd.calc_re_thompson(my_model, hyd_type="cl")
     my_ds = my_model.ds
     assert np.all(my_ds["re_cl"] < 100.)
-
-    my_model = emc2.simulator.psd.calc_mu_lambda(my_model, hyd_type="cl", calc_dispersion=True)
-    my_ds = my_model.ds
-    # Make sure calculated mu is within bounds
-    assert np.all(my_ds["mu"] >= 2)
-    assert np.all(my_ds["mu"] <= 15)
-    assert ~np.all(my_ds["mu"].values == 2)
-    assert ~np.all(my_ds["mu"].values == 15)
-    diffs = np.diff(my_ds["lambda"])
-    diffs = diffs[np.isfinite(diffs)]
-    assert np.all(diffs < 0)
-    diffs = np.diff(my_ds["N_0"])
-    diffs = diffs[np.isfinite(diffs)]
-    assert np.all(diffs < 0)
+    print(my_ds["re_cl"])

@@ -191,13 +191,13 @@ def calc_re_thompson(model, hyd_type, subcolumns=False):
         ureg, model.ds[model.T_field].attrs["units"])
     t = t.to(ureg.kelvin).magnitude
 
-    rho_a = p / (R_d * t)     
+    rho_a = p / (R_d * t)      
     if hyd_type == 'pl':
         k = 2.4
     else:
         k = 3.
     r_w = 0.5 * ((6 * rho_a * q_w) / (np.pi * rho_w * N_w)) ** (1 / k)
-    r_w = xr.DataArray(r_w, dims=model.ds[q_name].dims)
+    r_w = xr.DataArray(r_w * 1e6, dims=model.ds[q_name].dims)
     r_w.attrs['units'] = 'microns'
     r_w.attrs['long_name'] = ('Effective radius following ' + 
                              'Thompson et al. (2004)')

@@ -421,6 +421,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
 
     if np.logical_or(use_rad_logic, is_conv):
         qc_flag = False
+    
     if not is_conv:
         frac_fieldname = 'strat_frac_subcolumns_%s' % hyd_type
         if use_rad_logic:
@@ -636,7 +637,8 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         model.ds[frac_name].attrs["long_name"] = "Convective fraction of" + \
                                                  "%s in subcolumn" % hyd_type
         model.ds[frac_name].attrs["units"] = 'boolean'
-        
+
+             
     q = model.ds[model.z_field].values
     q = q[:, :, yind_range[0]:yind_range[1], xind_range[0]:xind_range[1]]
     q = np.reshape(q, (q.shape[0], q.shape[1], q.shape[2] * q.shape[3]))
@@ -676,5 +678,6 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
     model.ds[model.q_field].attrs["long_name"] = "Mixing ratio"
     model.ds[model.q_field].attrs["units"] = q_units
 
+    
     return model
 

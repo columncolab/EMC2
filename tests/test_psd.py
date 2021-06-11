@@ -19,6 +19,13 @@ def test_lambda_mu():
     diffs = diffs[np.isfinite(diffs)]
     assert np.all(diffs < 0)
 
+
+def test_re():
+    my_model = emc2.core.model.TestModel()
+    my_model = emc2.simulator.psd.calc_re_thompson(my_model, hyd_type="cl")
+    my_ds = my_model.ds
+    assert np.all(my_ds["re_cl"] < 100.)
+
     my_model = emc2.simulator.psd.calc_mu_lambda(my_model, hyd_type="cl", calc_dispersion=True)
     my_ds = my_model.ds
     # Make sure calculated mu is within bounds

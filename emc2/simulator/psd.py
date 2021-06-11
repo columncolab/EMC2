@@ -2,6 +2,7 @@ import xarray as xr
 import numpy as np
 
 from scipy.special import gamma
+from ..core.instrument import ureg
 
 
 def calc_mu_lambda(model, hyd_type="cl",
@@ -40,8 +41,6 @@ def calc_mu_lambda(model, hyd_type="cl",
         rather than the model data itself.
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
-    LES_mode: bool
-        If True, then assume each point is a subcolumn.
 
     Returns
     -------
@@ -57,6 +56,11 @@ def calc_mu_lambda(model, hyd_type="cl",
     of Effective Radius of Droplets in Warm Stratocumulus Clouds.
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
+
+    if 'LES_mode' in kwargs.keys():
+        LES_mode = kwargs['LES_mode']
+    else:
+        LES_mode = False
 
     if not subcolumns:
         N_name = model.N_field[hyd_type]
@@ -126,3 +130,77 @@ def calc_mu_lambda(model, hyd_type="cl",
     column_ds["N_0"].attrs["units"] = "m-4"
     model.ds = column_ds
     return model
+
+
+def calc_re_thompson(model, hyd_type, subcolumns=False):
+    """
+    Calculate the effective radius using the Thompson et al. (2004)
+    microphysics scheme.
+
+    Parameters
+    ----------
+    model: emc2.core.Model
+        The input model to calculate the effective radius fields for
+    hyd_type: str
+        The hydrometeor type to calculate the effective radius for
+    subcolumns: bool
+        If true, calculate the effective radius from the generated subcolumns.
+        Else, generate it from the original model data.
+
+    Returns
+    -------
+    model: emc2.core.Model
+        The model structure with the calculated effective radius values.
+
+    Reference
+    ---------
+    Thompson, G., Rasmussen, R. M., & Manning, K. (2004). Explicit forecasts
+    of winter precipitation using an improved bulk microphysics scheme.
+    Part I: Description and sensitivity analysis. Monthly Weather Review,
+    132(2), 519–542. 
+    https://doi.org/10.1175/1520-0493(2004)132%3C0519:EFOWPU%3E2.0.
+    """
+    
+    if not subcolumns:
+        N_name = model.N_field[hyd_type]
+        q_name = model.q_names_stratiform[hyd_type]
+    else:
+        if not is_conv:
+            N_name = "strat_n_subcolumns_%s" % hyd_type
+            q_name = "strat_q_subcolumns_%s" % hyd_type
+            if not LES_mode:
+                frac_name = model.strat_frac_names[hyd_type]
+            else:
+                frac_name = "strat_frac_subcolumns_%s" % hyd_type
+        else:
+            N_name = "conv_n_subcolumns_%s" % hyd_type
+            q_name = "conv_q_subcolumns_%s" % hyd_type
+            if not LES_mode:
+                frac_name = model.conv_frac_names[hyd_type]
+            else:
+                frac_name = "conv_frac_subcolumns_%s" % hyd_type
+
+    q_w = model.ds[q_name].values
+    N_w = model.ds[N_name].values
+    rho_w = model.Rho_hyd[hyd_type].magnitude
+    R_d = 287.15
+    p = model.ds[model.p_field].values * getattr(
+        ureg, model.ds[model.p_field].attrs["units"])
+    p = p.to(ureg.Pa).magnitude
+    t = model.ds[model.T_field].values * getattr(
+        ureg, model.ds[model.T_field].attrs["units"])
+    t = t.to(ureg.kelvin).magnitude
+
+    rho_a = p / (R_d * t)     
+    if hyd_type == 'pl':
+        k = 2.4
+    else:
+        k = 3.
+    r_w = 0.5 * ((6 * rho_a * q_w) / (np.pi * rho_w * N_w)) ** (1 / k)
+    r_w = xr.DataArray(r_w, dims=model.ds[q_name].dims)
+    r_w.attrs['units'] = 'microns'
+    r_w.attrs['long_name'] = ('Effective radius following ' + 
+                             'Thompson et al. (2004)')
+    model.ds["re_%s" % hyd_type] = r_w
+    return model
+

@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../../emc2'))
 # -- Project information -----------------------------------------------------
 
 project = 'EMC^2'
-copyright = '2019, Bobby Jackson'
-author = 'Bobby Jackson'
+copyright = '2021, Bobby Jackson, Israel Silber'
+author = 'Bobby Jackson, Israel Silber'
 
 
 # -- General configuration ---------------------------------------------------
@@ -73,3 +73,4 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+nbsphinx_allow_errors = True

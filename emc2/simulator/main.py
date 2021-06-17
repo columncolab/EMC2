@@ -12,6 +12,13 @@ def make_simulated_data(model, instrument, N_columns,
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
+    NOTE:
+    When starting a parallel task (in microphysics approach), it is recommended
+    to wrap the top-level python script calling the EMC^2 processing ('lines_of_code')
+    with the following command (just below the 'import' statements):
+    if __name__ == “__main__”:
+        lines_of_code
+
     Parameters
     ----------
     model: :func:`emc2.core.Model`

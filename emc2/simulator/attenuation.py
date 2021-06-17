@@ -76,8 +76,6 @@ def calc_radar_atm_attenuation(instrument, model):
     kappa_o2 = (1.1e-2 * instrument.freq**2) * (p_temp / 1013.) * three_hundred_t**2 * \
         gamma_l * (1. / ((instrument.freq - f0)**2 + gamma_l**2) + 1. /
                    (instrument.freq**2 + gamma_l**2))
-    print(kappa_o2.shape)
-    print(model.ds[t_field])
     column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=model.ds[t_field].dims)
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
     column_ds['kappa_o2'].attrs["units"] = "dB/km"

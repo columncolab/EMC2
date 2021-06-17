@@ -24,5 +24,5 @@ def test_re():
     my_model = emc2.core.model.TestModel()
     my_model = emc2.simulator.psd.calc_re_thompson(my_model, hyd_type="cl")
     my_ds = my_model.ds
-    assert np.all(my_ds["re_cl"] < 100.)
+    assert np.all(my_ds["re_cl"] < 10000.)
     print(my_ds["re_cl"])

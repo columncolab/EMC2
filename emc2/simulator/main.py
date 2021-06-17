@@ -4,10 +4,11 @@ from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alph
 from .radar_moments import calc_radar_moments, calc_total_reflectivity
 from .attenuation import calc_radar_Ze_min
 from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, radar_classify_phase
+from .psd import calc_re_thompson
 
 
-def make_simulated_data(model, instrument, N_columns, 
-    do_classify=False, LES_mode=False, **kwargs):
+def make_simulated_data(model, instrument, N_columns,
+                        do_classify=False, LES_mode=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -40,7 +41,7 @@ def make_simulated_data(model, instrument, N_columns,
         del kwargs['use_rad_logic']
     else:
         use_rad_logic = True
-    
+
     if 'lat_range' in kwargs.keys():
         lat_range = kwargs['lat_range']
         del kwargs['lat_range']
@@ -139,6 +140,18 @@ def make_simulated_data(model, instrument, N_columns,
         del kwargs['use_empiric_calc']
     else:
         use_empiric_calc = False
+
+    if use_rad_logic:
+        model_vars = [x for x in model.ds.variables.keys()]
+        for hyd_type in hydrometeor_classes:
+            if not model.strat_re_fields[hyd_type] in model_vars:
+                model = calc_re_thompson(model, hyd_type,
+                                         is_conv=False, subcolumns=True,
+                                         **kwargs)
+            if not model.conv_re_fields[hyd_type] in model_vars:
+                model = calc_re_thompson(model, hyd_type,
+                                         is_conv=True, subcolumns=True,
+                                         **kwargs)
 
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")

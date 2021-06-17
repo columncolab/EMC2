@@ -132,7 +132,8 @@ def calc_mu_lambda(model, hyd_type="cl",
     return model
 
 
-def calc_re_thompson(model, hyd_type, subcolumns=False):
+def calc_re_thompson(model, hyd_type,
+                     is_conv=True, subcolumns=False, **kwargs):
     """
     Calculate the effective radius using the Thompson et al. (2004)
     microphysics scheme.
@@ -143,6 +144,8 @@ def calc_re_thompson(model, hyd_type, subcolumns=False):
         The input model to calculate the effective radius fields for
     hyd_type: str
         The hydrometeor type to calculate the effective radius for
+    is_conv: bool
+        Whether or not we are calculating the convective properties
     subcolumns: bool
         If true, calculate the effective radius from the generated subcolumns.
         Else, generate it from the original model data.
@@ -157,28 +160,23 @@ def calc_re_thompson(model, hyd_type, subcolumns=False):
     Thompson, G., Rasmussen, R. M., & Manning, K. (2004). Explicit forecasts
     of winter precipitation using an improved bulk microphysics scheme.
     Part I: Description and sensitivity analysis. Monthly Weather Review,
-    132(2), 519–542. 
+    132(2), 519–542.
     https://doi.org/10.1175/1520-0493(2004)132%3C0519:EFOWPU%3E2.0.
     """
-    
+
     if not subcolumns:
         N_name = model.N_field[hyd_type]
         q_name = model.q_names_stratiform[hyd_type]
+        re_name = "re_%s" % hyd_type
     else:
         if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "strat_q_subcolumns_%s" % hyd_type
-            if not LES_mode:
-                frac_name = model.strat_frac_names[hyd_type]
-            else:
-                frac_name = "strat_frac_subcolumns_%s" % hyd_type
+            re_name = model.strat_re_fields[hyd_type]
         else:
             N_name = "conv_n_subcolumns_%s" % hyd_type
             q_name = "conv_q_subcolumns_%s" % hyd_type
-            if not LES_mode:
-                frac_name = model.conv_frac_names[hyd_type]
-            else:
-                frac_name = "conv_frac_subcolumns_%s" % hyd_type
+            re_name = model.conv_re_fields[hyd_type]
 
     q_w = model.ds[q_name].values
     N_w = model.ds[N_name].values
@@ -191,7 +189,7 @@ def calc_re_thompson(model, hyd_type, subcolumns=False):
         ureg, model.ds[model.T_field].attrs["units"])
     t = t.to(ureg.kelvin).magnitude
 
-    rho_a = p / (R_d * t)      
+    rho_a = p / (R_d * t)
     if hyd_type == 'pl':
         k = 2.4
     else:
@@ -199,8 +197,7 @@ def calc_re_thompson(model, hyd_type, subcolumns=False):
     r_w = 0.5 * ((6 * rho_a * q_w) / (np.pi * rho_w * N_w)) ** (1 / k)
     r_w = xr.DataArray(r_w * 1e6, dims=model.ds[q_name].dims)
     r_w.attrs['units'] = 'microns'
-    r_w.attrs['long_name'] = ('Effective radius following ' + 
-                             'Thompson et al. (2004)')
-    model.ds["re_%s" % hyd_type] = r_w
+    r_w.attrs['long_name'] = ('Particle effective radius following ' +
+                              'Thompson et al. (2004)')
+    model.ds[re_name] = r_w
     return model
-

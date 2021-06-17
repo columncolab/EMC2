@@ -258,14 +258,16 @@ class ModelE(Model):
         self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
-        self.conv_frac_names_for_rad = {'cl': 'cldmcr', 'ci': 'cldmcr', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
-        self.strat_frac_names_for_rad = {'cl': 'cldssr', 'ci': 'cldssr', 'pl': 'cldssr', 'pi': 'cldssr'}
+        self.conv_frac_names_for_rad = {'cl': 'cldmcr', 'ci': 'cldmcr',
+                                        'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names_for_rad = {'cl': 'cldssr', 'ci': 'cldssr',
+                                         'pl': 'cldssr', 'pi': 'cldssr'}
         self.conv_re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
         self.strat_re_fields = {'cl': 're_sscl', 'ci': 're_ssci', 'pi': 're_sspi', 'pl': 're_sspl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.ds = read_netcdf(file_path)
-        
+
         # Check to make sure we are loading a single column
         if 'lat' in [x for x in self.ds.dims.keys()]:
             if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
@@ -288,7 +290,7 @@ class ModelE(Model):
 
 
 class WRF(Model):
-    def __init__(self, file_path, 
+    def __init__(self, file_path,
                  z_range=None, time_range=None, w_thresh=1,
                  t=None):
         """
@@ -309,11 +311,11 @@ class WRF(Model):
             The threshold of vertical velocity for defining a grid cell
             as convective.
         t: int or None
-            The timestep number to subset the WRF data into. Set to None to 
-            load all of the data 
+            The timestep number to subset the WRF data into. Set to None to
+            load all of the data
         """
         if not WRF_PYTHON_AVAILABLE:
-            raise ModuleNotFoundError("wrf-python must be installed in " + \
+            raise ModuleNotFoundError("wrf-python must be installed in " +
                                       "order to read WRF data.")
 
         if z_range is None:
@@ -336,8 +338,9 @@ class WRF(Model):
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
                             'pi': 0.41 * ureg.dimensionless}
+        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
         super()._add_vel_units()
-        self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE', 
+        self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
                         'pl': 'QRAIN', 'qpi': 'QSNOW'}
         self.q_field = "QVAPOR"
         self.N_field = {'cl': 'QNCLOUD', 'ci': 'QNICE',
@@ -357,29 +360,36 @@ class WRF(Model):
             'pl': 'strat_frac', 'pi': 'strat_frac'}
         self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
+                                'pi': 'strat_pi_re', 'pl': 'strat_pl_frac'}
+        self.conv_re_fields = {'cl': 'conv_cl_re', 'ci': 'conv_ci_re',
+                               'pi': 'conv_pi_re', 'pl': 'conv_pl_re'}
         self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
                                    'pl': 'qplc', 'pi': 'qpic'}
         self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
                                    'pl': 'qpls', 'pi': 'qpis'}
-        
+
         ds = xr.open_dataset(file_path)
         wrfin = Dataset(file_path)
         self.ds = {}
-        self.ds["pressure"] = ds["P"] + ds["PB"] 
+        self.ds["pressure"] = ds["P"] + ds["PB"]
         self.ds["pressure"].attrs["units"] = "hPa"
         self.ds["Z"] = getvar(wrfin, "z", units="m", timeidx=ALL_TIMES)
         self.ds["T"] = getvar(wrfin, "tk", timeidx=ALL_TIMES)
         self.ds["T"] = self.ds["T"] + 273.15
         self.ds["T"].attrs["units"] = "K"
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
-        where_conv = np.where(W.values > w_thresh, 1, 0)
+        shp = W.values.shape
+        W = W.values.max(axis=1)
+        W = np.transpose(np.tile(W, (shp[1], 1, 1, 1)), [1, 0, 2, 3])
+        where_conv = np.where(W > w_thresh, 1, 0)
         self.ds["conv_frac"] = xr.DataArray(
             where_conv,
             dims=('Time', 'bottom_top', 'north_south', 'east_west'))
         self.ds["strat_frac"] = xr.DataArray(
             1 - where_conv,
             dims=('Time', 'bottom_top', 'north_south', 'east_west'))
-        self.ds["qclc"] = ds["QCLOUD"] * where_conv 
+        self.ds["qclc"] = ds["QCLOUD"] * where_conv
         self.ds["qcic"] = ds["QICE"] * where_conv
         self.ds["qplc"] = ds["QRAIN"] * where_conv
         self.ds["qpic"] = ds["QSNOW"] * where_conv
@@ -401,7 +411,7 @@ class WRF(Model):
         for keys in self.ds.keys():
             try:
                 self.ds[keys] = self.ds[keys].drop("XTIME")
-            except:
+            except KeyError:
                 continue
         self.ds = xr.Dataset(self.ds)
         # crop specific model output time range (if requested)
@@ -414,7 +424,7 @@ class DHARMA(Model):
         """
         This loads a DHARMA simulation with all of the necessary parameters
         for EMC^2 to run.
-        
+
         Parameters
         ----------
         file_path: str

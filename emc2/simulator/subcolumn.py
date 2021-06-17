@@ -31,7 +31,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
     """
     np.seterr(divide='ignore', invalid='ignore')
     if N_columns is None and model.num_subcolumns == 0:
-       N_columns = model.ds.dims['subcolumn'] 
+        N_columns = model.ds.dims['subcolumn']
 
     if model.num_subcolumns != N_columns and model.num_subcolumns != 0 and N_columns is not None:
         raise ValueError("The number of subcolumns has already been specified (%d) and != %d" %
@@ -421,7 +421,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
 
     if np.logical_or(use_rad_logic, is_conv):
         qc_flag = False
-    
+
     if not is_conv:
         frac_fieldname = 'strat_frac_subcolumns_%s' % hyd_type
         if use_rad_logic:
@@ -514,12 +514,12 @@ def _setxor(x, y):
 
 
 def subcolumns_les(model, lon_range=None, lat_range=None,
-                          xind_range=None, yind_range=None):
+                   xind_range=None, yind_range=None):
     """
     This procedure will extract subcolumns based off of the column specfied
     by a lat/lon box. The values of the subcolumns for each of the quantities
     are simply the values of the variables in each grid point in the column.
-    
+
     This is only for models with 3 spatial dimensions, ideally at CRM scale.
 
     Parameters
@@ -539,7 +539,7 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
     model: model object
         The model with the subcolumn parameters calculated.
     """
-    
+
     if lon_range is not None:
         if xind_range is not None:
             warnings.warn("xind_range value will not be used if lon_range is " +
@@ -547,7 +547,7 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         lons = model.ds[model.lon_name][0, 0, :]
         inds = np.argwhere(np.logical_and(lons >= lon_range[0], lons <= lon_range[0]))
         xind_range = (inds[0], inds[-1])
-    
+
     if lat_range is not None:
         if yind_range is not None:
             warnings.warn("xind_range value will not be used if lon_range is " +
@@ -555,11 +555,11 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         lats = model.ds[model.lat_name][0, 0, :]
         inds = np.argwhere(np.logical_and(lats >= lat_range[0], lats <= lat_range[0]))
         yind_range = (inds[0], inds[-1])
- 
+
     if xind_range is None:
         lats = model.ds[model.lat_name]
         xind_range = (0, lats.shape[2])
-    
+
     if yind_range is None:
         lats = model.ds[model.lat_name]
         yind_range = (0, lats.shape[1])
@@ -568,7 +568,7 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         q_name = "strat_q_subcolumns_%s" % hyd_type
         n_name = "strat_n_subcolumns_%s" % hyd_type
         frac_name = "strat_frac_subcolumns_%s" % hyd_type
-        
+
         q = model.ds[model.q_names_stratiform[hyd_type]].values
         q = q[:, :, yind_range[0]:yind_range[1], xind_range[0]:xind_range[1]]
         q = np.reshape(q, (q.shape[0], q.shape[1], q.shape[2] * q.shape[3]))
@@ -576,10 +576,10 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         model.ds[q_name] = xr.DataArray(
             q, dims=('subcolumn', model.time_dim, model.height_dim))
         model.ds[q_name].attrs["long_name"] = ("Mixing ratio of" +
-                                              "%s in subcolumn") % hyd_type
+                                               "%s in subcolumn") % hyd_type
 
         model.ds[q_name].attrs["units"] = 'g kg-1'
- 
+
         q = model.ds[model.strat_frac_names[hyd_type]].values * \
             model.ds[model.N_field[hyd_type]].values
         q = q[:, :, yind_range[0]:yind_range[1], xind_range[0]:xind_range[1]]
@@ -588,10 +588,10 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         model.ds[n_name] = xr.DataArray(
             q, dims=('subcolumn', model.time_dim, model.height_dim))
         model.ds[n_name].attrs["long_name"] = "Number concentration of" + \
-                                              "%s in subcolumn" % hyd_type      
+                                              "%s in subcolumn" % hyd_type
         model.ds[n_name].attrs["units"] = model.ds[
             model.N_field[hyd_type]].attrs["units"]
-        
+
         q = model.ds[model.strat_frac_names[hyd_type]].values
         q = q[:, :, yind_range[0]:yind_range[1], xind_range[0]:xind_range[1]]
         q = np.reshape(q, (q.shape[0], q.shape[1], q.shape[2] * q.shape[3]))
@@ -599,9 +599,9 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         model.ds[frac_name] = xr.DataArray(
             q, dims=('subcolumn', model.time_dim, model.height_dim))
         model.ds[frac_name].attrs["long_name"] = "Stratiform fraction of" + \
-                                              "%s in subcolumn" % hyd_type
+                                                 "%s in subcolumn" % hyd_type
         model.ds[frac_name].attrs["units"] = 'boolean'
- 
+
         q_name = "conv_q_subcolumns_%s" % hyd_type
         n_name = "conv_n_subcolumns_%s" % hyd_type
         frac_name = "conv_frac_subcolumns_%s" % hyd_type
@@ -613,7 +613,7 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         model.ds[q_name] = xr.DataArray(
             q, dims=('subcolumn', model.time_dim, model.height_dim))
         model.ds[q_name].attrs["long_name"] = "Mixing ratio of" + \
-                                              "%s in subcolumn" % hyd_type      
+                                              "%s in subcolumn" % hyd_type
         model.ds[q_name].attrs["units"] = 'g kg-1'
 
         q = model.ds[model.conv_frac_names[hyd_type]].values * \
@@ -638,7 +638,6 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
                                                  "%s in subcolumn" % hyd_type
         model.ds[frac_name].attrs["units"] = 'boolean'
 
-             
     q = model.ds[model.z_field].values
     q = q[:, :, yind_range[0]:yind_range[1], xind_range[0]:xind_range[1]]
     q = np.reshape(q, (q.shape[0], q.shape[1], q.shape[2] * q.shape[3]))
@@ -647,7 +646,7 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
         q, dims=('subcolumn', model.time_dim, model.height_dim))
     model.ds[model.z_field].attrs["long_name"] = "Height"
     model.ds[model.z_field].attrs["units"] = 'm'
-    
+
     p = model.ds[model.p_field].values
     p_units = model.ds[model.p_field].attrs["units"]
     p = p[:, :, yind_range[0]:yind_range[1], xind_range[0]:xind_range[1]]
@@ -678,6 +677,4 @@ def subcolumns_les(model, lon_range=None, lat_range=None,
     model.ds[model.q_field].attrs["long_name"] = "Mixing ratio"
     model.ds[model.q_field].attrs["units"] = q_units
 
-    
     return model
-

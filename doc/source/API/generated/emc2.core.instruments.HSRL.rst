@@ -1,4 +1,4 @@
-emc2.core.instruments.HSRL
+﻿emc2.core.instruments.HSRL
 ==========================
 
 .. currentmodule:: emc2.core.instruments
@@ -14,6 +14,7 @@ emc2.core.instruments.HSRL
    .. autosummary::
    
       ~HSRL.__init__
+      ~HSRL.read_arm_netcdf_file
    
    
 

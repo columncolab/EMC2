@@ -13,12 +13,8 @@ dependencies:
   - pytest-mpl
   - pytest-cov
   - dask
-  - xarray
-  - astral
   - flake8
-  - ipython
-  - metpy
-  - pint=0.8.1
+  - pint
   - act-atmos
   - pip:
     - pymiescatt

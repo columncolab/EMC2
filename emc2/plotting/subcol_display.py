@@ -62,9 +62,9 @@ class SubcolumnDisplay(Display):
             A model containing the subcolumn data to relpace the current model data.
 
         """
-        self._arm.pop(self.model.model_name)
+        self._obj.pop(self.model.model_name)
         self.model = model
-        self._arm.update({self.model.model_name: self.model.ds})
+        self._obj.update({self.model.model_name: self.model.ds})
 
     def calc_mean_and_sd(self, variable, use_geom_mean=False, axis=None):
         """
@@ -236,11 +236,11 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._arm.keys()][0]
+        ds_name = [x for x in self._obj.keys()][0]
         if len(self.model.ds[variable].dims) == 3:
-            my_ds = self._arm[ds_name].sel(subcolumn=column_no)
+            my_ds = self._obj[ds_name].sel(subcolumn=column_no)
         else:
-            my_ds = self._arm[ds_name]
+            my_ds = self._obj[ds_name]
         x_variable = self.model.time_dim
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -469,8 +469,8 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._arm.keys()][0]
-        my_ds = self._arm[ds_name].sel({self.model.time_dim: time}, method='nearest')
+        ds_name = [x for x in self._obj.keys()][0]
+        my_ds = self._obj[ds_name].sel({self.model.time_dim: time}, method='nearest')
 
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -625,19 +625,19 @@ class SubcolumnDisplay(Display):
                 print("'use_geom_mean' is an unknown string. Using arithmetic mean and SD")
                 use_geom_mean = False
 
-        ds_name = [x for x in self._arm.keys()][0]
+        ds_name = [x for x in self._obj.keys()][0]
         x_variable = self.model.time_dim
         if time is not None:
             if np.logical_or(type(time) is tuple, type(time) is str):
                 time = np.array(time)
             if time.size == 1:
-                my_ds = self._arm[ds_name].sel({x_variable: time}, method='nearest')
+                my_ds = self._obj[ds_name].sel({x_variable: time}, method='nearest')
             else:
-                time_ind = np.logical_and(self._arm[ds_name][x_variable] >= time[0],
-                                          self._arm[ds_name][x_variable] < time[1])
-                my_ds = self._arm[ds_name].isel({x_variable: time_ind})
+                time_ind = np.logical_and(self._obj[ds_name][x_variable] >= time[0],
+                                          self._obj[ds_name][x_variable] < time[1])
+                my_ds = self._obj[ds_name].isel({x_variable: time_ind})
         else:
-            my_ds = self._arm[ds_name]
+            my_ds = self._obj[ds_name]
 
         if pressure_coords:
             y_variable = my_ds[self.model.p_field]

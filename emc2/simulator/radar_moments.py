@@ -113,13 +113,14 @@ def accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext, OD_from_s
     else:
         dz = np.diff(z_values / 1e3, axis=1, append=0.)
         hyd_ext = np.flip(
-                      np.cumsum(np.flip(np.tile(dz, (n_subcolumns, 1, 1)) *
-                      np.concatenate((hyd_ext[:, :, 1:], np.zeros(Dims[:2] + (1,))), axis=2),
+            np.cumsum(np.flip(np.tile(dz, (n_subcolumns, 1, 1)) *
+                      np.concatenate((hyd_ext[:, :, 1:],
+                                      np.zeros(Dims[:2] + (1,))), axis=2),
                       axis=2), axis=2), axis=2)
         if not LES_mode:
             atm_ext = np.flip(
                 np.cumsum(np.flip(dz * np.concatenate((atm_ext[:, 1:],
-                np.zeros((Dims[1],) + (1,))), axis=1), axis=1), axis=1), axis=1)
+                          np.zeros((Dims[1],) + (1,))), axis=1), axis=1), axis=1), axis=1)
         else:
             atm_ext = np.flip(np.cumsum(np.flip(dz * atm_ext[:, :, :], axis=2),
                                         axis=2), axis=2)

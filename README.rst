@@ -58,6 +58,7 @@ EMC² requires Python 3.6+ as well as:
    * Scipy (https://scipy.org)
    * Matplotlib (https://matplotlib.org)
    * Xarray (http://xarray.pydata.org)
+   * Pandas (https://pandas.pydata.org/)
    
 Licence
 -------

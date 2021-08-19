@@ -15,8 +15,8 @@ def load_c6_file(filename, is_radar):
 
     Returns
     -------
-    my_df: xarray DataFrame
-        The xarray DataFrame storing the scattering data, including
+    my_df: xarray.Dataset
+        The xarray Dataset storing the scattering data, including
         descriptive metadata.
     """
 

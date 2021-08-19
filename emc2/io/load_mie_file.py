@@ -13,8 +13,8 @@ def load_mie_file(filename):
 
     Returns
     -------
-    my_df: xarray DataFrame
-        The xarray DataFrame storing the Mie parameters, including
+    my_df: xarray.Dataset
+        The xarray Dataset storing the Mie parameters, including
         descriptive metadata.
     """
 

@@ -402,7 +402,7 @@ class Ten64nm(Instrument):
             self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")  # Rowe et al. (2020) -10 C
             self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")
         else:
-            self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")  # Segelstein (1981)
+            self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")  # Segelstein (1981) 25 C
             self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
         self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")

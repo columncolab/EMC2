@@ -119,9 +119,6 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     Theta = np.pi
     raw_n = 0.035
     alpha = 0.00366
-    Avogadro_c = 6.022140857e23
-    R = 8.3144598
-    R_d = 287.058
     nu = 1 / Lambda
 
     p_temp = model.ds[model.p_field].values * getattr(ureg, model.ds[model.p_field].attrs["units"])
@@ -130,11 +127,11 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     T = t_temp.to('degC').magnitude
     z_temp = model.ds[model.z_field].values * getattr(ureg, model.ds[model.z_field].attrs["units"])
     Z = z_temp.to('meter').magnitude
-    raw = P * 100 / (R_d * (T + 273.15)) * 1e3 / 1e6
+    raw = P * 100 / (model.consts["R_d"] * (T + 273.15)) * 1e3 / 1e6
     p_cos = 0.7629 * (1 + 0.932 * np.cos(Theta)**2)
     n_s_ref = 1 + (6432.8 + 2949810 / (146 - nu**2) + 25540 / (41 - nu**2)) * 1e-8
     n_s = (n_s_ref - 1) * ((1 + alpha * 15) / (1 + alpha * T)) * (P / 1013.25) + 1
-    N_s = P * 100 / (R * (T + 273.15)) * Avogadro_c / 1e6
+    N_s = P * 100 / (model.consts["R"] * (T + 273.15)) * model.consts["Avogadro_c"] / 1e6
     sigma = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 / \
         (N_s * (Lambda * 1e-4)**4 * N_s) * (6 + 3 * raw_n) / (6 - 7 * raw_n)
     beta = 8 * np.pi**3 / 3 * (n_s**2 - 1)**2 * N_s / \

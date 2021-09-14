@@ -115,6 +115,11 @@ class Model():
         self.y_dim = None
         self.lat_name = None
         self.lon_name = None
+        self.consts = {"c": 299792458.0,  # m/s
+                       "R_d": 287.058,  # J K^-1 Kg^-1
+                       "g": 9.80665,  # m/s^2
+                       "Avogadro_c": 6.022140857e23,
+                       "R": 8.3144598}  # J K^-1 mol^-1
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -231,6 +236,7 @@ class ModelE(Model):
         file_path: str
             Path to a ModelE simulation.
         """
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -288,6 +294,85 @@ class ModelE(Model):
         self.model_name = "ModelE"
 
 
+class E3SM(Model):
+    def __init__(self, file_path, time_range=None):
+        """
+        This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an E3SM simulation.
+        """
+        super().__init__()
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
+        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
+        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                            'ci': 24. * ureg.dimensionless,
+                            'pl': 5.5 * ureg.dimensionless,
+                            'pi': 24.0 * ureg.dimensionless}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                            'ci': 1. * ureg.dimensionless,
+                            'pl': 0.8 * ureg.dimensionless,
+                            'pi': 0.41 * ureg.dimensionless}
+        super()._add_vel_units()
+        self.q_field = "Q"
+        self.N_field = {'cl': 'NUMLIQ', 'ci': 'NUMICE', 'pl': 'NUMRAI', 'pi': 'NUMSNO'}
+        self.p_field = "p_3d"
+        self.z_field = "Z3"
+        self.T_field = "T"
+        self.height_dim = "lev"
+        self.time_dim = "ncol"
+        self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names = {'cl': 'CLOUD', 'ci': 'CLOUD', 'pl': 'CLOUD', 'pi': 'CLOUD'}
+        self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
+                                        'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
+                                         'pl': 'CLOUD', 'pi': 'CLOUD'}
+        self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
+        self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'AREI', 'pl': 'AREL'}
+        #self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}  # to be deployed
+        self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
+        self.ds = read_netcdf(file_path)
+
+        # Check to make sure we are loading a single column
+        if 'lat' in [x for x in self.ds.dims.keys()]:
+            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
+                self.ds.close()
+                raise RuntimeError("%s is not a column dataset. EMC^2 will currently works with column data." %
+                                   file_path)
+
+            # No need for lat and lon dimensions
+            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+
+        # crop specific model output time range (if requested)
+        if time_range is not None:
+            if np.issubdtype(time_range.dtype, np.datetime64):
+                super()._crop_time_range(time_range)
+            else:
+                raise RuntimeError("input time range is not in the required datetime64 data type")
+
+        self.ds[self.p_field] = (self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2  # hPa
+        self.ds[self.p_field].attrs["units"] = "hPa"
+        self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
+                                            dims=self.ds[self.p_field].dims)
+        self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
+        for hyd in ["pl", "pi"]:
+            self.ds[self.strat_re_fields[hyd]].values /= 2  # Assuming effective diameter was provided
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        for hyd in ["cl", "ci", "pl", "pi"]:
+            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values  # convert from mass number to number
+        self.model_name = "E3SM"
+
+
 class WRF(Model):
     def __init__(self, file_path,
                  z_range=None, time_range=None, w_thresh=1,
@@ -320,6 +405,7 @@ class WRF(Model):
         if z_range is None:
             z_range = np.arange(0., 15000., 500.)
 
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
                         'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3),
@@ -432,6 +518,7 @@ class DHARMA(Model):
             Start and end time to include. If this is None, the entire
             simulation will be included.
         """
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 100. * ureg.kg / (ureg.m**3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -539,6 +626,7 @@ class TestModel(Model):
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'time': times})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -672,6 +760,7 @@ class TestConvection(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times, 're_cl': re_cl, 're_pl': re_pl})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
@@ -809,6 +898,7 @@ class TestAllStratiform(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times, 're_cl': re_cl, 're_pl': re_pl})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
@@ -926,6 +1016,7 @@ class TestHalfAndHalf(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.meter ** 3), 'ci': 500. * ureg.kg / (ureg.meter ** 3),
                         'pl': 1000. * ureg.kg / (ureg.meter ** 3), 'pi': 250. * ureg.kg / (ureg.meter ** 3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}

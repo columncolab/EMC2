@@ -336,8 +336,7 @@ class E3SM(Model):
         self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
                                          'pl': 'CLOUD', 'pi': 'CLOUD'}
         self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
-        self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'AREI', 'pl': 'AREL'}
-        #self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}  # to be deployed
+        self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
         self.ds = read_netcdf(file_path)

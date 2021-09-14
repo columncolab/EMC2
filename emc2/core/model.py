@@ -361,7 +361,7 @@ class E3SM(Model):
         self.ds[self.p_field] = (self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2  # hPa
         self.ds[self.p_field].attrs["units"] = "hPa"
         self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
-                                            dims=self.ds[self.p_field].dims)
+                                           dims=self.ds[self.p_field].dims)
         self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
         for hyd in ["pl", "pi"]:
             self.ds[self.strat_re_fields[hyd]].values /= 2  # Assuming effective diameter was provided

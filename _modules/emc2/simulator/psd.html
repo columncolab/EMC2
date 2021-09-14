@@ -1,76 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>emc2.simulator.psd &mdash; EMC^2  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> EMC^2
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,19 +38,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">EMC^2 Usage guide</a></li>
@@ -98,79 +47,41 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">EMC^2</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>emc2.simulator.psd</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for emc2.simulator.psd</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gamma</span>
+<span class="kn">from</span> <span class="nn">..core.instrument</span> <span class="kn">import</span> <span class="n">ureg</span>
 
 
 <div class="viewcode-block" id="calc_mu_lambda"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda">[docs]</a><span class="k">def</span> <span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
                    <span class="n">calc_dispersion</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dispersion_mu_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
-                   <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                   <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.</span>
@@ -204,6 +115,7 @@
 <span class="sd">        rather than the model data itself.</span>
 <span class="sd">    is_conv: bool</span>
 <span class="sd">        If True, calculate from convective properties. IF false, do stratiform.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    model: :py:mod:`emc2.core.Model`</span>
@@ -219,6 +131,11 @@
 <span class="sd">    J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051&lt;1823:TMAPOE&gt;2.0.CO;2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">if</span> <span class="s1">&#39;LES_mode&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">LES_mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;LES_mode&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">LES_mode</span> <span class="o">=</span> <span class="kc">False</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">subcolumns</span><span class="p">:</span>
         <span class="n">N_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
         <span class="n">q_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
@@ -226,12 +143,23 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_conv</span><span class="p">:</span>
             <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;strat_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
             <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">LES_mode</span><span class="p">:</span>
+                <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">frac_name</span> <span class="o">=</span> <span class="s2">&quot;strat_frac_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;conv_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
             <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;conv_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-        <span class="n">frac_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">frac_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">LES_mode</span><span class="p">:</span>
+                <span class="n">frac_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_frac_names</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">frac_name</span> <span class="o">=</span> <span class="s2">&quot;conv_frac_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">LES_mode</span><span class="p">:</span>
+            <span class="n">frac_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">frac_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frac_array</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">frac_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">frac_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">frac_array</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frac_array</span><span class="p">)</span>
     <span class="n">Rho_hyd</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Rho_hyd</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span>
     <span class="n">column_ds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span>
@@ -276,49 +204,103 @@
     <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;m-4&quot;</span>
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">column_ds</span>
     <span class="k">return</span> <span class="n">model</span></div>
+
+
+<div class="viewcode-block" id="calc_re_thompson"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_re_thompson.html#emc2.simulator.psd.calc_re_thompson">[docs]</a><span class="k">def</span> <span class="nf">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
+                     <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the effective radius using the Thompson et al. (2004)</span>
+<span class="sd">    microphysics scheme.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: emc2.core.Model</span>
+<span class="sd">        The input model to calculate the effective radius fields for</span>
+<span class="sd">    hyd_type: str</span>
+<span class="sd">        The hydrometeor type to calculate the effective radius for</span>
+<span class="sd">    is_conv: bool</span>
+<span class="sd">        Whether or not we are calculating the convective properties</span>
+<span class="sd">    subcolumns: bool</span>
+<span class="sd">        If true, calculate the effective radius from the generated subcolumns.</span>
+<span class="sd">        Else, generate it from the original model data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    model: emc2.core.Model</span>
+<span class="sd">        The model structure with the calculated effective radius values.</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Thompson, G., Rasmussen, R. M., &amp; Manning, K. (2004). Explicit forecasts</span>
+<span class="sd">    of winter precipitation using an improved bulk microphysics scheme.</span>
+<span class="sd">    Part I: Description and sensitivity analysis. Monthly Weather Review,</span>
+<span class="sd">    132(2), 519–542.</span>
+<span class="sd">    https://doi.org/10.1175/1520-0493(2004)132%3C0519:EFOWPU%3E2.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">subcolumns</span><span class="p">:</span>
+        <span class="n">N_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+        <span class="n">q_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+        <span class="n">re_name</span> <span class="o">=</span> <span class="s2">&quot;re_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_conv</span><span class="p">:</span>
+            <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;strat_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">re_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;conv_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;conv_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
+            <span class="n">re_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
+
+    <span class="n">q_w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">q_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">N_w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">rho_w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Rho_hyd</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span>
+        <span class="n">ureg</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">Pa</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">T_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span>
+        <span class="n">ureg</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">T_field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
+
+    <span class="n">rho_a</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="s2">&quot;R_d&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mf">2.4</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mf">3.</span>
+    <span class="n">r_w</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="mi">6</span> <span class="o">*</span> <span class="n">rho_a</span> <span class="o">*</span> <span class="n">q_w</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho_w</span> <span class="o">*</span> <span class="n">N_w</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">r_w</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">r_w</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">q_name</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">r_w</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;microns&#39;</span>
+    <span class="n">r_w</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Particle effective radius following &#39;</span> <span class="o">+</span>
+                              <span class="s1">&#39;Thompson et al. (2004)&#39;</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">re_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_w</span>
+    <span class="k">return</span> <span class="n">model</span></div>
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Bobby Jackson, Israel Silber.
-
-    </p>
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

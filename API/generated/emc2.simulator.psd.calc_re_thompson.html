@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>emc2.simulator.classification.lidar_classify_phase &mdash; EMC^2  documentation</title>
+  <title>emc2.simulator.psd.calc_re_thompson &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
@@ -23,8 +23,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.simulator.classification.radar_classify_phase" href="emc2.simulator.classification.radar_classify_phase.html" />
-    <link rel="prev" title="emc2.simulator.attenuation.calc_radar_Ze_min" href="emc2.simulator.attenuation.calc_radar_Ze_min.html" /> 
+    <link rel="next" title="emc2.simulator.radar_moments.calc_radar_moments" href="emc2.simulator.radar_moments.calc_radar_moments.html" />
+    <link rel="prev" title="emc2.simulator.psd.calc_mu_lambda" href="emc2.simulator.psd.calc_mu_lambda.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,11 +54,11 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_Ze_min.html">emc2.simulator.attenuation.calc_radar_Ze_min</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.classification.lidar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_re_thompson.html">emc2.simulator.psd.calc_re_thompson</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_re_thompson</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
@@ -90,9 +90,9 @@
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">API Reference</a> &raquo;</li>
           <li><a href="../simulator.html">emc2.simulator (emc2.simulator)</a> &raquo;</li>
-      <li>emc2.simulator.classification.lidar_classify_phase</li>
+      <li>emc2.simulator.psd.calc_re_thompson</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/API/generated/emc2.simulator.classification.lidar_classify_phase.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.simulator.psd.calc_re_thompson.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -124,42 +124,30 @@
     text-align: unset;
 }
 </style>
-<section id="emc2-simulator-classification-lidar-classify-phase">
-<h1>emc2.simulator.classification.lidar_classify_phase<a class="headerlink" href="#emc2-simulator-classification-lidar-classify-phase" title="Permalink to this headline">¶</a></h1>
+<section id="emc2-simulator-psd-calc-re-thompson">
+<h1>emc2.simulator.psd.calc_re_thompson<a class="headerlink" href="#emc2-simulator-psd-calc-re-thompson" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="emc2.simulator.classification.lidar_classify_phase">
-<span class="sig-prename descclassname"><span class="pre">emc2.simulator.classification.</span></span><span class="sig-name descname"><span class="pre">lidar_classify_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_p_phase_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_zeros_to_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_sub_detect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/classification.html#lidar_classify_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.classification.lidar_classify_phase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Phase classification based on fixed thresholds of a lidar’s LDR and
-tot beta_p variables.</p>
+<dt class="sig sig-object py" id="emc2.simulator.psd.calc_re_thompson">
+<span class="sig-prename descclassname"><span class="pre">emc2.simulator.psd.</span></span><span class="sig-name descname"><span class="pre">calc_re_thompson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcolumns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_re_thompson"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.psd.calc_re_thompson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the effective radius using the Thompson et al. (2004)
+microphysics scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>instrument: Instrument</strong></dt><dd><p>The instrument to classify. The instrument must be a lidar.</p>
+<dt><strong>model: emc2.core.Model</strong></dt><dd><p>The input model to calculate the effective radius fields for</p>
 </dd>
-<dt><strong>model: Model</strong></dt><dd><p>The model output to classify.</p>
+<dt><strong>hyd_type: str</strong></dt><dd><p>The hydrometeor type to calculate the effective radius for</p>
 </dd>
-<dt><strong>beta_p_phase_thresh: list of dicts or None</strong></dt><dd><p>If a list, each element contains a dictionary with class name, class integer
-value (mask order starting at 1), LDR value bounds, and the corresponding beta_p threshold
-(thresholds are linearly interpolated in log10 scale between LDR values). In order for the
-method to operate properly, the list should be arranged from the lowest to
-highest beta_p threshold values for a given LDR, that is, (where i is the list element)
-beta_p[i+1 | LDR=x] &gt;= beta_p[i | LDR=x]. Set class integer values of 1 or higher = clear
-(because of a very high beta_p value).
-When None, the default settings from the instrument object will be used (available only for
-beta resolving lidar classes).</p>
+<dt><strong>is_conv: bool</strong></dt><dd><p>Whether or not we are calculating the convective properties</p>
 </dd>
-<dt><strong>convert_zeros_to_nan: bool</strong></dt><dd><dl class="simple">
-<dt>If True, saving the mask array as a float dtype (instead of uint8) and converting all</dt><dd><p>zeros in the array to nans.</p>
-</dd>
-</dl>
-</dd>
-<dt><strong>remove_sub_detect: bool</strong></dt><dd><p>If True, remove hydrometeor-bearing grid cells with extinct lidar signal.</p>
+<dt><strong>subcolumns: bool</strong></dt><dd><p>If true, calculate the effective radius from the generated subcolumns.
+Else, generate it from the original model data.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>model: Model</dt><dd><p>The model with the added simulated lidar phase classification mask.</p>
+<dt>model: emc2.core.Model</dt><dd><p>The model structure with the calculated effective radius values.</p>
 </dd>
 </dl>
 </dd>
@@ -172,8 +160,8 @@ beta resolving lidar classes).</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="emc2.simulator.attenuation.calc_radar_Ze_min.html" class="btn btn-neutral float-left" title="emc2.simulator.attenuation.calc_radar_Ze_min" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="emc2.simulator.classification.radar_classify_phase.html" class="btn btn-neutral float-right" title="emc2.simulator.classification.radar_classify_phase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="emc2.simulator.psd.calc_mu_lambda.html" class="btn btn-neutral float-left" title="emc2.simulator.psd.calc_mu_lambda" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="emc2.simulator.radar_moments.calc_radar_moments.html" class="btn btn-neutral float-right" title="emc2.simulator.radar_moments.calc_radar_moments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

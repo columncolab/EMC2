@@ -1,76 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>emc2.simulator.main &mdash; EMC^2  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> EMC^2
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,19 +38,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">EMC^2 Usage guide</a></li>
@@ -98,79 +47,42 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">EMC^2</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>emc2.simulator.main</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for emc2.simulator.main</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_convective_sub_col_frac</span><span class="p">,</span> <span class="n">set_precip_sub_col_frac</span>
-<span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">,</span> <span class="n">set_q_n</span>
+<span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">,</span> <span class="n">set_q_n</span><span class="p">,</span> <span class="n">subcolumns_les</span>
 <span class="kn">from</span> <span class="nn">.lidar_moments</span> <span class="kn">import</span> <span class="n">calc_lidar_moments</span><span class="p">,</span> <span class="n">calc_LDR_and_ext</span><span class="p">,</span> <span class="n">calc_total_alpha_beta</span>
 <span class="kn">from</span> <span class="nn">.radar_moments</span> <span class="kn">import</span> <span class="n">calc_radar_moments</span><span class="p">,</span> <span class="n">calc_total_reflectivity</span>
 <span class="kn">from</span> <span class="nn">.attenuation</span> <span class="kn">import</span> <span class="n">calc_radar_Ze_min</span>
 <span class="kn">from</span> <span class="nn">.classification</span> <span class="kn">import</span> <span class="n">lidar_classify_phase</span><span class="p">,</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">,</span> <span class="n">radar_classify_phase</span>
+<span class="kn">from</span> <span class="nn">.psd</span> <span class="kn">import</span> <span class="n">calc_re_thompson</span>
 
 
-<div class="viewcode-block" id="make_simulated_data"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data">[docs]</a><span class="k">def</span> <span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span> <span class="n">do_classify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="make_simulated_data"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data">[docs]</a><span class="k">def</span> <span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span>
+                        <span class="n">do_classify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">LES_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This procedure will make all of the subcolumns and simulated data for each model column.</span>
 
@@ -187,11 +99,13 @@
 <span class="sd">        The model to make the simulated parameters for.</span>
 <span class="sd">    instrument: :func:`emc2.core.Instrument`</span>
 <span class="sd">        The instrument to make the simulated parameters for.</span>
-<span class="sd">    N_columns: int</span>
-<span class="sd">        The number of subcolumns to generate.</span>
+<span class="sd">    N_columns: int or None</span>
+<span class="sd">        The number of subcolumns to generate. Set to None to automatically</span>
+<span class="sd">        detect from LES 4D data.</span>
 <span class="sd">    do_classify: bool</span>
 <span class="sd">        run hydrometeor classification routines when True.</span>
-
+<span class="sd">    LES_mode: bool</span>
+<span class="sd">        Treat each pixel as a subcolumn</span>
 <span class="sd">    Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or</span>
 <span class="sd">    :func:`emc2.simulator.calc_radar_moments`</span>
 
@@ -209,20 +123,64 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">use_rad_logic</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">set_convective_sub_col_frac</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">N_columns</span><span class="o">=</span><span class="n">N_columns</span><span class="p">,</span>
-                                            <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;lat_range&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">lat_range</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lat_range&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lat_range&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lat_range</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">model</span> <span class="o">=</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">set_precip_sub_col_frac</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">set_precip_sub_col_frac</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">!=</span> <span class="s1">&#39;cl&#39;</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">qc_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;lon_range&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">lon_range</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lon_range&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lon_range&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lon_range</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="s1">&#39;xind_range&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">xind_range</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;xind_range&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;xind_range&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xind_range</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="s1">&#39;yind_range&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">yind_range</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;yind_range&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;yind_range&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">yind_range</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">N_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">set_convective_sub_col_frac</span><span class="p">(</span>
+                <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">N_columns</span><span class="o">=</span><span class="n">N_columns</span><span class="p">,</span>
+                <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">set_precip_sub_col_frac</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">set_precip_sub_col_frac</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">!=</span> <span class="s1">&#39;cl&#39;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">qc_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">)</span>
+
+        <span class="n">LES_mode</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">subcolumns_les</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">lat_range</span><span class="o">=</span><span class="n">lat_range</span><span class="p">,</span> <span class="n">lon_range</span><span class="o">=</span><span class="n">lon_range</span><span class="p">,</span>
+            <span class="n">xind_range</span><span class="o">=</span><span class="n">xind_range</span><span class="p">,</span> <span class="n">yind_range</span><span class="o">=</span><span class="n">yind_range</span><span class="p">)</span>
+        <span class="n">LES_mode</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">if</span> <span class="s1">&#39;OD_from_sfc&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;OD_from_sfc&#39;</span><span class="p">]</span>
@@ -264,6 +222,18 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">use_empiric_calc</span> <span class="o">=</span> <span class="kc">False</span>
 
+    <span class="k">if</span> <span class="n">use_rad_logic</span><span class="p">:</span>
+        <span class="n">model_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="ow">in</span> <span class="n">model_vars</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
+                                         <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="ow">in</span> <span class="n">model_vars</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
+                                         <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;radar&quot;</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating radar moments...&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;reg_rng&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -271,19 +241,24 @@
             <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ref_rng&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ref_rng</span> <span class="o">=</span> <span class="mi">1000</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
-                                   <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">],</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span>
-                                   <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
-                                   <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;conv&quot;</span><span class="p">],</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span>
-                                   <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span>
+            <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">],</span>
+            <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span> <span class="n">LES_mode</span><span class="o">=</span><span class="n">LES_mode</span><span class="p">,</span>
+            <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_moments</span><span class="p">(</span>
+            <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;conv&quot;</span><span class="p">],</span>
+            <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span> <span class="n">LES_mode</span><span class="o">=</span><span class="n">LES_mode</span><span class="p">,</span>
+            <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_total_reflectivity</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_radar_Ze_min</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ref_rng</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">do_classify</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">radar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_height_rng</span><span class="o">=</span><span class="n">mask_height_rng</span><span class="p">,</span>
-                                         <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">radar_classify_phase</span><span class="p">(</span>
+                <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_height_rng</span><span class="o">=</span><span class="n">mask_height_rng</span><span class="p">,</span>
+                <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lidar&quot;</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating lidar moments...&quot;</span><span class="p">)</span>
@@ -297,67 +272,55 @@
             <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eta&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">eta</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">eta</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
-                                   <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span>
-                                   <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">],</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span>
-                                   <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
-                                   <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span>
-                                   <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;conv&quot;</span><span class="p">],</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span>
-                                   <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span>
+            <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">LES_mode</span><span class="o">=</span><span class="n">LES_mode</span><span class="p">,</span>
+            <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">],</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span>
+            <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_lidar_moments</span><span class="p">(</span>
+            <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">LES_mode</span><span class="o">=</span><span class="n">LES_mode</span><span class="p">,</span>
+            <span class="n">mie_for_ice</span><span class="o">=</span><span class="n">mie_for_ice</span><span class="p">[</span><span class="s2">&quot;conv&quot;</span><span class="p">],</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span>
+            <span class="n">use_empiric_calc</span><span class="o">=</span><span class="n">use_empiric_calc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_total_alpha_beta</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">calc_LDR_and_ext</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ext_OD</span><span class="o">=</span><span class="n">ext_OD</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">do_classify</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">lidar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
-                                             <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">lidar_classify_phase</span><span class="p">(</span>
+                <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">(</span>
+                <span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="n">OD_from_sfc</span><span class="p">,</span>
+                <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="n">convert_zeros_to_nan</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Currently, only lidars and radars are supported as instruments.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model</span></div>
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Bobby Jackson, Israel Silber.
-
-    </p>
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,76 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>emc2.simulator.attenuation &mdash; EMC^2  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> EMC^2
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,19 +38,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">EMC^2 Usage guide</a></li>
@@ -98,69 +47,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">EMC^2</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>emc2.simulator.attenuation</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for emc2.simulator.attenuation</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -241,7 +151,6 @@
     <span class="n">kappa_o2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.1e-2</span> <span class="o">*</span> <span class="n">instrument</span><span class="o">.</span><span class="n">freq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_temp</span> <span class="o">/</span> <span class="mf">1013.</span><span class="p">)</span> <span class="o">*</span> <span class="n">three_hundred_t</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> \
         <span class="n">gamma_l</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">((</span><span class="n">instrument</span><span class="o">.</span><span class="n">freq</span> <span class="o">-</span> <span class="n">f0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">gamma_l</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.</span> <span class="o">/</span>
                    <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">freq</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">gamma_l</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_o2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">kappa_o2</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">t_field</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_o2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Gaseous attenuation due to O2&quot;</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s1">&#39;kappa_o2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dB/km&quot;</span>
@@ -284,9 +193,6 @@
     <span class="n">Theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
     <span class="n">raw_n</span> <span class="o">=</span> <span class="mf">0.035</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.00366</span>
-    <span class="n">Avogadro_c</span> <span class="o">=</span> <span class="mf">6.022140857e23</span>
-    <span class="n">R</span> <span class="o">=</span> <span class="mf">8.3144598</span>
-    <span class="n">R_d</span> <span class="o">=</span> <span class="mf">287.058</span>
     <span class="n">nu</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">Lambda</span>
 
     <span class="n">p_temp</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ureg</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
@@ -295,11 +201,11 @@
     <span class="n">T</span> <span class="o">=</span> <span class="n">t_temp</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;degC&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
     <span class="n">z_temp</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">z_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ureg</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">z_field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
     <span class="n">Z</span> <span class="o">=</span> <span class="n">z_temp</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;meter&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
-    <span class="n">raw</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="n">R_d</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">/</span> <span class="mf">1e6</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="s2">&quot;R_d&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">/</span> <span class="mf">1e6</span>
     <span class="n">p_cos</span> <span class="o">=</span> <span class="mf">0.7629</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.932</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">Theta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">n_s_ref</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mf">6432.8</span> <span class="o">+</span> <span class="mi">2949810</span> <span class="o">/</span> <span class="p">(</span><span class="mi">146</span> <span class="o">-</span> <span class="n">nu</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25540</span> <span class="o">/</span> <span class="p">(</span><span class="mi">41</span> <span class="o">-</span> <span class="n">nu</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1e-8</span>
     <span class="n">n_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_s_ref</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="mi">15</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">P</span> <span class="o">/</span> <span class="mf">1013.25</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">N_s</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="n">R</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">))</span> <span class="o">*</span> <span class="n">Avogadro_c</span> <span class="o">/</span> <span class="mf">1e6</span>
+    <span class="n">N_s</span> <span class="o">=</span> <span class="n">P</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">))</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="s2">&quot;Avogadro_c&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1e6</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_s</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> \
         <span class="p">(</span><span class="n">N_s</span> <span class="o">*</span> <span class="p">(</span><span class="n">Lambda</span> <span class="o">*</span> <span class="mf">1e-4</span><span class="p">)</span><span class="o">**</span><span class="mi">4</span> <span class="o">*</span> <span class="n">N_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">6</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">raw_n</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">6</span> <span class="o">-</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">raw_n</span><span class="p">)</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_s</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">N_s</span> <span class="o">/</span> \
@@ -367,46 +273,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Bobby Jackson, Israel Silber.
-
-    </p>
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -271,9 +271,11 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         reflective_mask = np.where(np.logical_and(SR > undef_SR_thresh, reflective_mask == 1),
                                    0, reflective_mask)
 
-        phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) > 273.15,
+        phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                     (model.num_subcolumns, 1, 1)) > 273.15,
                               phase_mask > 0), 1, phase_mask)
-        phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) < 233.15,
+        phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                     (model.num_subcolumns, 1, 1)) < 233.15,
                               phase_mask > 0), 2, phase_mask)
         phase_mask = np.where(np.logical_and(reflective_mask > 0, phase_mask > 0), 3, phase_mask)
         if convert_zeros_to_nan:
@@ -331,9 +333,11 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
     reflective_mask = np.where(np.logical_and(SR_allhyd > undef_SR_thresh, reflective_mask == 1),
                                0, reflective_mask)
 
-    phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) > 273.15,
+    phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                 (model.num_subcolumns, 1, 1)) > 273.15,
                           phase_mask > 0), 1, phase_mask)
-    phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) < 233.15,
+    phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                 (model.num_subcolumns, 1, 1)) < 233.15,
                           phase_mask > 0), 2, phase_mask)
     phase_mask = np.where(np.logical_and(reflective_mask > 0, phase_mask > 0), 3, phase_mask)
     if convert_zeros_to_nan:

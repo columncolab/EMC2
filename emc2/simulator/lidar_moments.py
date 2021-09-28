@@ -65,7 +65,7 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
     return model
 
 
-def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
+def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, hyd_types=None):
     """
     Calculates the lidar extinction mask (for conv+strat) and linear depolarization ratio
     (per strat, conv, and strat+conv) for the given model and lidar. Run after calculating
@@ -84,12 +84,16 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
         If a dict, the amount of LDR per hydrometeor class must be specified in
         a dictionary whose keywords are the model's hydrometeor classes. If None,
         the default settings from the model will be used.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using 4 classes if None.
 
     Returns
     -------
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
+    if hyd_types is None:
+        hyd_types = ["cl", "ci", "pl", "pi"]
 
     if LDR_per_hyd is None:
         LDR_per_hyd = model.LDR_per_hyd
@@ -105,7 +109,7 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None):
         numerator = 0.
         denominator = 0.
 
-        for hyd_type in model.hydrometeor_classes:
+        for hyd_type in hyd_types:
             beta_p_key = "sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)
             numerator += model.ds[beta_p_key].fillna(0) * model.LDR_per_hyd[hyd_type].magnitude
             denominator += model.ds[beta_p_key].fillna(0)
@@ -483,7 +487,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
 
 
 def calc_lidar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, eta=1, chunk=None, mie_for_ice=False,
+                       OD_from_sfc=True, hyd_types=None, parallel=True, eta=1, chunk=None, mie_for_ice=False,
                        use_rad_logic=True, use_empiric_calc=False, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
@@ -506,6 +510,8 @@ def calc_lidar_moments(instrument, model, is_conv,
         True if the cell is convective
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using 4 classes if None.
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     eta: float
@@ -544,7 +550,8 @@ def calc_lidar_moments(instrument, model, is_conv,
         The model dataset with the added simulated lidar parameters.
     """
 
-    hyd_types = ["cl", "ci", "pl", "pi"]
+    if hyd_types is None:
+        hyd_types = ["cl", "ci", "pl", "pi"]
 
     if is_conv:
         cloud_str = "conv"

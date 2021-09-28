@@ -6,9 +6,9 @@
 Welcome to EMC²'s documentation!
 =================================
 
-The Earth Model Column Collaboratory (EMC²) is an open source framework for conducting
-intercomparisons between columns from climate and earth system models and observations
-from remote sensing instruments such as radars and lidars.
+The Earth Model Column Collaboratory (EMC²; Silber et al., under review) is an open-source
+framework for conducting intercomparisons between columns from climate and earth system
+models and observations from remote sensing instruments such as radars and lidars.
 
 EMC² is inspired from past work comparing remotely-sensed zenith-pointing measurements
 to climate models and their single-column model modes (SCMs) (e.g., Bodas-Salcedo et al.,
@@ -59,5 +59,7 @@ Helmus, J., Collis, S., (2016), The Python ARM Radar Toolkit (Py-ART), a Library
 Jupyter et al. (2018), "Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale." Proceedings of the 17th Python in Science Conference, 10.25080/Majora-4af1f417-011
 
 Lamer, K. (2018), Relative Occurrence of Liquid Water, Ice and Mixed-Phase Conditions within Various Cloud and Precipitation Regimes: Long Term Ground-Based Observations for GCM Model Evaluation, The Pennsylvania State University, PhD dissertation.
+
+Silber, I. and Jackson, R. C. and Fridlind, A. M. and Ackerman, A. S. and Collis, S. and Verlinde, J. and Ding, J (2021), The Earth Model Column Collaboratory (EMC$^2$) v1.1: An Open-Source Ground-Based Lidar and Radar Instrument Simulator and Subcolumn Generator for Large-Scale Models, Geoscientific Model Development Discussions, doi:10.5194/gmd-2021-194.
 
 Swales, D.J., Pincus, R., Bodas-Salcedo, A., (2018), The Cloud Feedback Model Intercomparison Project Observational Simulator Package: Version 2. Geosci. Model Dev. 11, 77–81. https://doi.org/10.5194/gmd-11-77-2018

@@ -634,8 +634,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
 
 def calc_radar_moments(instrument, model, is_conv,
-                       OD_from_sfc=True, parallel=True, chunk=None, mie_for_ice=False, use_rad_logic=True,
-                       use_empiric_calc=False, **kwargs):
+                       OD_from_sfc=True, hyd_types=None, parallel=True, chunk=None, mie_for_ice=False,
+                       use_rad_logic=True, use_empiric_calc=False, **kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
@@ -659,6 +659,8 @@ def calc_radar_moments(instrument, model, is_conv,
         The name of the altitude field to use.
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
+   hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using 4 classes if None.
     parallel: bool
         If True, then use parallelism to calculate each column quantity.
     chunk: None or int
@@ -694,7 +696,8 @@ def calc_radar_moments(instrument, model, is_conv,
         The xarray Dataset containing the calculated radar moments.
     """
 
-    hyd_types = ["cl", "ci", "pl", "pi"]
+    if hyd_types is None:
+        hyd_types = ["cl", "ci", "pl", "pi"]
 
     if is_conv:
         cloud_str = "conv"

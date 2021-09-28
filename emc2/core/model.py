@@ -135,19 +135,24 @@ class Model():
                 continue
             self.ds[variable].attrs = attrs
 
-    def _crop_time_range(self, time_range):
+    def _crop_time_range(self, time_range, alter_coord=None):
         """
-        Crop model output time range.
+        Crop model output time range (time coords must be of np.datetime64 datatype).
         Can significantly cut subcolumn processing time.
 
         Parameters
         ----------
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
-
+        alter_coord: str or None
+            Alternative time coords to use for cropping.
         """
-        time_ind = np.logical_and(self.ds[self.time_dim] >= time_range[0],
-                                  self.ds[self.time_dim] < time_range[1])
+        if alter_coord is None:
+            t_coords = self.time_dim
+        else:
+            t_coords = alter_coord
+        time_ind = np.logical_and(self.ds[t_coords] >= time_range[0],
+                                  self.ds[t_coords] < time_range[1])
         if np.sum(time_ind) == 0:
             self.ds.close()
             print("The requested time range: {0} to {1} is out of the \
@@ -340,6 +345,9 @@ class E3SM(Model):
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
         self.ds = read_netcdf(file_path)
+        time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                   dtype='datetime64')
+        self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
 
         # Check to make sure we are loading a single column
         if 'lat' in [x for x in self.ds.dims.keys()]:
@@ -354,7 +362,7 @@ class E3SM(Model):
         # crop specific model output time range (if requested)
         if time_range is not None:
             if np.issubdtype(time_range.dtype, np.datetime64):
-                super()._crop_time_range(time_range)
+                super()._crop_time_range(time_range, alter_coord="time")
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
 

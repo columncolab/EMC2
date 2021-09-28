@@ -27,7 +27,8 @@ EMC² provides an open source software framework to:
 3. Enable a suite of comparisons between ARM (and other) column measurements and
    the GCM model subcolumns.
 
-Detailed description will soon be provided in a dedicated manuscript (Silber et al., in prep).
+Detailed description of EMC² is provided in a manuscript currently under review (Silber et al., GMDD,
+https://doi.org/10.5194/gmd-2021-194).
 
 
 Usage

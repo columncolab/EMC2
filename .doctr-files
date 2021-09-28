@@ -122,10 +122,6 @@
 ./_static/doctools.js
 ./_static/documentation_options.js
 ./_static/file.png
-./_static/gallery-binder.css
-./_static/gallery-dataframe.css
-./_static/gallery-rendered-html.css
-./_static/gallery.css
 ./_static/jquery-3.5.1.js
 ./_static/jquery.js
 ./_static/js/badge_only.js
@@ -138,6 +134,10 @@
 ./_static/plus.png
 ./_static/pygments.css
 ./_static/searchtools.js
+./_static/sg_gallery-binder.css
+./_static/sg_gallery-dataframe.css
+./_static/sg_gallery-rendered-html.css
+./_static/sg_gallery.css
 ./_static/underscore-1.13.1.js
 ./_static/underscore.js
 ./genindex.html

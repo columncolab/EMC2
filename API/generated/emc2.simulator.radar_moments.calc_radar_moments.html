@@ -128,8 +128,9 @@
 <h1>emc2.simulator.radar_moments.calc_radar_moments<a class="headerlink" href="#emc2-simulator-radar-moments-calc-radar-moments" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="emc2.simulator.radar_moments.calc_radar_moments">
-<span class="sig-prename descclassname"><span class="pre">emc2.simulator.radar_moments.</span></span><span class="sig-name descname"><span class="pre">calc_radar_moments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OD_from_sfc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mie_for_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_empiric_calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_moments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the reflectivity, doppler velocity, and spectral width
+<span class="sig-prename descclassname"><span class="pre">emc2.simulator.radar_moments.</span></span><span class="sig-name descname"><span class="pre">calc_radar_moments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OD_from_sfc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mie_for_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_empiric_calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/radar_moments.html#calc_radar_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.radar_moments.calc_radar_moments" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Calculates the reflectivity, doppler velocity, and spectral width
 in a given column for the given radar.</p>
 <p>NOTE:
 When starting a parallel task (in microphysics approach), it is recommended
@@ -139,29 +140,38 @@ if __name__ == “__main__”:</p>
 <blockquote>
 <div><p>lines_of_code</p>
 </div></blockquote>
-<dl class="field-list simple">
+</div></blockquote>
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>instrument: Instrument</strong></dt><dd><p>The instrument to simulate. The instrument must be a radar.</p>
+<dd class="field-odd"><dl>
+<dt><strong>instrument: Instrument</strong></dt><dd><blockquote>
+<div><p>The instrument to simulate. The instrument must be a radar.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>model: Model</dt><dd><p>The model to generate the parameters for.</p>
 </dd>
-<dt><strong>model: Model</strong></dt><dd><p>The model to generate the parameters for.</p>
+<dt>is_conv: bool</dt><dd><p>True if the cell is convective</p>
 </dd>
-<dt><strong>is_conv: bool</strong></dt><dd><p>True if the cell is convective</p>
+<dt>z_field: str</dt><dd><p>The name of the altitude field to use.</p>
 </dd>
-<dt><strong>z_field: str</strong></dt><dd><p>The name of the altitude field to use.</p>
+<dt>OD_from_sfc: bool</dt><dd><p>If True, then calculate optical depth from the surface.</p>
 </dd>
-<dt><strong>OD_from_sfc: bool</strong></dt><dd><p>If True, then calculate optical depth from the surface.</p>
+</dl>
 </dd>
-<dt><strong>parallel: bool</strong></dt><dd><p>If True, then use parallelism to calculate each column quantity.</p>
+<dt><strong>hyd_types: list or None</strong></dt><dd><blockquote>
+<div><p>list of hydrometeor names to include in calcuation. using 4 classes if None.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>parallel: bool</dt><dd><p>If True, then use parallelism to calculate each column quantity.</p>
 </dd>
-<dt><strong>chunk: None or int</strong></dt><dd><p>If using parallel processing, only send this number of time periods to the
+<dt>chunk: None or int</dt><dd><p>If using parallel processing, only send this number of time periods to the
 parallel loop at one time. Sometimes Dask will crash if there are too many
 tasks in the queue, so setting this value will help avoid that.</p>
 </dd>
-<dt><strong>mie_for_ice: bool</strong></dt><dd><p>If True, using full mie caculation LUTs. Otherwise, currently using the C6
+<dt>mie_for_ice: bool</dt><dd><p>If True, using full mie caculation LUTs. Otherwise, currently using the C6
 scattering LUTs for 8-column aggregate at 270 K.</p>
 </dd>
-<dt><strong>use_rad_logic: bool</strong></dt><dd><p>When True using radiation scheme logic in calculations, which includes using
+<dt>use_rad_logic: bool</dt><dd><p>When True using radiation scheme logic in calculations, which includes using
 the cloud fraction fields utilized in a model radiative scheme, as well as bulk
 scattering LUTs (effective radii dependent scattering variables). Otherwise, and
 only in the stratiform case, using the microphysics scheme logic, which includes
@@ -171,15 +181,17 @@ NOTE: because of its single-particle calculation method, the microphysics
 approach is significantly slower than the radiation approach. Also, the cloud
 fraction logic in these  schemes does not necessarilytly fully overlap.</p>
 </dd>
-<dt><strong>use_empirical_calc: bool</strong></dt><dd><p>When True using empirical relations from literature for the fwd calculations
+<dt>use_empirical_calc: bool</dt><dd><p>When True using empirical relations from literature for the fwd calculations
 (the cloud fraction still follows the scheme logic set by use_rad_logic).</p>
 </dd>
-<dt><strong>Additonal keyword arguments are passed into</strong></dt><dd></dd>
-<dt><strong>:py:func:`emc2.simulator.psd.calc_mu_lambda`.</strong></dt><dd></dd>
-<dt><strong>:py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.</strong></dt><dd></dd>
-<dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_radar_empirical`.</strong></dt><dd></dd>
-<dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_radar_bulk`.</strong></dt><dd></dd>
-<dt><strong>:py:func:`emc2.simulator.lidar_moments.calc_radar_micro`.</strong></dt><dd></dd>
+</dl>
+<p>Additonal keyword arguments are passed into
+<a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda" title="emc2.simulator.psd.calc_mu_lambda"><code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.simulator.psd.calc_mu_lambda()</span></code></a>.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.simulator.lidar_moments.accumulate_attenuation()</span></code>.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.simulator.lidar_moments.calc_radar_empirical()</span></code>.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.simulator.lidar_moments.calc_radar_bulk()</span></code>.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">emc2.simulator.lidar_moments.calc_radar_micro()</span></code>.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>

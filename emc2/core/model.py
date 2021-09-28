@@ -307,7 +307,7 @@ class E3SM(Model):
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
-        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
+        self.fluffy = {'ci': 1.0 * ureg.dimensionless, 'pi': 1.0 * ureg.dimensionless}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                             'ci': 24. * ureg.dimensionless,
                             'pl': 5.5 * ureg.dimensionless,

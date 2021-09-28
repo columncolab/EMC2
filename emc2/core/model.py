@@ -345,7 +345,7 @@ class E3SM(Model):
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
         self.ds = read_netcdf(file_path)
-        time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M')  for x in self.ds["time"].values],
+        time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
                                    dtype='datetime64')
         self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
 

@@ -194,15 +194,14 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         If True, save the ATB and scattering ratio fields for each cloud type as well as for
         all hydrometeors.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
 
     Returns
     -------
     model: Model
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if instrument.instrument_str != "HSRL":
         raise ValueError("Instrument must be the 532 nm HSRL (to match CALIOP's operating wavelength)")
@@ -401,15 +400,14 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
         If True, doing subcolumn-based MPR calculation. Otherwise, simply using the model output
         mixing ratio data.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
 
     Returns
     -------
     model: Model
         The model with the added phase ratio field
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if mass_pr is True:
         liq_classes = [x for x in ["cl", "pl"] if x in hyd_types]

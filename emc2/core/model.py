@@ -74,6 +74,9 @@ class Model():
     strat_re_fields: dict
        A dictionary containing the names of the effective radii of each stratiform
        hydrometeor class
+    hyd_types: list
+       list of hydrometeor classes to include in calcuations. By default set to be consistent
+       with the model represented by the Model subclass.
     time_dim: str
        The name of the time dimension in the model.
     height_dim: str
@@ -107,6 +110,7 @@ class Model():
         self.strat_frac_names_for_rad = {}
         self.conv_re_fields = {}
         self.strat_re_fields = {}
+        self.hyd_types = []
         self.ds = None
         self.time_dim = "time"
         self.height_dim = "height"
@@ -165,14 +169,14 @@ class Model():
         """
         The list of hydrometeor classes.
         """
-        return list(self.N_field.keys())
+        return self.hyd_types
 
     @property
     def num_hydrometeor_classes(self):
         """
-        The number of hydrometeor classes
+        The number of hydrometeor classes used
         """
-        return len(list(self.N_field.keys()))
+        return len(self.hyd_types)
 
     @property
     def num_subcolumns(self):
@@ -195,6 +199,16 @@ class Model():
         """
         subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
         self.ds['subcolumn'] = subcolumn
+
+    def set_hyd_types(self, hyd_types):
+        if hyd_types is None:
+            if self.num_hydrometeor_classes == 0:
+                raise ValueError("The '%s' Model subclass has 0 specified hydrometeor classes and "
+                                 "no other 'hyd_types' variable was specified. Please check the "
+                                 "Model class attributes setup." % self.model_name)
+            return self.hyd_types
+        else:
+            return hyd_types
 
     def subcolumns_to_netcdf(self, file_name):
         """
@@ -276,6 +290,7 @@ class ModelE(Model):
         self.strat_re_fields = {'cl': 're_sscl', 'ci': 're_ssci', 'pi': 're_sspi', 'pl': 're_sspl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
 
         # Check to make sure we are loading a single column
@@ -344,6 +359,7 @@ class E3SM(Model):
         self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
+        self.hyd_types = ["cl", "ci", "pi"]
         self.ds = read_netcdf(file_path)
         time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
                                    dtype='datetime64')
@@ -460,7 +476,7 @@ class WRF(Model):
                                    'pl': 'qplc', 'pi': 'qpic'}
         self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
                                    'pl': 'qpls', 'pi': 'qpis'}
-
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         ds = xr.open_dataset(file_path)
         wrfin = Dataset(file_path)
         self.ds = {}
@@ -564,6 +580,7 @@ class DHARMA(Model):
                                 'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
 
         for variable in self.ds.variables.keys():
@@ -665,6 +682,7 @@ class TestModel(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
 
 
 class TestConvection(Model):
@@ -794,6 +812,7 @@ class TestConvection(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
@@ -932,6 +951,7 @@ class TestAllStratiform(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
@@ -1054,6 +1074,7 @@ class TestHalfAndHalf(Model):
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"

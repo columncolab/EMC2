@@ -168,7 +168,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
 
@@ -177,8 +177,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:
         cloud_str = "conv"
@@ -257,7 +256,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     mie_for_ice: bool
         If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
         scattering LUTs for 8-column severly roughned aggregate.
@@ -269,8 +268,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if 'LES_mode' in kwargs.keys():
         LES_mode = kwargs['LES_mode']
@@ -363,7 +361,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     mie_for_ice: bool
         If True, using full mie caculation LUTs. Otherwise, currently using the C6
         scattering LUTs for 8-column severly roughned aggregate.
@@ -383,8 +381,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     method_str = "LUTs (microphysics logic)"
 
@@ -660,7 +657,7 @@ def calc_radar_moments(instrument, model, is_conv,
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
    hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     parallel: bool
         If True, then use parallelism to calculate each column quantity.
     chunk: None or int
@@ -695,9 +692,7 @@ def calc_radar_moments(instrument, model, is_conv,
     model: :func:`emc2.core.Model`
         The xarray Dataset containing the calculated radar moments.
     """
-
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:
         cloud_str = "conv"

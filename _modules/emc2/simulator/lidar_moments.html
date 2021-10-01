@@ -159,15 +159,14 @@
 <span class="sd">        a dictionary whose keywords are the model&#39;s hydrometeor classes. If None,</span>
 <span class="sd">        the default settings from the model will be used.</span>
 <span class="sd">    hyd_types: list or None</span>
-<span class="sd">        list of hydrometeor names to include in calcuation. using 4 classes if None.</span>
+<span class="sd">        list of hydrometeor names to include in calcuation. using default Model subclass types if None.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">hyd_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+    <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">LDR_per_hyd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">LDR_per_hyd</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">LDR_per_hyd</span>
@@ -284,7 +283,7 @@
 <span class="sd">    OD_from_sfc: bool</span>
 <span class="sd">        If True, then calculate optical depth from the surface.</span>
 <span class="sd">    hyd_types: list or None</span>
-<span class="sd">        list of hydrometeor names to include in calcuation. using 4 classes if None.</span>
+<span class="sd">        list of hydrometeor names to include in calcuation. using default Model subclass types if None.</span>
 <span class="sd">    Additonal keyword arguments are passed into</span>
 <span class="sd">    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.</span>
 
@@ -293,8 +292,7 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">hyd_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+    <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_conv</span><span class="p">:</span>
         <span class="n">cloud_str</span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
@@ -371,7 +369,7 @@
 <span class="sd">    OD_from_sfc: bool</span>
 <span class="sd">        If True, then calculate optical depth from the surface.</span>
 <span class="sd">    hyd_types: list or None</span>
-<span class="sd">        list of hydrometeor names to include in calcuation. using 4 classes if None.</span>
+<span class="sd">        list of hydrometeor names to include in calcuation. using default Model subclass types if None.</span>
 <span class="sd">    mie_for_ice: bool</span>
 <span class="sd">        If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6</span>
 <span class="sd">        scattering LUTs for 8-column severly roughned aggregate.</span>
@@ -383,8 +381,7 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">hyd_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+    <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_conv</span><span class="p">:</span>
         <span class="n">cloud_str</span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
@@ -467,7 +464,7 @@
 <span class="sd">    OD_from_sfc: bool</span>
 <span class="sd">        If True, then calculate optical depth from the surface.</span>
 <span class="sd">    hyd_types: list or None</span>
-<span class="sd">        list of hydrometeor names to include in calcuation. using 4 classes if None.</span>
+<span class="sd">        list of hydrometeor names to include in calcuation. using default Model subclass types if None.</span>
 <span class="sd">    mie_for_ice: bool</span>
 <span class="sd">        If True, using full mie caculation LUTs. Otherwise, currently using the C6</span>
 <span class="sd">        scattering LUTs for 8-column severly roughned aggregate.</span>
@@ -487,8 +484,7 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">hyd_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+    <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="n">Dims</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;strat_q_subcolumns_cl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hyd_types</span><span class="p">:</span>
@@ -585,7 +581,7 @@
 <span class="sd">    OD_from_sfc: bool</span>
 <span class="sd">        If True, then calculate optical depth from the surface.</span>
 <span class="sd">    hyd_types: list or None</span>
-<span class="sd">        list of hydrometeor names to include in calcuation. using 4 classes if None.</span>
+<span class="sd">        list of hydrometeor names to include in calcuation. using default Model subclass types if None.</span>
 <span class="sd">    parallel: bool</span>
 <span class="sd">        If True, use parallelism in calculating lidar parameters.</span>
 <span class="sd">    eta: float</span>
@@ -623,9 +619,7 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model dataset with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">hyd_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
+    <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_conv</span><span class="p">:</span>
         <span class="n">cloud_str</span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>

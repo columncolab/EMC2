@@ -15,6 +15,7 @@
    
       ~TestConvection.__init__
       ~TestConvection.load_subcolumns_from_netcdf
+      ~TestConvection.set_hyd_types
       ~TestConvection.subcolumns_to_netcdf
    
    

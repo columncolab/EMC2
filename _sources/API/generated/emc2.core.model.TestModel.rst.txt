@@ -15,6 +15,7 @@
    
       ~TestModel.__init__
       ~TestModel.load_subcolumns_from_netcdf
+      ~TestModel.set_hyd_types
       ~TestModel.subcolumns_to_netcdf
    
    

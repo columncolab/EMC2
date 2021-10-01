@@ -15,6 +15,7 @@
    
       ~ModelE.__init__
       ~ModelE.load_subcolumns_from_netcdf
+      ~ModelE.set_hyd_types
       ~ModelE.subcolumns_to_netcdf
    
    

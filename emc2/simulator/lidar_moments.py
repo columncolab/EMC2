@@ -85,15 +85,14 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, hyd_t
         a dictionary whose keywords are the model's hydrometeor classes. If None,
         the default settings from the model will be used.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
 
     Returns
     -------
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if LDR_per_hyd is None:
         LDR_per_hyd = model.LDR_per_hyd
@@ -210,7 +209,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
@@ -219,8 +218,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:
         cloud_str = "conv"
@@ -297,7 +295,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     mie_for_ice: bool
         If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
         scattering LUTs for 8-column severly roughned aggregate.
@@ -309,8 +307,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:
         cloud_str = "conv"
@@ -393,7 +390,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     mie_for_ice: bool
         If True, using full mie caculation LUTs. Otherwise, currently using the C6
         scattering LUTs for 8-column severly roughned aggregate.
@@ -413,8 +410,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     Dims = model.ds["strat_q_subcolumns_cl"].values.shape
     for hyd_type in hyd_types:
@@ -511,7 +507,7 @@ def calc_lidar_moments(instrument, model, is_conv,
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
     hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using 4 classes if None.
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     eta: float
@@ -549,9 +545,7 @@ def calc_lidar_moments(instrument, model, is_conv,
     model: :func:`emc2.core.Model`
         The model dataset with the added simulated lidar parameters.
     """
-
-    if hyd_types is None:
-        hyd_types = ["cl", "ci", "pl", "pi"]
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:
         cloud_str = "conv"

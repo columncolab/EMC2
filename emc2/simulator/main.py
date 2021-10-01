@@ -134,6 +134,11 @@ def make_simulated_data(model, instrument, N_columns,
         del kwargs['mask_height_rng']
     else:
         mask_height_rng = None
+    if 'hyd_types' in kwargs.keys():
+        hyd_types = kwargs['hyd_types']
+        del kwargs['hyd_types']
+    else:
+        hyd_types = None
     if 'mie_for_ice' in kwargs.keys():
         mie_for_ice = {"conv": kwargs['mie_for_ice'], "strat": kwargs['mie_for_ice']}
         del kwargs['mie_for_ice']
@@ -168,12 +173,12 @@ def make_simulated_data(model, instrument, N_columns,
         else:
             ref_rng = 1000
         model = calc_radar_moments(
-            instrument, model, False, OD_from_sfc=OD_from_sfc,
+            instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
             use_rad_logic=use_rad_logic, LES_mode=LES_mode,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_radar_moments(
-            instrument, model, True, OD_from_sfc=OD_from_sfc,
+            instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
             use_rad_logic=use_rad_logic, LES_mode=LES_mode,
             use_empiric_calc=use_empiric_calc, **kwargs)
@@ -199,24 +204,24 @@ def make_simulated_data(model, instrument, N_columns,
         else:
             eta = instrument.eta
         model = calc_lidar_moments(
-            instrument, model, False, OD_from_sfc=OD_from_sfc,
+            instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, eta=eta, chunk=chunk, LES_mode=LES_mode,
             mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_lidar_moments(
-            instrument, model, True, OD_from_sfc=OD_from_sfc,
+            instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, eta=eta, chunk=chunk, LES_mode=LES_mode,
             mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
-        model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc)
+        model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types)
 
         if do_classify is True:
             model = lidar_classify_phase(
                 instrument, model, convert_zeros_to_nan=convert_zeros_to_nan)
             model = lidar_emulate_cosp_phase(
                 instrument, model, eta=eta, OD_from_sfc=OD_from_sfc,
-                convert_zeros_to_nan=convert_zeros_to_nan)
+                convert_zeros_to_nan=convert_zeros_to_nan, hyd_types=hyd_types)
     else:
         raise ValueError("Currently, only lidars and radars are supported as instruments.")
     return model

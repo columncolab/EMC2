@@ -235,7 +235,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             OD[hyd_class] = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
             beta_p[hyd_class] = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
             for hyd_type in hyd_classes[hyd_class]:
-                if not hyd_type in hyd_types:
+                if hyd_type not in hyd_types:
                     print("'%s' not in hyd_types = %s; excluding from COSP calculations" % (hyd_type, hyd_types))
                     continue
                 beta_p[hyd_class] += np.nan_to_num(

@@ -430,9 +430,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             total_hydrometeor = np.nansum(total_hydrometeor, axis=0)
 
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.c6_table["8col_agg"]["p_diam_eq_V"].values
-            beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
-            alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+            p_diam = instrument.scat_table["8col_agg"]["p_diam_eq_V"].values
+            beta_p = instrument.scat_table["8col_agg"]["beta_p"].values
+            alpha_p = instrument.scat_table["8col_agg"]["alpha_p"].values
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -480,10 +480,10 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
-            c6_table = instrument.c6_table["8col_agg"]
+            scat_table = instrument.scat_table["8col_agg"]
             _calc_other = lambda x: _calculate_other_observables(
                 x, total_hydrometeor, N_0, lambdas, model.num_subcolumns,
-                c6_table, v_tmp, beta_p, alpha_p,
+                scat_table, v_tmp, beta_p, alpha_p,
                 instrument.wavelength, instrument.K_w,
                 sub_q_array, hyd_type, p_diam, mie_for_ice)
 
@@ -532,9 +532,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     print("Now calculating total spectral width (this may take some time)")
     for hyd_type in hyd_types:
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.c6_table["8col_agg"]["p_diam_eq_V"].values
-            beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
-            alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+            p_diam = instrument.scat_table["8col_agg"]["p_diam_eq_V"].values
+            beta_p = instrument.scat_table["8col_agg"]["beta_p"].values
+            alpha_p = instrument.scat_table["8col_agg"]["alpha_p"].values
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -903,7 +903,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 
 
 def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
-                                 num_subcolumns, c6_table, beta_p, alpha_p, v_tmp, wavelength,
+                                 num_subcolumns, scat_table, beta_p, alpha_p, v_tmp, wavelength,
                                  K_w, sub_q_array, hyd_type, p_diam, mie_for_ice):
     Dims = sub_q_array.shape
     if tt % 50 == 0:
@@ -926,10 +926,10 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
             N_D.append(N_0_tmp * np.exp(-lambda_tmp * p_diam))
         N_D = np.stack(N_D, axis=0)
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            Calc_tmp = np.tile(c6_table["beta_p"].values,
+            Calc_tmp = np.tile(scat_table["beta_p"].values,
                                (num_subcolumns, 1)) * N_D
             tmp_od = np.tile(
-                c6_table["alpha_p"].values, (num_subcolumns, 1)) * N_D
+                scat_table["alpha_p"].values, (num_subcolumns, 1)) * N_D
         else:
             Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
             tmp_od = np.tile(alpha_p, (num_subcolumns, 1)) * N_D

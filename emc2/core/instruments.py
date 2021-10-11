@@ -47,7 +47,7 @@ class XSACR(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieXSACR_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_XSACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
@@ -130,7 +130,7 @@ class KAZR(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_KAZR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
@@ -198,7 +198,7 @@ class WACR(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(
+        self.scat_table["8col_agg"] = load_scat_file(
             data_path + "/C6_WACR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
@@ -256,7 +256,7 @@ class RL(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_RL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
@@ -311,7 +311,7 @@ class HSRL(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
@@ -360,7 +360,7 @@ class CEIL(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_CEIL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
@@ -412,7 +412,7 @@ class Ten64nm(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
@@ -461,7 +461,7 @@ class NEXRAD(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieNEXRAD_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(
+        self.scat_table["8col_agg"] = load_scat_file(
             data_path + "/C6_NEXRAD_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
@@ -520,7 +520,7 @@ class CALIOP(Instrument):
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")

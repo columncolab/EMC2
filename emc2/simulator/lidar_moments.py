@@ -434,9 +434,9 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
         mu = fits_ds["mu"].values
         num_subcolumns = model.num_subcolumns
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.c6_table["8col_agg"]["p_diam_eq_V"].values
-            beta_p = instrument.c6_table["8col_agg"]["beta_p"].values
-            alpha_p = instrument.c6_table["8col_agg"]["alpha_p"].values
+            p_diam = instrument.scat_table["8col_agg"]["p_diam_eq_V"].values
+            beta_p = instrument.scat_table["8col_agg"]["beta_p"].values
+            alpha_p = instrument.scat_table["8col_agg"]["alpha_p"].values
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values

@@ -17,6 +17,7 @@ simulator in EMC^2.
     classification.lidar_emulate_cosp_phase
 
     psd.calc_mu_lambda
+    psd.calc_re_thompson
     radar_moments.calc_radar_reflectivity_conv
     radar_moments.calc_radar_moments
     lidar_moments.calc_LDR_and_ext

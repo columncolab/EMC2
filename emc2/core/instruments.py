@@ -14,20 +14,67 @@ from ..scattering import calc_microwave_ref_index_ice, calc_microwave_ref_index
 from ..scattering import scat_properties_ice, scat_properties_water
 
 
+class XSACR(Instrument):
+    def __init__(self, supercooled=True, *args):
+        """
+        This stores the information for the AMF XSACR.
+        """
+        super().__init__(frequency=9.71 * ureg.GHz)
+        self.instrument_class = "radar"
+        self.instrument_str = "XSACR"
+        self.ext_OD = np.nan
+        self.OD_from_sfc = True
+        self.K_w = 0.93
+        if supercooled:
+            self.eps_liq = (6.257395 + 3.018481j)**2
+        else:
+            self.eps_liq = (8.112180 + 1.7811075j)**2
+        self.pt = 20000.
+        self.theta = 1.40
+        self.gain = 10**4.2
+        self.Z_min_1km = -30
+        # Load mie tables
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieXSACR_liq_c.dat")  # Turner et al. (2016) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieXSACR_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieXSACR_liq.dat")  # Segelstein (1981)
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieXSACR_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/MieXSACR_ci.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieXSACR_pi1.dat")
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieXSACR_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+            data_path + "/bulk_XSACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        if supercooled:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_XSACR_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_XSACR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_XSACR_C6PSD_mie_ice.dat")
+
+
 class KAZR(Instrument):
-    def __init__(self, site, *args):
+    def __init__(self, site, supercooled=True, *args):
         """
         This stores the information for the KAZR (Ka-band radar).
         """
         super().__init__(frequency=34.860 * ureg.GHz)
-        if site.lower() not in ["sgp", "nsa", "awr", "ena"]:
-            raise ValueError("Site must be one of 'sgp', 'ena', 'nsa', or 'awr'!")
+        if site.lower() not in ["sgp", "nsa", "awr", "ena", "mos"]:
+            raise ValueError("Site must be one of 'sgp', 'ena', 'nsa', 'awr', or 'mos'!")
         self.instrument_class = "radar"
         self.instrument_str = "KAZR"
         self.ext_OD = np.nan
         self.OD_from_sfc = True
         self.K_w = 0.88
-        self.eps_liq = (5.489262 + 2.8267679j)**2
+        if supercooled:
+            self.eps_liq = (3.658396 + 1.987225j)**2
+        else:
+            self.eps_liq = (5.489262 + 2.8267679j)**2
         if site.lower() == "ena":
             self.pt = 2200.
         else:
@@ -45,6 +92,9 @@ class KAZR(Instrument):
         elif site.lower() == "awr":
             self.gain = 10**5.273
             self.Z_min_1km = -45.5
+        elif site.lower() == "mos":
+            self.gain = 10**5.273
+            self.Z_min_1km = -41.6
         else:
             self.gain = np.nan
             self.Z_min_1km = -56.5
@@ -68,8 +118,12 @@ class KAZR(Instrument):
             self.tau_md = np.nan
         # Load mie tables
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
-        self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
-        self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq_c.dat")  # Turner et al. (2016) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")  # Segelstein (1981)
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieKAZR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieKAZR_ci.dat")
         if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat")
@@ -80,24 +134,30 @@ class KAZR(Instrument):
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
             data_path + "/bulk_KAZR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
+        if supercooled:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
         self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_ice.dat")
 
 
 class WACR(Instrument):
-    def __init__(self, site, *args):
+    def __init__(self, site, supercooled=True, *args):
         """
         This stores the information for the WACR or M-WACR (W-band radars).
         """
         super().__init__(frequency=95.04 * ureg.GHz)
-        if site.lower() not in ["sgp", "awr"]:
-            raise ValueError("Site must be one of 'sgp' or 'awr'!")
+        if site.lower() not in ["sgp", "awr", "mos"]:
+            raise ValueError("Site must be one of 'sgp' 'awr', or 'mos'!")
         self.instrument_class = "radar"
         self.instrument_str = "WACR"
         self.ext_OD = np.nan
         self.OD_from_sfc = True
         self.K_w = 0.84
-        self.eps_liq = (3.468221 + 2.1423486j)**2
+        if supercooled:
+            self.eps_liq = (2.820550 + 1.123154j)**2
+        else:
+            self.eps_liq = (3.468221 + 2.1423486j)**2
         if site.lower() == "sgp":
             self.pt = 1513.
         else:
@@ -111,7 +171,7 @@ class WACR(Instrument):
             self.Z_min_1km = -46.0
         else:
             self.gain = 10**3.78
-            self.Z_min_1km = -40.0
+            self.Z_min_1km = -40.0  # 0.2 s increments
         if site.lower() == "sgp":
             self.tau_ge = 0.3
             self.lr = np.nan
@@ -126,8 +186,12 @@ class WACR(Instrument):
             self.tau_md = np.nan
         # Load mie tables
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
-        self.mie_table["cl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
-        self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieWACR_liq_c.dat")  # Turner et al. (2016) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieWACR_liq.dat")  # Segelstein (1981)
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieWACR_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieWACR_ci.dat")
         if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
@@ -139,7 +203,10 @@ class WACR(Instrument):
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
             data_path + "/bulk_WACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
+        if supercooled:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
         self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_ice.dat")
 
 
@@ -253,7 +320,7 @@ class HSRL(Instrument):
 
 
 class CEIL(Instrument):
-    def __init__(self, *args):
+    def __init__(self, supercooled=True, *args):
         """
         This stores the information for 910 nm lidars ,e.g., the CL31 ceilometer.
         """
@@ -264,7 +331,10 @@ class CEIL(Instrument):
         self.OD_from_sfc = True
         self.eta = 1
         self.K_w = np.nan
-        self.eps_liq = (1.323434 + 5.6988883e-7j) ** 2
+        if supercooled:
+            self.eps_liq = (1.3251203 + 5.1409006e-7j) ** 2
+        else:
+            self.eps_liq = (1.323434 + 5.6988883e-7j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -277,8 +347,12 @@ class CEIL(Instrument):
 
         # Load mie tables
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
-        self.mie_table["cl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
-        self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieCEIL_liq_c.dat")  # Rowe et al. (2020) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")  # Segelstein (1981)
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieCEIL_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/MieCEIL_ci.dat")
         if 'DHARMA' in args:
             self.mie_table["pi"] = load_mie_file(
@@ -290,23 +364,29 @@ class CEIL(Instrument):
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
             data_path + "/bulk_CEIL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
+        if supercooled:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
         self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_ice.dat")
 
 
 class Ten64nm(Instrument):
-    def __init__(self, *args):
+    def __init__(self, supercooled=True, *args):
         """
         This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.
         """
         super().__init__(wavelength=1.064 * ureg.micrometer)
         self.instrument_class = "lidar"
-        self.instrument_name = "1064nm"
+        self.instrument_str = "1064nm"
         self.ext_OD = 4
         self.OD_from_sfc = True
         self.eta = 1
         self.K_w = np.nan
-        self.eps_liq = (1.320416 + 1.2588968e-6j) ** 2
+        if supercooled:
+            self.eps_liq = (1.3235222 + 1.2181699e-6j) ** 2
+        else:
+            self.eps_liq = (1.320416 + 1.2588968e-6j) ** 2
         self.pt = np.nan
         self.theta = np.nan
         self.gain = np.nan
@@ -318,8 +398,12 @@ class Ten64nm(Instrument):
         self.tau_md = np.nan
         # Load mie tables
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
-        self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
-        self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")  # Rowe et al. (2020) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")  # Segelstein (1981) 25 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
         self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
         self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
         if 'DHARMA' in args:
@@ -332,69 +416,63 @@ class Ten64nm(Instrument):
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
             data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
+        if supercooled:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
         self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
 
 
 class NEXRAD(Instrument):
-    def __init__(self):
+    def __init__(self, supercooled=True, *args):
         """
-        This stores the information for the NOAA NEXRAD radar.
-        K_w: float
-            The index of refraction of water used for Ze calculation.
-            See the ARM KAZR handbook (Widener et al. 2012)
-        eps_liq: float
-            The complex dielectric constant for liquid water.
-        pt: float
-            Transmitting power in Watts.
-        theta: float
-            3 dB beam width in degrees
-        gain: float
-            The antenna gain in linear units.
-        Z_min_1km: float
-            The minimum detectable signal at 1 km in dBZ
-        lr: float
-            Attenuation based on the the general attributes in the spectra files.
-        pr_noise_ge: float
-            Minimum detectable signal in mW.
-        tau_ge: float
-            Pulse width in mus.
-        tau_md: float
-            Pulse width in mus.
+        This stores the information for the NOAA NEXRAD radar
+        Based on  https://www.roc.noaa.gov/WSR88D/Engineering/NEXRADTechInfo.aspx.
         """
         super().__init__(frequency=3.0 * ureg.GHz)
         self.instrument_class = "radar"
-        self.instrument_name = "nexrad"
+        self.instrument_str = "NEXRAD"
         self.ext_OD = np.nan
         self.K_w = 0.92
-        self.eps_liq = calc_microwave_ref_index(self.wavelength * 1e-4, 0.)**2
-        self.theta = 0.96
-        self.pt = 500000.
+        if supercooled:
+            self.eps_liq = (8.851160 + 1.940795j)**2
+        else:
+            self.eps_liq = (8.743107 + 0.64089981j)**2
+        self.theta = 0.925
+        self.pt = 700000.
         self.gain = 10**4.58
-        self.Z_min_1km = -20
+        self.Z_min_1km = -50.96  # long pulse at 1 km range (-23.0 dBZ at 25 km)
+        self.Z_min_1km_short = -41.48  # short pulse at 1 km range (-7.5 dBZ at 50 km)
         self.lr = np.nan
         self.pr_noise_ge = 0.
         self.tau_ge = 1.57
         self.tau_md = 4.71
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
-        ds = load_mie_file(data_path + "/Mie1064nm_liq.dat")
-        self.mie_table["cl"] = scat_properties_water(
-            ds.p_diam, self.wavelength * 1e-4, 0.)
-        self.mie_table["pl"] = scat_properties_water(
-            ds.p_diam, self.wavelength * 1e-4, 0.)
-        ds = load_mie_file(data_path + "/Mie1064nm_ci.dat")
-        self.mie_table["ci"] = scat_properties_ice(
-            ds.p_diam, self.wavelength * 1e-4, 0.)
-        ds = load_mie_file(data_path + "/Mie1064nm_pi.dat")
-        self.mie_table["pi"] = scat_properties_ice(
-            ds.p_diam, self.wavelength * 1e-4, 0.)
-        self.mie_table["pi"] = scat_properties_ice(
-            ds.p_diam , self.wavelength * 1e-4, 0.)
+
+
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieNEXRAD_liq_c.dat")  # Turner et al. (2016) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieNEXRAD_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieNEXRAD_liq.dat")
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieNEXRAD_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/MieNEXRAD_ci.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieNEXRAD_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieNEXRAD_pi.dat")
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.c6_table["8col_agg"] = load_c6_file(
+            data_path + "/C6_NEXRAD_8col_agg_rough_270K.dat", True)
+
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
-            data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
+            data_path + "/bulk_NEXRAD_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        if supercooled:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_NEXRAD_C6PSD_mie_ice.dat")
 
 
 class CALIOP(Instrument):

@@ -4,9 +4,10 @@ import numpy as np
 from scipy.special import gamma
 from ..core.instrument import ureg, quantity
 
+
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=False, dispersion_mu_bounds=(2, 15),
-                   subcolumns=False, is_conv=False):
+                   subcolumns=False, is_conv=False, **kwargs):
 
     """
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
@@ -40,8 +41,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         rather than the model data itself.
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
-    LES_mode: bool
-        If True, then assume each point is a subcolumn.
+
 
     Returns
     -------
@@ -58,6 +58,11 @@ def calc_mu_lambda(model, hyd_type="cl",
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
 
+    if 'LES_mode' in kwargs.keys():
+        LES_mode = kwargs['LES_mode']
+    else:
+        LES_mode = False
+
     if not subcolumns:
         N_name = model.N_field[hyd_type]
         q_name = model.q_names_stratiform[hyd_type]
@@ -73,7 +78,8 @@ def calc_mu_lambda(model, hyd_type="cl",
 
         frac_array = np.tile(
                 model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
-        frac_array = np.where(frac_array == 0, 1, frac_array)
+
+    frac_array = np.where(frac_array == 0, 1, frac_array)
     Rho_hyd = model.Rho_hyd[hyd_type].magnitude
     column_ds = model.ds
 
@@ -124,6 +130,7 @@ def calc_re_thompson(model, hyd_type,
     """
     Calculate the effective radius using the Thompson et al. (2004)
     microphysics scheme.
+
     Parameters
     ----------
     model: emc2.core.Model
@@ -135,12 +142,12 @@ def calc_re_thompson(model, hyd_type,
     subcolumns: bool
         If true, calculate the effective radius from the generated subcolumns.
         Else, generate it from the original model data.
-    
+
     Returns
     -------
     model: emc2.core.Model
         The model structure with the calculated effective radius values.
-    
+
     Reference
     ---------
     Thompson, G., Rasmussen, R. M., & Manning, K. (2004). Explicit forecasts
@@ -159,6 +166,7 @@ def calc_re_thompson(model, hyd_type,
             N_name = model.N_field[hyd_type]
             q_name = model.q_names_convective[hyd_type]
             re_name = model.conv_re_fields[hyd_type]
+
     else:
         if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
@@ -172,6 +180,7 @@ def calc_re_thompson(model, hyd_type,
     q_w = model.ds[q_name].values
     N_w = model.ds[N_name].values
     rho_w = model.Rho_hyd[hyd_type].magnitude
+
     R_d = 287.15
     p = model.ds[model.p_field].values * getattr(
         ureg, model.ds[model.p_field].attrs["units"])
@@ -180,6 +189,7 @@ def calc_re_thompson(model, hyd_type,
         ureg, model.ds[model.T_field].attrs["units"])
     t = t.to(ureg.kelvin).magnitude
 
+
     rho_a = p / (R_d * t)
     if hyd_type == 'pl':
         k = 2.4
@@ -187,6 +197,7 @@ def calc_re_thompson(model, hyd_type,
         k = 3.
     r_w = 0.5 * ((6 * rho_a * q_w) / (np.pi * rho_w * N_w)) ** (1 / k)
     r_w = xr.DataArray(r_w * 1e4, dims=model.ds[q_name].dims)
+
     r_w.attrs['units'] = 'microns'
     r_w.attrs['long_name'] = ('Particle effective radius following ' +
                               'Thompson et al. (2004)')

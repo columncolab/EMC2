@@ -74,6 +74,9 @@ class Model():
     strat_re_fields: dict
        A dictionary containing the names of the effective radii of each stratiform
        hydrometeor class
+    hyd_types: list
+       list of hydrometeor classes to include in calcuations. By default set to be consistent
+       with the model represented by the Model subclass.
     time_dim: str
        The name of the time dimension in the model.
     height_dim: str
@@ -107,6 +110,7 @@ class Model():
         self.strat_frac_names_for_rad = {}
         self.conv_re_fields = {}
         self.strat_re_fields = {}
+        self.hyd_types = []
         self.ds = None
         self.time_dim = "time"
         self.height_dim = "height"
@@ -115,6 +119,11 @@ class Model():
         self.y_dim = None
         self.lat_name = None
         self.lon_name = None
+        self.consts = {"c": 299792458.0,  # m/s
+                       "R_d": 287.058,  # J K^-1 Kg^-1
+                       "g": 9.80665,  # m/s^2
+                       "Avogadro_c": 6.022140857e23,
+                       "R": 8.3144598}  # J K^-1 mol^-1
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -130,19 +139,24 @@ class Model():
                 continue
             self.ds[variable].attrs = attrs
 
-    def _crop_time_range(self, time_range):
+    def _crop_time_range(self, time_range, alter_coord=None):
         """
-        Crop model output time range.
+        Crop model output time range (time coords must be of np.datetime64 datatype).
         Can significantly cut subcolumn processing time.
 
         Parameters
         ----------
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
-
+        alter_coord: str or None
+            Alternative time coords to use for cropping.
         """
-        time_ind = np.logical_and(self.ds[self.time_dim] >= time_range[0],
-                                  self.ds[self.time_dim] < time_range[1])
+        if alter_coord is None:
+            t_coords = self.time_dim
+        else:
+            t_coords = alter_coord
+        time_ind = np.logical_and(self.ds[t_coords] >= time_range[0],
+                                  self.ds[t_coords] < time_range[1])
         if np.sum(time_ind) == 0:
             self.ds.close()
             print("The requested time range: {0} to {1} is out of the \
@@ -155,14 +169,14 @@ class Model():
         """
         The list of hydrometeor classes.
         """
-        return list(self.N_field.keys())
+        return self.hyd_types
 
     @property
     def num_hydrometeor_classes(self):
         """
-        The number of hydrometeor classes
+        The number of hydrometeor classes used
         """
-        return len(list(self.N_field.keys()))
+        return len(self.hyd_types)
 
     @property
     def num_subcolumns(self):
@@ -186,6 +200,16 @@ class Model():
         subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
         self.ds['subcolumn'] = subcolumn
 
+    def set_hyd_types(self, hyd_types):
+        if hyd_types is None:
+            if self.num_hydrometeor_classes == 0:
+                raise ValueError("The '%s' Model subclass has 0 specified hydrometeor classes and "
+                                 "no other 'hyd_types' variable was specified. Please check the "
+                                 "Model class attributes setup." % self.model_name)
+            return self.hyd_types
+        else:
+            return hyd_types
+
     def subcolumns_to_netcdf(self, file_name):
         """
         Saves all of the simulated subcolumn parameters to a netCDF file.
@@ -195,13 +219,12 @@ class Model():
         file_name: str
             The name of the file to save to.
         """
-
-        # Get all relevant variables to save:
+        # Set all relevant variables to save:
+        vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr"]
         var_dict = {}
         for my_var in self.ds.variables.keys():
-            if "sub_col" in my_var or "strat_" in my_var or "conv_" in my_var:
+            if np.any([x in my_var for x in vars_to_keep]):
                 var_dict[my_var] = self.ds[my_var]
-
         out_ds = xr.Dataset(var_dict)
         out_ds.to_netcdf(file_name)
 
@@ -232,6 +255,7 @@ class ModelE(Model):
         file_path: str
             Path to a ModelE simulation.
         """
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -258,12 +282,15 @@ class ModelE(Model):
         self.time_dim = "time"
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
-        self.conv_frac_names_for_rad = {'cl': 'cldmcr', 'ci': 'cldmcr', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
-        self.strat_frac_names_for_rad = {'cl': 'cldssr', 'ci': 'cldssr', 'pl': 'cldssr', 'pi': 'cldssr'}
+        self.conv_frac_names_for_rad = {'cl': 'cldmcr', 'ci': 'cldmcr',
+                                        'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names_for_rad = {'cl': 'cldssr', 'ci': 'cldssr',
+                                         'pl': 'cldssr', 'pi': 'cldssr'}
         self.conv_re_fields = {'cl': 're_mccl', 'ci': 're_mcci', 'pi': 're_mcpi', 'pl': 're_mcpl'}
         self.strat_re_fields = {'cl': 're_sscl', 'ci': 're_ssci', 'pi': 're_sspi', 'pl': 're_sspl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
         
         # Check to make sure we are loading a single column
@@ -286,9 +313,91 @@ class ModelE(Model):
         self.ds["p_3d"].attrs["units"] = "hPa"
         self.model_name = "ModelE"
 
+        
+class E3SM(Model):
+    def __init__(self, file_path, time_range=None):
+        """
+        This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an E3SM simulation.
+        """
+        super().__init__()
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
+        self.fluffy = {'ci': 1.0 * ureg.dimensionless, 'pi': 1.0 * ureg.dimensionless}
+        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                            'ci': 24. * ureg.dimensionless,
+                            'pl': 5.5 * ureg.dimensionless,
+                            'pi': 24.0 * ureg.dimensionless}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                            'ci': 1. * ureg.dimensionless,
+                            'pl': 0.8 * ureg.dimensionless,
+                            'pi': 0.41 * ureg.dimensionless}
+        super()._add_vel_units()
+        self.q_field = "Q"
+        self.N_field = {'cl': 'NUMLIQ', 'ci': 'NUMICE', 'pl': 'NUMRAI', 'pi': 'NUMSNO'}
+        self.p_field = "p_3d"
+        self.z_field = "Z3"
+        self.T_field = "T"
+        self.height_dim = "lev"
+        self.time_dim = "ncol"
+        self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names = {'cl': 'CLOUD', 'ci': 'CLOUD', 'pl': 'CLOUD', 'pi': 'CLOUD'}
+        self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
+                                        'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
+                                         'pl': 'CLOUD', 'pi': 'CLOUD'}
+        self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
+        self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
+        self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
+        self.hyd_types = ["cl", "ci", "pi"]
+        self.ds = read_netcdf(file_path)
+        time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                   dtype='datetime64')
+        self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
+
+        # Check to make sure we are loading a single column
+        if 'lat' in [x for x in self.ds.dims.keys()]:
+            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
+                self.ds.close()
+                raise RuntimeError("%s is not a column dataset. EMC^2 will currently works with column data." %
+                                   file_path)
+
+            # No need for lat and lon dimensions
+            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+
+        # crop specific model output time range (if requested)
+        if time_range is not None:
+            if np.issubdtype(time_range.dtype, np.datetime64):
+                super()._crop_time_range(time_range, alter_coord="time")
+            else:
+                raise RuntimeError("input time range is not in the required datetime64 data type")
+
+        self.ds[self.p_field] = (self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2  # hPa
+        self.ds[self.p_field].attrs["units"] = "hPa"
+        self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
+                                           dims=self.ds[self.p_field].dims)
+        self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
+        for hyd in ["pl", "pi"]:
+            self.ds[self.strat_re_fields[hyd]].values /= 2  # Assuming effective diameter was provided
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        for hyd in ["cl", "ci", "pl", "pi"]:
+            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values  # convert from mass number to number
+        self.model_name = "E3SM"
+
 
 class WRF(Model):
-    def __init__(self, file_path, column_extent, 
+    def __init__(self, file_path,
                  z_range=None, time_range=None, w_thresh=1,
                  t=None):
         """
@@ -312,20 +421,20 @@ class WRF(Model):
             The threshold of vertical velocity for defining a grid cell
             as convective.
         t: int or None
+
             The timestep number to subset the WRF data into. Set to None to 
             load all of the data 
         """
         if not WRF_PYTHON_AVAILABLE:
-            raise ModuleNotFoundError("wrf-python must be installed in " + \
-                                      "order to read WRF data.")
-
-        if z_range is None:
-            z_range = np.arange(0., 15000., 500.)
+            raise ModuleNotFoundError("wrf-python must be installed.")
+        
+        super().__init__()
 
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
                         'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3),
                         'pi': 100. * ureg.kg / (ureg.m**3)}
+
         self.fluffy = {'ci': 0.5 * ureg.dimensionless,
                        'pi': 0.5 * ureg.dimensionless}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
@@ -341,8 +450,9 @@ class WRF(Model):
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
                             'pi': 0.41 * ureg.dimensionless}
+        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
         super()._add_vel_units()
-        self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE', 
+        self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
                         'pl': 'QRAIN', 'qpi': 'QSNOW'}
         self.q_field = "QVAPOR"
         self.N_field = {'cl': 'QNCLOUD', 'ci': 'QNICE',
@@ -358,10 +468,24 @@ class WRF(Model):
         self.strat_frac_names_for_rad = self.strat_frac_names
         self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.conv_frac_names_for_rad = {
+            'cl': 'conv_frac', 'ci': 'conv_frac',
+            'pl': 'conv_frac', 'pi': 'conv_frac'}
+        self.strat_frac_names_for_rad = {
+            'cl': 'strat_frac', 'ci': 'strat_frac',
+            'pl': 'strat_frac', 'pi': 'strat_frac'}
+        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                          'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
+                                'pi': 'strat_pi_re', 'pl': 'strat_pl_frac'}
+        self.conv_re_fields = {'cl': 'conv_cl_re', 'ci': 'conv_ci_re',
+                               'pi': 'conv_pi_re', 'pl': 'conv_pl_re'}
+        
         self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
                                    'pl': 'qplc', 'pi': 'qpic'}
         self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
                                    'pl': 'qpls', 'pi': 'qpis'}
+
         self.conv_re_fields = {'cl': 're_clc', 'ci': 're_cis',
                                'pl': 're_plc', 'pi': 're_pis'}
         self.strat_re_fields = {'cl': 're_cls', 'ci': 're_cis', 
@@ -475,7 +599,7 @@ class WRF(Model):
         for keys in self.ds.keys():
             try:
                 self.ds[keys] = self.ds[keys].drop("XTIME")
-            except:
+            except KeyError:
                 continue
         self.ds = xr.Dataset(self.ds)
         # crop specific model output time range (if requested)
@@ -488,7 +612,7 @@ class DHARMA(Model):
         """
         This loads a DHARMA simulation with all of the necessary parameters
         for EMC^2 to run.
-        
+
         Parameters
         ----------
         file_path: str
@@ -497,6 +621,7 @@ class DHARMA(Model):
             Start and end time to include. If this is None, the entire
             simulation will be included.
         """
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 100. * ureg.kg / (ureg.m**3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -535,6 +660,7 @@ class DHARMA(Model):
                                 'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
 
         for variable in self.ds.variables.keys():
@@ -604,6 +730,7 @@ class TestModel(Model):
         my_ds = xr.Dataset({'p_3d': p, 'q': qv, 't': temp, 'z': heights,
                             'qcl': q, 'ncl': N, 'qpl': q, 'qci': q, 'qpi': q,
                             'time': times})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -635,6 +762,7 @@ class TestModel(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
 
 
 class TestConvection(Model):
@@ -737,6 +865,7 @@ class TestConvection(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times, 're_cl': re_cl, 're_pl': re_pl})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
@@ -763,6 +892,7 @@ class TestConvection(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
@@ -874,6 +1004,7 @@ class TestAllStratiform(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times, 're_cl': re_cl, 're_pl': re_pl})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m ** 3), 'ci': 500. * ureg.kg / (ureg.m ** 3),
                         'pl': 1000. * ureg.kg / (ureg.m ** 3), 'pi': 250. * ureg.kg / (ureg.m ** 3)}
         self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
@@ -900,6 +1031,7 @@ class TestAllStratiform(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
@@ -991,6 +1123,7 @@ class TestHalfAndHalf(Model):
                             'cldmcpl': cldmccl, 'cldmcpi': cldmcci,
                             'cldsspl': cldsscl, 'cldsspi': cldssci,
                             'time': times})
+        super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.meter ** 3), 'ci': 500. * ureg.kg / (ureg.meter ** 3),
                         'pl': 1000. * ureg.kg / (ureg.meter ** 3), 'pi': 250. * ureg.kg / (ureg.meter ** 3)}
         self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
@@ -1021,6 +1154,7 @@ class TestHalfAndHalf(Model):
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"

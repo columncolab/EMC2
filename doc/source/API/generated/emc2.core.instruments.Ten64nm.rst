@@ -1,4 +1,4 @@
-emc2.core.instruments.Ten64nm
+﻿emc2.core.instruments.Ten64nm
 =============================
 
 .. currentmodule:: emc2.core.instruments
@@ -14,6 +14,7 @@ emc2.core.instruments.Ten64nm
    .. autosummary::
    
       ~Ten64nm.__init__
+      ~Ten64nm.read_arm_netcdf_file
    
    
 

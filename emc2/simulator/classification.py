@@ -154,7 +154,8 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
 
 def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase_disc_curve=None,
                              atb_cross_coeff=None, cloud_SR_thresh=5., undef_SR_thresh=30.,
-                             inc_precip_hyd_atb=True, convert_zeros_to_nan=False, output_ATB=False):
+                             inc_precip_hyd_atb=True, convert_zeros_to_nan=False, output_ATB=False,
+                             hyd_types=None):
     """
     Phase classification method to emulate COSP based on attenuated total backscatter
         (ATB) analysis following Cesana and Chepfer (2013).
@@ -184,20 +185,23 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         Scattering ratio threshold for the undefined phase (layers below a layer with
         SR values above this threshold are all set to set to "undefined").
     inc_precip_hyd_atb: bool
-        If True, include precipitating classes in the calculation of ATB (not specified in
-            the referenced paper, so likely false in actual COSP).
+        If True, include precipitating classes in the calculation of ATB if specified in hyd_types
+        or if hyd_types is None
     convert_zeros_to_nan: bool
         If True, saving the mask array as a float dtype (instead of uint8) and converting all
             zeros in the array to nans.
     output_ATB: bool
         If True, save the ATB and scattering ratio fields for each cloud type as well as for
         all hydrometeors.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
 
     Returns
     -------
     model: Model
         The model with the added simulated lidar parameters.
     """
+    hyd_types = model.set_hyd_types(hyd_types)
 
     if instrument.instrument_str != "HSRL":
         raise ValueError("Instrument must be the 532 nm HSRL (to match CALIOP's operating wavelength)")
@@ -209,9 +213,9 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         atb_cross_coeff = {'liq': [0.4099, 0.009, 0], 'ice': [0.2904, 0]}
 
     if inc_precip_hyd_atb:
-        hyd_groups = {"liq": ["cl", "pl"], "ice": ["ci", "pi"]}
+        hyd_classes = {"liq": ["cl", "pl"], "ice": ["ci", "pi"]}
     else:
-        hyd_groups = {"liq": ["cl"], "ice": ["ci"]}
+        hyd_classes = {"liq": ["cl"], "ice": ["ci"]}
 
     ATB_mol = np.tile(model.ds['sigma_180_vol'].values * (1. + 0.0284) * model.ds['tau'].values,
                       (model.num_subcolumns, 1, 1))
@@ -227,13 +231,16 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         OD = {}
         beta_p = {}
         beta_p_cross = {}
-        for hyd_class in hyd_groups.keys():
+        for hyd_class in hyd_classes.keys():
             OD[hyd_class] = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
             beta_p[hyd_class] = np.zeros_like(model.ds['sub_col_beta_p_tot_strat'].values)
-            for class_name in hyd_groups[hyd_class]:
+            for hyd_type in hyd_classes[hyd_class]:
+                if hyd_type not in hyd_types:
+                    print("'%s' not in hyd_types = %s; excluding from COSP calculations" % (hyd_type, hyd_types))
+                    continue
                 beta_p[hyd_class] += np.nan_to_num(
-                    model.ds['sub_col_beta_p_%s_%s' % (class_name, cloud_class)].values)
-                OD[hyd_class] += np.nan_to_num(model.ds['sub_col_OD_%s_%s' % (class_name, cloud_class)].values)
+                    model.ds['sub_col_beta_p_%s_%s' % (hyd_type, cloud_class)].values)
+                OD[hyd_class] += np.nan_to_num(model.ds['sub_col_OD_%s_%s' % (hyd_type, cloud_class)].values)
             ATB_co[hyd_class] = (np.tile(model.ds['sigma_180_vol'].values, (model.num_subcolumns, 1, 1)) +
                                  beta_p[hyd_class]) * np.tile(
                 model.ds['tau'].values, (model.num_subcolumns, 1, 1)) * \
@@ -271,9 +278,11 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         reflective_mask = np.where(np.logical_and(SR > undef_SR_thresh, reflective_mask == 1),
                                    0, reflective_mask)
 
-        phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) > 273.15,
+        phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                     (model.num_subcolumns, 1, 1)) > 273.15,
                               phase_mask > 0), 1, phase_mask)
-        phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) < 233.15,
+        phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                     (model.num_subcolumns, 1, 1)) < 233.15,
                               phase_mask > 0), 2, phase_mask)
         phase_mask = np.where(np.logical_and(reflective_mask > 0, phase_mask > 0), 3, phase_mask)
         if convert_zeros_to_nan:
@@ -331,9 +340,11 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
     reflective_mask = np.where(np.logical_and(SR_allhyd > undef_SR_thresh, reflective_mask == 1),
                                0, reflective_mask)
 
-    phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) > 273.15,
+    phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                 (model.num_subcolumns, 1, 1)) > 273.15,
                           phase_mask > 0), 1, phase_mask)
-    phase_mask = np.where(np.logical_and(np.tile(model.ds['t'].values, (model.num_subcolumns, 1, 1)) < 233.15,
+    phase_mask = np.where(np.logical_and(np.tile(model.ds[model.T_field].values,
+                                                 (model.num_subcolumns, 1, 1)) < 233.15,
                           phase_mask > 0), 2, phase_mask)
     phase_mask = np.where(np.logical_and(reflective_mask > 0, phase_mask > 0), 3, phase_mask)
     if convert_zeros_to_nan:
@@ -365,7 +376,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
 
 
 def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr=False,
-                          mpr_subcolmod=False):
+                          mpr_subcolmod=False, hyd_types=None):
     """
     calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).
 
@@ -388,15 +399,19 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
     mpr_subcolmod: bool
         If True, doing subcolumn-based MPR calculation. Otherwise, simply using the model output
         mixing ratio data.
+    hyd_types: list or None
+        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
 
     Returns
     -------
     model: Model
         The model with the added phase ratio field
     """
+    hyd_types = model.set_hyd_types(hyd_types)
+
     if mass_pr is True:
-        liq_classes = ["cl", "pl"]
-        ice_classes = ["ci", "pi"]
+        liq_classes = [x for x in ["cl", "pl"] if x in hyd_types]
+        ice_classes = [x for x in ["ci", "pi"] if x in hyd_types]
         if mpr_subcolmod is True:
             mass_subcol_liq = np.zeros_like(model.ds["conv_frac_subcolumns_cl"], dtype=np.float)
             mass_subcol_ice = np.zeros_like(model.ds["conv_frac_subcolumns_cl"], dtype=np.float)

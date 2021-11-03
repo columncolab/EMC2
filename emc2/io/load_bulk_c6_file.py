@@ -13,8 +13,8 @@ def load_bulk_c6_file(filename):
 
     Returns
     -------
-    my_df: xarray DataFrame
-        The xarray DataFrame storing the scattering data, including
+    my_df: xarray.Dataset
+        The xarray Dataset storing the scattering data, including
         descriptive metadata.
     """
 

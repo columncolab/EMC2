@@ -378,13 +378,18 @@ class NEXRAD(Instrument):
         self.tau_md = 4.71
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
         ds = load_mie_file(data_path + "/Mie1064nm_liq.dat")
-        self.mie_table["cl"] = scat_properties_water(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
-        self.mie_table["pl"] = scat_properties_water(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        self.mie_table["cl"] = scat_properties_water(
+            ds.p_diam, self.wavelength * 1e-4, 0.)
+        self.mie_table["pl"] = scat_properties_water(
+            ds.p_diam, self.wavelength * 1e-4, 0.)
         ds = load_mie_file(data_path + "/Mie1064nm_ci.dat")
-        self.mie_table["ci"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
+        self.mie_table["ci"] = scat_properties_ice(
+            ds.p_diam, self.wavelength * 1e-4, 0.)
         ds = load_mie_file(data_path + "/Mie1064nm_pi.dat")
-        self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, self.wavelength * 1e-4, 0.)
-        self.mie_table["pi"] = scat_properties_ice(ds.p_diam * 1e6, 10., 0.)
+        self.mie_table["pi"] = scat_properties_ice(
+            ds.p_diam, self.wavelength * 1e-4, 0.)
+        self.mie_table["pi"] = scat_properties_ice(
+            ds.p_diam , self.wavelength * 1e-4, 0.)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
             data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")

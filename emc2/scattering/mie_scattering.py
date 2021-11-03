@@ -17,7 +17,7 @@ def scat_properties_water(diams, wavelength, temperature=0., pressure=1013.):
     Parameters
     ----------
     diams: array floats
-        Particle diameter in microns
+        Particle diameter in meters
     wavelength: float
         Wavelength in cm
     temperature: float

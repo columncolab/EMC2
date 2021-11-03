@@ -252,10 +252,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     if hyd_types is None:
         hyd_types = ["cl", "ci", "pl", "pi"]
 
-    if LES_mode:
-        n_subcolumns = 0
-    else:
-        n_subcolumns = model.num_subcolumns
+    n_subcolumns = model.num_subcolumns
     if is_conv:
         cloud_str = "conv"
         re_fields = model.conv_re_fields
@@ -431,15 +428,19 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             moment_denom_tot = np.nan_to_num(np.stack([x[1] for x in my_tuple], axis=1))
             hyd_ext = np.nan_to_num(np.stack([x[2] for x in my_tuple], axis=1))
 
-            model.ds["sub_col_Ze_cl_strat"][:, :, :] = np.stack([x[3] for x in my_tuple], axis=1)
-            model.ds["sub_col_Vd_cl_strat"][:, :, :] = np.stack([x[4] for x in my_tuple], axis=1)
-            model.ds["sub_col_sigma_d_cl_strat"][:, :, :] = np.stack([x[5] for x in my_tuple], axis=1)
+            model.ds["sub_col_Ze_cl_strat"][:, :, :] = np.stack(
+                [x[3] for x in my_tuple], axis=1)
+            model.ds["sub_col_Vd_cl_strat"][:, :, :] = np.stack(
+                [x[4] for x in my_tuple], axis=1)
+            model.ds["sub_col_sigma_d_cl_strat"][:, :, :] = np.stack(
+                [x[5] for x in my_tuple], axis=1)
             del my_tuple
         else:
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_other = lambda x: _calculate_other_observables(
-                x, total_hydrometeor, fits_ds, model, instrument, sub_q_array, hyd_type, p_diam, mie_for_ice)
->
+                x, total_hydrometeor, fits_ds, model, instrument, 
+                sub_q_array, hyd_type, p_diam, mie_for_ice, v_tmp)
+
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
                 if chunk is None:
@@ -526,7 +527,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         else:
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_sigma = lambda x: _calc_sigma_d_tot(
-                x, model, v_tmp, fits_ds, total_hydrometeor, Vd_tot, sub_q_array, p_diam, beta_p)
+                x, model, v_tmp, fits_ds, total_hydrometeor,
+                Vd_tot, sub_q_array, p_diam, beta_p)
             if parallel:
                 if chunk is None:
                     tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
@@ -719,7 +721,9 @@ def calc_radar_moments(instrument, model, is_conv,
 def _calc_sigma_d_tot_cl(tt, fits_ds, instrument, model, total_hydrometeor, p_diam, Vd_tot):
     hyd_type = "cl"
     Dims = Vd_tot.shape
-    
+    N_0 = fits_ds["N_0"].values
+    lambdas = fits_ds["lambda"].values
+    mu = fits_ds["mu"].values
     sigma_d_numer = np.zeros((Dims[0], Dims[2]), dtype='float64')
     moment_denom = np.zeros((Dims[0], Dims[2]), dtype='float64')
     if tt % 50 == 0:
@@ -751,6 +755,9 @@ def _calc_sigma_d_tot(tt, model, v_tmp, fits_ds, total_hydrometeor, vd_tot, sub_
     sigma_d_numer = np.zeros((Dims[0], Dims[2]), dtype='float64')
     moment_denom = np.zeros((Dims[0], Dims[2]), dtype='float64')
     num_diam = len(p_diam)
+    N_0 = fits_ds["N_0"].values
+    mu = fits_ds["mu"].values
+    lambdas = fits_ds["lambda"].values
     mu = mu.max()
     if tt % 50 == 0:
         print('Stratiform moment for class progress: %d/%d' % (tt, Dims[1]))
@@ -825,7 +832,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
     return V_d_numer_tot, moment_denom_tot, hyd_ext, Ze, V_d, sigma_d
 
 def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrument, sub_q_array,
-                                 hyd_type, p_diam, mie_for_ice):
+                                 hyd_type, p_diam, mie_for_ice, v_tmp):
     Dims = sub_q_array.shape
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
@@ -835,6 +842,8 @@ def _calculate_other_observables(tt, total_hydrometeor, fits_ds, model, instrume
     V_d_numer_tot = np.zeros_like(Ze)
     moment_denom_tot = np.zeros_like(Ze)
     hyd_ext = np.zeros_like(Ze)
+    N_0 = fits_ds["N_0"].values
+    lambdas = fits_ds["lambda"].values
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[tt, k] == 0):
             continue

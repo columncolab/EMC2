@@ -4,6 +4,7 @@ from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alph
 from .radar_moments import calc_radar_moments, calc_total_reflectivity
 from .attenuation import calc_radar_Ze_min
 from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, radar_classify_phase
+from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwargs):
@@ -54,28 +55,26 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
             model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True, use_rad_logic=use_rad_logic)
             model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False, use_rad_logic=use_rad_logic)
 
-    if N_columns is not None:
-        for hyd_type in hydrometeor_classes:
-            model = set_convective_sub_col_frac(
-                model, hyd_type, N_columns=N_columns)
+    for hyd_type in hydrometeor_classes:
+        model = set_convective_sub_col_frac(
+            model, hyd_type, N_columns=N_columns)
     
-        model = set_stratiform_sub_col_frac(model)
-        model = set_precip_sub_col_frac(model, is_conv=False)
-        model = set_precip_sub_col_frac(model, is_conv=True)
+    model = set_stratiform_sub_col_frac(model)
+    model = set_precip_sub_col_frac(model, is_conv=False)
+    model = set_precip_sub_col_frac(model, is_conv=True)
+    for hyd_type in hydrometeor_classes:
+        if hyd_type != 'cl':
+            model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
+            model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+        else:
+            model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
+            model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
+    
+    if not model.conv_re_fields['cl'] in model.ds.variables.keys():
         for hyd_type in hydrometeor_classes:
-            if hyd_type != 'cl':
-                model = set_q_n(model, hyd_type, is_conv=False, qc_flag=False)
-                model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
-            else:
-                model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
-                model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
-        LES_mode = False
-    else:
-        model = subcolumns_les(
-            model, lat_range=lat_range, lon_range=lon_range,
-            xind_range=xind_range, yind_range=yind_range)
-        LES_mode = True
- 
+            model = set_q_n(model, hyd_type, is_conv=False)
+            model = set_q_n(model, hyd_type, is_conv=True)
+    
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']
         del kwargs['OD_from_sfc']
@@ -116,6 +115,14 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
     else:
         use_empiric_calc = False
 
+    for hyd_type in ["ci", "cl", "pi", "pl"]:
+       if not model.conv_re_fields[hyd_type] in model.ds.variables.keys():
+            model = calc_re_thompson(
+                model, hyd_type, is_conv=True, subcolumns=False)
+       if not model.strat_re_fields[hyd_type] in model.ds.variables.keys():
+            model = calc_re_thompson(
+                model, hyd_type, is_conv=False, subcolumns=False)
+    
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")
         if 'reg_rng' in kwargs.keys():
@@ -129,7 +136,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, **kwarg
         model = calc_radar_moments(instrument, model, True, OD_from_sfc=OD_from_sfc, parallel=parallel,
                                    chunk=chunk, mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
                                    use_empiric_calc=use_empiric_calc, **kwargs)
->       model = calc_total_reflectivity(model)
+        
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
 

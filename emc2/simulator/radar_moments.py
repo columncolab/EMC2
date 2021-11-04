@@ -393,20 +393,16 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     else:
         scat_str = "C6"
 
-    if 'LES_mode' in kwargs.keys():
-        LES_mode = kwargs['LES_mode']
-    else:
-        LES_mode = False
-
-    if LES_mode:
-        raise NotImplementedError("Use of microphysics mode not yet implemented with LES mode!")
 
     moment_denom_tot = np.zeros(Dims)
     V_d_numer_tot = np.zeros(Dims)
     sigma_d_numer_tot = np.zeros(Dims)
+    wavelength = instrument.wavelength
+    K_w = instrument.K_w
 
     for hyd_type in hyd_types:
         frac_names = model.strat_frac_names[hyd_type]
+        n_names = model.N_field[hyd_type]
         if not np.isin("sub_col_Ze_tot_strat", [x for x in model.ds.keys()]):
             model.ds["sub_col_Ze_tot_strat"] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
@@ -422,8 +418,6 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         total_hydrometeor = model.ds[frac_names].values * model.ds[n_names].values
-        if LES_mode:
-            total_hydrometeor = np.nansum(total_hydrometeor, axis=0)
 
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
             p_diam = instrument.c6_table["8col_agg"]["p_diam_eq_V"].values
@@ -481,9 +475,11 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             c6_table = instrument.c6_table["8col_agg"]
             _calc_other = lambda x: _calculate_other_observables(
-                x, total_hydrometeor, fits_ds, N_0, lambdas, num_subcolumns, 
-                sub_q_array, num_subcolumns, c6_table, beta_p, alpha_p, v_tmp, wavelength,
-                K_w, sub_q_array, hyd_type, p_diam, mie_for_ice)
+                                 x, total_hydrometeor, N_0, lambdas,
+                                 num_subcolumns, c6_table, beta_p,
+                                 alpha_p, v_tmp, wavelength,
+                                 K_w, sub_q_array, hyd_type,
+                                 p_diam, mie_for_ice)
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
                 if chunk is None:
@@ -538,14 +534,16 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
         v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
         v_tmp = -v_tmp.magnitude
-
+        vel_param_a = model.vel_param_a
+        vel_param_b = model.vel_param_b
         frac_names = model.strat_frac_names[hyd_type]
         total_hydrometeor = model.ds[frac_names] * model.ds[model.N_field[hyd_type]]
 
         if hyd_type == "cl":
             Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
 
-            _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(x, N_0, lambdas, mu, instrument,
+            _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
+                         x, N_0, lambdas, mu, instrument,
                          vel_param_a, vel_param_b, total_hydrometeor,
                          p_diam, Vd_tot, num_subcolumns)
 
@@ -571,10 +569,11 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
             sigma_d_numer_tot = np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
         else:
+            Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_sigma = lambda x: _calc_sigma_d_tot(
                       x, num_subcolumns, v_tmp, N_0, lambdas, mu,
-                      total_hydrometeor, vd_tot, sub_q_array, p_diam, beta_p):
+                      total_hydrometeor, Vd_tot, sub_q_array, p_diam, beta_p)
 
             if parallel:
                 if chunk is None:
@@ -903,8 +902,6 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
     V_d_numer_tot = np.zeros_like(Ze)
     moment_denom_tot = np.zeros_like(Ze)
     hyd_ext = np.zeros_like(Ze)
-    N_0 = fits_ds["N_0"].values
-    lambdas = fits_ds["lambda"].values
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[tt, k] == 0):
             continue

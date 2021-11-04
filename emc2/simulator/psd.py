@@ -58,27 +58,27 @@ def calc_mu_lambda(model, hyd_type="cl",
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
 
-    if 'LES_mode' in kwargs.keys():
-        LES_mode = kwargs['LES_mode']
-    else:
-        LES_mode = False
 
     if not subcolumns:
         N_name = model.N_field[hyd_type]
-        q_name = model.q_names_stratiform[hyd_type]
+        if not is_conv:
+            q_name = model.q_names_stratiform[hyd_type]
+            frac_name = model.strat_frac_names[hyd_type]
+        else:
+            q_name = model.q_names_convective[hyd_type]
+            frac_name = model.conv_frac_names[hyd_type]
     else:
         if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "strat_q_subcolumns_%s" % hyd_type
-            frac_name = model.strat_frac_name[hyd_type]
+            frac_name = model.strat_frac_names[hyd_type]
         else:
             N_name = "conv_n_subcolumns_%s" % hyd_type
             q_name = "conv_q_subcolumns_%s" % hyd_type
-            frac_name = model.conv_frac_name[hyd_type]
+            frac_name = model.conv_frac_names[hyd_type]
 
-        frac_array = np.tile(
-                model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
-
+    frac_array = np.tile(
+        model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
     frac_array = np.where(frac_array == 0, 1, frac_array)
     Rho_hyd = model.Rho_hyd[hyd_type].magnitude
     column_ds = model.ds

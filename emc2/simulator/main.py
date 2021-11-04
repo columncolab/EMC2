@@ -1,5 +1,5 @@
 from .subcolumn import set_convective_sub_col_frac, set_precip_sub_col_frac
-from .subcolumn import set_stratiform_sub_col_frac, set_q_n, subcolumns_les
+from .subcolumn import set_stratiform_sub_col_frac, set_q_n
 from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alpha_beta
 from .radar_moments import calc_radar_moments, calc_total_reflectivity
 from .attenuation import calc_radar_Ze_min
@@ -8,7 +8,7 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns,
-                        do_classify=False, LES_mode=False, **kwargs):
+                        do_classify=False,  **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -30,8 +30,6 @@ def make_simulated_data(model, instrument, N_columns,
         detect from LES 4D data.
     do_classify: bool
         run hydrometeor classification routines when True.
-    LES_mode: bool
-        Treat each pixel as a subcolumn
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -101,12 +99,6 @@ def make_simulated_data(model, instrument, N_columns,
                     model, hyd_type, is_conv=True,
                     qc_flag=False, use_rad_logic=use_rad_logic)
 
-        LES_mode = False
-    else:
-        model = subcolumns_les(
-            model, lat_range=lat_range, lon_range=lon_range,
-            xind_range=xind_range, yind_range=yind_range)
-        LES_mode = True
 
     for hyd_type in hydrometeor_classes:
         model = set_convective_sub_col_frac(
@@ -123,10 +115,6 @@ def make_simulated_data(model, instrument, N_columns,
             model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
             model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
     
-    if not model.conv_re_fields['cl'] in model.ds.variables.keys():
-        for hyd_type in hydrometeor_classes:
-            model = set_q_n(model, hyd_type, is_conv=False)
-            model = set_q_n(model, hyd_type, is_conv=True)
     
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']
@@ -206,12 +194,12 @@ def make_simulated_data(model, instrument, N_columns,
         model = calc_radar_moments(
             instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
-            use_rad_logic=use_rad_logic, LES_mode=LES_mode,
+            use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_radar_moments(
             instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
-            use_rad_logic=use_rad_logic, LES_mode=LES_mode,
+            use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_reflectivity(model)
 
@@ -236,12 +224,12 @@ def make_simulated_data(model, instrument, N_columns,
             eta = instrument.eta
         model = calc_lidar_moments(
             instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-            parallel=parallel, eta=eta, chunk=chunk, LES_mode=LES_mode,
+            parallel=parallel, eta=eta, chunk=chunk,
             mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_lidar_moments(
             instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-            parallel=parallel, eta=eta, chunk=chunk, LES_mode=LES_mode,
+            parallel=parallel, eta=eta, chunk=chunk,
             mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)

@@ -397,7 +397,7 @@ class E3SM(Model):
 
 
 class WRF(Model):
-    def __init__(self, file_path,
+    def __init__(self, file_path, column_extent,
                  z_range=None, time_range=None, w_thresh=1,
                  t=None):
         """
@@ -429,7 +429,7 @@ class WRF(Model):
             raise ModuleNotFoundError("wrf-python must be installed.")
         
         super().__init__()
-
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
                         'ci': 500. * ureg.kg / (ureg.m**3),
                         'pl': 1000. * ureg.kg / (ureg.m**3),
@@ -599,7 +599,7 @@ class WRF(Model):
         for keys in self.ds.keys():
             try:
                 self.ds[keys] = self.ds[keys].drop("XTIME")
-            except KeyError:
+            except:
                 continue
         self.ds = xr.Dataset(self.ds)
         # crop specific model output time range (if requested)
@@ -755,10 +755,14 @@ class TestModel(Model):
         self.p_field = "p_3d"
         self.z_field = "z"
         self.T_field = "t"
-        self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
-        self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
-        self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
-        self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.conv_frac_names = {'cl': 'cldmccl', 'ci': 'cldmcci',
+                                'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci',
+                                 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci',
+                                        'pl': 'cldmcpl', 'pi': 'cldmcpi'}
+        self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci',
+                                         'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"

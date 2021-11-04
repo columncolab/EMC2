@@ -393,7 +393,6 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     else:
         scat_str = "C6"
 
-
     moment_denom_tot = np.zeros(Dims)
     V_d_numer_tot = np.zeros(Dims)
     sigma_d_numer_tot = np.zeros(Dims)
@@ -434,7 +433,6 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             mu = fits_ds["mu"].values
-            
             _calc_liquid = lambda x: _calculate_observables_liquid(
                 x, total_hydrometeor, N_0, lambdas, mu,
                 alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam)
@@ -475,11 +473,11 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             c6_table = instrument.c6_table["8col_agg"]
             _calc_other = lambda x: _calculate_other_observables(
-                                 x, total_hydrometeor, N_0, lambdas,
-                                 num_subcolumns, c6_table, beta_p,
-                                 alpha_p, v_tmp, wavelength,
-                                 K_w, sub_q_array, hyd_type,
-                                 p_diam, mie_for_ice)
+                x, total_hydrometeor, N_0, lambdas,
+                num_subcolumns, c6_table, beta_p,
+                alpha_p, v_tmp, wavelength,
+                K_w, sub_q_array, hyd_type,
+                p_diam, mie_for_ice)
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
                 if chunk is None:
@@ -543,10 +541,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
 
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
-                         x, N_0, lambdas, mu, instrument,
-                         vel_param_a, vel_param_b, total_hydrometeor,
-                         p_diam, Vd_tot, num_subcolumns)
-
+                x, N_0, lambdas, mu, instrument,
+                vel_param_a, vel_param_b, total_hydrometeor,
+                p_diam, Vd_tot, num_subcolumns)
 
             if parallel:
                 if chunk is None:
@@ -572,8 +569,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_sigma = lambda x: _calc_sigma_d_tot(
-                      x, num_subcolumns, v_tmp, N_0, lambdas, mu,
-                      total_hydrometeor, Vd_tot, sub_q_array, p_diam, beta_p)
+                x, num_subcolumns, v_tmp, N_0, lambdas, mu,
+                total_hydrometeor, Vd_tot, sub_q_array, p_diam, beta_p)
 
             if parallel:
                 if chunk is None:
@@ -870,7 +867,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         for i in range(N_0_tmp.shape[0]):
             N_D.append(N_0_tmp[i] * p_diam ** mu_temp[i] * np.exp(-lambda_tmp[i] * p_diam))
 
-        N_D = np.stack(N_D, axis=0) 
+        N_D = np.stack(N_D, axis=0)
         Calc_tmp = beta_p * N_D
         tmp_od = np.trapz(alpha_p * N_D, x=p_diam, axis=1)
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
@@ -889,7 +886,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 
     return V_d_numer_tot, moment_denom_tot, hyd_ext, Ze, V_d, sigma_d
 
-  
+
 def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
                                  num_subcolumns, c6_table, beta_p, alpha_p, v_tmp, wavelength,
                                  K_w, sub_q_array, hyd_type, p_diam, mie_for_ice):

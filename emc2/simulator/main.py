@@ -7,8 +7,8 @@ from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, rada
 from .psd import calc_re_thompson
 
 
-def make_simulated_data(model, instrument, N_columns,
-                        do_classify=False,  **kwargs):
+def make_simulated_data(model, instrument, N_columns, do_classify=False,
+                        **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -47,30 +47,6 @@ def make_simulated_data(model, instrument, N_columns,
     else:
         use_rad_logic = True
 
-    if 'lat_range' in kwargs.keys():
-        lat_range = kwargs['lat_range']
-        del kwargs['lat_range']
-    else:
-        lat_range = None
-
-    if 'lon_range' in kwargs.keys():
-        lon_range = kwargs['lon_range']
-        del kwargs['lon_range']
-    else:
-        lon_range = None
-
-    if 'xind_range' in kwargs.keys():
-        xind_range = kwargs['xind_range']
-        del kwargs['xind_range']
-    else:
-        xind_range = None
-
-    if 'yind_range' in kwargs.keys():
-        yind_range = kwargs['yind_range']
-        del kwargs['yind_range']
-    else:
-        yind_range = None
-
     if N_columns is not None:
         for hyd_type in hydrometeor_classes:
             model = set_convective_sub_col_frac(
@@ -99,11 +75,10 @@ def make_simulated_data(model, instrument, N_columns,
                     model, hyd_type, is_conv=True,
                     qc_flag=False, use_rad_logic=use_rad_logic)
 
-
     for hyd_type in hydrometeor_classes:
         model = set_convective_sub_col_frac(
             model, hyd_type, N_columns=N_columns)
-    
+
     model = set_stratiform_sub_col_frac(model)
     model = set_precip_sub_col_frac(model, is_conv=False)
     model = set_precip_sub_col_frac(model, is_conv=True)
@@ -114,8 +89,7 @@ def make_simulated_data(model, instrument, N_columns,
         else:
             model = set_q_n(model, hyd_type, is_conv=False, qc_flag=True)
             model = set_q_n(model, hyd_type, is_conv=True, qc_flag=False)
-    
-    
+
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']
         del kwargs['OD_from_sfc']
@@ -127,28 +101,34 @@ def make_simulated_data(model, instrument, N_columns,
         del kwargs['parallel']
     else:
         parallel = True
+
     if 'chunk' in kwargs.keys():
         chunk = kwargs['chunk']
         del kwargs['chunk']
     else:
         chunk = None
+
     if 'convert_zeros_to_nan' in kwargs.keys():
         convert_zeros_to_nan = kwargs['convert_zeros_to_nan']
         del kwargs['convert_zeros_to_nan']
     else:
         convert_zeros_to_nan = False
+
     if 'mask_height_rng' in kwargs.keys():
         mask_height_rng = kwargs['mask_height_rng']
         del kwargs['mask_height_rng']
     else:
         mask_height_rng = None
+
     if 'hyd_types' in kwargs.keys():
         hyd_types = kwargs['hyd_types']
         del kwargs['hyd_types']
     else:
         hyd_types = None
+
     if 'mie_for_ice' in kwargs.keys():
-        mie_for_ice = {"conv": kwargs['mie_for_ice'], "strat": kwargs['mie_for_ice']}
+        mie_for_ice = {"conv": kwargs['mie_for_ice'],
+                       "strat": kwargs['mie_for_ice']}
         del kwargs['mie_for_ice']
     else:
         if use_rad_logic:
@@ -162,13 +142,12 @@ def make_simulated_data(model, instrument, N_columns,
         use_empiric_calc = False
 
     for hyd_type in ["ci", "cl", "pi", "pl"]:
-       if not model.conv_re_fields[hyd_type] in model.ds.variables.keys():
+        if not model.conv_re_fields[hyd_type] in model.ds.variables.keys():
             model = calc_re_thompson(
                 model, hyd_type, is_conv=True, subcolumns=False)
-       if not model.strat_re_fields[hyd_type] in model.ds.variables.keys():
+        if not model.strat_re_fields[hyd_type] in model.ds.variables.keys():
             model = calc_re_thompson(
                 model, hyd_type, is_conv=False, subcolumns=False)
-    
 
     if use_rad_logic:
         model_vars = [x for x in model.ds.variables.keys()]
@@ -181,7 +160,6 @@ def make_simulated_data(model, instrument, N_columns,
                 model = calc_re_thompson(model, hyd_type,
                                          is_conv=True, subcolumns=True,
                                          **kwargs)
-
 
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")

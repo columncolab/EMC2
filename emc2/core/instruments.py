@@ -449,7 +449,6 @@ class NEXRAD(Instrument):
         self.tau_md = 4.71
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
 
-
         if supercooled:
             self.mie_table["cl"] = load_mie_file(data_path + "/MieNEXRAD_liq_c.dat")  # Turner et al. (2016) -10 C
             self.mie_table["pl"] = load_mie_file(data_path + "/MieNEXRAD_liq_c.dat")

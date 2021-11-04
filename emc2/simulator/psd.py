@@ -58,7 +58,6 @@ def calc_mu_lambda(model, hyd_type="cl",
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
 
-
     if not subcolumns:
         N_name = model.N_field[hyd_type]
         if not is_conv:
@@ -188,7 +187,6 @@ def calc_re_thompson(model, hyd_type,
     t = model.ds[model.T_field].values * getattr(
         ureg, model.ds[model.T_field].attrs["units"])
     t = t.to(ureg.kelvin).magnitude
-
 
     rho_a = p / (R_d * t)
     if hyd_type == 'pl':

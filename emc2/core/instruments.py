@@ -463,6 +463,7 @@ class NEXRAD(Instrument):
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.c6_table["8col_agg"] = load_c6_file(
             data_path + "/C6_NEXRAD_8col_agg_rough_270K.dat", True)
+
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
         self.bulk_table["8col_agg"] = load_bulk_c6_file(
             data_path + "/bulk_NEXRAD_C6PSD_c6_8col_ice_agg_rough_270K.dat")

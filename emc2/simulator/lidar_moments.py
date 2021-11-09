@@ -317,15 +317,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         cloud_str = "strat"
         re_fields = model.strat_re_fields
 
-    if 'LES_mode' in kwargs.keys():
-        LES_mode = kwargs['LES_mode']
-    else:
-        LES_mode = False
-
-    if LES_mode:
-        n_subcolumns = 1
-    else:
-        n_subcolumns = model.num_subcolumns
+    n_subcolumns = model.num_subcolumns
 
     if model.model_name in ["E3SM", "CESM2"]:
         bulk_ice_lut = "CESM_ice"

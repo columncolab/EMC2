@@ -2,7 +2,7 @@ import xarray as xr
 import numpy as np
 
 from scipy.special import gamma
-from ..core.instrument import ureg
+from ..core.instrument import ureg, quantity
 
 
 def calc_mu_lambda(model, hyd_type="cl",
@@ -42,6 +42,7 @@ def calc_mu_lambda(model, hyd_type="cl",
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
 
+
     Returns
     -------
     model: :py:mod:`emc2.core.Model`
@@ -57,36 +58,27 @@ def calc_mu_lambda(model, hyd_type="cl",
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
 
-    if 'LES_mode' in kwargs.keys():
-        LES_mode = kwargs['LES_mode']
-    else:
-        LES_mode = False
-
     if not subcolumns:
         N_name = model.N_field[hyd_type]
-        q_name = model.q_names_stratiform[hyd_type]
+        if not is_conv:
+            q_name = model.q_names_stratiform[hyd_type]
+            frac_name = model.strat_frac_names[hyd_type]
+        else:
+            q_name = model.q_names_convective[hyd_type]
+            frac_name = model.conv_frac_names[hyd_type]
     else:
         if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "strat_q_subcolumns_%s" % hyd_type
-            if not LES_mode:
-                frac_name = model.strat_frac_names[hyd_type]
-            else:
-                frac_name = "strat_frac_subcolumns_%s" % hyd_type
+            frac_name = model.strat_frac_names[hyd_type]
         else:
             N_name = "conv_n_subcolumns_%s" % hyd_type
             q_name = "conv_q_subcolumns_%s" % hyd_type
-            if not LES_mode:
-                frac_name = model.conv_frac_names[hyd_type]
-            else:
-                frac_name = "conv_frac_subcolumns_%s" % hyd_type
+            frac_name = model.conv_frac_names[hyd_type]
 
-        if not LES_mode:
-            frac_array = np.tile(
-                model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
-        else:
-            frac_array = model.ds[frac_name].values
-        frac_array = np.where(frac_array == 0, 1, frac_array)
+    frac_array = np.tile(
+        model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
+    frac_array = np.where(frac_array == 0, 1, frac_array)
     Rho_hyd = model.Rho_hyd[hyd_type].magnitude
     column_ds = model.ds
 
@@ -121,10 +113,10 @@ def calc_mu_lambda(model, hyd_type="cl",
                       (column_ds[q_name].astype('float64') * gamma(column_ds["mu"] + 1.))) ** (1 / d)
 
     # Eventually need to make this unit aware, pint as a dependency?
-    column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0).astype(np.longdouble)
+    column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0).astype(float)
     column_ds["lambda"].attrs["long_name"] = "Slope of gamma distribution fit"
     column_ds["lambda"].attrs["units"] = "m-1"
-    column_ds["N_0"] = column_ds[N_name].astype(np.longdouble) * 1e6 * \
+    column_ds["N_0"] = column_ds[N_name].astype(float) * 1e6 * \
         column_ds["lambda"]**(column_ds["mu"] + 1.) / gamma(column_ds["mu"] + 1.)
     column_ds["N_0"].attrs["long_name"] = "Intercept of gamma fit"
     column_ds["N_0"].attrs["units"] = "m-4"
@@ -165,9 +157,15 @@ def calc_re_thompson(model, hyd_type,
     """
 
     if not subcolumns:
-        N_name = model.N_field[hyd_type]
-        q_name = model.q_names_stratiform[hyd_type]
-        re_name = "re_%s" % hyd_type
+        if not is_conv:
+            N_name = model.N_field[hyd_type]
+            q_name = model.q_names_stratiform[hyd_type]
+            re_name = model.strat_re_fields[hyd_type]
+        else:
+            N_name = model.N_field[hyd_type]
+            q_name = model.q_names_convective[hyd_type]
+            re_name = model.conv_re_fields[hyd_type]
+
     else:
         if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
@@ -181,6 +179,8 @@ def calc_re_thompson(model, hyd_type,
     q_w = model.ds[q_name].values
     N_w = model.ds[N_name].values
     rho_w = model.Rho_hyd[hyd_type].magnitude
+
+    R_d = 287.15
     p = model.ds[model.p_field].values * getattr(
         ureg, model.ds[model.p_field].attrs["units"])
     p = p.to(ureg.Pa).magnitude
@@ -188,13 +188,14 @@ def calc_re_thompson(model, hyd_type,
         ureg, model.ds[model.T_field].attrs["units"])
     t = t.to(ureg.kelvin).magnitude
 
-    rho_a = p / (model.consts["R_d"] * t)
+    rho_a = p / (R_d * t)
     if hyd_type == 'pl':
         k = 2.4
     else:
         k = 3.
     r_w = 0.5 * ((6 * rho_a * q_w) / (np.pi * rho_w * N_w)) ** (1 / k)
-    r_w = xr.DataArray(r_w * 1e6, dims=model.ds[q_name].dims)
+    r_w = xr.DataArray(r_w * 1e4, dims=model.ds[q_name].dims)
+
     r_w.attrs['units'] = 'microns'
     r_w.attrs['long_name'] = ('Particle effective radius following ' +
                               'Thompson et al. (2004)')

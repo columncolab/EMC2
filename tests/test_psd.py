@@ -8,7 +8,7 @@ def test_lambda_mu():
     # Therefore, if dispersion is fixed, slope should decrease with LWC
     # N_0 will also increases since it is directly proportional to lambda
 
-    my_model = emc2.core.model.TestModel()
+    my_model = emc2.core.model.TestConvection()
     my_model = emc2.simulator.psd.calc_mu_lambda(my_model, hyd_type="cl", calc_dispersion=False)
     my_ds = my_model.ds
     assert np.all(my_ds["mu"] == 1 / 0.09)
@@ -21,8 +21,8 @@ def test_lambda_mu():
 
 
 def test_re():
-    my_model = emc2.core.model.TestModel()
+    my_model = emc2.core.model.TestConvection()
     my_model = emc2.simulator.psd.calc_re_thompson(my_model, hyd_type="cl")
     my_ds = my_model.ds
-    assert np.all(my_ds["re_cl"] < 10000.)
+    assert np.all(my_ds["re_cl"] < 100.)
     print(my_ds["re_cl"])

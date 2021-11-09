@@ -3,6 +3,7 @@ import numpy as np
 import dask.bag as db
 import dask.array as da
 from time import time
+from scipy.interpolate import interpn, LinearNDInterpolator
 
 from ..core import Instrument, Model
 from .attenuation import calc_radar_atm_attenuation
@@ -287,6 +288,15 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         cloud_str = "strat"
         re_fields = model.strat_re_fields
 
+    if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+        bulk_ice_lut = "CAM_ice"
+        bulk_mie_ice_lut = "mie_ice_CAM_PSD"
+        bulk_liq_lut = "CAM_liq"
+    else:
+        bulk_ice_lut = "E3_ice"
+        bulk_mie_ice_lut = "mie_ice_E3_PSD"
+        bulk_liq_lut = "E3_liq"
+
     Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
     model.ds["sub_col_Ze_tot_%s" % cloud_str] = xr.DataArray(
         np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
@@ -300,12 +310,16 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     for hyd_type in hyd_types:
         if hyd_type[-1] == 'l':
             rho_b = model.Rho_hyd[hyd_type]  # bulk water
-            re_array = np.tile(model.ds[re_fields[hyd_type]], (n_subcolumns, 1, 1))
+            re_array = np.tile(model.ds[re_fields[hyd_type]].values, (n_subcolumns, 1, 1))
+            if not model.lambda_field is None:  # assuming my and lambda can be provided only for liq hydrometeors
+                if not model.lambda_field[hyd_type] is None:
+                    lambda_array = model.ds[model.lambda_field[hyd_type]].values
+                    mu_array = model.ds[model.mu_field[hyd_type]].values
         else:
             rho_b = instrument.rho_i  # bulk ice
-            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type] / rho_b + \
-                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
-            re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
+            fi_factor = model.fluffy[hyd_type].magnitude * model.Rho_hyd[hyd_type] / rho_b + \
+                (1 - model.fluffy[hyd_type].magnitude) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
+            re_array = np.tile(model.ds[re_fields[hyd_type]].values * fi_factor,
                                (n_subcolumns, 1, 1))
 
         tau_hyd = np.where(model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] > 0,
@@ -315,26 +329,62 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
         if np.isin(hyd_type, ["ci", "pi"]):
             if mie_for_ice:
-                r_eff_bulk = instrument.bulk_table["mie_ice"]["r_e"].values
-                Qback_bulk = instrument.bulk_table["mie_ice"]["Q_back"].values
-                Qext_bulk = instrument.bulk_table["mie_ice"]["Q_ext"].values
+                r_eff_bulk = instrument.bulk_table[bulk_mie_ice_lut]["r_e"].values.copy()
+                Qback_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_back"].values
+                Qext_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_ext"].values
             else:
-                r_eff_bulk = instrument.bulk_table["8col_agg"]["r_e"].values
-                Qback_bulk = instrument.bulk_table["8col_agg"]["Q_back"].values
-                Qext_bulk = instrument.bulk_table["8col_agg"]["Q_ext"].values
+                r_eff_bulk = instrument.bulk_table[bulk_ice_lut]["r_e"].values.copy()
+                Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
+                Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
+            if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+                r_eff_bulk /= 2.  # From D_eff to r_eff
         else:
-            r_eff_bulk = instrument.bulk_table["mie_liq"]["r_e"].values
-            Qback_bulk = instrument.bulk_table["mie_liq"]["Q_back"].values
-            Qext_bulk = instrument.bulk_table["mie_liq"]["Q_ext"].values
+            if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+                mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
+                               (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
+                lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
+            else:
+                r_eff_bulk = instrument.bulk_table[bulk_liq_lut]["r_e"].values
+            Qback_bulk = instrument.bulk_table[bulk_liq_lut]["Q_back"].values
+            Qext_bulk = instrument.bulk_table[bulk_liq_lut]["Q_ext"].values
 
-        model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-            (np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd * instrument.wavelength ** 4) /
-            (instrument.K_w * np.pi ** 5) * 1e-6,
-            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SM", "CAM5", "CAM6"]):
+            print("2-D interpolation of bulk liq radar backscattering using mu-lambda values")
+            rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
+            interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qback_bulk.flatten())
+            interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])
+            #interp_vals = interpn((mu_b, lambda_b), Qback_bulk,
+            #                      (mu_array[rel_locs], lambda_array[rel_locs]), method="linear")
+            back_tmp = np.ones_like(model.ds[model.q_names_stratiform[hyd_type]].values, dtype=float) * np.nan
+            ext_tmp = np.copy(back_tmp)
+            np.place(back_tmp, rel_locs,
+                     (interp_vals * instrument.wavelength ** 4) / 
+                     (instrument.K_w * np.pi ** 5) * 1e-6)
+            model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                np.tile(back_tmp, (n_subcolumns, 1, 1)) * A_hyd,
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims) 
+            print("2-D interpolation of bulk liq radar extinction using mu-lambda values")
+            interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qext_bulk.flatten())
+            interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])
+            #nterp_vals = interpn((mu_b, lambda_b), Qext_bulk,
+            #                     (mu_array[rel_locs], lambda_array[rel_locs]), method="linear")
+            np.place(ext_tmp, rel_locs, interp_vals)
+            hyd_ext += np.tile(ext_tmp, (n_subcolumns, 1, 1)) * A_hyd
+        else:
+            model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                (np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd * instrument.wavelength ** 4) /
+                (instrument.K_w * np.pi ** 5) * 1e-6,
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+            hyd_ext += np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd
 
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += model.ds["sub_col_Ze_%s_%s" % (
             hyd_type, cloud_str)]
-        hyd_ext += np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd
+        model.ds["sub_col_A_hyd_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+            A_hyd,
+            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)        
+        model.ds["sub_col_rho_adz_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+            rhoa_dz,
+            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
 
     model = accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=False, **kwargs)
@@ -390,7 +440,14 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     if mie_for_ice:
         scat_str = "Mie"
     else:
-        scat_str = "C6"
+        if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+            scat_str = "m-D_A-D (D. Mitchell)"
+            ice_lut = "CAM_ice"
+            ice_diam_var = "p_diam"
+        else:
+            scat_str = "C6"
+            ice_lut = "E3_ice"
+            ice_diam_var = "p_diam_eq_V"
 
     if 'LES_mode' in kwargs.keys():
         LES_mode = kwargs['LES_mode']
@@ -430,9 +487,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             total_hydrometeor = np.nansum(total_hydrometeor, axis=0)
 
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.scat_table["8col_agg"]["p_diam_eq_V"].values
-            beta_p = instrument.scat_table["8col_agg"]["beta_p"].values
-            alpha_p = instrument.scat_table["8col_agg"]["alpha_p"].values
+            p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
+            beta_p = instrument.scat_table[ice_lut]["beta_p"].values
+            alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -480,12 +537,11 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
-            scat_table = instrument.scat_table["8col_agg"]
             _calc_other = lambda x: _calculate_other_observables(
                 x, total_hydrometeor, N_0, lambdas, model.num_subcolumns,
-                scat_table, v_tmp, beta_p, alpha_p,
+                beta_p, alpha_p, v_tmp,
                 instrument.wavelength, instrument.K_w,
-                sub_q_array, hyd_type, p_diam, mie_for_ice)
+                sub_q_array, hyd_type, p_diam)
 
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
@@ -531,10 +587,11 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                                                     dims=model.ds["sub_col_Ze_tot_strat"].dims)
     print("Now calculating total spectral width (this may take some time)")
     for hyd_type in hyd_types:
+        fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.scat_table["8col_agg"]["p_diam_eq_V"].values
-            beta_p = instrument.scat_table["8col_agg"]["beta_p"].values
-            alpha_p = instrument.scat_table["8col_agg"]["alpha_p"].values
+            p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
+            beta_p = instrument.scat_table[ice_lut]["beta_p"].values
+            alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -903,8 +960,8 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 
 
 def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
-                                 num_subcolumns, scat_table, beta_p, alpha_p, v_tmp, wavelength,
-                                 K_w, sub_q_array, hyd_type, p_diam, mie_for_ice):
+                                 num_subcolumns, beta_p, alpha_p, v_tmp, wavelength,
+                                 K_w, sub_q_array, hyd_type, p_diam):
     Dims = sub_q_array.shape
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
@@ -925,14 +982,8 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
             lambda_tmp = lambdas[i, tt, k]
             N_D.append(N_0_tmp * np.exp(-lambda_tmp * p_diam))
         N_D = np.stack(N_D, axis=0)
-        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            Calc_tmp = np.tile(scat_table["beta_p"].values,
-                               (num_subcolumns, 1)) * N_D
-            tmp_od = np.tile(
-                scat_table["alpha_p"].values, (num_subcolumns, 1)) * N_D
-        else:
-            Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
-            tmp_od = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
+        Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
+        tmp_od = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
         tmp_od = np.trapz(tmp_od, x=p_diam, axis=1)
         tmp_od = np.where(sub_q_array[:, tt, k] == 0, 0, tmp_od)
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1)

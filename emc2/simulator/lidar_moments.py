@@ -2,6 +2,7 @@ import xarray as xr
 import numpy as np
 import dask.bag as db
 from time import time
+from scipy.interpolate import interpn, LinearNDInterpolator
 
 from ..core import Instrument, Model
 from .attenuation import calc_theory_beta_m
@@ -316,6 +317,25 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         cloud_str = "strat"
         re_fields = model.strat_re_fields
 
+    if 'LES_mode' in kwargs.keys():
+        LES_mode = kwargs['LES_mode']
+    else:
+        LES_mode = False
+
+    if LES_mode:
+        n_subcolumns = 1
+    else:
+        n_subcolumns = model.num_subcolumns
+
+    if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+        bulk_ice_lut = "CAM_ice"
+        bulk_mie_ice_lut = "mie_ice_CAM_PSD"
+        bulk_liq_lut = "CAM_liq"
+    else:
+        bulk_ice_lut = "E3_ice"
+        bulk_mie_ice_lut = "mie_ice_E3_PSD"
+        bulk_liq_lut = "E3_liq"
+
     Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
     model.ds['sub_col_beta_p_tot_%s' % cloud_str] = xr.DataArray(
         np.zeros(Dims), dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
@@ -331,10 +351,14 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         if hyd_type[-1] == 'l':
             rho_b = model.Rho_hyd[hyd_type]  # bulk water
             re_array = np.tile(model.ds[re_fields[hyd_type]], (model.num_subcolumns, 1, 1))
+            if not model.lambda_field is None:  # assuming my and lambda can be provided only for liq hydrometeors
+                if not model.lambda_field[hyd_type] is None:
+                    lambda_array = model.ds[model.lambda_field[hyd_type]].values
+                    mu_array = model.ds[model.mu_field[hyd_type]].values
         else:
             rho_b = instrument.rho_i  # bulk ice
-            fi_factor = model.fluffy[hyd_type] * model.Rho_hyd[hyd_type] / rho_b + \
-                (1 - model.fluffy[hyd_type]) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
+            fi_factor = model.fluffy[hyd_type].magnitude * model.Rho_hyd[hyd_type] / rho_b + \
+                (1 - model.fluffy[hyd_type].magnitude) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
             re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
                                (model.num_subcolumns, 1, 1))
 
@@ -345,24 +369,55 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
 
         if np.isin(hyd_type, ["ci", "pi"]):
             if mie_for_ice:
-                r_eff_bulk = instrument.bulk_table["mie_ice"]["r_e"].values
-                Qback_bulk = instrument.bulk_table["mie_ice"]["Q_back"].values
-                Qext_bulk = instrument.bulk_table["mie_ice"]["Q_ext"].values
+                r_eff_bulk = instrument.bulk_table[bulk_mie_ice_lut]["r_e"].values.copy()
+                Qback_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_back"].values
+                Qext_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_ext"].values
             else:
-                r_eff_bulk = instrument.bulk_table["8col_agg"]["r_e"].values
-                Qback_bulk = instrument.bulk_table["8col_agg"]["Q_back"].values
-                Qext_bulk = instrument.bulk_table["8col_agg"]["Q_ext"].values
+                r_eff_bulk = instrument.bulk_table[bulk_ice_lut]["r_e"].values.copy()
+                Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
+                Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
+            if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+                r_eff_bulk /= 2.  # From D_eff to r_eff
         else:
-            r_eff_bulk = instrument.bulk_table["mie_liq"]["r_e"].values
-            Qback_bulk = instrument.bulk_table["mie_liq"]["Q_back"].values
-            Qext_bulk = instrument.bulk_table["mie_liq"]["Q_ext"].values
+            if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+                mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
+                               (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
+                lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
+            else:
+                r_eff_bulk = instrument.bulk_table[bulk_liq_lut]["r_e"].values
+            Qback_bulk = instrument.bulk_table[bulk_liq_lut]["Q_back"].values
+            Qext_bulk = instrument.bulk_table[bulk_liq_lut]["Q_ext"].values
 
-        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-            np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd,
-            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
-        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-            np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd,
-            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SM", "CAM5", "CAM6"]):
+            print("2-D interpolation of bulk liq lidar backscattering using mu-lambda values")
+            rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
+            back_tmp = np.ones_like(model.ds[model.q_names_stratiform[hyd_type]].values, dtype=float) * np.nan
+            ext_tmp = np.copy(back_tmp)
+            interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qback_bulk.flatten())
+            interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])
+            #interp_vals = interpn((mu_b, lambda_b), Qback_bulk,
+            #                      (mu_array[rel_locs], lambda_array[rel_locs]), method="linear")
+            np.place(back_tmp, rel_locs, interp_vals)
+            print("2-D interpolation of bulk liq lidar extinction using mu-lambda values")
+            interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qext_bulk.flatten())
+            interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])
+            #interp_vals = interpn((mu_b, lambda_b), Qext_bulk,
+            #                      (mu_array[rel_locs], lambda_array[rel_locs]), method="linear")
+            np.place(ext_tmp, rel_locs, interp_vals)
+            model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                np.tile(back_tmp, (n_subcolumns, 1, 1)) * A_hyd,
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                np.tile(ext_tmp, (n_subcolumns, 1, 1)) * A_hyd,
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+        else:
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd,
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+            model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd,
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+
         model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc, **kwargs)
 
         model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
@@ -412,6 +467,13 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     """
     hyd_types = model.set_hyd_types(hyd_types)
 
+    if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+        ice_lut = "CAM_ice"
+        ice_diam_var = "p_diam"
+    else:
+        ice_lut = "E3_ice"
+        ice_diam_var = "p_diam_eq_V"
+
     Dims = model.ds["strat_q_subcolumns_cl"].values.shape
     for hyd_type in hyd_types:
         frac_names = "strat_frac_subcolumns_%s" % hyd_type
@@ -434,9 +496,9 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
         mu = fits_ds["mu"].values
         num_subcolumns = model.num_subcolumns
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.scat_table["8col_agg"]["p_diam_eq_V"].values
-            beta_p = instrument.scat_table["8col_agg"]["beta_p"].values
-            alpha_p = instrument.scat_table["8col_agg"]["alpha_p"].values
+            p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
+            beta_p = instrument.scat_table[ice_lut]["beta_p"].values
+            alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -566,7 +628,10 @@ def calc_lidar_moments(instrument, model, is_conv,
     elif mie_for_ice:
         scat_str = "Mie"
     else:
-        scat_str = "C6"
+        if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+            scat_str = "m-D_A-D (D. Mitchell)"
+        else:
+            scat_str = "C6"
 
     if not instrument.instrument_class.lower() == "lidar":
         raise ValueError("Instrument must be a lidar!")

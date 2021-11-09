@@ -110,6 +110,8 @@ class Model():
         self.strat_frac_names_for_rad = {}
         self.conv_re_fields = {}
         self.strat_re_fields = {}
+        self.mu_field = None
+        self.lambda_field = None
         self.hyd_types = []
         self.ds = None
         self.time_dim = "time"
@@ -267,7 +269,7 @@ class ModelE(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -311,7 +313,7 @@ class ModelE(Model):
 
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"
-        self.model_name = "ModelE"
+        self.model_name = "ModelE3"
 
 
 class E3SM(Model):
@@ -336,7 +338,7 @@ class E3SM(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -350,15 +352,17 @@ class E3SM(Model):
         self.height_dim = "lev"
         self.time_dim = "ncol"
         self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
-        self.strat_frac_names = {'cl': 'CLOUD', 'ci': 'CLOUD', 'pl': 'CLOUD', 'pi': 'CLOUD'}
+        self.strat_frac_names = {'cl': 'FREQC', 'ci': 'FREQI', 'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
                                         'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
-                                         'pl': 'CLOUD', 'pi': 'CLOUD'}
+                                         'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
         self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
+        self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.hyd_types = ["cl", "ci", "pi"]
         self.ds = read_netcdf(file_path)
         time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
@@ -388,11 +392,19 @@ class E3SM(Model):
                                            dims=self.ds[self.p_field].dims)
         self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
         for hyd in ["pl", "pi"]:
-            self.ds[self.strat_re_fields[hyd]].values /= 2  # Assuming effective diameter was provided
+            self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
         self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
         self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         for hyd in ["cl", "ci", "pl", "pi"]:
-            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values  # convert from mass number to number
+            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+
+        # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
+        self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
+        for key in self.ds.keys():
+            if self.height_dim in self.ds[key].dims:
+                rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
+                self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
+
         self.model_name = "E3SM"
 
 
@@ -441,7 +453,7 @@ class WRF(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -553,7 +565,7 @@ class DHARMA(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -581,7 +593,7 @@ class DHARMA(Model):
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
-        self.ds = read_netcdf(file_path)
+        self.ds = xr.open_dataset(file_path)
 
         for variable in self.ds.variables.keys():
             my_attrs = self.ds[variable].attrs
@@ -662,7 +674,7 @@ class TestModel(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -796,7 +808,7 @@ class TestConvection(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -935,7 +947,7 @@ class TestAllStratiform(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -1055,7 +1067,7 @@ class TestHalfAndHalf(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,

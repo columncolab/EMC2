@@ -49,15 +49,15 @@ class XSACR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieXSACR_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_XSACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_XSACR_ice.dat", True, param_type="mDAD")
@@ -68,6 +68,8 @@ class XSACR(Instrument):
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_XSACR_mDAD_mie_liq_c.nc")
         else:
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_XSACR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_XSACR_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class KAZR(Instrument):
@@ -143,15 +145,15 @@ class KAZR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_KAZR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_KAZR_ice.dat", True, param_type="mDAD")
@@ -162,6 +164,8 @@ class KAZR(Instrument):
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_KAZR_mDAD_mie_liq_c.nc")
         else:
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_KAZR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_KAZR_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class WACR(Instrument):
@@ -222,16 +226,16 @@ class WACR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(
+        self.scat_table["E3_ice"] = load_scat_file(
             data_path + "/C6_WACR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_WACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_WACR_ice.dat", True, param_type="mDAD")
@@ -242,6 +246,8 @@ class WACR(Instrument):
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_WACR_mDAD_mie_liq_c.nc")
         else:
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_WACR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_WACR_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class RL(Instrument):
@@ -291,12 +297,12 @@ class RL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_RL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_RL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_RL_C6PSD_mie_ice.dat")
+        self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_RL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_RL_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_RL_ice.dat", False, param_type="mDAD")
@@ -304,6 +310,8 @@ class RL(Instrument):
         self.bulk_table["CAM_ice"] = load_bulk_scat_file(
             data_path + "/bulk_RL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
         self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_RL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_RL_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class HSRL(Instrument):
@@ -354,12 +362,12 @@ class HSRL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
+        self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_HSRL_ice.dat", False, param_type="mDAD")
@@ -367,6 +375,8 @@ class HSRL(Instrument):
         self.bulk_table["CAM_ice"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
         self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_HSRL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class CEIL(Instrument):
@@ -411,15 +421,15 @@ class CEIL(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_CEIL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_CEIL_ice.dat", False, param_type="mDAD")
@@ -430,6 +440,8 @@ class CEIL(Instrument):
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_CEIL_mDAD_mie_liq_c.nc")
         else:
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_CEIL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_CEIL_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class Ten64nm(Instrument):
@@ -474,15 +486,15 @@ class Ten64nm(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_1064nm_ice.dat", False, param_type="mDAD")
@@ -492,7 +504,9 @@ class Ten64nm(Instrument):
         if supercooled:
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_1064nm_mDAD_mie_liq_c.nc")
         else:
-            self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_CEIL_mDAD_mie_liq.nc")
+            self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_1064nm_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_1064nm_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class NEXRAD(Instrument):
@@ -534,16 +548,16 @@ class NEXRAD(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieNEXRAD_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(
+        self.scat_table["E3_ice"] = load_scat_file(
             data_path + "/C6_NEXRAD_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_NEXRAD_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_NEXRAD_ice.dat", True, param_type="mDAD")
@@ -554,6 +568,8 @@ class NEXRAD(Instrument):
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_NEXRAD_mDAD_mie_liq_c.nc")
         else:
             self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_NEXRAD_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")
 
 
 class CALIOP(Instrument):
@@ -604,12 +620,12 @@ class CALIOP(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
         # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.scat_table["8col_agg"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_scat_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
+        self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
         # CAM5/CAM6/E3SM bulk
         data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
         self.scat_table["CAM_ice"] = load_scat_file(data_path + "/mDAD_HSRL_ice.dat", False, param_type="mDAD")
@@ -617,3 +633,5 @@ class CALIOP(Instrument):
         self.bulk_table["CAM_ice"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
         self.bulk_table["CAM_liq"] = xr.open_dataset(data_path + "/bulk_HSRL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CAM_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_mDAD_mie_ice.dat",
+                                                                 param_type="mDAD")

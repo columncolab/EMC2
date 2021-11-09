@@ -1,3 +1,4 @@
+import numpy as np
 from .subcolumn import set_convective_sub_col_frac, set_precip_sub_col_frac
 from .subcolumn import set_stratiform_sub_col_frac, set_q_n
 from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alpha_beta

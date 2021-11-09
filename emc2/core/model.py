@@ -202,6 +202,18 @@ class Model():
         subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
         self.ds['subcolumn'] = subcolumn
 
+    def remove_subcol_fields(self, cloud_class="conv"):
+        """
+        Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant
+        for CESM and E3SM).
+        """
+        vars_to_drop = []
+        for key in self.ds.keys():
+            if np.logical_and(cloud_class in key,
+                              np.any([fstr in key for fstr in ["sub_col", "subcol", "phase_mask"]])):
+                vars_to_drop.append(key)
+        self.ds = self.ds.drop_vars(vars_to_drop)
+
     def set_hyd_types(self, hyd_types):
         if hyd_types is None:
             if self.num_hydrometeor_classes == 0:

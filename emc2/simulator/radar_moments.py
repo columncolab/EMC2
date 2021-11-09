@@ -288,10 +288,10 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         cloud_str = "strat"
         re_fields = model.strat_re_fields
 
-    if model.model_name in ["E3SM", "CAM5", "CAM6"]:
-        bulk_ice_lut = "CAM_ice"
-        bulk_mie_ice_lut = "mie_ice_CAM_PSD"
-        bulk_liq_lut = "CAM_liq"
+    if model.model_name in ["E3SM", "CESM2"]:
+        bulk_ice_lut = "CESM_ice"
+        bulk_mie_ice_lut = "mie_ice_CESM_PSD"
+        bulk_liq_lut = "CESM_liq"
     else:
         bulk_ice_lut = "E3_ice"
         bulk_mie_ice_lut = "mie_ice_E3_PSD"
@@ -336,10 +336,10 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                 r_eff_bulk = instrument.bulk_table[bulk_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
-            if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+            if model.model_name in ["E3SM", "CESM2"]:
                 r_eff_bulk /= 2.  # From D_eff to r_eff
         else:
-            if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+            if model.model_name in ["E3SM", "CESM2"]:
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
                                (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
                 lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
@@ -348,7 +348,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             Qback_bulk = instrument.bulk_table[bulk_liq_lut]["Q_back"].values
             Qext_bulk = instrument.bulk_table[bulk_liq_lut]["Q_ext"].values
 
-        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SM", "CAM5", "CAM6"]):
+        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SM", "CESM2"]):
             print("2-D interpolation of bulk liq radar backscattering using mu-lambda values")
             rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
             interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qback_bulk.flatten())
@@ -440,9 +440,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     if mie_for_ice:
         scat_str = "Mie"
     else:
-        if model.model_name in ["E3SM", "CAM5", "CAM6"]:
+        if model.model_name in ["E3SM", "CESM2"]:
             scat_str = "m-D_A-D (D. Mitchell)"
-            ice_lut = "CAM_ice"
+            ice_lut = "CESM_ice"
             ice_diam_var = "p_diam"
         else:
             scat_str = "C6"

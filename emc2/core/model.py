@@ -430,7 +430,7 @@ class CESM2(E3SM):
         file_path: str
             Path to an E3SM simulation.
         """
-        super().__init__()
+        super().__init__(file_path, time_range)
         self.model_name = "CESM2"
 
 

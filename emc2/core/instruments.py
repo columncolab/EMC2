@@ -71,6 +71,7 @@ class CSAPR(Instrument):
         self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_mDAD_mie_ice.dat",
                                                                   param_type="mDAD")
 
+
 class XSACR(Instrument):
     def __init__(self, supercooled=True, *args):
         """

@@ -420,6 +420,20 @@ class E3SM(Model):
         self.model_name = "E3SM"
 
 
+class CESM2(E3SM):
+    def __init__(self, file_path, time_range=None):
+        """
+        This loads a CESM2 simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an E3SM simulation.
+        """
+        super().__init__()
+        self.model_name = "CESM2"
+
+
 class WRF(Model):
     def __init__(self, file_path, column_extent,
                  z_range=None, time_range=None, w_thresh=1,

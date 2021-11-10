@@ -351,12 +351,6 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += model.ds["sub_col_Ze_%s_%s" % (
             hyd_type, cloud_str)]
-        model.ds["sub_col_A_hyd_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-            A_hyd,
-            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)        
-        model.ds["sub_col_rho_adz_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-            rhoa_dz,
-            dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
 
     model = accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=False, **kwargs)
@@ -565,8 +559,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         n_names = model.N_field[hyd_type]
         total_hydrometeor = model.ds[frac_names] * model.ds[model.N_field[hyd_type]]
 
+        Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
         if hyd_type == "cl":
-            Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
 
             _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
                 x, N_0, lambdas, mu, instrument,
@@ -594,7 +588,6 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
             sigma_d_numer_tot = np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
         else:
-            Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
             _calc_sigma = lambda x: _calc_sigma_d_tot(
                 x, num_subcolumns, v_tmp, N_0, lambdas, mu,

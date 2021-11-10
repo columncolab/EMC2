@@ -287,7 +287,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         if hyd_type[-1] == 'l':
             rho_b = model.Rho_hyd[hyd_type]  # bulk water
             re_array = np.tile(model.ds[re_fields[hyd_type]].values, (n_subcolumns, 1, 1))
-            if not model.lambda_field is None:  # assuming my and lambda can be provided only for liq hydrometeors
+            if model.lambda_field is not None:  # assuming my and lambda can be provided only for liq hydrometeors
                 if not model.lambda_field[hyd_type] is None:
                     lambda_array = model.ds[model.lambda_field[hyd_type]].values
                     mu_array = model.ds[model.mu_field[hyd_type]].values
@@ -332,11 +332,11 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             back_tmp = np.ones_like(model.ds[model.q_names_stratiform[hyd_type]].values, dtype=float) * np.nan
             ext_tmp = np.copy(back_tmp)
             np.place(back_tmp, rel_locs,
-                     (interp_vals * instrument.wavelength ** 4) / 
+                     (interp_vals * instrument.wavelength ** 4) /
                      (instrument.K_w * np.pi ** 5) * 1e-6)
             model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 np.tile(back_tmp, (n_subcolumns, 1, 1)) * A_hyd,
-                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims) 
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
             print("2-D interpolation of bulk liq radar extinction using mu-lambda values")
             interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qext_bulk.flatten())
             interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])

@@ -214,6 +214,28 @@ class Model():
                 vars_to_drop.append(key)
         self.ds = self.ds.drop_vars(vars_to_drop)
 
+    def remove_appended_str(self):
+        """
+        Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
+        (typically required when using post-processed output data files).
+        """
+        for coordinate in ['lat', 'lon']:
+            out_coords = [x for x in self.ds.coords]
+            coord_loc = np.argwhere([coordinate in x for x in out_coords]).item()
+            if len(out_coords[coord_loc]) > 3:  # length 3 only if no appended string (e.g., in post-processing)
+                appended_str = out_coords[coord_loc][3:]
+                appended_coords = np.char.find(out_coords, appended_str)
+                to_rename = {}
+                for ind in range(len(out_coords)):
+                    if appended_coords[ind] > -1:
+                        to_rename[out_coords[ind]] = out_coords[ind][:appended_coords[ind]]
+                out_fields = [x for x in self.ds.data_vars]
+                appended_fields = np.char.find(out_fields, appended_str)
+                for ind in range(len(out_fields)):
+                    if appended_fields[ind] > -1:
+                        to_rename[out_fields[ind]] = out_fields[ind][:appended_fields[ind]]
+                self.ds = self.ds.rename(to_rename)
+
     def set_hyd_types(self, hyd_types):
         if hyd_types is None:
             if self.num_hydrometeor_classes == 0:
@@ -252,7 +274,6 @@ class Model():
         ----------
         file_name: str
             Name of the file to save.
-
         """
         my_file = xr.open_dataset(file_name)
         self.ds = xr.merge([self.ds, my_file])
@@ -268,6 +289,8 @@ class ModelE(Model):
         ----------
         file_path: str
             Path to a ModelE simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -329,7 +352,7 @@ class ModelE(Model):
 
 
 class E3SM(Model):
-    def __init__(self, file_path, time_range=None):
+    def __init__(self, file_path, time_range=None, time_dim="ncol", appended_str=False):
         """
         This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -337,6 +360,13 @@ class E3SM(Model):
         ----------
         file_path: str
             Path to an E3SM simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        time_dim: str
+            Name of the time dimension. Typically "time" or "ncol".
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -364,7 +394,7 @@ class E3SM(Model):
         self.height_dim = "lev"
         self.time_dim = "ncol"
         self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
-        self.strat_frac_names = {'cl': 'FREQC', 'ci': 'FREQI', 'pl': 'FREQR', 'pi': 'FREQS'}
+        self.strat_frac_names = {'cl': 'FREQL', 'ci': 'FREQI', 'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
                                         'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
@@ -377,9 +407,12 @@ class E3SM(Model):
         self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.hyd_types = ["cl", "ci", "pi"]
         self.ds = read_netcdf(file_path)
-        time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
-                                   dtype='datetime64')
-        self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
+        if appended_str:
+            self.remove_appended_str()
+        if time_dim == "ncol":
+            time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                       dtype='datetime64')
+            self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
 
         # Check to make sure we are loading a single column
         if 'lat' in [x for x in self.ds.dims.keys()]:
@@ -421,7 +454,7 @@ class E3SM(Model):
 
 
 class CESM2(E3SM):
-    def __init__(self, file_path, time_range=None):
+    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False):
         """
         This loads a CESM2 simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -429,8 +462,13 @@ class CESM2(E3SM):
         ----------
         file_path: str
             Path to an E3SM simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
         """
-        super().__init__(file_path, time_range)
+        super().__init__(file_path, time_range, time_dim, appended_str)
         self.model_name = "CESM2"
 
 

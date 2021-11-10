@@ -2,7 +2,7 @@ import xarray as xr
 import numpy as np
 import dask.bag as db
 from time import time
-from scipy.interpolate import interpn, LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator
 
 from ..core import Instrument, Model
 from .attenuation import calc_theory_beta_m

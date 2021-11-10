@@ -3,7 +3,7 @@ import numpy as np
 import dask.bag as db
 import dask.array as da
 from time import time
-from scipy.interpolate import interpn, LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator
 
 from ..core import Instrument, Model
 from .attenuation import calc_radar_atm_attenuation

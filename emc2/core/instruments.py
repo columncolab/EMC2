@@ -6,12 +6,70 @@ emc2.core.instruments
 This module stores example instruments.
 """
 import numpy as np
+import xarray as xr
 import os
 
 from .instrument import Instrument, ureg, quantity
-from ..io import load_mie_file, load_c6_file, load_bulk_c6_file
+from ..io import load_mie_file, load_scat_file, load_bulk_scat_file
 from ..scattering import calc_microwave_ref_index_ice, calc_microwave_ref_index
 from ..scattering import scat_properties_ice, scat_properties_water
+
+
+class CSAPR(Instrument):
+    def __init__(self, supercooled=True, *args):
+        """
+        This stores the information for the ARM CSAPR.
+        """
+        super().__init__(frequency=6.25 * ureg.GHz)
+        self.instrument_class = "radar"
+        self.instrument_str = "CSAPR"
+        self.ext_OD = np.nan
+        self.OD_from_sfc = True
+        self.K_w = 0.93
+        if supercooled:
+            self.eps_liq = (7.434422 + 2.854179j)**2
+        else:
+            self.eps_liq = (8.474673 + 1.2560015j)**2
+        self.pt = 125000.
+        self.theta = 0.9
+        self.gain = 10**4.51
+        self.Z_min_1km = -35  # Based on Oue et al., GMD, 2020
+        # Load mie tables
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        if supercooled:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieCSAPR_liq_c.dat")  # Turner et al. (2016) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieCSAPR_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/MieCSAPR_liq.dat")  # Segelstein (1981)
+            self.mie_table["pl"] = load_mie_file(data_path + "/MieCSAPR_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/MieCSAPR_ci.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieCSAPR_pi1.dat")
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/MieCSAPR_pi.dat")
+        # ModelE3 bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_CSAPR_8col_agg_rough_270K.dat", True)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_CSAPR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        if supercooled:
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_CSAPR_ice.dat", True, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_CSAPR_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_CSAPR_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_CSAPR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class XSACR(Instrument):
@@ -46,16 +104,29 @@ class XSACR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieXSACR_pi1.dat")
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieXSACR_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_XSACR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_XSACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_XSACR_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_XSACR_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_XSACR_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_XSACR_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_XSACR_ice.dat", True, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_XSACR_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_XSACR_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_XSACR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_XSACR_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class KAZR(Instrument):
@@ -129,16 +200,29 @@ class KAZR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi1.dat")
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieKAZR_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_KAZR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_KAZR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_KAZR_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_KAZR_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_KAZR_ice.dat", True, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_KAZR_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_KAZR_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_KAZR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_KAZR_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class WACR(Instrument):
@@ -197,17 +281,30 @@ class WACR(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieWACR_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(
+        self.scat_table["E3_ice"] = load_scat_file(
             data_path + "/C6_WACR_8col_agg_rough_270K.dat", True)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_WACR_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_WACR_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_WACR_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_WACR_ice.dat", True, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_WACR_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_WACR_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_WACR_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_WACR_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class RL(Instrument):
@@ -255,13 +352,23 @@ class RL(Instrument):
                 data_path + "/MieRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieRL_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_RL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_RL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_RL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_RL_C6PSD_mie_ice.dat")
+        self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_RL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_RL_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_RL_ice.dat", False, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_RL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_RL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_RL_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class HSRL(Instrument):
@@ -310,13 +417,23 @@ class HSRL(Instrument):
                 data_path + "/MieHSRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
+        self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_HSRL_ice.dat", False, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_HSRL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_HSRL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class CEIL(Instrument):
@@ -359,16 +476,29 @@ class CEIL(Instrument):
                 data_path + "/MieCEIL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieCEIL_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_CEIL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_CEIL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_CEIL_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_CEIL_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_CEIL_ice.dat", False, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_CEIL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_CEIL_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_CEIL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_CEIL_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class Ten64nm(Instrument):
@@ -411,16 +541,29 @@ class Ten64nm(Instrument):
                 data_path + "/Mie1064nm_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_1064nm_ice.dat", False, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_1064nm_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_1064nm_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_1064nm_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_1064nm_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class NEXRAD(Instrument):
@@ -460,18 +603,31 @@ class NEXRAD(Instrument):
             self.mie_table["pi"] = load_mie_file(data_path + "/MieNEXRAD_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieNEXRAD_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(
+        self.scat_table["E3_ice"] = load_scat_file(
             data_path + "/C6_NEXRAD_8col_agg_rough_270K.dat", True)
 
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_NEXRAD_C6PSD_c6_8col_ice_agg_rough_270K.dat")
         if supercooled:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq_c.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq_c.dat")
         else:
-            self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_NEXRAD_C6PSD_mie_ice.dat")
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_NEXRAD_ice.dat", True, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_NEXRAD_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_NEXRAD_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_NEXRAD_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_NEXRAD_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
 
 
 class CALIOP(Instrument):
@@ -520,10 +676,20 @@ class CALIOP(Instrument):
                 data_path + "/MieHSRL_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + "/MieHSRL_pi.dat")
+        # ModelE3 bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
-        self.c6_table["8col_agg"] = load_c6_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_HSRL_8col_agg_rough_270K.dat", False)
         data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
-        self.bulk_table["8col_agg"] = load_bulk_c6_file(
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
             data_path + "/bulk_HSRL_C6PSD_c6_8col_ice_agg_rough_270K.dat")
-        self.bulk_table["mie_liq"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
-        self.bulk_table["mie_ice"] = load_bulk_c6_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
+        self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_HSRL_ice.dat", False, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_HSRL_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_HSRL_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_HSRL_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")

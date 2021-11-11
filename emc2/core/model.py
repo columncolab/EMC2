@@ -81,8 +81,15 @@ class Model():
        The name of the time dimension in the model.
     height_dim: str
        The name of the height dimension in the model.
+    lat_dim: str
+        Name of the latitude dimension in the model (relevant for regional output)
+    lon_dim: str
+        Name of the longitude dimension in the model (relevant for regional output)
+    stacked_time_dim: str or None
+        This attribute becomes a string of the original time dimension name only if
+        stacking was required to enable EMC2 to processes a domain output (time x lat x lon).
     model_name: str
-       The name of the model (used for plotting).
+       The name of the model.
     x_dim: str
        The name of the x dimension of the model.
     y_dim: str
@@ -110,15 +117,18 @@ class Model():
         self.strat_frac_names_for_rad = {}
         self.conv_re_fields = {}
         self.strat_re_fields = {}
+        self.mu_field = None
+        self.lambda_field = None
         self.hyd_types = []
         self.ds = None
         self.time_dim = "time"
         self.height_dim = "height"
+        self.lat_dim = "lat"
+        self.lon_dim = "lon"
+        self.stacked_time_dim = None
         self.model_name = "empty_model"
         self.x_dim = None
         self.y_dim = None
-        self.lat_name = None
-        self.lon_name = None
         self.consts = {"c": 299792458.0,  # m/s
                        "R_d": 287.058,  # J K^-1 Kg^-1
                        "g": 9.80665,  # m/s^2
@@ -200,6 +210,110 @@ class Model():
         subcolumn = xr.DataArray(np.arange(a), dims='subcolumn')
         self.ds['subcolumn'] = subcolumn
 
+    def remove_subcol_fields(self, cloud_class="conv"):
+        """
+        Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant
+        for CESM and E3SM).
+        """
+        vars_to_drop = []
+        for key in self.ds.keys():
+            if np.logical_and(cloud_class in key,
+                              np.any([fstr in key for fstr in ["sub_col", "subcol", "phase_mask"]])):
+                vars_to_drop.append(key)
+        self.ds = self.ds.drop_vars(vars_to_drop)
+
+    def remove_appended_str(self):
+        """
+        Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
+        (typically required when using post-processed output data files).
+        """
+        for coordinate in [self.lat_dim, self.lon_dim]:
+            out_coords = [x for x in self.ds.coords]
+            coord_loc = np.argwhere([coordinate in x for x in out_coords]).item()
+            if len(out_coords[coord_loc]) > len(coordinate):
+                appended_str = out_coords[coord_loc][len(coordinate):]
+                appended_coords = np.char.find(out_coords, appended_str)
+                to_rename = {}
+                for ind in range(len(out_coords)):
+                    if appended_coords[ind] > -1:
+                        to_rename[out_coords[ind]] = out_coords[ind][:appended_coords[ind]]
+                out_fields = [x for x in self.ds.data_vars]
+                appended_fields = np.char.find(out_fields, appended_str)
+                for ind in range(len(out_fields)):
+                    if appended_fields[ind] > -1:
+                        to_rename[out_fields[ind]] = out_fields[ind][:appended_fields[ind]]
+                self.ds = self.ds.rename(to_rename)
+
+    def check_and_stack_time_lat_lon(self, out_coord_name="time_lat_lon", file_path=None):
+        """
+        Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1)
+        to enable EMC^2 processing of regional model output. Otherwise, squeezing the lat and lon dims (if they
+        exist in dataset).
+        NOTE: tmp variables for lat, lon, and time are produced as xr.Datasets still have many unresolved bugs
+        associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
+        Practically, after the subcolumn processing the stacking information is lost so an alternative dedicated
+        method is used for unstacking
+
+        Parameters
+        ----------
+        out_coord_name: str
+            Name of output stacked coordinate.
+        file_path: str
+            Path and filename of ModelE simulation output.
+        """
+        # Check to make sure we are loading a single column
+        if self.lat_dim in [x for x in self.ds.dims.keys()]:
+            if self.ds.dims[self.lat_dim] != 1 or self.ds.dims[self.lon_dim] != 1:
+                if file_path is None:
+                    file_path = "The input filename"
+                print("%s is a regional output dataset; Stacking the time, lat, "
+                      "and lon dims for processing with EMC^2." % file_path)
+                self.ds[self.lat_dim + "_tmp"] = \
+                    xr.DataArray(self.ds[self.lat_dim].values,
+                                 coords={self.lat_dim + "_tmp": self.ds[self.lat_dim].values})
+                self.ds[self.lon_dim + "_tmp"] = \
+                    xr.DataArray(self.ds[self.lon_dim].values,
+                                 coords={self.lon_dim + "_tmp": self.ds[self.lon_dim].values})
+                self.ds[self.time_dim + "_tmp"] = \
+                    xr.DataArray(self.ds[self.time_dim].values,
+                                 coords={self.time_dim + "_tmp": self.ds[self.time_dim].values})
+                self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.lon_dim, self.time_dim)})
+                self.stacked_time_dim, self.time_dim = self.time_dim, out_coord_name
+            else:
+                # No need for lat and lon dimensions
+                self.ds = self.ds.squeeze(dim=(self.lat_dim, self.lon_dim))
+
+    def unstack_time_lat_lon(self):
+        """
+        Unstack the time, lat, and lon dims if they were previously stacked together
+        (self.stacked_time_dim is not None).
+        NOTE: This is a dedicated method written because xr.Datasets still have many unresolved bugs
+        associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
+        Practically, after the subcolumn processing the stacking information is lost so this is an alternative
+        dedicated method.
+        """
+        if self.stacked_time_dim is None:
+            raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
+        out_fields = [x for x in self.ds.keys()]
+        for key in out_fields:
+            Dims = self.ds[key].dims
+            Shape = self.ds[key].shape
+            if len(Shape) == 0:
+                continue
+            if self.time_dim in Dims:
+                self.ds[key] = xr.DataArray(np.reshape(self.ds[key].values,
+                                                       (*Shape[:-1], self.ds[self.lat_dim + "_tmp"].size,
+                                                        self.ds[self.lat_dim + "_tmp"].size,
+                                                        self.ds[self.stacked_time_dim + "_tmp"].size)),
+                                            dims=(*Dims[:-1], self.ds[self.lat_dim + "_tmp"].dims[0],
+                                                  self.ds[self.lon_dim + "_tmp"].dims[0],
+                                                  self.ds[self.stacked_time_dim + "_tmp"].dims[0]))
+        self.ds = self.ds.drop_dims(self.time_dim)
+        self.time_dim, self.stacked_time_dim = self.stacked_time_dim, None
+        self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,
+                                  self.lon_dim + "_tmp": self.lon_dim,
+                                  self.time_dim + "_tmp": self.time_dim})
+
     def set_hyd_types(self, hyd_types):
         if hyd_types is None:
             if self.num_hydrometeor_classes == 0:
@@ -238,7 +352,6 @@ class Model():
         ----------
         file_name: str
             Name of the file to save.
-
         """
         my_file = xr.open_dataset(file_name)
         self.ds = xr.merge([self.ds, my_file])
@@ -254,6 +367,8 @@ class ModelE(Model):
         ----------
         file_path: str
             Path to a ModelE simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -267,7 +382,7 @@ class ModelE(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -293,15 +408,6 @@ class ModelE(Model):
         self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
 
-        # Check to make sure we are loading a single column
-        if 'lat' in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-                self.ds.close()
-                raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
-
-            # No need for lat and lon dimensions
-            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
-
         # crop specific model output time range (if requested)
         if time_range is not None:
             if np.issubdtype(time_range.dtype, np.datetime64):
@@ -309,13 +415,16 @@ class ModelE(Model):
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
 
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
+
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"
-        self.model_name = "ModelE"
+        self.model_name = "ModelE3"
 
 
 class E3SM(Model):
-    def __init__(self, file_path, time_range=None):
+    def __init__(self, file_path, time_range=None, time_dim="ncol", appended_str=False):
         """
         This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -323,6 +432,13 @@ class E3SM(Model):
         ----------
         file_path: str
             Path to an E3SM simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        time_dim: str
+            Name of the time dimension. Typically "time" or "ncol".
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -336,7 +452,7 @@ class E3SM(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -348,52 +464,83 @@ class E3SM(Model):
         self.z_field = "Z3"
         self.T_field = "T"
         self.height_dim = "lev"
-        self.time_dim = "ncol"
+        self.time_dim = time_dim
         self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
-        self.strat_frac_names = {'cl': 'CLOUD', 'ci': 'CLOUD', 'pl': 'CLOUD', 'pi': 'CLOUD'}
+        self.strat_frac_names = {'cl': 'FREQL', 'ci': 'FREQI', 'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
                                         'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
-                                         'pl': 'CLOUD', 'pi': 'CLOUD'}
+                                         'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
         self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
+        self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.hyd_types = ["cl", "ci", "pi"]
         self.ds = read_netcdf(file_path)
-        time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
-                                   dtype='datetime64')
-        self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
-
-        # Check to make sure we are loading a single column
-        if 'lat' in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-                self.ds.close()
-                raise RuntimeError("%s is not a column dataset. EMC^2 will currently works with column data." %
-                                   file_path)
-
-            # No need for lat and lon dimensions
-            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
+        if appended_str:
+            super().remove_appended_str()
+        if time_dim == "ncol":
+            time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                       dtype='datetime64')
+            self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
 
         # crop specific model output time range (if requested)
         if time_range is not None:
             if np.issubdtype(time_range.dtype, np.datetime64):
-                super()._crop_time_range(time_range, alter_coord="time")
+                if time_dim == "ncol":
+                    super()._crop_time_range(time_range, alter_coord="time")
+                else:
+                    super()._crop_time_range(time_range)
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        self.ds[self.p_field] = (self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2  # hPa
+        # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
+        self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
+        for key in self.ds.keys():
+            if self.height_dim in self.ds[key].dims:
+                rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
+                self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
+
+        self.ds[self.p_field] = \
+            ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2)  # hPa
+        if self.stacked_time_dim is not None:  # dimensions were stacked
+            self.ds[self.p_field] = self.ds[self.p_field].transpose()
         self.ds[self.p_field].attrs["units"] = "hPa"
         self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
                                            dims=self.ds[self.p_field].dims)
         self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
         for hyd in ["pl", "pi"]:
-            self.ds[self.strat_re_fields[hyd]].values /= 2  # Assuming effective diameter was provided
+            self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
         self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
         self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         for hyd in ["cl", "ci", "pl", "pi"]:
-            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values  # convert from mass number to number
+            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+
         self.model_name = "E3SM"
+
+
+class CESM2(E3SM):
+    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False):
+        """
+        This loads a CESM2 simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an E3SM simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
+        """
+        super().__init__(file_path, time_range, time_dim, appended_str)
+        self.model_name = "CESM2"
 
 
 class WRF(Model):
@@ -445,7 +592,7 @@ class WRF(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -604,8 +751,8 @@ class WRF(Model):
         self.time_dim = "Time"
         self.height_dim = "bottom_top"
         self.model_name = "WRF"
-        self.lat_name = "XLAT"
-        self.lon_name = "XLONG"
+        self.lat_dim = "XLAT"
+        self.lon_dim = "XLONG"
         wrfin.close()
         for keys in self.ds.keys():
             try:
@@ -613,9 +760,13 @@ class WRF(Model):
             except (KeyError, ValueError):
                 continue
         self.ds = xr.Dataset(self.ds)
+
         # crop specific model output time range (if requested)
         if time_range is not None:
             super()._crop_time_range(time_range)
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
 
 
 class DHARMA(Model):
@@ -644,7 +795,7 @@ class DHARMA(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -672,26 +823,19 @@ class DHARMA(Model):
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
-        self.ds = read_netcdf(file_path)
+        self.ds = xr.open_dataset(file_path)
 
         for variable in self.ds.variables.keys():
             my_attrs = self.ds[variable].attrs
             self.ds[variable] = self.ds[variable].astype('float64')
             self.ds[variable].attrs = my_attrs
-        # es.keys():
-
-        # Check to make sure we are loading a single column
-        if 'lat' in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-                self.ds.close()
-                raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
-
-            # No need for lat and lon dimensions
-            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
 
         # crop specific model output time range (if requested)
         if time_range is not None:
             super()._crop_time_range(time_range)
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
 
         self.model_name = "DHARMA"
 
@@ -753,7 +897,7 @@ class TestModel(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -891,7 +1035,7 @@ class TestConvection(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -1030,7 +1174,7 @@ class TestAllStratiform(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
@@ -1150,7 +1294,7 @@ class TestHalfAndHalf(Model):
                             'ci': 0.35 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pl': 0.1 * 1 / (ureg.kg / (ureg.m ** 3)),
                             'pi': 0.40 * 1 / (ureg.kg / (ureg.m ** 3))}
-        self.vel_param_a = {'cl': 3e-7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
         self.vel_param_b = {'cl': 2. * ureg.dimensionless,
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,

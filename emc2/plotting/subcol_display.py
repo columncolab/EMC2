@@ -16,6 +16,7 @@ class SubcolumnDisplay(Display):
     information on the Display object and its attributes and parameters, click `here
     <https://arm-doe.github.io/ACT/API/generated/act.plotting.plot.Display.html>`_. In addition to the
     methods in :code:`Display`, :code:`SubcolumnDisplay` has the following attributes and methods:
+    Note: if older version of ACT are installed (e.g., 0.2.4), "_obj" should be replaced with "_arm".
 
     Attributes
     ----------

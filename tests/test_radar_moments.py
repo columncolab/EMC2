@@ -78,7 +78,7 @@ def test_radar_moments_all_stratiform():
     assert np.nanmax(my_model.ds["sub_col_Ze_tot_strat"].values) < 80.
     assert np.nanmax(my_model.ds["sub_col_Ze_pl_strat"].values) < 80.
     my_model = emc2.simulator.radar_moments.calc_radar_moments(instrument, my_model, False, use_rad_logic=False)
-    assert np.all(np.nanmax(np.abs(my_model.ds["sub_col_Vd_cl_strat"].values)) < 1)
+    assert np.all(np.nanmax(np.abs(my_model.ds["sub_col_Vd_cl_strat"].values)) < 1.5)
     assert np.all(np.nanmax(my_model.ds["sub_col_Vd_pl_strat"].values) <= 1)
 
     # Ze_min should increase with height

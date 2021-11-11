@@ -105,7 +105,7 @@ class Instrument(object):
             self.wavelength = wavelength.to('micrometer').magnitude
 
         self.mie_table = {}
-        self.c6_table = {}
+        self.scat_table = {}  # scattering calculation LUTs (e.g., C6 or m-D, A-D relationships).
         self.bulk_table = {}
         self.ds = None
 

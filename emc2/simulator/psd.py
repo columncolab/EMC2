@@ -6,7 +6,7 @@ from ..core.instrument import ureg, quantity
 
 
 def calc_mu_lambda(model, hyd_type="cl",
-                   calc_dispersion=False, dispersion_mu_bounds=(2, 15),
+                   calc_dispersion=None, dispersion_mu_bounds=(2, 15),
                    subcolumns=False, is_conv=False, **kwargs):
 
     """
@@ -29,11 +29,12 @@ def calc_mu_lambda(model, hyd_type="cl",
         The model to generate the parameters for.
     hyd_type: str
         The assumed hydrometeor type. Must be a hydrometeor type in Model.
-    calc_dispersion: bool
+    calc_dispersion: bool or None
         If False, the :math:`\mu` parameter will be fixed at 1/0.09 per
         Geoffroy et al. (2010). If True and the hydrometeor type is "cl",
         then the Martin et al. (1994) method will be used to calculate
         :math:`\mu`. Otherwise, :math:`\mu` is set to  0.
+        If None (default), setting calculation parameterization based on model logic.
     dispersion_mu_bounds: 2-tuple
         The lower and upper bounds for the :math:`\mu` parameter.
     subcolumns: bool
@@ -58,6 +59,11 @@ def calc_mu_lambda(model, hyd_type="cl",
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
     """
 
+    if calc_dispersion is None:
+        if model.model_name in ["E3SM", "CESM2", "WRF"]:
+            calc_dispersion = True
+        else:
+            calc_dispersion = False
     if not subcolumns:
         N_name = model.N_field[hyd_type]
         if not is_conv:

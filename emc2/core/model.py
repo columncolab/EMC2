@@ -81,8 +81,15 @@ class Model():
        The name of the time dimension in the model.
     height_dim: str
        The name of the height dimension in the model.
+    lat_dim: str
+        Name of the latitude dimension in the model (relevant for regional output)
+    lon_dim: str
+        Name of the longitude dimension in the model (relevant for regional output)
+    stacked_time_dim: str or None
+        This attribute becomes a string of the original time dimension name only if
+        stacking was required to enable EMC2 to processes a domain output (time x lat x lon).
     model_name: str
-       The name of the model (used for plotting).
+       The name of the model.
     x_dim: str
        The name of the x dimension of the model.
     y_dim: str
@@ -116,11 +123,12 @@ class Model():
         self.ds = None
         self.time_dim = "time"
         self.height_dim = "height"
+        self.lat_dim = "lat"
+        self.lon_dim = "lon"
+        self.stacked_time_dim = None
         self.model_name = "empty_model"
         self.x_dim = None
         self.y_dim = None
-        self.lat_name = None
-        self.lon_name = None
         self.consts = {"c": 299792458.0,  # m/s
                        "R_d": 287.058,  # J K^-1 Kg^-1
                        "g": 9.80665,  # m/s^2
@@ -219,11 +227,11 @@ class Model():
         Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
         (typically required when using post-processed output data files).
         """
-        for coordinate in ['lat', 'lon']:
+        for coordinate in [self.lat_dim, self.lon_dim]:
             out_coords = [x for x in self.ds.coords]
             coord_loc = np.argwhere([coordinate in x for x in out_coords]).item()
-            if len(out_coords[coord_loc]) > 3:  # length 3 only if no appended string (e.g., in post-processing)
-                appended_str = out_coords[coord_loc][3:]
+            if len(out_coords[coord_loc]) > len(coordinate):
+                appended_str = out_coords[coord_loc][len(coordinate):]
                 appended_coords = np.char.find(out_coords, appended_str)
                 to_rename = {}
                 for ind in range(len(out_coords)):
@@ -235,6 +243,76 @@ class Model():
                     if appended_fields[ind] > -1:
                         to_rename[out_fields[ind]] = out_fields[ind][:appended_fields[ind]]
                 self.ds = self.ds.rename(to_rename)
+
+    def check_and_stack_time_lat_lon(self, out_coord_name="time_lat_lon", file_path=None):
+        """
+        Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1)
+        to enable EMC^2 processing of regional model output. Otherwise, squeezing the lat and lon dims (if they
+        exist in dataset).
+        NOTE: tmp variables for lat, lon, and time are produced as xr.Datasets still have many unresolved bugs
+        associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
+        Practically, after the subcolumn processing the stacking information is lost so an alternative dedicated
+        method is used for unstacking
+
+        Parameters
+        ----------
+        out_coord_name: str
+            Name of output stacked coordinate.
+        file_path: str
+            Path and filename of ModelE simulation output.
+        """
+        # Check to make sure we are loading a single column
+        if self.lat_dim in [x for x in self.ds.dims.keys()]:
+            if self.ds.dims[self.lat_dim] != 1 or self.ds.dims[self.lon_dim] != 1:
+                if file_path is None:
+                 file_path = "The input filename"
+                print("%s is a regional output dataset; Stacking the time, lat, "
+                      "and lon dims for processing with EMC^2." % file_path)
+                self.ds[self.lat_dim + "_tmp"] = \
+                    xr.DataArray(self.ds[self.lat_dim].values,
+                                 coords={self.lat_dim + "_tmp": self.ds[self.lat_dim].values})
+                self.ds[self.lon_dim + "_tmp"] = \
+                    xr.DataArray(self.ds[self.lon_dim].values,
+                                 coords={self.lon_dim + "_tmp": self.ds[self.lon_dim].values})
+                self.ds[self.time_dim + "_tmp"] = \
+                    xr.DataArray(self.ds[self.time_dim].values,
+                                 coords={self.time_dim + "_tmp": self.ds[self.time_dim].values})
+                self.ds = self.ds.stack({out_coord_name:(self.lat_dim, self.lon_dim, self.time_dim)})
+                self.stacked_time_dim, self.time_dim = self.time_dim, out_coord_name
+            else:
+                # No need for lat and lon dimensions
+                self.ds = self.ds.squeeze(dim=(self.lat_dim, self.lon_dim))
+
+    def unstack_time_lat_lon(self):
+        """
+        Unstack the time, lat, and lon dims if they were previously stacked together
+        (self.stacked_time_dim is not None).
+        NOTE: This is a dedicated method written because xr.Datasets still have many unresolved bugs
+        associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
+        Practically, after the subcolumn processing the stacking information is lost so this is an alternative
+        dedicated method.
+        """
+        if self.stacked_time_dim is None:
+            raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
+        out_fields = [x for x in self.ds.keys()]
+        for key in out_fields:
+            Dims = self.ds[key].dims
+            Shape = self.ds[key].shape
+            if len(Shape) == 0:
+                continue
+            if self.time_dim in Dims:
+                self.ds[key] = xr.DataArray(np.reshape(self.ds[key].values,
+                                                       (*Shape[:-1], self.ds[self.lat_dim + "_tmp"].size,
+                                                        self.ds[self.lat_dim + "_tmp"].size,
+                                                        self.ds[self.stacked_time_dim + "_tmp"].size)),
+                                            dims=(*Dims[:-1], self.ds[self.lat_dim + "_tmp"].dims[0],
+                                                        self.ds[self.lon_dim + "_tmp"].dims[0],
+                                                        self.ds[self.stacked_time_dim + "_tmp"].dims[0]))
+        self.ds = self.ds.drop_dims(self.time_dim)
+        self.time_dim, self.stacked_time_dim = self.stacked_time_dim, None
+        self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,
+                                               self.lon_dim + "_tmp": self.lon_dim,
+                                               self.time_dim + "_tmp": self.time_dim})
 
     def set_hyd_types(self, hyd_types):
         if hyd_types is None:
@@ -330,21 +408,15 @@ class ModelE(Model):
         self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
 
-        # Check to make sure we are loading a single column
-        if 'lat' in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-                self.ds.close()
-                raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
-
-            # No need for lat and lon dimensions
-            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
-
         # crop specific model output time range (if requested)
         if time_range is not None:
             if np.issubdtype(time_range.dtype, np.datetime64):
                 super()._crop_time_range(time_range)
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
 
         # ModelE has pressure units in mb, but pint only supports hPa
         self.ds["p_3d"].attrs["units"] = "hPa"
@@ -392,7 +464,7 @@ class E3SM(Model):
         self.z_field = "Z3"
         self.T_field = "T"
         self.height_dim = "lev"
-        self.time_dim = "ncol"
+        self.time_dim = time_dim
         self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.strat_frac_names = {'cl': 'FREQL', 'ci': 'FREQI', 'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
@@ -408,30 +480,35 @@ class E3SM(Model):
         self.hyd_types = ["cl", "ci", "pi"]
         self.ds = read_netcdf(file_path)
         if appended_str:
-            self.remove_appended_str()
+            super().remove_appended_str()
         if time_dim == "ncol":
             time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
                                        dtype='datetime64')
             self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
 
-        # Check to make sure we are loading a single column
-        if 'lat' in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-                self.ds.close()
-                raise RuntimeError("%s is not a column dataset. EMC^2 will currently works with column data." %
-                                   file_path)
-
-            # No need for lat and lon dimensions
-            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
-
         # crop specific model output time range (if requested)
         if time_range is not None:
             if np.issubdtype(time_range.dtype, np.datetime64):
-                super()._crop_time_range(time_range, alter_coord="time")
+                if time_dim == "ncol":
+                    super()._crop_time_range(time_range, alter_coord="time")
+                else:
+                    super()._crop_time_range(time_range)
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        self.ds[self.p_field] = (self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2  # hPa
+        # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
+        self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
+        for key in self.ds.keys():
+            if self.height_dim in self.ds[key].dims:
+                rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
+                self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
+
+        self.ds[self.p_field] = ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2)  # hPa
+        if self.stacked_time_dim is not None:  # dimensions were stacked
+            self.ds[self.p_field] = self.ds[self.p_field].transpose()
         self.ds[self.p_field].attrs["units"] = "hPa"
         self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
                                            dims=self.ds[self.p_field].dims)
@@ -442,13 +519,6 @@ class E3SM(Model):
         self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         for hyd in ["cl", "ci", "pl", "pi"]:
             self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
-
-        # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
-        self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
-        for key in self.ds.keys():
-            if self.height_dim in self.ds[key].dims:
-                rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
-                self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
 
         self.model_name = "E3SM"
 
@@ -680,8 +750,8 @@ class WRF(Model):
         self.time_dim = "Time"
         self.height_dim = "bottom_top"
         self.model_name = "WRF"
-        self.lat_name = "XLAT"
-        self.lon_name = "XLONG"
+        self.lat_dim = "XLAT"
+        self.lon_dim = "XLONG"
         wrfin.close()
         for keys in self.ds.keys():
             try:
@@ -689,9 +759,13 @@ class WRF(Model):
             except (KeyError, ValueError):
                 continue
         self.ds = xr.Dataset(self.ds)
+
         # crop specific model output time range (if requested)
         if time_range is not None:
             super()._crop_time_range(time_range)
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
 
 
 class DHARMA(Model):
@@ -754,20 +828,13 @@ class DHARMA(Model):
             my_attrs = self.ds[variable].attrs
             self.ds[variable] = self.ds[variable].astype('float64')
             self.ds[variable].attrs = my_attrs
-        # es.keys():
-
-        # Check to make sure we are loading a single column
-        if 'lat' in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims['lat'] != 1 or self.ds.dims['lon'] != 1:
-                self.ds.close()
-                raise RuntimeError("%s is not an SCM run. EMC^2 will only work with SCM runs." % file_path)
-
-            # No need for lat and lon dimensions
-            self.ds = self.ds.squeeze(dim=('lat', 'lon'))
 
         # crop specific model output time range (if requested)
         if time_range is not None:
             super()._crop_time_range(time_range)
+
+        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+        super().check_and_stack_time_lat_lon(file_path=file_path)
 
         self.model_name = "DHARMA"
 

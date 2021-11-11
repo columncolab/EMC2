@@ -8,8 +8,8 @@ from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, rada
 from .psd import calc_re_thompson
 
 
-def make_simulated_data(model, instrument, N_columns, do_classify=False,
-                        **kwargs):
+def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
+                        calc_re=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -31,6 +31,12 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False,
         detect from LES 4D data.
     do_classify: bool
         run hydrometeor classification routines when True.
+    unstack_dims: bool
+        True - unstack the time, lat, and lon dimensions after processing in cases
+        of regional model output.
+    calc_re: bool
+        True - calculating effective radius (e.g., for when it is not provided.
+        Note that re is always calculated when WRF output is used.
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -126,7 +132,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False,
     else:
         use_empiric_calc = False
 
-    if np.logical_and(use_rad_logic, model.model_name == "WRF"):
+    if np.logical_or(calc_re, model.model_name == "WRF"):
         model_vars = [x for x in model.ds.variables.keys()]
         for hyd_type in hydrometeor_classes:
             if not model.strat_re_fields[hyd_type] in model_vars:
@@ -198,4 +204,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False,
                 convert_zeros_to_nan=convert_zeros_to_nan, hyd_types=hyd_types)
     else:
         raise ValueError("Currently, only lidars and radars are supported as instruments.")
+
+    # Unstack dims in case of regional model output (typically done at the end of all EMC^2 processing)
+    if np.logical_and(model.stacked_time_dim is not None, unstack_dims):
+        print("Unstacking the %s dimension (time, lat, and lon dimensions)" % model.stacked_time_dim)
+        model.unstack_time_lat_lon()
     return model

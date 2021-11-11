@@ -180,7 +180,6 @@ def calc_re_thompson(model, hyd_type,
     N_w = model.ds[N_name].values
     rho_w = model.Rho_hyd[hyd_type].magnitude
 
-    R_d = 287.15
     p = model.ds[model.p_field].values * getattr(
         ureg, model.ds[model.p_field].attrs["units"])
     p = p.to(ureg.Pa).magnitude
@@ -188,7 +187,7 @@ def calc_re_thompson(model, hyd_type,
         ureg, model.ds[model.T_field].attrs["units"])
     t = t.to(ureg.kelvin).magnitude
 
-    rho_a = p / (R_d * t)
+    rho_a = p / (model.consts["R_d"] * t)
     if hyd_type == 'pl':
         k = 2.4
     else:

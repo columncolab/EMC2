@@ -126,7 +126,7 @@ class Model():
         self.lat_dim = "lat"
         self.lon_dim = "lon"
         self.stacked_time_dim = None
-        self.model_name = "empty_model"
+        self.model_name = ""
         self.x_dim = None
         self.y_dim = None
         self.consts = {"c": 299792458.0,  # m/s
@@ -244,11 +244,12 @@ class Model():
                         to_rename[out_fields[ind]] = out_fields[ind][:appended_fields[ind]]
                 self.ds = self.ds.rename(to_rename)
 
-    def check_and_stack_time_lat_lon(self, out_coord_name="time_lat_lon", file_path=None):
+    def check_and_stack_time_lat_lon(self, out_coord_name="time_lat_lon", file_path=None, order_dim=True):
         """
         Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1)
         to enable EMC^2 processing of regional model output. Otherwise, squeezing the lat and lon dims (if they
-        exist in dataset).
+        exist in dataset). Finally, the method reorder dimensions to time x height for proper processing by
+        calling the "permute_dims_for_processing" class method.
         NOTE: tmp variables for lat, lon, and time are produced as xr.Datasets still have many unresolved bugs
         associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
         Practically, after the subcolumn processing the stacking information is lost so an alternative dedicated
@@ -260,6 +261,8 @@ class Model():
             Name of output stacked coordinate.
         file_path: str
             Path and filename of ModelE simulation output.
+        order_dim: bool
+            When True, reorder dimensions to time x height for proper processing.
         """
         # Check to make sure we are loading a single column
         if self.lat_dim in [x for x in self.ds.dims.keys()]:
@@ -282,19 +285,28 @@ class Model():
             else:
                 # No need for lat and lon dimensions
                 self.ds = self.ds.squeeze(dim=(self.lat_dim, self.lon_dim))
+        if order_dim:
+            self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
-    def unstack_time_lat_lon(self):
+    def unstack_time_lat_lon(self, order_dim=True):
         """
         Unstack the time, lat, and lon dims if they were previously stacked together
-        (self.stacked_time_dim is not None).
+        (self.stacked_time_dim is not None). Finally, the method reorder dimensions to time x height for proper
+        processing by calling the "permute_dims_for_processing" class method.
         NOTE: This is a dedicated method written because xr.Datasets still have many unresolved bugs
         associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
         Practically, after the subcolumn processing the stacking information is lost so this is an alternative
         dedicated method.
+
+        Parameters
+        ----------
+        order_dim: bool
+            When True, reorder dimensions to subcolumn x time x height for proper processing.
         """
         if self.stacked_time_dim is None:
             raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
         out_fields = [x for x in self.ds.keys()]
+        self.permute_dims_for_processing(base_order=[self.height_dim, self.time_dim], base_dim_first=False)
         for key in out_fields:
             Dims = self.ds[key].dims
             Shape = self.ds[key].shape
@@ -313,6 +325,33 @@ class Model():
         self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,
                                   self.lon_dim + "_tmp": self.lon_dim,
                                   self.time_dim + "_tmp": self.time_dim})
+        if order_dim:
+            self.permute_dims_for_processing()  # Consistent dim order (subcolumn x time x height).
+
+    def permute_dims_for_processing(self, base_order=None, base_dim_first=True):
+        """
+        Reorder dims for consistent processing such that the order is:
+        subcolumn x time x height.
+        Note: lat/lon dims are assumed to already be stacked with the time dim.
+
+        Parameters
+        ----------
+        base_order: list or None
+            List of preffered dimension order. Use default if None
+        base_dim_first: bool
+            Make the base dims (height and time) the first ones in the permutation if True.
+        """
+        if base_order is None:
+            base_order = [self.time_dim, self.height_dim]
+        Dims_new_order = [x for x in self.ds.dims
+                          if x not in ["subcolumn"] + base_order]
+        if "subcolumn" in self.ds.dims:
+            base_order = ["subcolumn"] + base_order
+        if base_dim_first:
+            Dims_new_order = tuple(base_order + Dims_new_order)
+        else:
+            Dims_new_order = tuple(Dims_new_order + base_order)
+        self.ds = self.ds.transpose(*Dims_new_order)
 
     def set_hyd_types(self, hyd_types):
         if hyd_types is None:
@@ -481,6 +520,7 @@ class E3SM(Model):
         self.ds = read_netcdf(file_path)
         if appended_str:
             super().remove_appended_str()
+
         if time_dim == "ncol":
             time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
                                        dtype='datetime64')
@@ -504,7 +544,7 @@ class E3SM(Model):
                 self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
 
         # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
-        super().check_and_stack_time_lat_lon(file_path=file_path)
+        super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
 
         self.ds[self.p_field] = \
             ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2)  # hPa
@@ -520,6 +560,8 @@ class E3SM(Model):
         self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         for hyd in ["cl", "ci", "pl", "pi"]:
             self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+
+        self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
         self.model_name = "E3SM"
 

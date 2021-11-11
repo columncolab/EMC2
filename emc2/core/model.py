@@ -265,7 +265,7 @@ class Model():
         if self.lat_dim in [x for x in self.ds.dims.keys()]:
             if self.ds.dims[self.lat_dim] != 1 or self.ds.dims[self.lon_dim] != 1:
                 if file_path is None:
-                 file_path = "The input filename"
+                    file_path = "The input filename"
                 print("%s is a regional output dataset; Stacking the time, lat, "
                       "and lon dims for processing with EMC^2." % file_path)
                 self.ds[self.lat_dim + "_tmp"] = \
@@ -277,7 +277,7 @@ class Model():
                 self.ds[self.time_dim + "_tmp"] = \
                     xr.DataArray(self.ds[self.time_dim].values,
                                  coords={self.time_dim + "_tmp": self.ds[self.time_dim].values})
-                self.ds = self.ds.stack({out_coord_name:(self.lat_dim, self.lon_dim, self.time_dim)})
+                self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.lon_dim, self.time_dim)})
                 self.stacked_time_dim, self.time_dim = self.time_dim, out_coord_name
             else:
                 # No need for lat and lon dimensions
@@ -306,13 +306,13 @@ class Model():
                                                         self.ds[self.lat_dim + "_tmp"].size,
                                                         self.ds[self.stacked_time_dim + "_tmp"].size)),
                                             dims=(*Dims[:-1], self.ds[self.lat_dim + "_tmp"].dims[0],
-                                                        self.ds[self.lon_dim + "_tmp"].dims[0],
-                                                        self.ds[self.stacked_time_dim + "_tmp"].dims[0]))
+                                                  self.ds[self.lon_dim + "_tmp"].dims[0],
+                                                  self.ds[self.stacked_time_dim + "_tmp"].dims[0]))
         self.ds = self.ds.drop_dims(self.time_dim)
         self.time_dim, self.stacked_time_dim = self.stacked_time_dim, None
         self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,
-                                               self.lon_dim + "_tmp": self.lon_dim,
-                                               self.time_dim + "_tmp": self.time_dim})
+                                  self.lon_dim + "_tmp": self.lon_dim,
+                                  self.time_dim + "_tmp": self.time_dim})
 
     def set_hyd_types(self, hyd_types):
         if hyd_types is None:
@@ -506,7 +506,8 @@ class E3SM(Model):
         # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
         super().check_and_stack_time_lat_lon(file_path=file_path)
 
-        self.ds[self.p_field] = ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2)  # hPa
+        self.ds[self.p_field] = \
+            ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2)  # hPa
         if self.stacked_time_dim is not None:  # dimensions were stacked
             self.ds[self.p_field] = self.ds[self.p_field].transpose()
         self.ds[self.p_field].attrs["units"] = "hPa"

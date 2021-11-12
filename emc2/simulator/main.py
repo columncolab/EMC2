@@ -54,33 +54,6 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     else:
         use_rad_logic = True
 
-    for hyd_type in hydrometeor_classes:
-        model = set_convective_sub_col_frac(
-            model, hyd_type, N_columns=N_columns,
-            use_rad_logic=use_rad_logic)
-
-    model = set_stratiform_sub_col_frac(
-        model, use_rad_logic=use_rad_logic)
-    model = set_precip_sub_col_frac(
-        model, is_conv=False, use_rad_logic=use_rad_logic)
-    model = set_precip_sub_col_frac(
-        model, is_conv=True, use_rad_logic=use_rad_logic)
-    for hyd_type in hydrometeor_classes:
-        if hyd_type != 'cl':
-            model = set_q_n(
-                model, hyd_type, is_conv=False,
-                qc_flag=False, use_rad_logic=use_rad_logic)
-            model = set_q_n(
-                model, hyd_type, is_conv=True,
-                qc_flag=False, use_rad_logic=use_rad_logic)
-        else:
-            model = set_q_n(
-                model, hyd_type, is_conv=False,
-                qc_flag=True, use_rad_logic=use_rad_logic)
-            model = set_q_n(
-                model, hyd_type, is_conv=True,
-                qc_flag=False, use_rad_logic=use_rad_logic)
-
     if 'OD_from_sfc' in kwargs.keys():
         OD_from_sfc = kwargs['OD_from_sfc']
         del kwargs['OD_from_sfc']
@@ -132,6 +105,34 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     else:
         use_empiric_calc = False
 
+    for hyd_type in hydrometeor_classes:
+        model = set_convective_sub_col_frac(
+            model, hyd_type, N_columns=N_columns,
+            use_rad_logic=use_rad_logic)
+
+    # Subcolumn Generator
+    model = set_stratiform_sub_col_frac(
+        model, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+    model = set_precip_sub_col_frac(
+        model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+    model = set_precip_sub_col_frac(
+        model, is_conv=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+    for hyd_type in hydrometeor_classes:
+        if hyd_type != 'cl':
+            model = set_q_n(
+                model, hyd_type, is_conv=False,
+                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+            model = set_q_n(
+                model, hyd_type, is_conv=True,
+                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        else:
+            model = set_q_n(
+                model, hyd_type, is_conv=False,
+                qc_flag=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+            model = set_q_n(
+                model, hyd_type, is_conv=True,
+                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+
     if np.logical_or(calc_re, model.model_name == "WRF"):
         model_vars = [x for x in model.ds.variables.keys()]
         for hyd_type in hydrometeor_classes:
@@ -144,6 +145,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                                          is_conv=True, subcolumns=True,
                                          **kwargs)
 
+    # Radar Simulator
     if instrument.instrument_class.lower() == "radar":
         print("Generating radar moments...")
         if 'reg_rng' in kwargs.keys():
@@ -171,6 +173,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                 instrument, model, mask_height_rng=mask_height_rng,
                 convert_zeros_to_nan=convert_zeros_to_nan)
 
+    # Lidar Simulator
     elif instrument.instrument_class.lower() == "lidar":
         print("Generating lidar moments...")
         if 'ext_OD' in kwargs.keys():

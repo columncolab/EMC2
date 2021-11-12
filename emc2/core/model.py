@@ -127,8 +127,6 @@ class Model():
         self.lon_dim = "lon"
         self.stacked_time_dim = None
         self.model_name = ""
-        self.x_dim = None
-        self.y_dim = None
         self.consts = {"c": 299792458.0,  # m/s
                        "R_d": 287.058,  # J K^-1 Kg^-1
                        "g": 9.80665,  # m/s^2

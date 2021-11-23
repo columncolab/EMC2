@@ -27,17 +27,23 @@ def calc_total_reflectivity(model):
     """
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
                       10 ** (model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
-    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
-                      10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
+    if model.process_conv:
+        Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
+                          10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
 
     model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
     model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
-    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
-                                                   model.ds['hyd_ext_conv'].fillna(1) * model.ds[
-                                                       'hyd_ext_strat'].fillna(1) *
-                                                   model.ds['atm_ext'].fillna(1))
+    if model.process_conv:
+        model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                       model.ds['hyd_ext_conv'].fillna(1) * model.ds[
+                                                           'hyd_ext_strat'].fillna(1) *
+                                                       model.ds['atm_ext'].fillna(1))
+    else:
+        model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                       model.ds['hyd_ext_strat'].fillna(1) *
+                                                       model.ds['atm_ext'].fillna(1))
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"

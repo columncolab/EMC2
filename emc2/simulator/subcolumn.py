@@ -70,7 +70,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
     return model
 
 
-def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=None):
+def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, parallel=True, chunk=None):
     """
     Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.
 
@@ -82,6 +82,12 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
         When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
         using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
+    N_columns: int or None
+        The number of subcolumns to generate. Specifying this will set the number
+        of subcolumns in the model parameter when the first subcolumns are generated.
+        Therefore, after those are generated this must either be
+        equal to None or the number of subcolumns in the model. Setting this to None will
+        use the number of subcolumns in the model parameter.
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     chunk: int or None
@@ -97,18 +103,25 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
     """
     t0 = time()
 
-    if "conv_frac_subcolumns_cl" not in model.ds.variables.keys():
-        raise KeyError("You have to generate the convective fraction in each subcolumn " +
-                       "before the stratiform fraction in each subcolumn is generated.")
+    if model.process_conv:
+        if "conv_frac_subcolumns_cl" not in model.ds.variables.keys():
+            raise KeyError("You have to generate the convective fraction in each subcolumn " +
+                           "before the stratiform fraction in each subcolumn is generated.")
 
-    if "conv_frac_subcolumns_ci" not in model.ds.variables.keys():
-        raise KeyError("You have to generate the convective fraction in each subcolumn " +
-                       "before the stratiform fraction in each subcolumn is generated.")
-    np.seterr(divide='ignore', invalid='ignore')
-    conv_profs1 = model.ds["conv_frac_subcolumns_cl"]
-    conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
+        if "conv_frac_subcolumns_ci" not in model.ds.variables.keys():
+            raise KeyError("You have to generate the convective fraction in each subcolumn " +
+                           "before the stratiform fraction in each subcolumn is generated.")
+        np.seterr(divide='ignore', invalid='ignore')
+        conv_profs1 = model.ds["conv_frac_subcolumns_cl"]
+        conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
+        conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
+    else:
+        if model.num_subcolumns == 0:
+            model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
+        conv_profs = np.zeros((N_columns, *model.ds[model.strat_frac_names["cl"]].shape),
+                              dtype=bool)
     N_columns = len(model.ds["subcolumn"])
-    subcolumn_dims = conv_profs1.dims
+    subcolumn_dims = ("subcolumn", *model.ds[model.strat_frac_names_for_rad["cl"]].dims)
     if use_rad_logic:
         method_str = "Radiation logic"
         data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
@@ -123,7 +136,6 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
     data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
     full_overcast_cl_ci = 0
 
-    conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
     is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
     is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)

@@ -88,12 +88,11 @@ class Model():
     stacked_time_dim: str or None
         This attribute becomes a string of the original time dimension name only if
         stacking was required to enable EMC2 to processes a domain output (time x lat x lon).
+    process_conv: bool
+        If True, then processing convective model output (can typically be set to False for
+        some models).
     model_name: str
        The name of the model.
-    x_dim: str
-       The name of the x dimension of the model.
-    y_dim: str
-       The name of the y dimension of the model.
     """
 
     def __init__(self):
@@ -126,6 +125,7 @@ class Model():
         self.lat_dim = "lat"
         self.lon_dim = "lon"
         self.stacked_time_dim = None
+        self.process_conv = True
         self.model_name = ""
         self.consts = {"c": 299792458.0,  # m/s
                        "R_d": 287.058,  # J K^-1 Kg^-1
@@ -515,6 +515,7 @@ class E3SM(Model):
         self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.hyd_types = ["cl", "ci", "pi"]
+        self.process_conv = False
         self.ds = read_netcdf(file_path)
         if appended_str:
             super().remove_appended_str()

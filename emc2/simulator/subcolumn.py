@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 import dask.bag as db
+from time import time
 
 
 def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=True):
@@ -94,6 +95,7 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
     model: :py:func: `emc2.core.Model`
         The Model object with the stratiform hydrometeor fraction in each subcolumn added.
     """
+    t0 = time()
 
     if "conv_frac_subcolumns_cl" not in model.ds.variables.keys():
         raise KeyError("You have to generate the convective fraction in each subcolumn " +
@@ -174,6 +176,9 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
         "Liquid cloud particles present? [stratiform]"
     model.ds['strat_frac_subcolumns_ci'].attrs["units"] = "0 = no, 1 = yes"
     model.ds['strat_frac_subcolumns_ci'].attrs["Processing method"] = method_str
+
+    print("Done! total processing time = %.2fs" % (time() - t0))
+
     return model
 
 
@@ -211,6 +216,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     model: :py:func: `emc2.core.Model`
         The Model object with the stratiform hydrometeor fraction in each subcolumn added.
     """
+    t0 = time()
+
     np.seterr(divide='ignore', invalid='ignore')
     if model.num_subcolumns == 0 and N_columns is None:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
@@ -226,6 +233,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
     if is_conv:
+        precip_type = 'conv'
+        precip_type_full = 'convective'
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
@@ -236,13 +245,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.conv_frac_names['pl']]
             data_frac2 = model.ds[model.conv_frac_names['pi']]
-        out_prof_name1 = 'conv_frac_subcolumns_pl'
-        out_prof_name2 = 'conv_frac_subcolumns_pi'
-        out_prof_long_name1 = 'Liquid precipitation present? [convective]'
-        out_prof_long_name2 = 'Ice precipitation present? [convective]'
-        in_prof_cloud_name_liq = 'conv_frac_subcolumns_cl'
-        in_prof_cloud_name_ice = 'conv_frac_subcolumns_ci'
     else:
+        precip_type = 'strat'
+        precip_type_full = 'stratiform'
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
@@ -253,12 +258,12 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.strat_frac_names['pl']]
             data_frac2 = model.ds[model.strat_frac_names['pi']]
-        out_prof_name1 = 'strat_frac_subcolumns_pl'
-        out_prof_name2 = 'strat_frac_subcolumns_pi'
-        in_prof_cloud_name_liq = 'strat_frac_subcolumns_cl'
-        in_prof_cloud_name_ice = 'strat_frac_subcolumns_ci'
-        out_prof_long_name1 = 'Liquid precipitation present? [stratiform]'
-        out_prof_long_name2 = 'Ice precipitation present? [stratiform]'
+    out_prof_long_name1 = 'Liquid precipitation present? [%s]' % precip_type_full
+    out_prof_long_name2 = 'Ice precipitation present? [%s]' % precip_type_full
+    out_prof_name1 = precip_type + '_frac_subcolumns_pl'
+    out_prof_name2 = precip_type + '_frac_subcolumns_pi'
+    in_prof_cloud_name_liq = precip_type + '_frac_subcolumns_cl'
+    in_prof_cloud_name_ice = precip_type + '_frac_subcolumns_ci'
 
     full_overcast_pl_pi = 0
     if in_prof_cloud_name_liq not in model.ds.variables.keys():
@@ -290,7 +295,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
 
     t_dim = data_frac1.shape[0]
     if parallel:
-        print("Now performing parallel precipitation allocation in subcolumns")
+        print("Now performing parallel %s precipitation allocation in subcolumns" % precip_type)
         if chunk is None:
             tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
             my_tuple = tt_bag.map(_allocate_precip_sub_cols).compute()
@@ -323,6 +328,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     model.ds[out_prof_name2].attrs["long_name"] = out_prof_long_name2
     model.ds[out_prof_name2].attrs["units"] = "0 = no, 1 = yes"
     model.ds[out_prof_name2].attrs["Processing method"] = method_str
+
+    print("Done! total processing time = %.2fs" % (time() - t0))
+
     return model
 
 
@@ -455,6 +463,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         model.ds[n_name].attrs["long_name"] = "N in subcolumns"
         model.ds[n_name].attrs["units"] = "cm-3"
         model.ds[n_name].attrs["Processing method"] = method_str
+
     return model
 
 

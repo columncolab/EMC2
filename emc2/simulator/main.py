@@ -9,7 +9,7 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, **kwargs):
+                        calc_re=False, skip_subcol_gen=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -37,6 +37,8 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     calc_re: bool
         True - calculating effective radius (e.g., for when it is not provided.
         Note that re is always calculated when WRF output is used.
+    skip_subcol_gen: bool
+        True - skip the subcolumn generator (e.g., in case subcolumn were already generated).
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -105,34 +107,38 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     else:
         use_empiric_calc = False
 
-    for hyd_type in hydrometeor_classes:
-        model = set_convective_sub_col_frac(
-            model, hyd_type, N_columns=N_columns,
-            use_rad_logic=use_rad_logic)
+    if skip_subcol_gen:
+        print('Skipping subcolumn generator (make sure subcolumns were already generated).')
+    else:
+        for hyd_type in hydrometeor_classes:
+            model = set_convective_sub_col_frac(
+                model, hyd_type, N_columns=N_columns,
+                use_rad_logic=use_rad_logic)
 
-    # Subcolumn Generator
-    model = set_stratiform_sub_col_frac(
-        model, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-    model = set_precip_sub_col_frac(
-        model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-    model = set_precip_sub_col_frac(
-        model, is_conv=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-    for hyd_type in hydrometeor_classes:
-        if hyd_type != 'cl':
-            model = set_q_n(
-                model, hyd_type, is_conv=False,
-                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-            model = set_q_n(
-                model, hyd_type, is_conv=True,
-                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-        else:
-            model = set_q_n(
-                model, hyd_type, is_conv=False,
-                qc_flag=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-            model = set_q_n(
-                model, hyd_type, is_conv=True,
-                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        # Subcolumn Generator
+        model = set_stratiform_sub_col_frac(
+            model, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        model = set_precip_sub_col_frac(
+            model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        model = set_precip_sub_col_frac(
+            model, is_conv=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        for hyd_type in hydrometeor_classes:
+            if hyd_type != 'cl':
+                model = set_q_n(
+                    model, hyd_type, is_conv=False,
+                    qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+                model = set_q_n(
+                    model, hyd_type, is_conv=True,
+                    qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+            else:
+                model = set_q_n(
+                    model, hyd_type, is_conv=False,
+                    qc_flag=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+                model = set_q_n(
+                    model, hyd_type, is_conv=True,
+                    qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
 
+    # Calcualte r_eff if requested
     if np.logical_or(calc_re, model.model_name == "WRF"):
         model_vars = [x for x in model.ds.variables.keys()]
         for hyd_type in hydrometeor_classes:

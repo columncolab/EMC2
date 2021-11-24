@@ -275,10 +275,12 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
             model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
         model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc, **kwargs)
 
-        model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
+        model.ds["sub_col_beta_p_tot_%s" % cloud_str] += \
+            model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
         model.ds["sub_col_alpha_p_tot_%s" % cloud_str] += \
-            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)]
-        model.ds["sub_col_OD_tot_%s" % cloud_str] += model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)]
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
+        model.ds["sub_col_OD_tot_%s" % cloud_str] += \
+            model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].fillna(0)
 
     return model
 
@@ -416,10 +418,12 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
 
         model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc, **kwargs)
 
-        model.ds["sub_col_beta_p_tot_%s" % cloud_str] += model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)]
+        model.ds["sub_col_beta_p_tot_%s" % cloud_str] += \
+            model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
         model.ds["sub_col_alpha_p_tot_%s" % cloud_str] += \
-            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)]
-        model.ds["sub_col_OD_tot_%s" % cloud_str] += model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)]
+            model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].fillna(0)
+        model.ds["sub_col_OD_tot_%s" % cloud_str] += \
+            model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].fillna(0)
 
     return model
 

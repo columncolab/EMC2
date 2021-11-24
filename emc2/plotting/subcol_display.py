@@ -94,7 +94,7 @@ class SubcolumnDisplay(Display):
         self.cropped_lat_lon = [lat_sel, lon_sel]
         print("cropped lat %.2f and lon %.2f" % tuple(self.cropped_lat_lon))
         if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
-            self.model.ds_full = self.model.ds.copy()
+            self.model.ds_full = self.model.ds.copy(deep=True)
             if self.model.lat_dim in self.model.ds.dims:
                 if isinstance(lat_sel, float):
                     self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
@@ -128,7 +128,7 @@ class SubcolumnDisplay(Display):
         """
         if hasattr(self.model, 'ds_full'):
             if not np.logical_and(lat_sel is None, lon_sel is None):
-                self.model.ds = self.model.ds_full.copy()
+                self.model.ds = self.model.ds_full.copy(deep=True)
                 self.cropped_lat_lon = [lat_sel, lon_sel]
                 print("cropped lat %.2f and lon %.2f" % tuple(self.cropped_lat_lon))
                 if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
@@ -292,7 +292,7 @@ class SubcolumnDisplay(Display):
     def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, hatched_mask=False,
-                                  x_range=None, y_range=None, **tkwargs):
+                                  x_range=None, y_range=None, **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
         In the case of a 2D (time x height) field, plotting a time-height curtain.

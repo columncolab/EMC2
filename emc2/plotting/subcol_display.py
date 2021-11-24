@@ -132,17 +132,17 @@ class SubcolumnDisplay(Display):
                     self.model.ds = copy.deepcopy(model.ds)
                 if self.model.lat_dim in self.model.ds.dims:
                     if isinstance(lat_sel, float):
-                        print("cropping lat dim (lat = %.2f)" % lat_sel)
+                        print("cropping lat dim (lat requested = %.2f)" % lat_sel)
                         self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
                     elif isinstance(lat_sel, int):
-                        print("cropping lat dim (lat index = %d)" % lat_sel)
+                        print("cropping lat dim (lat index requested = %d)" % lat_sel)
                         self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
                 if self.model.lon_dim in self.model.ds.dims:
                     if isinstance(lon_sel, float):
-                        print("cropping lon dim (lon = %.2f)" % lon_sel)
+                        print("cropping lon dim (lon requested = %.2f)" % lon_sel)
                         self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
                     elif isinstance(lon_sel, int):
-                        print("cropping lon dim (lon index = %d)" % lon_sel)
+                        print("cropping lon dim (lon index requested = %d)" % lon_sel)
                         self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
         else:
             print("no alternative lat and lon coords provided - keeping processed dataset as is.")

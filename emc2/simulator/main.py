@@ -9,7 +9,7 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, **kwargs):
+                        calc_re=False, skip_subcol_gen=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -37,6 +37,8 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     calc_re: bool
         True - calculating effective radius (e.g., for when it is not provided.
         Note that re is always calculated when WRF output is used.
+    skip_subcol_gen: bool
+        True - skip the subcolumn generator (e.g., in case subcolumn were already generated).
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -105,34 +107,44 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     else:
         use_empiric_calc = False
 
-    for hyd_type in hydrometeor_classes:
-        model = set_convective_sub_col_frac(
-            model, hyd_type, N_columns=N_columns,
-            use_rad_logic=use_rad_logic)
-
-    # Subcolumn Generator
-    model = set_stratiform_sub_col_frac(
-        model, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-    model = set_precip_sub_col_frac(
-        model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-    model = set_precip_sub_col_frac(
-        model, is_conv=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-    for hyd_type in hydrometeor_classes:
-        if hyd_type != 'cl':
-            model = set_q_n(
-                model, hyd_type, is_conv=False,
-                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-            model = set_q_n(
-                model, hyd_type, is_conv=True,
-                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+    if skip_subcol_gen:
+        print('Skipping subcolumn generator (make sure subcolumns were already generated).')
+    else:
+        if model.process_conv:
+            for hyd_type in hydrometeor_classes:
+                model = set_convective_sub_col_frac(
+                    model, hyd_type, N_columns=N_columns,
+                    use_rad_logic=use_rad_logic)
         else:
-            model = set_q_n(
-                model, hyd_type, is_conv=False,
-                qc_flag=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
-            model = set_q_n(
-                model, hyd_type, is_conv=True,
-                qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+            print("No convective processing for %s" % model.model_name)
 
+        # Subcolumn Generator
+        model = set_stratiform_sub_col_frac(
+            model, use_rad_logic=use_rad_logic, N_columns=N_columns, parallel=parallel, chunk=chunk)
+        model = set_precip_sub_col_frac(
+            model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        if model.process_conv:
+            model = set_precip_sub_col_frac(
+                model, is_conv=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+        for hyd_type in hydrometeor_classes:
+            if hyd_type != 'cl':
+                model = set_q_n(
+                    model, hyd_type, is_conv=False,
+                    qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+                if model.process_conv:
+                    model = set_q_n(
+                        model, hyd_type, is_conv=True,
+                        qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+            else:
+                model = set_q_n(
+                    model, hyd_type, is_conv=False,
+                    qc_flag=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+                if model.process_conv:
+                    model = set_q_n(
+                        model, hyd_type, is_conv=True,
+                        qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+
+    # Calcualte r_eff if requested
     if np.logical_or(calc_re, model.model_name == "WRF"):
         model_vars = [x for x in model.ds.variables.keys()]
         for hyd_type in hydrometeor_classes:
@@ -140,10 +152,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                 model = calc_re_thompson(model, hyd_type,
                                          is_conv=False, subcolumns=True,
                                          **kwargs)
-            if not model.conv_re_fields[hyd_type] in model_vars:
-                model = calc_re_thompson(model, hyd_type,
-                                         is_conv=True, subcolumns=True,
-                                         **kwargs)
+            if model.process_conv:
+                if not model.conv_re_fields[hyd_type] in model_vars:
+                    model = calc_re_thompson(model, hyd_type,
+                                             is_conv=True, subcolumns=True,
+                                             **kwargs)
 
     # Radar Simulator
     if instrument.instrument_class.lower() == "radar":
@@ -159,11 +172,12 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
             use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
-        model = calc_radar_moments(
-            instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-            parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
-            use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, **kwargs)
+        if model.process_conv:
+            model = calc_radar_moments(
+                instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
+                parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
+                use_rad_logic=use_rad_logic,
+                use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_reflectivity(model)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
@@ -191,11 +205,12 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
             parallel=parallel, eta=eta, chunk=chunk,
             mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
             use_empiric_calc=use_empiric_calc, **kwargs)
-        model = calc_lidar_moments(
-            instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-            parallel=parallel, eta=eta, chunk=chunk,
-            mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, **kwargs)
+        if model.process_conv:
+            model = calc_lidar_moments(
+                instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
+                parallel=parallel, eta=eta, chunk=chunk,
+                mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
+                use_empiric_calc=use_empiric_calc, **kwargs)
         model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
         model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types)
 

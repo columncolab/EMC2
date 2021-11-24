@@ -27,17 +27,23 @@ def calc_total_reflectivity(model):
     """
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
                       10 ** (model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
-    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
-                      10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
+    if model.process_conv:
+        Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
+                          10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
 
     model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
     model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
-    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
-                                                   model.ds['hyd_ext_conv'].fillna(1) * model.ds[
-                                                       'hyd_ext_strat'].fillna(1) *
-                                                   model.ds['atm_ext'].fillna(1))
+    if model.process_conv:
+        model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                       model.ds['hyd_ext_conv'].fillna(1) * model.ds[
+                                                           'hyd_ext_strat'].fillna(1) *
+                                                       model.ds['atm_ext'].fillna(1))
+    else:
+        model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                       model.ds['hyd_ext_strat'].fillna(1) *
+                                                       model.ds['atm_ext'].fillna(1))
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"
@@ -207,7 +213,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
         var_name = "sub_col_Ze_%s_%s" % (hyd_type, cloud_str)
         model.ds[var_name] = xr.DataArray(
             Ze_emp.values, dims=model.ds[q_field].dims)
-        model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp
+        model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp.fillna(1)
 
     kappa_f = 6 * np.pi / (instrument.wavelength * model.Rho_hyd["cl"].magnitude) * \
         ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag * 4.34e6  # dB m^3 g^-1 km^-1
@@ -312,8 +318,6 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                 r_eff_bulk = instrument.bulk_table[bulk_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
-            if model.model_name in ["E3SM", "CESM2"]:
-                r_eff_bulk /= 2.  # From D_eff to r_eff
         else:
             if model.model_name in ["E3SM", "CESM2"]:
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
@@ -350,7 +354,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             hyd_ext += np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd
 
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += model.ds["sub_col_Ze_%s_%s" % (
-            hyd_type, cloud_str)]
+            hyd_type, cloud_str)].fillna(1)
 
     model = accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=False, **kwargs)
@@ -523,9 +527,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             model.ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, :] = np.stack([x[5] for x in my_tuple], axis=1)
 
         if "sub_col_Ze_tot_strat" in model.ds.variables.keys():
-            model.ds["sub_col_Ze_tot_strat"] += model.ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
+            model.ds["sub_col_Ze_tot_strat"] += model.ds["sub_col_Ze_%s_strat" % hyd_type].fillna(1)
         else:
-            model.ds["sub_col_Ze_tot_strat"] = model.ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
+            model.ds["sub_col_Ze_tot_strat"] = model.ds["sub_col_Ze_%s_strat" % hyd_type].fillna(1)
 
         model.ds["sub_col_Vd_%s_strat" % hyd_type].attrs["long_name"] = \
             "Mean Doppler velocity from stratiform %s hydrometeors" % hyd_type

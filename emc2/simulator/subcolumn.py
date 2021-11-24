@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 import dask.bag as db
+from time import time
 
 
 def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=True):
@@ -69,7 +70,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
     return model
 
 
-def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=None):
+def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, parallel=True, chunk=None):
     """
     Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.
 
@@ -81,6 +82,12 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
         When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
         using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
+    N_columns: int or None
+        The number of subcolumns to generate. Specifying this will set the number
+        of subcolumns in the model parameter when the first subcolumns are generated.
+        Therefore, after those are generated this must either be
+        equal to None or the number of subcolumns in the model. Setting this to None will
+        use the number of subcolumns in the model parameter.
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     chunk: int or None
@@ -94,19 +101,27 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
     model: :py:func: `emc2.core.Model`
         The Model object with the stratiform hydrometeor fraction in each subcolumn added.
     """
+    t0 = time()
 
-    if "conv_frac_subcolumns_cl" not in model.ds.variables.keys():
-        raise KeyError("You have to generate the convective fraction in each subcolumn " +
-                       "before the stratiform fraction in each subcolumn is generated.")
+    if model.process_conv:
+        if "conv_frac_subcolumns_cl" not in model.ds.variables.keys():
+            raise KeyError("You have to generate the convective fraction in each subcolumn " +
+                           "before the stratiform fraction in each subcolumn is generated.")
 
-    if "conv_frac_subcolumns_ci" not in model.ds.variables.keys():
-        raise KeyError("You have to generate the convective fraction in each subcolumn " +
-                       "before the stratiform fraction in each subcolumn is generated.")
-    np.seterr(divide='ignore', invalid='ignore')
-    conv_profs1 = model.ds["conv_frac_subcolumns_cl"]
-    conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
+        if "conv_frac_subcolumns_ci" not in model.ds.variables.keys():
+            raise KeyError("You have to generate the convective fraction in each subcolumn " +
+                           "before the stratiform fraction in each subcolumn is generated.")
+        np.seterr(divide='ignore', invalid='ignore')
+        conv_profs1 = model.ds["conv_frac_subcolumns_cl"]
+        conv_profs2 = model.ds["conv_frac_subcolumns_ci"]
+        conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
+    else:
+        if model.num_subcolumns == 0:
+            model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
+        conv_profs = np.zeros((N_columns, *model.ds[model.strat_frac_names["cl"]].shape),
+                              dtype=bool)
     N_columns = len(model.ds["subcolumn"])
-    subcolumn_dims = conv_profs1.dims
+    subcolumn_dims = ("subcolumn", *model.ds[model.strat_frac_names_for_rad["cl"]].dims)
     if use_rad_logic:
         method_str = "Radiation logic"
         data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
@@ -121,7 +136,6 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
     data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
     full_overcast_cl_ci = 0
 
-    conv_profs = np.logical_or(conv_profs1.values, conv_profs2.values)
     is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
     is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
@@ -174,6 +188,9 @@ def set_stratiform_sub_col_frac(model, use_rad_logic=True, parallel=True, chunk=
         "Liquid cloud particles present? [stratiform]"
     model.ds['strat_frac_subcolumns_ci'].attrs["units"] = "0 = no, 1 = yes"
     model.ds['strat_frac_subcolumns_ci'].attrs["Processing method"] = method_str
+
+    print("Done! total processing time = %.2fs" % (time() - t0))
+
     return model
 
 
@@ -211,6 +228,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     model: :py:func: `emc2.core.Model`
         The Model object with the stratiform hydrometeor fraction in each subcolumn added.
     """
+    t0 = time()
+
     np.seterr(divide='ignore', invalid='ignore')
     if model.num_subcolumns == 0 and N_columns is None:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
@@ -226,6 +245,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
     if is_conv:
+        precip_type = 'conv'
+        precip_type_full = 'convective'
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
@@ -236,13 +257,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.conv_frac_names['pl']]
             data_frac2 = model.ds[model.conv_frac_names['pi']]
-        out_prof_name1 = 'conv_frac_subcolumns_pl'
-        out_prof_name2 = 'conv_frac_subcolumns_pi'
-        out_prof_long_name1 = 'Liquid precipitation present? [convective]'
-        out_prof_long_name2 = 'Ice precipitation present? [convective]'
-        in_prof_cloud_name_liq = 'conv_frac_subcolumns_cl'
-        in_prof_cloud_name_ice = 'conv_frac_subcolumns_ci'
     else:
+        precip_type = 'strat'
+        precip_type_full = 'stratiform'
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
@@ -253,12 +270,12 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.strat_frac_names['pl']]
             data_frac2 = model.ds[model.strat_frac_names['pi']]
-        out_prof_name1 = 'strat_frac_subcolumns_pl'
-        out_prof_name2 = 'strat_frac_subcolumns_pi'
-        in_prof_cloud_name_liq = 'strat_frac_subcolumns_cl'
-        in_prof_cloud_name_ice = 'strat_frac_subcolumns_ci'
-        out_prof_long_name1 = 'Liquid precipitation present? [stratiform]'
-        out_prof_long_name2 = 'Ice precipitation present? [stratiform]'
+    out_prof_long_name1 = 'Liquid precipitation present? [%s]' % precip_type_full
+    out_prof_long_name2 = 'Ice precipitation present? [%s]' % precip_type_full
+    out_prof_name1 = precip_type + '_frac_subcolumns_pl'
+    out_prof_name2 = precip_type + '_frac_subcolumns_pi'
+    in_prof_cloud_name_liq = precip_type + '_frac_subcolumns_cl'
+    in_prof_cloud_name_ice = precip_type + '_frac_subcolumns_ci'
 
     full_overcast_pl_pi = 0
     if in_prof_cloud_name_liq not in model.ds.variables.keys():
@@ -290,7 +307,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
 
     t_dim = data_frac1.shape[0]
     if parallel:
-        print("Now performing parallel precipitation allocation in subcolumns")
+        print("Now performing parallel %s precipitation allocation in subcolumns" % precip_type)
         if chunk is None:
             tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
             my_tuple = tt_bag.map(_allocate_precip_sub_cols).compute()
@@ -323,6 +340,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     model.ds[out_prof_name2].attrs["long_name"] = out_prof_long_name2
     model.ds[out_prof_name2].attrs["units"] = "0 = no, 1 = yes"
     model.ds[out_prof_name2].attrs["Processing method"] = method_str
+
+    print("Done! total processing time = %.2fs" % (time() - t0))
+
     return model
 
 
@@ -455,6 +475,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         model.ds[n_name].attrs["long_name"] = "N in subcolumns"
         model.ds[n_name].attrs["units"] = "cm-3"
         model.ds[n_name].attrs["Processing method"] = method_str
+
     return model
 
 

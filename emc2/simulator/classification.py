@@ -64,7 +64,7 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
         LDR_fieldnames = ["sub_col_LDR_tot"]
         OD_fieldnames = ["sub_col_OD_tot"]
         beta_p_fieldnames = ["sub_col_beta_p_tot"]
- 
+
     for ii in range(len(mask_name_str)):
         mask_name = mask_name_str[ii]
         Class_legend = [""] * (len(beta_p_phase_thresh))

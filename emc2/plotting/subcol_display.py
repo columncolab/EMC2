@@ -387,7 +387,14 @@ class SubcolumnDisplay(Display):
             x = mdates.date2num([y for y in x])
 
         if log_plot is True:
-            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+            if 'vmin' in kwargs.keys():
+                vmin = kwargs['vmin']
+                del kwargs['vmin']
+            if 'vmax' in kwargs.keys():
+                vmax = kwargs['vmax']
+                del kwargs['vmax']
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                       **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if isinstance(hatched_mask, str):
@@ -501,7 +508,14 @@ class SubcolumnDisplay(Display):
             x = mdates.date2num([y for y in x])
 
         if log_plot is True:
-            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+            if 'vmin' in kwargs.keys():
+                vmin = kwargs['vmin']
+                del kwargs['vmin']
+            if 'vmax' in kwargs.keys():
+                vmax = kwargs['vmax']
+                del kwargs['vmax']
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                       **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if isinstance(hatched_mask, str):
@@ -635,7 +649,14 @@ class SubcolumnDisplay(Display):
         if x_range is not None:
             self.axes[subplot_index].set_xlim(x_range)
         if log_plot is True:
-            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+            if 'vmin' in kwargs.keys():
+                vmin = kwargs['vmin']
+                del kwargs['vmin']
+            if 'vmax' in kwargs.keys():
+                vmax = kwargs['vmax']
+                del kwargs['vmax']
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                       **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if isinstance(hatched_mask, str):

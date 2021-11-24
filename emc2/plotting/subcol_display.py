@@ -16,6 +16,10 @@ class SubcolumnDisplay(Display):
     information on the Display object and its attributes and parameters, click `here
     <https://arm-doe.github.io/ACT/API/generated/act.plotting.plot.Display.html>`_. In addition to the
     methods in :code:`Display`, :code:`SubcolumnDisplay` has the following attributes and methods:
+    The plotting dataset is automatically cropped to include only single lat and lon coordinates in case
+    of a regional output, but can always be replaced with different coordinates using the internal methods.
+    Note that there is no dedicated option to plot subcolumns vs. lat or lon, since subcolumns at a given
+    grid cell are independent of subcolumns attributed to other neighboring grid cells.
     Note: if older version of ACT are installed (e.g., 0.2.4), "_obj" should be replaced with "_arm".
 
     Attributes
@@ -34,13 +38,25 @@ class SubcolumnDisplay(Display):
     $ model_display.plot_subcolumn_timeseries('sub_col_Ze_cl_strat', 4, subplot_index=(1, 1))
 
     """
-    def __init__(self, model, **kwargs):
+    def __init__(self, model, lat_sel=None, lon_sel=None, **kwargs):
         """
 
         Parameters
         ----------
         model: emc2.core.Model
             The model containing the subcolumn data to plot.
+        lat_sel: float, int, or None
+            Relevant only if a latitude dimension exists in dataset (model output file).
+            if float, then specifying the latitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        lon_sel: float, int, or None
+            Relevant only if a lonitude dimension exists in dataset (model output file).
+            if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
 
         Additional keyword arguments are passed into act.plotting.plot.Display's constructor.
         """
@@ -50,6 +66,87 @@ class SubcolumnDisplay(Display):
             ds_name = kwargs.pop('ds_name')
         super().__init__(model.ds, ds_name=ds_name, **kwargs)
         self.model = model
+        self._crop_lat_lon(lat_sel, lon_sel)
+
+    def _crop_lat_lon(self, lat_sel=None, lon_sel=None):
+        """
+        cropping lat and/or lon coordinates enabling robust use of plotting routines.
+
+        Parameters
+        ----------
+        lat_sel: float, int, or None
+            Relevant only if a latitude dimension exists in dataset (model output file).
+            if float, then specifying the latitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        lon_sel: float, int, or None
+            Relevant only if a lonitude dimension exists in dataset (model output file).
+            if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        """
+        if lat_sel is None:
+            lat_sel = 0
+        if lon_sel is None:
+            lon_sel = 0
+        self.cropped_lat_lon = [lat_sel, lon_sel]
+        print("cropped lat %.2f and lon %.2f" % tuple(self.cropped_lat_lon))
+        if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
+            self.model.ds_full = self.model.ds.copy()
+            if self.model.lat_dim in self.model.ds.dims:
+                if isinstance(lat_sel, float):
+                    self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
+                elif isinstance(lat_sel, int):
+                    self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
+            self.model.ds_full = self.model.ds
+            if self.model.lon_dim in self.model.ds.dims:
+                if isinstance(lon_sel, float):
+                    self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
+                elif isinstance(lon_sel, int):
+                    self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
+
+    def _switch_lat_lon(self, lat_sel=None, lon_sel=None):
+        """
+        switching cropped lat and/or lon coordinates assuming a fully processed dataset exists.
+
+        Parameters
+        ----------
+        lat_sel: float, int, or None
+            Relevant only if a latitude dimension exists in dataset (model output file).
+            if float, then specifying the latitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        lon_sel: float, int, or None
+            Relevant only if a lonitude dimension exists in dataset (model output file).
+            if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        """
+        if hasattr(self.model, 'ds_full'):
+            if not np.logical_and(lat_sel is None, lon_sel is None):
+                self.model.ds = self.model.ds_full.copy()
+                self.cropped_lat_lon = [lat_sel, lon_sel]
+                print("cropped lat %.2f and lon %.2f" % tuple(self.cropped_lat_lon))
+                if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
+                    if self.model.lat_dim in self.model.ds.dims:
+                        if isinstance(lat_sel, float):
+                            self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
+                        elif isinstance(lat_sel, int):
+                            self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
+                    self.model.ds_full = self.model.ds
+                    if self.model.lon_dim in self.model.ds.dims:
+                        if isinstance(lon_sel, float):
+                            self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
+                        elif isinstance(lon_sel, int):
+                            self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
+            else:
+                print("no alternative lat and lon coords provided - keeping processed dataset as is.")
+        else:
+            print("no 'ds_full' attribute in object. Make sure a regional output was originally provided")
 
     def _switch_model(self, model):
         """
@@ -195,7 +292,7 @@ class SubcolumnDisplay(Display):
     def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, hatched_mask=False,
-                                  x_range=None, y_range=None, **kwargs):
+                                  x_range=None, y_range=None, **tkwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
         In the case of a 2D (time x height) field, plotting a time-height curtain.
@@ -256,7 +353,10 @@ class SubcolumnDisplay(Display):
             y_label = y_variable
 
         if cbar_label is None:
-            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+            if "long_name" in my_ds[variable].attrs.keys():
+                cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+            else:
+                cbar_label = variable
 
         if pressure_coords:
             x = my_ds[x_variable].values
@@ -374,8 +474,10 @@ class SubcolumnDisplay(Display):
         else:
             y_label = y_variable
 
-        if cbar_label is None:
+        if "long_name" in my_ds[variable].attrs.keys():
             cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+        else:
+            cbar_label = variable
 
         x = my_ds[x_variable].values
         y = my_ds[y_variable].values

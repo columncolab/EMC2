@@ -378,8 +378,6 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
                 r_eff_bulk = instrument.bulk_table[bulk_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
-            if model.model_name in ["E3SM", "CESM2"]:
-                r_eff_bulk /= 2.  # From D_eff to r_eff
         else:
             if model.model_name in ["E3SM", "CESM2"]:
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,

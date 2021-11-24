@@ -559,6 +559,9 @@ class E3SM(Model):
         self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         for hyd in ["cl", "ci", "pl", "pi"]:
             self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+            self.ds[self.strat_re_fields[hyd]].values = \
+                np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
+                         np.nan, self.ds[self.strat_re_fields[hyd]].values)
 
         self.permute_dims_for_processing()  # Consistent dim order (time x height).
 

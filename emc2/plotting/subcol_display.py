@@ -5,6 +5,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.dates as mdates
 import warnings
+import copy
 
 from act.plotting import Display
 
@@ -64,16 +65,22 @@ class SubcolumnDisplay(Display):
             ds_name = model.model_name
         else:
             ds_name = kwargs.pop('ds_name')
-        super().__init__(model.ds, ds_name=ds_name, **kwargs)
-        self.model = model
-        self._crop_lat_lon(lat_sel, lon_sel)
+        if np.any([x in model.ds.dims for x in [model.lat_dim, model.lon_dim]]):
+            model_c = copy.deepcopy(model)
+        else:
+            model_c = model
+        self.model = model_c
+        self._crop_lat_lon(model_c, lat_sel, lon_sel, deep=True)
+        super().__init__(model_c.ds, ds_name=ds_name, **kwargs)
 
-    def _crop_lat_lon(self, lat_sel=None, lon_sel=None):
+    def _crop_lat_lon(self, model, lat_sel=None, lon_sel=None, deep=False):
         """
         cropping lat and/or lon coordinates enabling robust use of plotting routines.
 
         Parameters
         ----------
+        model: emc2.core.Model
+            The model containing the subcolumn data to plot.
         lat_sel: float, int, or None
             Relevant only if a latitude dimension exists in dataset (model output file).
             if float, then specifying the latitude value for which to crop the model xr.Dataset for
@@ -86,33 +93,23 @@ class SubcolumnDisplay(Display):
             plotting (using the nearest value).
             if int, then specifying the index to crop.
             if None, then using index 0 to prevent issues.
+        deep: bool
+            If True, create a deep copy of the dataset in case of cropping
         """
         if lat_sel is None:
             lat_sel = 0
         if lon_sel is None:
             lon_sel = 0
-        self.cropped_lat_lon = [lat_sel, lon_sel]
-        print("cropped lat %.2f and lon %.2f" % tuple(self.cropped_lat_lon))
-        if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
-            self.model.ds_full = self.model.ds.copy(deep=True)
-            if self.model.lat_dim in self.model.ds.dims:
-                if isinstance(lat_sel, float):
-                    self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
-                elif isinstance(lat_sel, int):
-                    self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
-            self.model.ds_full = self.model.ds
-            if self.model.lon_dim in self.model.ds.dims:
-                if isinstance(lon_sel, float):
-                    self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
-                elif isinstance(lon_sel, int):
-                    self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
+        self._switch_lat_lon(model, lat_sel, lon_sel, deep)
 
-    def _switch_lat_lon(self, lat_sel=None, lon_sel=None):
+    def _switch_lat_lon(self, model, lat_sel=None, lon_sel=None, deep=False):
         """
         switching cropped lat and/or lon coordinates assuming a fully processed dataset exists.
 
         Parameters
         ----------
+        model: emc2.core.Model
+            The model containing the subcolumn data to plot.
         lat_sel: float, int, or None
             Relevant only if a latitude dimension exists in dataset (model output file).
             if float, then specifying the latitude value for which to crop the model xr.Dataset for
@@ -125,32 +122,34 @@ class SubcolumnDisplay(Display):
             plotting (using the nearest value).
             if int, then specifying the index to crop.
             if None, then using index 0 to prevent issues.
+        deep: bool
+            If True, create a deep copy of the dataset in case of cropping.
         """
-        if hasattr(self.model, 'ds_full'):
-            if not np.logical_and(lat_sel is None, lon_sel is None):
-                self.model.ds = self.model.ds_full.copy(deep=True)
-                self.cropped_lat_lon = [lat_sel, lon_sel]
-                print("cropped lat %.2f and lon %.2f" % tuple(self.cropped_lat_lon))
-                if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
-                    if self.model.lat_dim in self.model.ds.dims:
-                        if isinstance(lat_sel, float):
-                            self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
-                        elif isinstance(lat_sel, int):
-                            self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
-                    self.model.ds_full = self.model.ds
-                    if self.model.lon_dim in self.model.ds.dims:
-                        if isinstance(lon_sel, float):
-                            self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
-                        elif isinstance(lon_sel, int):
-                            self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
-            else:
-                print("no alternative lat and lon coords provided - keeping processed dataset as is.")
+        if not np.logical_and(lat_sel is None, lon_sel is None):
+            self.cropped_lat_lon = [lat_sel, lon_sel]
+            if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
+                if deep:
+                    self.model.ds = copy.deepcopy(model.ds)
+                if self.model.lat_dim in self.model.ds.dims:
+                    if isinstance(lat_sel, float):
+                        print("cropping lat dim (lat = %.2f)" % lat_sel)
+                        self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
+                    elif isinstance(lat_sel, int):
+                        print("cropping lat dim (lat index = %d)" % lat_sel)
+                        self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
+                if self.model.lon_dim in self.model.ds.dims:
+                    if isinstance(lon_sel, float):
+                        print("cropping lon dim (lon = %.2f)" % lon_sel)
+                        self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
+                    elif isinstance(lon_sel, int):
+                        print("cropping lon dim (lon index = %d)" % lon_sel)
+                        self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
         else:
-            print("no 'ds_full' attribute in object. Make sure a regional output was originally provided")
+            print("no alternative lat and lon coords provided - keeping processed dataset as is.")
 
     def _switch_model(self, model):
         """
-        Replace the processed model data in the SubcolumnDisplay object with a different
+        Replace the processed model data in the SubcolumnDisplay object with a deep copy of
         processed model data allowing full compitability with Display object (e.g., plotting
         output from multiple processing methods using the SubcolumnDisplay plotting routines).
 

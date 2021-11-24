@@ -47,7 +47,7 @@ def calc_total_reflectivity(model):
                                                        model.ds['hyd_ext_strat'].fillna(1) *
                                                        model.ds['atm_ext'].fillna(1))
     model.ds['sub_col_Ze_att_tot'].values = np.where(np.isinf(model.ds['sub_col_Ze_att_tot'].values), np.nan,
-                                                 model.ds['sub_col_Ze_att_tot'].values)
+                                                     model.ds['sub_col_Ze_att_tot'].values)
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"

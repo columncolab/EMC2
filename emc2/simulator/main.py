@@ -9,7 +9,7 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, skip_subcol_gen=False, **kwargs):
+                        calc_re=False, skip_subcol_gen=False, finalize_fields=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -39,6 +39,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
         Note that re is always calculated when WRF output is used.
     skip_subcol_gen: bool
         True - skip the subcolumn generator (e.g., in case subcolumn were already generated).
+    finalize_fields: bool
+        True - set absolute 0 values in"sub_col"-containing fields to np.nan enabling analysis
+        and visualization.
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -222,6 +225,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                 convert_zeros_to_nan=convert_zeros_to_nan, hyd_types=hyd_types)
     else:
         raise ValueError("Currently, only lidars and radars are supported as instruments.")
+
+    if finalize_fields:
+        model.finalize_subcol_fields()
 
     # Unstack dims in case of regional model output (typically done at the end of all EMC^2 processing)
     if np.logical_and(model.stacked_time_dim is not None, unstack_dims):

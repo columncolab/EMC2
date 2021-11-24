@@ -220,6 +220,15 @@ class Model():
                 vars_to_drop.append(key)
         self.ds = self.ds.drop_vars(vars_to_drop)
 
+    def finalize_subcol_fields(self, more_fieldnames=[]):
+        """
+        Remove all zero values from subcolumn output fields enabling better visualization. Can be applied
+        over additional fields using the more_fieldnames input parameter.
+        """
+        for key in self.ds.keys():
+            if np.any([fstr in key for fstr in ["sub_col"] + more_fieldnames]):
+                self.ds[key].values = np.where(self.ds[key].values == 0., np.nan, self.ds[key].values)
+
     def remove_appended_str(self):
         """
         Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names

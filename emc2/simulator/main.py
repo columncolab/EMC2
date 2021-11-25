@@ -181,9 +181,8 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                 parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
                 use_rad_logic=use_rad_logic,
                 use_empiric_calc=use_empiric_calc, **kwargs)
-        model = calc_total_reflectivity(model)
-
         model = calc_radar_Ze_min(instrument, model, ref_rng)
+        model = calc_total_reflectivity(model, detect_mask=True)
 
         if do_classify is True:
             model = radar_classify_phase(

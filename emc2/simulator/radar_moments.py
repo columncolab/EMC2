@@ -11,7 +11,7 @@ from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
 
-def calc_total_reflectivity(model):
+def calc_total_reflectivity(model, detect_mask=False):
     """
     This method calculates the total (convective + stratiform) reflectivity (Ze).
 
@@ -19,6 +19,8 @@ def calc_total_reflectivity(model):
     ----------
     model: :func:`emc2.core.Model` class
         The model to calculate the parameters for.
+    detect_mask: bool
+        True - generating a mask determining signal below noise floor.
 
     Returns
     -------
@@ -54,6 +56,9 @@ def calc_total_reflectivity(model):
     model.ds["sub_col_Ze_tot"] = model.ds["sub_col_Ze_tot"].where(np.isfinite(model.ds["sub_col_Ze_tot"]))
     model.ds["sub_col_Ze_att_tot"] = model.ds["sub_col_Ze_att_tot"].where(
         np.isfinite(model.ds["sub_col_Ze_att_tot"]))
+    model.ds["detect_mask"] = model.ds["Ze_min"] >= model.ds["sub_col_Ze_att_tot"]
+    model.ds["detect_mask"].attrs["long_name"] = "Radar detectability mask"
+    model.ds["detect_mask"].attrs["units"] = ("1 = radar signal below noise floor, 0 = signal detected")
 
     return model
 

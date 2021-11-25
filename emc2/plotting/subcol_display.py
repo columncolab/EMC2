@@ -611,17 +611,17 @@ class SubcolumnDisplay(Display):
             for var in variables:
                 if var in variable:
                     if var == 'Ze':
-                        cbar_label = '$Z_{e, %s}$ [dBZ]' % hyd_met
+                        cbar_label = r'$Z_{e, %s}$ [dBZ]' % hyd_met
                     elif var == 'Vd':
-                        cbar_label = '$V_{d, %s}$ [m/s]' % hyd_met
+                        cbar_label = r'$V_{d, %s}$ [m/s]' % hyd_met
                     elif var == 'sigma_d':
-                        cbar_label = '$\sigma_{d, %s}$ [m/s]' % hyd_met
+                        cbar_label = r'$\sigma_{d, %s}$ [m/s]' % hyd_met
                     elif var == 'od':
-                        cbar_label = '$\tau_{%s}$' % hyd_met
+                        cbar_label = r'$\tau_{%s}$' % hyd_met
                     elif var == 'beta':
-                        cbar_label = '$\beta_{%s}$ [$m^{-2}$]' % hyd_met
+                        cbar_label = r'$\beta_{%s}$ [$m^{-2}$]' % hyd_met
                     elif var == 'alpha':
-                        cbar_label = '$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
+                        cbar_label = r'$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
 
         if pressure_coords:
             x = np.arange(0, self.model.num_subcolumns, 1)

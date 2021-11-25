@@ -136,7 +136,8 @@ def calc_LDR_and_ext(model, ext_OD=4., OD_from_sfc=True, LDR_per_hyd=None, hyd_t
     model.ds["sub_col_LDR_tot"].attrs["long_name"] = "Linear depolarization ratio (convective + stratiform)"
     model.ds["sub_col_LDR_tot"].attrs["units"] = "1"
 
-    OD_cum_p_tot = np.where(model.ds["sub_col_OD_tot"].values > ext_OD, 2, 0.)
+    OD_cum_p_tot = \
+        np.where(model.ds["sub_col_OD_tot"].values > ext_OD, 2, 0.)
     if OD_from_sfc:
         my_diff = np.diff(OD_cum_p_tot, axis=2, append=0)
     else:
@@ -404,17 +405,17 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
             np.place(ext_tmp, rel_locs, interp_vals)
             model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 np.tile(back_tmp, (n_subcolumns, 1, 1)) * A_hyd,
-                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims).fillna(0)
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 np.tile(ext_tmp, (n_subcolumns, 1, 1)) * A_hyd,
-                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims).fillna(0)
         else:
             model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd,
-                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims).fillna(0)
             model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd,
-                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims).fillna(0)
 
         model = accumulate_OD(model, is_conv, z_values, hyd_type, OD_from_sfc, **kwargs)
 

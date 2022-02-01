@@ -9,7 +9,7 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, **kwargs):
+                        calc_re=False, dual_polarization=False, **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -37,6 +37,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     calc_re: bool
         True - calculating effective radius (e.g., for when it is not provided.
         Note that re is always calculated when WRF output is used.
+    dual_polarization: bool
+        True - calculate dual polarization radar parameters
+
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -156,12 +159,12 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
             instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
             use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, **kwargs)
+            use_empiric_calc=use_empiric_calc, dual_polarization=dual_polarization, **kwargs)
         model = calc_radar_moments(
             instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
             use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, **kwargs)
+            use_empiric_calc=use_empiric_calc, dual_polarization=False, **kwargs)
         model = calc_total_reflectivity(model)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)

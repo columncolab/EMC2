@@ -10,6 +10,9 @@ from .attenuation import calc_radar_atm_attenuation
 from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
 
+from pytmatrix.psd import UnnormalizedGammaPSD
+from pytmatrix import orientation, radar, tmatrix_aux, refractive
+
 
 def calc_total_reflectivity(model):
     """
@@ -359,7 +362,8 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
 
 def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
-                     hyd_types=None, mie_for_ice=True, parallel=True, chunk=None, **kwargs):
+                     hyd_types=None, mie_for_ice=True, parallel=True, chunk=None,
+                     dual_polarization=False, **kwargs):
     """
     Calculates the first 3 radar moments (reflectivity, mean Doppler velocity and spectral
     width) in a given column for the given radar using the microphysics (MG2) logic.
@@ -388,6 +392,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
+    dual_polarization: bool
+        If true, calculate dual polarization moments.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.psd.calc_mu_lambda`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
@@ -429,6 +435,16 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
             model.ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+        if dual_polarization:
+            model.ds["sub_col_Zdr_tot_strat"] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+            model.ds["sub_col_Kdp_tot_strat"] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+            model.ds["sub_col_Zdr_%s_strat" % hyd_type] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+            model.ds["sub_col_Kdp_%s_strat" % hyd_type] = xr.DataArray(
+                np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
+
         model.ds["sub_col_Ze_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         model.ds["sub_col_Vd_%s_strat" % hyd_type] = xr.DataArray(
@@ -441,10 +457,19 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         mu = fits_ds["mu"].values
         total_hydrometeor = model.ds[frac_names].values * model.ds[n_names].values
 
+        beta_pv = None
+        kdp_factor = None
         if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
             p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
             beta_p = instrument.scat_table[ice_lut]["beta_p"].values
             alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
+        elif dual_polarization is True and hyd_type[-1] == 'i':
+            p_diam = instrument.arts_table[hyd_type]["diams"].values[:]
+            beta_p = instrument.arts_table[hyd_type]["sigma_h"].values[:, int(instrument.elevation_angle - 1)]
+            alpha_p = instrument.arts_table[hyd_type]["ext_h"].values[:]
+            if hyd_type[-1] == 'i':
+                beta_pv = instrument.arts_table[hyd_type]["sigma_v"].values[:, int(instrument.elevation_angle - 1)]
+                kdp_factor = instrument.arts_table[hyd_type]["kdp_factor"].values[:, int(instrument.elevation_angle - 1)]
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -476,6 +501,32 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             else:
                 my_tuple = [x for x in map(_calc_liquid, np.arange(0, Dims[1], 1))]
 
+            if dual_polarization:
+                _calc_dual_pol = lambda x: _calc_Zdr_Kdp_liq(x, N_0, lambdas, mu, instrument.scatterer,
+                                                             instrument.elevation_angle)
+                if parallel:
+                    print("Doing Kdp/ZDR calculations for %s" % hyd_type)
+                    if chunk is None:
+                        tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                        my_tuple_dpol = tt_bag.map(_calc_dual_pol).compute()
+                    else:
+                        my_tuple_dpol = []
+                        j = 0
+                        while j < Dims[1]:
+                            if j + chunk >= Dims[1]:
+                                ind_max = Dims[1]
+                            else:
+                                ind_max = j + chunk
+                            print("Stage 1 of 2: processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                            tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                            my_tuple_dpol += tt_bag.map(_calc_dual_pol).compute()
+                            j += chunk
+                else:
+                    my_tuple_dpol = [x for x in map(_calc_dual_pol, np.arange(0, Dims[1], 1))]
+                model.ds["sub_col_Zdr_cl_strat"][:, :, :] = np.stack(
+                    [x[0] for x in my_tuple_dpol], axis=1)
+                model.ds["sub_col_Kdp_cl_strat"][:, :, :] = np.stack(
+                    [x[1] for x in my_tuple_dpol], axis=1)
             V_d_numer_tot = np.nan_to_num(np.stack([x[0] for x in my_tuple], axis=1))
             moment_denom_tot = np.nan_to_num(np.stack([x[1] for x in my_tuple], axis=1))
             hyd_ext = np.nan_to_num(np.stack([x[2] for x in my_tuple], axis=1))
@@ -486,6 +537,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 [x[4] for x in my_tuple], axis=1)
             model.ds["sub_col_sigma_d_cl_strat"][:, :, :] = np.stack(
                 [x[5] for x in my_tuple], axis=1)
+
             del my_tuple
         else:
             sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
@@ -493,7 +545,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 x, total_hydrometeor, N_0, lambdas, model.num_subcolumns,
                 beta_p, alpha_p, v_tmp,
                 instrument.wavelength, instrument.K_w,
-                sub_q_array, hyd_type, p_diam)
+                sub_q_array, hyd_type, p_diam, beta_pv)
 
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
@@ -515,13 +567,41 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             else:
                 my_tuple = [x for x in map(_calc_other, np.arange(0, Dims[1], 1))]
 
+            if dual_polarization and hyd_type == 'pl':
+                _calc_dual_pol = lambda x: _calc_Zdr_Kdp_liq(x, N_0, lambdas, mu, instrument.scatterer,
+                                                             instrument.elevation_angle)
+                if parallel:
+                    print("Doing Kdp/ZDR calculations for %s" % hyd_type)
+                    if chunk is None:
+                        tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
+                        my_tuple_dpol = tt_bag.map(_calc_dual_pol).compute()
+                    else:
+                        my_tuple_dpol = []
+                        j = 0
+                        while j < Dims[1]:
+                            if j + chunk >= Dims[1]:
+                                ind_max = Dims[1]
+                            else:
+                                ind_max = j + chunk
+                            print("Stage 1 of 2: processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
+                            tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                            my_tuple_dpol += tt_bag.map(_calc_dual_pol).compute()
+                            j += chunk
+                else:
+                    my_tuple_dpol = [x for x in map(_calc_dual_pol, np.arange(0, Dims[1], 1))]
+                model.ds["sub_col_Zdr_pl_strat"][:, :, :] = np.stack(
+                    [x[0] for x in my_tuple_dpol], axis=1)
+                model.ds["sub_col_Kdp_pl_strat"][:, :, :] = np.stack(
+                    [x[1] for x in my_tuple_dpol], axis=1)
             V_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in my_tuple], axis=1))
             moment_denom_tot += np.nan_to_num(np.stack([x[1] for x in my_tuple], axis=1))
             hyd_ext = np.nan_to_num(np.stack([x[2] for x in my_tuple], axis=1))
             model.ds["sub_col_Ze_%s_strat" % hyd_type][:, :, :] = np.stack([x[3] for x in my_tuple], axis=1)
             model.ds["sub_col_Vd_%s_strat" % hyd_type][:, :, :] = np.stack([x[4] for x in my_tuple], axis=1)
             model.ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, :] = np.stack([x[5] for x in my_tuple], axis=1)
-
+            if beta_pv is not None:
+                Zv = np.nan_to_num(np.stack([x[6] for x in my_tuple], axis=1))
+                model.ds["sub_col_Zdr_%s_strat" % hyd_type] = model.ds["sub_col_Ze_%s_strat" % hyd_type] / Zv
         if "sub_col_Ze_tot_strat" in model.ds.variables.keys():
             model.ds["sub_col_Ze_tot_strat"] += model.ds["sub_col_Ze_%s_strat" % hyd_type].fillna(0)
         else:
@@ -636,7 +716,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
 def calc_radar_moments(instrument, model, is_conv,
                        OD_from_sfc=True, hyd_types=None, parallel=True, chunk=None, mie_for_ice=False,
-                       use_rad_logic=True, use_empiric_calc=False, **kwargs):
+                       use_rad_logic=True, use_empiric_calc=False,
+                       dual_polarization=False, **kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
@@ -660,8 +741,8 @@ def calc_radar_moments(instrument, model, is_conv,
         The name of the altitude field to use.
     OD_from_sfc: bool
         If True, then calculate optical depth from the surface.
-   hyd_types: list or None
-        list of hydrometeor names to include in calcuation. using default Model subclass types if None.
+    hyd_types: list or None
+        list of hydrometeor names to include in calculation. using default Model subclass types if None.
     parallel: bool
         If True, then use parallelism to calculate each column quantity.
     chunk: None or int
@@ -684,6 +765,9 @@ def calc_radar_moments(instrument, model, is_conv,
     use_empirical_calc: bool
         When True using empirical relations from literature for the fwd calculations
         (the cloud fraction still follows the scheme logic set by use_rad_logic).
+    dual_polarization: bool
+        When True EMC2 will use the ARTS scattering database to calculate dual polarization radar
+        moments.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.psd.calc_mu_lambda`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
@@ -754,7 +838,8 @@ def calc_radar_moments(instrument, model, is_conv,
         calc_radar_micro(instrument, model, z_values,
                          atm_ext, OD_from_sfc=OD_from_sfc,
                          hyd_types=hyd_types, mie_for_ice=mie_for_ice,
-                         parallel=parallel, chunk=chunk, **kwargs)
+                         parallel=parallel, chunk=chunk, dual_polarization=dual_polarization,
+                         **kwargs)
 
     for hyd_type in hyd_types:
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = 10 * np.log10(
@@ -767,6 +852,20 @@ def calc_radar_moments(instrument, model, is_conv,
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "dBZ"
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
+
+    if dual_polarization:
+        for hyd_type in hyd_types:
+            if hyd_type != 'cl':
+                model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)] = 10 * np.log10(
+                    model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)])
+            model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)] = model.ds[
+                "sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)].where(
+                np.isfinite(model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)]))
+            model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
+                "Differential reflectivity from %s %s hydrometeors" % (cloud_str_full, hyd_type)
+            model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "dB"
+            model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
+            model.ds["sub_col_Zdr_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
 
     model.ds['sub_col_Ze_att_tot_%s' % cloud_str] = model.ds["sub_col_Ze_tot_%s" % cloud_str] * \
         model.ds['hyd_ext_%s' % cloud_str].fillna(1) * model.ds['atm_ext'].fillna(1)
@@ -792,6 +891,46 @@ def calc_radar_moments(instrument, model, is_conv,
     print("Done! total processing time = %.2fs" % (time() - t0))
 
     return model
+
+# def _calc_kdp_zv(N_0, lambdas, mu, instrument, total_hydrometeor, ,
+#                   num_subcolumns, kdp_factor):
+#     kdp_numer = np.zeros((Dims[0], Dims[2]), dtype='float64')
+#     moment_denom = np.zeros((Dims[0], Dims[2]), dtype='float64')
+#     if tt % 50 == 0:
+#         print('Stratiform moment for class cl progress: %d/%d' % (tt, total_hydrometeor.shape[1]))
+#     num_diam = len(p_diam)
+#     Dims = Vd_tot.shape
+#     for k in range(Dims[2]):
+#         if np.all(total_hydrometeor[tt, k] == 0):
+#             continue
+#         N_0_tmp = N_0[:, tt, k].astype('float64')
+#         N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
+#         lambda_tmp = lambdas[:, tt, k].astype('float64')
+#         lambda_tmp, d_diam_tmp = np.meshgrid(lambda_tmp, p_diam)
+#         mu_temp = mu[:, tt, k] * np.ones_like(lambda_tmp)
+#         N_D = N_0_tmp * d_diam_tmp ** mu_temp * np.exp(-lambda_tmp * d_diam_tmp)
+#         Calc_tmp = np.tile(
+#             instrument.arts_table[hyd_type]["kdp_factor"].values,
+#             (num_subcolumns, 1)) * N_D.T
+#         kdp_numer[:, k] = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
+#     return kdp_numer
+
+def _calc_Zdr_Kdp_liq(tt, N_0, lambdas, mu, scatterer, elevation_angle):
+    Dims = N_0.shape
+    Kdp = np.zeros((Dims[0], Dims[2]), dtype='float64')
+    Zdr = np.zeros((Dims[0], Dims[2]), dtype='float64')
+    for k in range(Dims[2]):
+        N_0_tmp = N_0[:, tt, k].astype('float64') * 1e-3
+        lambda_tmp = lambdas[:, tt, k].astype('float64') * 1e-3
+        mu_temp = mu[:, tt, k] * np.ones_like(lambda_tmp)
+        for l in range(len(N_0_tmp)):
+            scatterer.psd = UnnormalizedGammaPSD(N0=N_0_tmp[l], Lambda=lambda_tmp[l],
+                                       mu=mu_temp[l])
+            #scatterer.set_geometry(tmatrix_aux.geom_horiz_forw)
+            #Kdp[l, k] = radar.Kdp(scatterer)
+            scatterer.set_geometry(tmatrix_aux.geom_horiz_back)
+            Zdr[l, k] = radar.Zdr(scatterer)
+    return Kdp, Zdr
 
 
 def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
@@ -862,6 +1001,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
     V_d_numer_tot = np.zeros((N_0.shape[0], height_dims))
     V_d = np.zeros((N_0.shape[0], height_dims))
     Ze = np.zeros_like(V_d)
+    Zv = np.zeros_like(V_d)
     sigma_d = np.zeros_like(V_d)
     moment_denom_tot = np.zeros_like(V_d_numer_tot)
     hyd_ext = np.zeros_like(V_d_numer_tot)
@@ -893,7 +1033,6 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
         Ze[:, k] = \
             (moment_denom * instrument.wavelength ** 4) / (instrument.K_w * np.pi ** 5) * 1e-6
-
         Calc_tmp2 = v_tmp * Calc_tmp.astype('float64')
         V_d_numer = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         V_d[:, k] = V_d_numer / moment_denom
@@ -909,11 +1048,12 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 
 def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
                                  num_subcolumns, beta_p, alpha_p, v_tmp, wavelength,
-                                 K_w, sub_q_array, hyd_type, p_diam):
+                                 K_w, sub_q_array, hyd_type, p_diam, beta_pv):
     Dims = sub_q_array.shape
     if tt % 50 == 0:
         print('Stratiform moment for class %s progress: %d/%d' % (hyd_type, tt, Dims[1]))
     Ze = np.zeros((num_subcolumns, Dims[2]))
+    Zv = np.zeros((num_subcolumns, Dims[2]))
     V_d = np.zeros_like(Ze)
     sigma_d = np.zeros_like(Ze)
     V_d_numer_tot = np.zeros_like(Ze)
@@ -938,6 +1078,13 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
         moment_denom = np.where(sub_q_array[:, tt, k] == 0, 0, moment_denom)
         Ze[:, k] = \
             (moment_denom * wavelength ** 4) / (K_w * np.pi ** 5) * 1e-6
+        if beta_pv is not None:
+            Calc_tmp = np.tile(beta_pv, (num_subcolumns, 1)) * N_D
+            moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
+            Zv[:, k] = \
+                (moment_denom * wavelength ** 4) / (K_w * np.pi ** 5) * 1e-6
+        else:
+            Zv[:, k] = np.nan
         Calc_tmp2 = Calc_tmp * v_tmp
         V_d_numer = np.trapz(Calc_tmp2, axis=1, x=p_diam)
         V_d_numer = np.where(sub_q_array[:, tt, k] == 0, 0, V_d_numer)
@@ -950,4 +1097,4 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
         moment_denom_tot[:, k] += moment_denom
         hyd_ext[:, k] += tmp_od
 
-    return V_d_numer_tot, moment_denom_tot, hyd_ext, Ze, V_d, sigma_d
+    return V_d_numer_tot, moment_denom_tot, hyd_ext, Ze, V_d, sigma_d, Zv

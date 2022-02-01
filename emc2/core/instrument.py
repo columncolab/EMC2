@@ -92,6 +92,7 @@ class Instrument(object):
         self.g = 9.80665  # m/s^2
         self.rho_i = 917 * ureg.kg / (ureg.m**3)  # kg/m^3 (0 C 1013.25 hPa, typical model accuracy)
         self.rho_l = 1000 * ureg.kg / (ureg.m**3)  # kg/m^3 (typical model accuracy)
+        self.scatterer = None
         if frequency is None and wavelength is None:
             raise ValueError("Your instrument must have a frequency or wavelength!")
         if frequency is None:

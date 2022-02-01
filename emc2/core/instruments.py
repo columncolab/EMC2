@@ -231,8 +231,8 @@ class WACR(Instrument):
         This stores the information for the WACR, M-WACR, and BASTA (W-band radars).
         """
         super().__init__(frequency=95.04 * ureg.GHz)
-        if site.lower() not in ["sgp", "awr", "mos"]:
-            raise ValueError("Site must be one of 'sgp' 'awr', or 'mos'!")
+        if site.lower() not in ["sgp", "awr", "mos", "micre"]:
+            raise ValueError("Site must be one of 'sgp' 'awr', 'mos', or 'micre'!")
         self.instrument_class = "radar"
         self.instrument_str = "WACR"
         self.ext_OD = np.nan

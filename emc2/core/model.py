@@ -453,6 +453,8 @@ class ModelE(Model):
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.ds = read_netcdf(file_path)
+        if np.logical_and("level" in self.ds.coords, not "p" in self.ds.coords):
+            self.height_dim = "level"
 
         # crop specific model output time range (if requested)
         if time_range is not None:

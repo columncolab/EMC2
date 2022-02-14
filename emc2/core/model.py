@@ -472,7 +472,7 @@ class ModelE(Model):
 
 
 class E3SM(Model):
-    def __init__(self, file_path, time_range=None, time_dim="ncol", appended_str=False):
+    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False):
         """
         This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
 

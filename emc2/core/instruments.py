@@ -75,12 +75,18 @@ class CSAPR(Instrument):
 #                                                                  param_type="mDAD")
         data_path = os.path.join(os.path.dirname(__file__), 'ARTS_tables')
         self.arts_table = {}
-        self.scatterer = Scatterer(wavelength=self.wavelength, m=refractive.m_w_0C[53.5],
-                                   axis_ratio_func=brandes)
+        self.scatterer = Scatterer(wavelength=tmatrix_aux.wl_C,
+                                   m=refractive.m_w_0C[tmatrix_aux.wl_C],
+                                   axis_ratio_func=lambda x: 1 / brandes(x))
         self.scatterer.psd_integrator = PSDIntegrator()
         self.scatterer.psd_integrator.D_max = 10.0
-        self.scatterer.or_pdf = orientation.gaussian_pdf(20.0)
+        self.scatterer.psd_integrator.axis_ratio_func = lambda x: 1 / brandes(x)
+        self.scatterer.or_pdf = orientation.gaussian_pdf(20.)
         self.scatterer.orient = orientation.orient_averaged_fixed
+        self.scatterer.psd_integrator.geometries = (
+            tmatrix_aux.geom_horiz_back,
+            tmatrix_aux.geom_horiz_forw,
+        )
         self.scatterer.psd_integrator.init_scatter_table(self.scatterer)
         self.arts_table["ci"] = xr.open_dataset(data_path + '/ci_scattering_CSAPR2.nc')
         self.arts_table["pi"] = xr.open_dataset(data_path + '/pi_scattering_CSAPR2.nc')

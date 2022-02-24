@@ -31,7 +31,7 @@ def brandes(D_eq):
     ..[1] Brandes, etl al. 2005: On the Influence of Assumed Drop Size Distribution Form
     on Radar-Retrieved Thunderstorm Microphysics. J. Appl. Meteor. Climatol., 45, 259-268.
     """
-
+   
     return 0.9951 + 0.0251 * np.power(D_eq, 1) - 0.03644 * np.power(
         D_eq, 2
     ) + 0.005303 * np.power(

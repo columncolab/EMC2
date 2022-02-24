@@ -140,11 +140,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
         for hyd_type in hydrometeor_classes:
             if not model.strat_re_fields[hyd_type] in model_vars:
                 model = calc_re_thompson(model, hyd_type,
-                                         is_conv=False, subcolumns=True,
+                                         is_conv=False, subcolumns=False,
                                          **kwargs)
             if not model.conv_re_fields[hyd_type] in model_vars:
                 model = calc_re_thompson(model, hyd_type,
-                                         is_conv=True, subcolumns=True,
+                                         is_conv=True, subcolumns=False,
                                          **kwargs)
 
     if instrument.instrument_class.lower() == "radar":

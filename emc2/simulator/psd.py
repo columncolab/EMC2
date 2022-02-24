@@ -178,10 +178,13 @@ def calc_re_thompson(model, hyd_type,
             q_name = "strat_q_subcolumns_%s" % hyd_type
             re_name = model.strat_re_fields[hyd_type]
         else:
-            N_name = "conv_n_subcolumns_%s" % hyd_type
+            # We'll have to assume that stratiform and convective have 
+            # Same N, probably not a great assumption
+            N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "conv_q_subcolumns_%s" % hyd_type
             re_name = model.conv_re_fields[hyd_type]
 
+   
     q_w = model.ds[q_name].values
     N_w = model.ds[N_name].values
     rho_w = model.Rho_hyd[hyd_type].magnitude

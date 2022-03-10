@@ -14,7 +14,7 @@ from pytmatrix.psd import UnnormalizedGammaPSD
 from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
 
-def calc_total_reflectivity(model):
+def calc_total_reflectivity(model, detect_mask=False):
     """
     This method calculates the total (convective + stratiform) reflectivity (Ze).
 
@@ -22,6 +22,8 @@ def calc_total_reflectivity(model):
     ----------
     model: :func:`emc2.core.Model` class
         The model to calculate the parameters for.
+    detect_mask: bool
+        True - generating a mask determining signal below noise floor.
 
     Returns
     -------
@@ -30,23 +32,36 @@ def calc_total_reflectivity(model):
     """
     Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_strat"].values),
                       10 ** (model.ds["sub_col_Ze_tot_strat"].values / 10.), 0)
-    Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
-                      10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
+    if model.process_conv:
+        Ze_tot = np.where(np.isfinite(model.ds["sub_col_Ze_tot_conv"].values), Ze_tot +
+                          10 ** (model.ds["sub_col_Ze_tot_conv"].values / 10.), Ze_tot)
 
     model.ds['sub_col_Ze_tot'] = xr.DataArray(10 * np.log10(Ze_tot), dims=model.ds["sub_col_Ze_tot_strat"].dims)
+    model.ds['sub_col_Ze_tot'].values = np.where(np.isinf(model.ds['sub_col_Ze_tot'].values), np.nan,
+                                                 model.ds['sub_col_Ze_tot'].values)
     model.ds['sub_col_Ze_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_tot'].attrs["units"] = "dBZ"
-    model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
-                                                   model.ds['hyd_ext_conv'].fillna(1) * model.ds[
-                                                       'hyd_ext_strat'].fillna(1) *
-                                                   model.ds['atm_ext'].fillna(1))
+    if model.process_conv:
+        model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                       model.ds['hyd_ext_conv'].fillna(1) * model.ds[
+                                                           'hyd_ext_strat'].fillna(1) *
+                                                       model.ds['atm_ext'].fillna(1))
+    else:
+        model.ds['sub_col_Ze_att_tot'] = 10 * np.log10(Ze_tot *
+                                                       model.ds['hyd_ext_strat'].fillna(1) *
+                                                       model.ds['atm_ext'].fillna(1))
+    model.ds['sub_col_Ze_att_tot'].values = np.where(np.isinf(model.ds['sub_col_Ze_att_tot'].values), np.nan,
+                                                     model.ds['sub_col_Ze_att_tot'].values)
     model.ds['sub_col_Ze_att_tot'].attrs["long_name"] = \
         "Total (convective + stratiform) attenuated (hydrometeor + gaseous) equivalent radar reflectivity factor"
     model.ds['sub_col_Ze_att_tot'].attrs["units"] = "dBZ"
     model.ds["sub_col_Ze_tot"] = model.ds["sub_col_Ze_tot"].where(np.isfinite(model.ds["sub_col_Ze_tot"]))
     model.ds["sub_col_Ze_att_tot"] = model.ds["sub_col_Ze_att_tot"].where(
         np.isfinite(model.ds["sub_col_Ze_att_tot"]))
+    model.ds["detect_mask"] = model.ds["Ze_min"] >= model.ds["sub_col_Ze_att_tot"]
+    model.ds["detect_mask"].attrs["long_name"] = "Radar detectability mask"
+    model.ds["detect_mask"].attrs["units"] = ("1 = radar signal below noise floor, 0 = signal detected")
 
     return model
 
@@ -210,7 +225,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
         var_name = "sub_col_Ze_%s_%s" % (hyd_type, cloud_str)
         model.ds[var_name] = xr.DataArray(
             Ze_emp.values, dims=model.ds[q_field].dims)
-        model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp
+        model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp.fillna(0)
 
     kappa_f = 6 * np.pi / (instrument.wavelength * model.Rho_hyd["cl"].magnitude) * \
         ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag * 4.34e6  # dB m^3 g^-1 km^-1
@@ -315,8 +330,6 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                 r_eff_bulk = instrument.bulk_table[bulk_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
-            if model.model_name in ["E3SM", "CESM2"]:
-                r_eff_bulk /= 2.  # From D_eff to r_eff
         else:
             if model.model_name in ["E3SM", "CESM2"]:
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
@@ -353,7 +366,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             hyd_ext += np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd
 
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += model.ds["sub_col_Ze_%s_%s" % (
-            hyd_type, cloud_str)]
+            hyd_type, cloud_str)].fillna(0)
 
     model = accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=False, **kwargs)
@@ -876,6 +889,9 @@ def calc_radar_moments(instrument, model, is_conv,
     for hyd_type in hyd_types:
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = 10 * np.log10(
             model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)])
+        model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].values = \
+            np.where(np.isinf(model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].values), np.nan,
+                     model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].values)
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = model.ds[
             "sub_col_Ze_%s_%s" % (hyd_type, cloud_str)].where(
             np.isfinite(model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)]))
@@ -906,6 +922,12 @@ def calc_radar_moments(instrument, model, is_conv,
         np.isfinite(model.ds["sub_col_Ze_att_tot_%s" % cloud_str]))
     model.ds["sub_col_Ze_tot_%s" % cloud_str] = 10 * np.log10(model.ds["sub_col_Ze_tot_%s" % cloud_str])
     model.ds["sub_col_Ze_att_tot_%s" % cloud_str] = 10 * np.log10(model.ds["sub_col_Ze_att_tot_%s" % cloud_str])
+    model.ds["sub_col_Ze_tot_%s" % cloud_str].values = \
+        np.where(np.isinf(model.ds["sub_col_Ze_tot_%s" % cloud_str].values), np.nan,
+                 model.ds["sub_col_Ze_tot_%s" % cloud_str].values)
+    model.ds["sub_col_Ze_att_tot_%s" % cloud_str].values = \
+        np.where(np.isinf(model.ds["sub_col_Ze_att_tot_%s" % cloud_str].values), np.nan,
+                 model.ds["sub_col_Ze_att_tot_%s" % cloud_str].values)
     model.ds["sub_col_Ze_att_tot_%s" % cloud_str].attrs["long_name"] = \
         "Attenuated equivalent radar reflectivity factor from all %s hydrometeors" % cloud_str_full
     model.ds["sub_col_Ze_att_tot_%s" % cloud_str].attrs["units"] = "dBZ"

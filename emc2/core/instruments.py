@@ -248,11 +248,11 @@ class KAZR(Instrument):
 class WACR(Instrument):
     def __init__(self, site, supercooled=True, *args):
         """
-        This stores the information for the WACR or M-WACR (W-band radars).
+        This stores the information for the WACR, M-WACR, and BASTA (W-band radars).
         """
         super().__init__(frequency=95.04 * ureg.GHz)
-        if site.lower() not in ["sgp", "awr", "mos"]:
-            raise ValueError("Site must be one of 'sgp' 'awr', or 'mos'!")
+        if site.lower() not in ["sgp", "awr", "mos", "micre"]:
+            raise ValueError("Site must be one of 'sgp' 'awr', 'mos', or 'micre'!")
         self.instrument_class = "radar"
         self.instrument_str = "WACR"
         self.ext_OD = np.nan
@@ -273,6 +273,9 @@ class WACR(Instrument):
         if site.lower() == "sgp":
             self.gain = 10**3.94
             self.Z_min_1km = -46.0
+        elif site.lower() == "micre":  # BASTA 95 GHz radar
+            self.gain = np.nan  # not determined (see Delanoë et al., 2016)
+            self.Z_min_1km = -36.0  # effective sensitivity during MICRE
         else:
             self.gain = 10**3.78
             self.Z_min_1km = -40.0  # 0.2 s increments

@@ -5,6 +5,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.dates as mdates
 import warnings
+import copy
 
 from act.plotting import Display
 
@@ -16,6 +17,10 @@ class SubcolumnDisplay(Display):
     information on the Display object and its attributes and parameters, click `here
     <https://arm-doe.github.io/ACT/API/generated/act.plotting.plot.Display.html>`_. In addition to the
     methods in :code:`Display`, :code:`SubcolumnDisplay` has the following attributes and methods:
+    The plotting dataset is automatically cropped to include only single lat and lon coordinates in case
+    of a regional output, but can always be replaced with different coordinates using the internal methods.
+    Note that there is no dedicated option to plot subcolumns vs. lat or lon, since subcolumns at a given
+    grid cell are independent of subcolumns attributed to other neighboring grid cells.
     Note: if older version of ACT are installed (e.g., 0.2.4), "_obj" should be replaced with "_arm".
 
     Attributes
@@ -34,13 +39,25 @@ class SubcolumnDisplay(Display):
     $ model_display.plot_subcolumn_timeseries('sub_col_Ze_cl_strat', 4, subplot_index=(1, 1))
 
     """
-    def __init__(self, model, **kwargs):
+    def __init__(self, model, lat_sel=None, lon_sel=None, **kwargs):
         """
 
         Parameters
         ----------
         model: emc2.core.Model
             The model containing the subcolumn data to plot.
+        lat_sel: float, int, or None
+            Relevant only if a latitude dimension exists in dataset (model output file).
+            if float, then specifying the latitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        lon_sel: float, int, or None
+            Relevant only if a lonitude dimension exists in dataset (model output file).
+            if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
 
         Additional keyword arguments are passed into act.plotting.plot.Display's constructor.
         """
@@ -48,12 +65,91 @@ class SubcolumnDisplay(Display):
             ds_name = model.model_name
         else:
             ds_name = kwargs.pop('ds_name')
-        super().__init__(model.ds, ds_name=ds_name, **kwargs)
-        self.model = model
+        if np.any([x in model.ds.dims for x in [model.lat_dim, model.lon_dim]]):
+            model_c = copy.deepcopy(model)
+        else:
+            model_c = model
+        self.model = model_c
+        self._crop_lat_lon(model_c, lat_sel, lon_sel, deep=True)
+        super().__init__(model_c.ds, ds_name=ds_name, **kwargs)
+
+    def _crop_lat_lon(self, model, lat_sel=None, lon_sel=None, deep=False):
+        """
+        cropping lat and/or lon coordinates enabling robust use of plotting routines.
+
+        Parameters
+        ----------
+        model: emc2.core.Model
+            The model containing the subcolumn data to plot.
+        lat_sel: float, int, or None
+            Relevant only if a latitude dimension exists in dataset (model output file).
+            if float, then specifying the latitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        lon_sel: float, int, or None
+            Relevant only if a lonitude dimension exists in dataset (model output file).
+            if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        deep: bool
+            If True, create a deep copy of the dataset in case of cropping
+        """
+        if lat_sel is None:
+            lat_sel = 0
+        if lon_sel is None:
+            lon_sel = 0
+        self._switch_lat_lon(model, lat_sel, lon_sel, deep)
+
+    def _switch_lat_lon(self, model, lat_sel=None, lon_sel=None, deep=False):
+        """
+        switching cropped lat and/or lon coordinates assuming a fully processed dataset exists.
+
+        Parameters
+        ----------
+        model: emc2.core.Model
+            The model containing the subcolumn data to plot.
+        lat_sel: float, int, or None
+            Relevant only if a latitude dimension exists in dataset (model output file).
+            if float, then specifying the latitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        lon_sel: float, int, or None
+            Relevant only if a lonitude dimension exists in dataset (model output file).
+            if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+            plotting (using the nearest value).
+            if int, then specifying the index to crop.
+            if None, then using index 0 to prevent issues.
+        deep: bool
+            If True, create a deep copy of the dataset in case of cropping.
+        """
+        if not np.logical_and(lat_sel is None, lon_sel is None):
+            self.cropped_lat_lon = [lat_sel, lon_sel]
+            if np.any([x in self.model.ds.dims for x in [self.model.lat_dim, self.model.lon_dim]]):
+                if deep:
+                    self.model.ds = copy.deepcopy(model.ds)
+                if self.model.lat_dim in self.model.ds.dims:
+                    if isinstance(lat_sel, float):
+                        print("cropping lat dim (lat requested = %.2f)" % lat_sel)
+                        self.model.ds = self.model.ds.sel({self.model.lat_dim: lat_sel}, method='nearest')
+                    elif isinstance(lat_sel, int):
+                        print("cropping lat dim (lat index requested = %d)" % lat_sel)
+                        self.model.ds = self.model.ds.isel({self.model.lat_dim: lat_sel})
+                if self.model.lon_dim in self.model.ds.dims:
+                    if isinstance(lon_sel, float):
+                        print("cropping lon dim (lon requested = %.2f)" % lon_sel)
+                        self.model.ds = self.model.ds.sel({self.model.lon_dim: lon_sel}, method='nearest')
+                    elif isinstance(lon_sel, int):
+                        print("cropping lon dim (lon index requested = %d)" % lon_sel)
+                        self.model.ds = self.model.ds.isel({self.model.lon_dim: lon_sel})
+        else:
+            print("no alternative lat and lon coords provided - keeping processed dataset as is.")
 
     def _switch_model(self, model):
         """
-        Replace the processed model data in the SubcolumnDisplay object with a different
+        Replace the processed model data in the SubcolumnDisplay object with a deep copy of
         processed model data allowing full compitability with Display object (e.g., plotting
         output from multiple processing methods using the SubcolumnDisplay plotting routines).
 
@@ -256,7 +352,10 @@ class SubcolumnDisplay(Display):
             y_label = y_variable
 
         if cbar_label is None:
-            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+            if "long_name" in my_ds[variable].attrs.keys():
+                cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+            else:
+                cbar_label = variable
 
         if pressure_coords:
             x = my_ds[x_variable].values
@@ -287,7 +386,14 @@ class SubcolumnDisplay(Display):
             x = mdates.date2num([y for y in x])
 
         if log_plot is True:
-            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+            if 'vmin' in kwargs.keys():
+                vmin = kwargs['vmin']
+                del kwargs['vmin']
+            if 'vmax' in kwargs.keys():
+                vmax = kwargs['vmax']
+                del kwargs['vmax']
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                       **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if isinstance(hatched_mask, str):
@@ -374,8 +480,10 @@ class SubcolumnDisplay(Display):
         else:
             y_label = y_variable
 
-        if cbar_label is None:
+        if "long_name" in my_ds[variable].attrs.keys():
             cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
+        else:
+            cbar_label = variable
 
         x = my_ds[x_variable].values
         y = my_ds[y_variable].values
@@ -399,7 +507,14 @@ class SubcolumnDisplay(Display):
             x = mdates.date2num([y for y in x])
 
         if log_plot is True:
-            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+            if 'vmin' in kwargs.keys():
+                vmin = kwargs['vmin']
+                del kwargs['vmin']
+            if 'vmax' in kwargs.keys():
+                vmax = kwargs['vmax']
+                del kwargs['vmax']
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                       **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if isinstance(hatched_mask, str):
@@ -496,17 +611,17 @@ class SubcolumnDisplay(Display):
             for var in variables:
                 if var in variable:
                     if var == 'Ze':
-                        cbar_label = '$Z_{e, %s}$ [dBZ]' % hyd_met
+                        cbar_label = r'$Z_{e, %s}$ [dBZ]' % hyd_met
                     elif var == 'Vd':
-                        cbar_label = '$V_{d, %s}$ [m/s]' % hyd_met
+                        cbar_label = r'$V_{d, %s}$ [m/s]' % hyd_met
                     elif var == 'sigma_d':
-                        cbar_label = '$\sigma_{d, %s}$ [m/s]' % hyd_met
+                        cbar_label = r'$\sigma_{d, %s}$ [m/s]' % hyd_met
                     elif var == 'od':
-                        cbar_label = '$\tau_{%s}$' % hyd_met
+                        cbar_label = r'$\tau_{%s}$' % hyd_met
                     elif var == 'beta':
-                        cbar_label = '$\beta_{%s}$ [$m^{-2}$]' % hyd_met
+                        cbar_label = r'$\beta_{%s}$ [$m^{-2}$]' % hyd_met
                     elif var == 'alpha':
-                        cbar_label = '$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
+                        cbar_label = r'$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
 
         if pressure_coords:
             x = np.arange(0, self.model.num_subcolumns, 1)
@@ -533,7 +648,14 @@ class SubcolumnDisplay(Display):
         if x_range is not None:
             self.axes[subplot_index].set_xlim(x_range)
         if log_plot is True:
-            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(), **kwargs)
+            if 'vmin' in kwargs.keys():
+                vmin = kwargs['vmin']
+                del kwargs['vmin']
+            if 'vmax' in kwargs.keys():
+                vmax = kwargs['vmax']
+                del kwargs['vmax']
+            mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                       **kwargs)
         else:
             mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
         if isinstance(hatched_mask, str):

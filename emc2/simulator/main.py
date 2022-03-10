@@ -177,7 +177,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
         model = calc_radar_moments(
             instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
-            use_rad_logic=use_rad_logic,
+            use_rad_logic=use_rad_logic, dual_polarization=dual_polarization,
             use_empiric_calc=use_empiric_calc, **kwargs)
         if model.process_conv:
             model = calc_radar_moments(

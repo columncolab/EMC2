@@ -476,13 +476,6 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
             beta_p = instrument.scat_table[ice_lut]["beta_p"].values
             alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
-        elif dual_polarization is True and hyd_type[-1] == 'i':
-            p_diam = instrument.arts_table[hyd_type]["diams"].values[:]
-            beta_p = instrument.arts_table[hyd_type]["sigma_h"].values[:, int(instrument.elevation_angle - 1)]
-            alpha_p = instrument.arts_table[hyd_type]["ext_h"].values[:]
-            if hyd_type[-1] == 'i':
-                beta_pv = instrument.arts_table[hyd_type]["sigma_v"].values[:, int(instrument.elevation_angle - 1)]
-                kdp_factor = instrument.arts_table[hyd_type]["kdp_factor"].values[:, int(instrument.elevation_angle - 1)]
         else:
             p_diam = instrument.mie_table[hyd_type]["p_diam"].values
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
@@ -516,7 +509,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                     _calc_liquid, np.arange(0, Dims[1], 1))]
 
             if dual_polarization:
-                _calc_dual_pol = lambda x: _calc_Zdr_Kdp_liq(x, N_0, lambdas, mu, instrument.scatterer,
+                _calc_dual_pol = lambda x: _calc_Zdr_Kdp_liq(x, N_0, lambdas, mu, instrument.scatterer["cl"],
                                                              instrument.elevation_angle)
                 if parallel:
                     print("Doing Kdp/ZDR calculations for %s" % hyd_type)
@@ -584,8 +577,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 my_tuple = [x for x in map(
                     _calc_other, np.arange(0, Dims[1], 1))]
 
-            if dual_polarization and hyd_type == 'pl':
-                _calc_dual_pol = lambda x: _calc_Zdr_Kdp_liq(x, N_0, lambdas, mu, instrument.scatterer,  instrument.elevation_angle)
+            if dual_polarization:
+                _calc_dual_pol = lambda x: _calc_Zdr_Kdp_liq(x, N_0, lambdas, mu, instrument.scatterer[hyd_type],
+                                                             instrument.elevation_angle)
                 if parallel:
                     print("Doing Kdp/ZDR calculations for %s" % hyd_type)
                     if chunk is None:
@@ -605,38 +599,10 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                             j += chunk
                 else:
                     my_tuple_dpol = [x for x in map(_calc_dual_pol, np.arange(0, Dims[1], 1))]
-                model.ds["sub_col_Zdr_pl_strat"][:, :, :] = np.stack(
+                model.ds["sub_col_Zdr_%s_strat" % hyd_type][:, :, :] = np.stack(
                     [x[1] for x in my_tuple_dpol], axis=1)
-                model.ds["sub_col_Kdp_pl_strat"][:, :, :] = np.stack(
-                    [x[0] for x in my_tuple_dpol], axis=1)
-
-            if dual_polarization and (hyd_type == "pi" or hyd_type == "ci"):
-                _calc_kdp_ice = lambda x: _calc_kdp_zv(x, N_0, lambdas, mu,
-                    instrument, total_hydrometeor, num_subcolumns, kdp_factor,
-                    p_diam)
-                my_tuple_dpol = []
-                if parallel:
-                    print("Doing Kdp calculations for %s" % hyd_type)
-                    if chunk is None:
-                        tt_bag = db.from_sequence(np.arange(0, Dims[1], 1))
-                        my_tuple_dpol = tt_bag.map(_calc_kdp_ice).compute()
-                    else:
-                        my_tuple_dpol = []
-                        j = 0
-                        while j < Dims[1]:
-                            if j + chunk >= Dims[1]:
-                                ind_max = Dims[1]
-                            else:
-                                ind_max = j + chunk
-                            print("Stage 1 of 2: processing columns %d-%d out of %d" % (j, ind_max, Dims[1]))
-                            tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
-                            my_tuple_dpol += tt_bag.map(_calc_kdp_ice).compute()
-                            j += chunk
-                else:
-                    my_tuple_dpol = [x for x in map(
-                        _calc_kdp_ice, np.arange(0, Dims[1], 1))]
                 model.ds["sub_col_Kdp_%s_strat" % hyd_type][:, :, :] = np.stack(
-                    my_tuple_dpol, axis=1)
+                    [x[0] for x in my_tuple_dpol], axis=1)
 
             V_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in my_tuple], axis=1))
             moment_denom_tot += np.nan_to_num(np.stack([x[1] for x in my_tuple], axis=1))

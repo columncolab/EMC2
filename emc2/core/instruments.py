@@ -11,18 +11,21 @@ import os
 
 from .instrument import Instrument, ureg, quantity
 from ..io import load_mie_file, load_scat_file, load_bulk_scat_file
-from ..scattering import calc_microwave_ref_index_ice, calc_microwave_ref_index
-from ..scattering import scat_properties_ice, scat_properties_water
+from ..scattering import brandes
+from pytmatrix.tmatrix import Scatterer
+from pytmatrix.psd import PSDIntegrator, UnnormalizedGammaPSD
+from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
 
 class CSAPR(Instrument):
-    def __init__(self, supercooled=True, *args):
+    def __init__(self, supercooled=True, elevation_angle=90., *args):
         """
         This stores the information for the ARM CSAPR.
         """
         super().__init__(frequency=6.25 * ureg.GHz)
         self.instrument_class = "radar"
         self.instrument_str = "CSAPR"
+        self.elevation_angle = elevation_angle
         self.ext_OD = np.nan
         self.OD_from_sfc = True
         self.K_w = 0.93
@@ -68,8 +71,25 @@ class CSAPR(Instrument):
             self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_CSAPR_mDAD_mie_liq_c.nc")
         else:
             self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_CSAPR_mDAD_mie_liq.nc")
-        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_mDAD_mie_ice.dat",
-                                                                  param_type="mDAD")
+        #self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_CSAPR_mDAD_mie_ice.dat",
+#                                                                  param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'ARTS_tables')
+        self.arts_table = {}
+        self.scatterer = Scatterer(wavelength=tmatrix_aux.wl_C,
+                                   m=refractive.m_w_0C[tmatrix_aux.wl_C],
+                                   axis_ratio_func=lambda x: 1 / brandes(x))
+        self.scatterer.psd_integrator = PSDIntegrator()
+        self.scatterer.psd_integrator.D_max = 10.0
+        self.scatterer.psd_integrator.axis_ratio_func = lambda x: 1 / brandes(x)
+        self.scatterer.or_pdf = orientation.gaussian_pdf(20.)
+        self.scatterer.orient = orientation.orient_averaged_fixed
+        self.scatterer.psd_integrator.geometries = (
+            tmatrix_aux.geom_horiz_back,
+            tmatrix_aux.geom_horiz_forw,
+        )
+        self.scatterer.psd_integrator.init_scatter_table(self.scatterer)
+        self.arts_table["ci"] = xr.open_dataset(data_path + '/ci_scattering_CSAPR2.nc')
+        self.arts_table["pi"] = xr.open_dataset(data_path + '/pi_scattering_CSAPR2.nc')
 
 
 class XSACR(Instrument):

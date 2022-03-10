@@ -664,8 +664,8 @@ class WRF(Model):
         self.T_field = "T"
         self.conv_frac_names = {'cl': 'conv_frac', 'ci': 'conv_frac',
                                 'pl': 'conv_frac', 'pi': 'conv_frac'}
-        self.strat_frac_names = {'cl': 'strat_frac', 'ci': 'strat_frac',
-                                 'pl': 'strat_frac', 'pi': 'strat_frac'}
+        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                                 'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
         self.conv_frac_names_for_rad = self.conv_frac_names
         self.strat_frac_names_for_rad = self.strat_frac_names
         self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
@@ -674,8 +674,8 @@ class WRF(Model):
             'cl': 'conv_frac', 'ci': 'conv_frac',
             'pl': 'conv_frac', 'pi': 'conv_frac'}
         self.strat_frac_names_for_rad = {
-            'cl': 'strat_frac', 'ci': 'strat_frac',
-            'pl': 'strat_frac', 'pi': 'strat_frac'}
+            'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+            'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
         self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                           'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
         self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
@@ -710,7 +710,7 @@ class WRF(Model):
             column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2)
         self.ds["T"].attrs["units"] = "K"
         self.ds["Z"].attrs["units"] = "m"
-        rho = self.ds["pressure"] * 100 / (287.058 * self.ds["T"])
+        rho = self.ds["pressure"] / (287.058 * self.ds["T"])
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
         cldfrac = getvar(wrfin, "cloudfrac", timeidx=ALL_TIMES)
         cldfrac2 = np.zeros_like(W)
@@ -720,11 +720,10 @@ class WRF(Model):
             cldfrac2[:, i, :, :] = cldfrac[1, :, :, :]
         for i in range(2 * int(W.shape[1] / 3), int(W.shape[1])):
             cldfrac2[:, i, :, :] = cldfrac[2, :, :, :]
-
-        where_conv = W.values > w_thresh
-        where_strat = np.logical_and(~where_conv, cldfrac2 > 0)
-        where_conv = np.where(where_conv, 1, 0)
-        where_strat = np.where(where_strat, 1, 0)
+        
+        where_conv = np.zeros_like(cldfrac2)
+        where_strat = cldfrac2
+        
         num_points = (column_extent[3] - column_extent[2]) * \
             (column_extent[1] - column_extent[0])
         where_conv_column = where_conv[
@@ -733,76 +732,82 @@ class WRF(Model):
         where_conv_strat = where_strat[
             :, :, column_extent[0]:column_extent[1],
             column_extent[2]:column_extent[3]].sum(axis=3).sum(axis=2)
+        cldfrac2 = cldfrac2[:, :, column_extent[0]:column_extent[1],
+            column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2)
         self.ds["conv_frac"] = xr.DataArray(
-            where_conv_column / num_points, dims=('Time', 'bottom_top'))
-        self.ds["strat_frac"] = xr.DataArray(
-            where_conv_strat / num_points, dims=('Time', 'bottom_top'))
+            where_conv_column / num_points * cldfrac2,
+             dims=('Time', 'bottom_top')).astype('float64')
         conversion_factor_qn = rho * 1e-6
         self.ds["qclc"] = xr.DataArray(
-            ds["QCLOUD"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_column / num_points, dims=('Time', 'bottom_top'))
+            self.ds["conv_frac"].values, dims=('Time', 'bottom_top')).astype('float64')
         self.ds["qcic"] = xr.DataArray(
-            ds["QICE"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_column / num_points, dims=('Time', 'bottom_top'))
+            self.ds["conv_frac"].values, dims=('Time', 'bottom_top')).astype('float64')
         self.ds["qplc"] = xr.DataArray(
-            ds["QRAIN"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_column / num_points, dims=('Time', 'bottom_top'))
-        self.ds["qpic"] = xr.DataArray(
-            ds["QSNOW"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_column / num_points, dims=('Time', 'bottom_top'))
+            self.ds["conv_frac"].values, dims=('Time', 'bottom_top')).astype('float64')
+        self.ds["qpic"] = xr.DataArray(self.ds["conv_frac"].values,
+                dims=('Time', 'bottom_top')).astype('float64')
         self.ds["qcls"] = xr.DataArray(
             ds["QCLOUD"].values[
                 :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_strat / num_points, dims=('Time', 'bottom_top'))
+                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
+                dims=('Time', 'bottom_top')).astype('float64')
         self.ds["qcis"] = xr.DataArray(
             ds["QICE"].values[
                 :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_strat / num_points, dims=('Time', 'bottom_top'))
+                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
+                dims=('Time', 'bottom_top')).astype('float64')
         self.ds["qpls"] = xr.DataArray(
             ds["QRAIN"].values[
                 :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_strat / num_points, dims=('Time', 'bottom_top'))
+                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
+                dims=('Time', 'bottom_top')).astype('float64')
         self.ds["qpis"] = xr.DataArray(
             ds["QSNOW"].values[
                 :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            where_conv_strat / num_points, dims=('Time', 'bottom_top'))
+                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
+                dims=('Time', 'bottom_top')).astype('float64')
+        cldfrac2_pl = np.where(self.ds["qpls"].values > 0, cldfrac2, 0)
+        self.ds["strat_pl_frac"] = xr.DataArray(
+            cldfrac2_pl,
+            dims=('Time', 'bottom_top')).astype('float64')
+        cldfrac2_cl = np.where(self.ds["qcls"].values > 0, cldfrac2, 0)
+        self.ds["strat_cl_frac"] = xr.DataArray(
+            cldfrac2_cl,
+            dims=('Time', 'bottom_top')).astype('float64')
+        cldfrac2_ci = np.where(self.ds["qcis"].values > 0, cldfrac2, 0)
+        self.ds["strat_ci_frac"] = xr.DataArray(
+            cldfrac2_ci,
+            dims=('Time', 'bottom_top')).astype('float64')
+        cldfrac2_pi = np.where(self.ds["qpis"].values > 0, cldfrac2, 0)
+        self.ds["strat_pi_frac"] = xr.DataArray(
+            cldfrac2_pi,
+            dims=('Time', 'bottom_top')).astype('float64')
+
         self.ds["QNCLOUD"] = xr.DataArray(
             ds["QNCLOUD"].values[
                 :, :, column_extent[0]:column_extent[1],
                 column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top'))
+            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
         self.ds["QNRAIN"] = xr.DataArray(
             ds["QNRAIN"].values[
                 :, :, column_extent[0]:column_extent[1],
                 column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top'))
+            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
         self.ds["QNSNOW"] = xr.DataArray(
             ds["QNSNOW"].values[
                 :, :, column_extent[0]:column_extent[1],
                 column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top'))
+            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
         self.ds["QNICE"] = xr.DataArray(
             ds["QNICE"].values[
                 :, :, column_extent[0]:column_extent[1],
                 column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top'))
+            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
         self.ds["QVAPOR"] = xr.DataArray(
             ds["QVAPOR"].values[
                 :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top'))
+                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
+            dims=('Time', 'bottom_top')).astype('float64')
         self.time_dim = "Time"
         self.height_dim = "bottom_top"
         self.model_name = "WRF"
@@ -891,7 +896,6 @@ class DHARMA(Model):
 
         # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
         super().check_and_stack_time_lat_lon(file_path=file_path)
-
         self.model_name = "DHARMA"
 
 

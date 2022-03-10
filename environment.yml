@@ -18,3 +18,4 @@ dependencies:
   - act-atmos
   - pip:
     - pymiescatt
+    - pytmatrix

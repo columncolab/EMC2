@@ -9,4 +9,3 @@ numpydoc
 sphinx_gallery
 nbsphinx
 pandoc
-Jinja2==2.11.3

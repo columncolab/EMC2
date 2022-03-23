@@ -771,8 +771,11 @@ def calc_radar_moments(instrument, model, is_conv,
     When starting a parallel task (in microphysics approach), it is recommended
     to wrap the top-level python script calling the EMC^2 processing ('lines_of_code')
     with the following command (just below the 'import' statements):
-    if __name__ == “__main__”:
-        lines_of_code
+    
+    .. code-block:: python
+
+        if __name__ == “__main__”:
+            lines_of_code
 
     Parameters
     ----------

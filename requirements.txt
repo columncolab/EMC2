@@ -2,4 +2,5 @@ numpy
 xarray
 pint
 act-atmos
+pytmatrix
 nc-time-axis

@@ -9,15 +9,19 @@ except ModuleNotFoundError:
 
 from .ref_index import calc_microwave_ref_index_ice, calc_microwave_ref_index
 
+
 def brandes(D_eq):
-    """Brandes 2005 Drop shape relationship model.
+    """
+    Brandes 2005 Drop shape relationship model.
     Implementation of the Brandes et. al. drop shape model given in [1]. This gives
     the ratio of the major to minor axis as a function of equivalent liquid spherical
     diameter.
+
     Parameters
     ----------
     D_eq: float or array_like
         Volume Equivalent Drop Diameter
+
     Returns
     -------
     axis_ratio: float
@@ -26,6 +30,7 @@ def brandes(D_eq):
     tb : Thurai and Bringi DSR
     pb: Pruppacher and Beard DSR
     bc: Beard and Chuang DSR
+
     References
     ----------
     ..[1] Brandes, etl al. 2005: On the Influence of Assumed Drop Size Distribution Form

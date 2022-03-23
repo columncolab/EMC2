@@ -401,7 +401,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
 def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr=False,
                           mpr_subcolmod=False, hyd_types=None):
     """
-    calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).
+    Calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).
 
     Parameters
     ----------

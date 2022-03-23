@@ -42,6 +42,7 @@ jobs:
           pip install numpy
           pip install -r requirements.txt
           pip install -r requirements_docs.txt
+          pip install .
       - name: Debugging information
         run: |
           echo "github.ref:" ${{github.ref}}

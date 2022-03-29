@@ -229,13 +229,24 @@ class Model():
             if np.any([fstr in key for fstr in ["sub_col"] + more_fieldnames]):
                 self.ds[key].values = np.where(self.ds[key].values == 0., np.nan, self.ds[key].values)
 
-    def remove_appended_str(self):
+    def remove_appended_str(self, all_appended_in_lat=False):
         """
         Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
         (typically required when using post-processed output data files).
+
+        Parameters
+        ----------
+        all_appended_in_lat: bool
+            If True using only the appended str portion to the lat_dim. Otherwise, combining
+            the appended str from both the lat and lon dims (relevant if appended_str is True).
         """
-        for coordinate in [self.lat_dim, self.lon_dim]:
-            out_coords = [x for x in self.ds.coords]
+        if all_appended_in_lat:
+            coordinates = [self.lat_dim]
+            out_coords = [x for x in self.ds.keys()]  # assuming lat is not in coords since using ncol
+        else:
+            coordinates = [self.lat_dim, self.lon_dim]
+            out_coords = [x for x in self.ds.coords] 
+        for coordinate in coordinates:
             coord_loc = np.argwhere([coordinate in x for x in out_coords]).item()
             if len(out_coords[coord_loc]) > len(coordinate):
                 appended_str = out_coords[coord_loc][len(coordinate):]
@@ -271,9 +282,17 @@ class Model():
         order_dim: bool
             When True, reorder dimensions to time x height for proper processing.
         """
+        do_process = 0  # 0 - do nothing, 1 - stack lat+lon, 2 - stack lat dim only
         # Check to make sure we are loading a single column
         if self.lat_dim in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims[self.lat_dim] != 1 or self.ds.dims[self.lon_dim] != 1:
+            if self.ds.dims[self.lat_dim] != 1:
+                do_process = 1
+            if self.lon_dim in [x for x in self.ds.dims.keys()]:
+                if self.ds.dims[self.lon_dim] != 1:
+                    do_process = 1
+            elif do_process == 1:
+                do_process = 2
+            if do_process > 0:
                 if file_path is None:
                     file_path = "The input filename"
                 print("%s is a regional output dataset; Stacking the time, lat, "
@@ -281,17 +300,24 @@ class Model():
                 self.ds[self.lat_dim + "_tmp"] = \
                     xr.DataArray(self.ds[self.lat_dim].values,
                                  coords={self.lat_dim + "_tmp": self.ds[self.lat_dim].values})
-                self.ds[self.lon_dim + "_tmp"] = \
-                    xr.DataArray(self.ds[self.lon_dim].values,
-                                 coords={self.lon_dim + "_tmp": self.ds[self.lon_dim].values})
+                if do_process == 1:
+                    self.ds[self.lon_dim + "_tmp"] = \
+                        xr.DataArray(self.ds[self.lon_dim].values,
+                                     coords={self.lon_dim + "_tmp": self.ds[self.lon_dim].values})
                 self.ds[self.time_dim + "_tmp"] = \
                     xr.DataArray(self.ds[self.time_dim].values,
                                  coords={self.time_dim + "_tmp": self.ds[self.time_dim].values})
-                self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.lon_dim, self.time_dim)})
+                if do_process == 1:
+                    self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.lon_dim, self.time_dim)})
+                else:
+                    self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.time_dim)})
                 self.stacked_time_dim, self.time_dim = self.time_dim, out_coord_name
             else:
-                # No need for lat and lon dimensions
-                self.ds = self.ds.squeeze(dim=(self.lat_dim, self.lon_dim))
+                if self.lon_dim in [x for x in self.ds.dims.keys()]:
+                    # No need for lat and lon dimensions
+                    self.ds = self.ds.squeeze(dim=(self.lat_dim, self.lon_dim))
+                else:
+                    self.ds = self.ds.squeeze(dim=(self.lat_dim))
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
@@ -314,6 +340,11 @@ class Model():
             raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
         out_fields = [x for x in self.ds.keys()]
         self.permute_dims_for_processing(base_order=[self.height_dim, self.time_dim], base_dim_first=False)
+        if [self.lon_dim + "_tmp"] in self.ds.coords:
+            more_dims = (self.ds[self.lon_dim + "_tmp"].dims[0],
+                         self.ds[self.stacked_time_dim + "_tmp"].dims[0])
+        else:
+            more_dims = (self.ds[self.stacked_time_dim + "_tmp"].dims[0])
         for key in out_fields:
             Dims = self.ds[key].dims
             Shape = self.ds[key].shape
@@ -325,13 +356,13 @@ class Model():
                                                         self.ds[self.lat_dim + "_tmp"].size,
                                                         self.ds[self.stacked_time_dim + "_tmp"].size)),
                                             dims=(*Dims[:-1], self.ds[self.lat_dim + "_tmp"].dims[0],
-                                                  self.ds[self.lon_dim + "_tmp"].dims[0],
-                                                  self.ds[self.stacked_time_dim + "_tmp"].dims[0]))
+                                                  *more_dims))
         self.ds = self.ds.drop_dims(self.time_dim)
         self.time_dim, self.stacked_time_dim = self.stacked_time_dim, None
         self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,
-                                  self.lon_dim + "_tmp": self.lon_dim,
                                   self.time_dim + "_tmp": self.time_dim})
+        if [self.lon_dim + "_tmp"] in self.ds.coords:
+            self.ds = self.ds.rename({self.lon_dim + "_tmp": self.lon_dim})
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (subcolumn x time x height).
 
@@ -472,7 +503,8 @@ class ModelE(Model):
 
 
 class E3SM(Model):
-    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False):
+    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False,
+                 all_appended_in_lat=False):
         """
         This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -487,6 +519,9 @@ class E3SM(Model):
         appended_str: bool
             If True, removing appended strings added to fieldnames and coordinates during
             post-processing (e.g., in cropped regions from global simualtions).
+        all_appended_in_lat: bool
+            If True using only the appended str portion to the lat_dim. Otherwise, combining
+            the appended str from both the lat and lon dims (relevant if appended_str is True).
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -529,7 +564,15 @@ class E3SM(Model):
         self.process_conv = False
         self.ds = read_netcdf(file_path)
         if appended_str:
-            super().remove_appended_str()
+            if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
+                for x in self.ds.dims:
+                    if 'ncol' in x:  # ncol in dims but for some reason not in the coords
+                        self.ds = self.ds.assign_coords({'ncol': self.ds[x]})
+                        self.ds = self.ds.swap_dims({x: "ncol"})
+                        break
+            super().remove_appended_str(all_appended_in_lat)
+            if all_appended_in_lat:
+                self.lat_dim = "ncol"  # here 'ncol' is the spatial dim (acknowledging cube-sphere coords)
 
         if time_dim == "ncol":
             time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
@@ -557,9 +600,8 @@ class E3SM(Model):
         super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
 
         self.ds[self.p_field] = \
-            ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2)  # hPa
-        if self.stacked_time_dim is not None:  # dimensions were stacked
-            self.ds[self.p_field] = self.ds[self.p_field].transpose()
+            ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
+            *self.ds[self.T_field].dims)
         self.ds[self.p_field].attrs["units"] = "hPa"
         self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
                                            dims=self.ds[self.p_field].dims)

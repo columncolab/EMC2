@@ -340,11 +340,14 @@ class Model():
             raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
         out_fields = [x for x in self.ds.keys()]
         self.permute_dims_for_processing(base_order=[self.height_dim, self.time_dim], base_dim_first=False)
-        if [self.lon_dim + "_tmp"] in self.ds.coords:
+        if self.lon_dim + "_tmp" in self.ds.coords:
             more_dims = (self.ds[self.lon_dim + "_tmp"].dims[0],
                          self.ds[self.stacked_time_dim + "_tmp"].dims[0])
+            more_shapes = (self.ds[self.lon_dim + "_tmp"].size,
+                           self.ds[self.stacked_time_dim + "_tmp"].size)
         else:
-            more_dims = (self.ds[self.stacked_time_dim + "_tmp"].dims[0])
+            more_dims = (self.ds[self.stacked_time_dim + "_tmp"].dims[0],)
+            more_shapes = (self.ds[self.stacked_time_dim + "_tmp"].size,)
         for key in out_fields:
             Dims = self.ds[key].dims
             Shape = self.ds[key].shape
@@ -353,15 +356,14 @@ class Model():
             if self.time_dim in Dims:
                 self.ds[key] = xr.DataArray(np.reshape(self.ds[key].values,
                                                        (*Shape[:-1], self.ds[self.lat_dim + "_tmp"].size,
-                                                        self.ds[self.lat_dim + "_tmp"].size,
-                                                        self.ds[self.stacked_time_dim + "_tmp"].size)),
+                                                        *more_shapes)),
                                             dims=(*Dims[:-1], self.ds[self.lat_dim + "_tmp"].dims[0],
                                                   *more_dims))
         self.ds = self.ds.drop_dims(self.time_dim)
         self.time_dim, self.stacked_time_dim = self.stacked_time_dim, None
         self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,
                                   self.time_dim + "_tmp": self.time_dim})
-        if [self.lon_dim + "_tmp"] in self.ds.coords:
+        if self.lon_dim + "_tmp" in self.ds.coords:
             self.ds = self.ds.rename({self.lon_dim + "_tmp": self.lon_dim})
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (subcolumn x time x height).

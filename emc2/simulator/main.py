@@ -18,8 +18,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     When starting a parallel task (in microphysics approach), it is recommended
     to wrap the top-level python script calling the EMC^2 processing ('lines_of_code')
     with the following command (just below the 'import' statements):
-    if __name__ == “__main__”:
-        lines_of_code
+    
+    .. code-block:: python
+    
+        if __name__ == “__main__”:
+            lines_of_code
 
     Parameters
     ----------
@@ -159,6 +162,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                                          is_conv=False, subcolumns=False,
                                          **kwargs)
     if model.process_conv:
+        model_vars = [x for x in model.ds.variables.keys()]
         if not model.conv_re_fields[hyd_type] in model_vars:
                 model = calc_re_thompson(model, hyd_type,
                                          is_conv=True, subcolumns=True,

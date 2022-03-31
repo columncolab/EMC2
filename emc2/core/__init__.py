@@ -15,10 +15,21 @@ constants used by EMC^2 are also stored in this module.
 
     instruments.KAZR
     instruments.HSRL
+    instruments.CSAPR
+    instruments.NEXRAD
+    instruments.XSACR
     instruments.Ten64nm
     model.ModelE
     model.TestModel
+    model.E3SM
+    model.DHARMA
+    model.WRF
     model.TestConvection
+    model.TestAllStratiform
+    model.TestHalfAndHalf
+    model.TestModel
+    Instrument
+    Model
 
 In addition the :func:`emc2.core.quantity` is equivalent to pint's
 UnitRegistry().Quantity object. This allows for the use of quantities

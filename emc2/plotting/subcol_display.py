@@ -291,7 +291,8 @@ class SubcolumnDisplay(Display):
     def plot_subcolumn_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
                                   log_plot=False, Mask_array=None, hatched_mask=False,
-                                  x_range=None, y_range=None, **kwargs):
+                                  x_range=None, y_range=None, x_dateformat="%b%d-%H",
+                                  x_rotation=30., **kwargs):
         """
         Plots timeseries of subcolumn parameters for a given variable and subcolumn.
         In the case of a 2D (time x height) field, plotting a time-height curtain.
@@ -324,6 +325,10 @@ class SubcolumnDisplay(Display):
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
             The y range of the plot.
+        x_dateformat: str
+            Date format for the x-axis.
+        x_rotation: float
+            x-axis label rotation for a date axis.
         Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
 
         Returns
@@ -383,7 +388,10 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].set_xlim(x_range)
 
         if np.issubdtype(x.dtype, np.datetime64):
+            date_xaxis = True
             x = mdates.date2num([y for y in x])
+        else:
+            date_xaxis = False
 
         if log_plot is True:
             if 'vmin' in kwargs.keys():
@@ -405,6 +413,11 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
                                             hatch=hatch, alpha=0.)
 
+        if date_xaxis:
+            self.axes[subplot_index].xaxis.set_major_formatter(mdates.DateFormatter(x_dateformat))
+            for label in self.axes[subplot_index].get_xticklabels(which='major'):
+                label.set(rotation=x_rotation, horizontalalignment='right')
+
         if title is None:
             self.axes[subplot_index].set_title(self.model.model_name + ' ' +
                                                np.datetime_as_string(self.model.ds[x_variable][0].values))
@@ -425,7 +438,8 @@ class SubcolumnDisplay(Display):
     def plot_instrument_timeseries(self, instrument, variable, title=None,
                                    subplot_index=(0, ), colorbar=True, cbar_label=None,
                                    log_plot=False, Mask_array=None, hatched_mask=False,
-                                   x_range=None, y_range=None, **kwargs):
+                                   x_range=None, y_range=None, x_dateformat="%b%d-%H",
+                                   x_rotation=30., **kwargs):
         """
         Plots timeseries of a given instrument variable.
 
@@ -455,6 +469,10 @@ class SubcolumnDisplay(Display):
             The x range of the plot (also accepts datetime64 format).
         y_range: tuple, list, or None
             The y range of the plot.
+        x_dateformat: str
+            Date format for the x-axis.
+        x_rotation: float
+            x-axis label rotation for a date axis.
         Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
 
         Returns
@@ -504,7 +522,10 @@ class SubcolumnDisplay(Display):
             self.axes[subplot_index].set_xlim(x_range)
 
         if np.issubdtype(x.dtype, np.datetime64):
+            date_xaxis = True
             x = mdates.date2num([y for y in x])
+        else:
+            date_xaxis = False
 
         if log_plot is True:
             if 'vmin' in kwargs.keys():
@@ -525,6 +546,12 @@ class SubcolumnDisplay(Display):
         if hatched_mask:
             self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
                                             hatch=hatch, alpha=0.)
+
+        if date_xaxis:
+            self.axes[subplot_index].xaxis.set_major_formatter(mdates.DateFormatter(x_dateformat))
+            for label in self.axes[subplot_index].get_xticklabels(which='major'):
+                label.set(rotation=x_rotation, horizontalalignment='right')
+
         if title is None:
             self.axes[subplot_index].set_title(instrument.instrument_str + ' ' +
                                                np.datetime_as_string(my_ds.time[0].values))

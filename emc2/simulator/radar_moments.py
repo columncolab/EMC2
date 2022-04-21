@@ -5,13 +5,9 @@ import dask.array as da
 from time import time
 from scipy.interpolate import LinearNDInterpolator
 
-from ..core import Instrument, Model
 from .attenuation import calc_radar_atm_attenuation
 from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
-
-from pytmatrix.psd import UnnormalizedGammaPSD
-from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
 
 def calc_total_reflectivity(model, detect_mask=False):
@@ -655,11 +651,11 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
         model.ds["sub_col_Vd_%s_strat" % hyd_type].attrs["long_name"] = \
             "Mean Doppler velocity from stratiform %s hydrometeors" % hyd_type
-        model.ds["sub_col_Vd_%s_strat" % hyd_type].attrs["units"] = "m s-1"
+        model.ds["sub_col_Vd_%s_strat" % hyd_type].attrs["units"] = r"$m\ s^{-1}$"
         model.ds["sub_col_Vd_%s_strat" % hyd_type].attrs["Processing method"] = method_str
         model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["long_name"] = \
             "Spectral width from stratiform %s hydrometeors" % hyd_type
-        model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["units"] = "m s-1"
+        model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["units"] = r"$m\ s^{-1}$"
         model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["Processing method"] = method_str
     model.ds["sub_col_Vd_tot_strat"] = xr.DataArray(V_d_numer_tot / moment_denom_tot,
                                                     dims=model.ds["sub_col_Ze_tot_strat"].dims)
@@ -748,12 +744,12 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
     model.ds['sub_col_Vd_tot_strat'].attrs["long_name"] = \
         "Mean Doppler velocity from all stratiform hydrometeors"
-    model.ds['sub_col_Vd_tot_strat'].attrs["units"] = "m s-1"
+    model.ds['sub_col_Vd_tot_strat'].attrs["units"] = r"$m\ s^{-1}$"
     model.ds['sub_col_Vd_tot_strat'].attrs["Processing method"] = method_str
     model.ds['sub_col_Vd_tot_strat'].attrs["Ice scattering database"] = scat_str
     model.ds['sub_col_sigma_d_tot_strat'].attrs["long_name"] = \
         "Spectral width from all stratiform hydrometeors"
-    model.ds['sub_col_sigma_d_tot_strat'].attrs["units"] = "m s-1"
+    model.ds['sub_col_sigma_d_tot_strat'].attrs["units"] = r"$m\ s^{-1}$"
     model.ds["sub_col_sigma_d_tot_strat"].attrs["Processing method"] = method_str
     model.ds["sub_col_sigma_d_tot_strat"].attrs["Ice scattering database"] = scat_str
     return model
@@ -828,6 +824,10 @@ def calc_radar_moments(instrument, model, is_conv,
     model: :func:`emc2.core.Model`
         The xarray Dataset containing the calculated radar moments.
     """
+    if dual_polarization:
+        from pytmatrix.psd import UnnormalizedGammaPSD
+        from pytmatrix import orientation, radar, tmatrix_aux, refractive
+
     hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:

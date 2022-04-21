@@ -349,6 +349,7 @@ class Model():
             more_dims = (self.ds[self.stacked_time_dim + "_tmp"].dims[0],)
             more_shapes = (self.ds[self.stacked_time_dim + "_tmp"].size,)
         for key in out_fields:
+            Attrs = self.ds[key].attrs
             Dims = self.ds[key].dims
             Shape = self.ds[key].shape
             if len(Shape) == 0:
@@ -358,7 +359,8 @@ class Model():
                                                        (*Shape[:-1], self.ds[self.lat_dim + "_tmp"].size,
                                                         *more_shapes)),
                                             dims=(*Dims[:-1], self.ds[self.lat_dim + "_tmp"].dims[0],
-                                                  *more_dims))
+                                                  *more_dims),
+                                            attrs=Attrs)
         self.ds = self.ds.drop_dims(self.time_dim)
         self.time_dim, self.stacked_time_dim = self.stacked_time_dim, None
         self.ds = self.ds.rename({self.lat_dim + "_tmp": self.lat_dim,

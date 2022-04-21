@@ -4,7 +4,6 @@ import dask.bag as db
 from time import time
 from scipy.interpolate import LinearNDInterpolator
 
-from ..core import Instrument, Model
 from .attenuation import calc_theory_beta_m
 from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
@@ -53,10 +52,10 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
         model.ds["sub_col_OD_tot"] = model.ds["sub_col_OD_tot_strat"].fillna(0)
     model.ds["sub_col_beta_p_tot"].attrs["long_name"] = \
         "Total backscatter coefficient (convective + stratiform)"
-    model.ds["sub_col_beta_p_tot"].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_beta_p_tot"].attrs["units"] = r"$m^{-1} sr^{-1}$"
     model.ds["sub_col_alpha_p_tot"].attrs["long_name"] = \
         "Total extinction coefficient (convective + stratiform)"
-    model.ds["sub_col_alpha_p_tot"].attrs["units"] = "m^-1"
+    model.ds["sub_col_alpha_p_tot"].attrs["units"] = r"$m^{-1}$"
     model.ds["sub_col_OD_tot"].attrs["long_name"] = \
         "Total cumulative optical depth at %s (convective + stratiform)" % OD_str
     model.ds["sub_col_OD_tot"].attrs["units"] = "1"
@@ -66,7 +65,7 @@ def calc_total_alpha_beta(model, OD_from_sfc=True, eta=1):
         T * np.exp(-2 * eta * model.ds['sub_col_OD_tot'])
     model.ds["sub_col_beta_att_tot"].attrs["long_name"] = \
         "Total attenuated backscatter coefficient (convective + stratiform)"
-    model.ds["sub_col_beta_att_tot"].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_beta_att_tot"].attrs["units"] = r"$m^{-1} sr^{-1}$"
 
     return model
 
@@ -680,12 +679,12 @@ def calc_lidar_moments(instrument, model, is_conv,
     for hyd_type in hyd_types:
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
             "Particulate backscatter cross section from %s %s hydrometeors" % (cloud_str_full, hyd_type)
-        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "m^-1 sr^-1"
+        model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = r"$m^{-1} sr^{-1}$"
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
         model.ds["sub_col_beta_p_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
         model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
             "Particulate extinction cross section from %s %s hydrometeors" % (cloud_str_full, hyd_type)
-        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = "m^-1"
+        model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["units"] = r"$m^{-1}$"
         model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["Processing method"] = method_str
         model.ds["sub_col_alpha_p_%s_%s" % (hyd_type, cloud_str)].attrs["Ice scattering database"] = scat_str
         model.ds["sub_col_OD_%s_%s" % (hyd_type, cloud_str)].attrs["long_name"] = \
@@ -697,12 +696,12 @@ def calc_lidar_moments(instrument, model, is_conv,
 
     model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["long_name"] = \
         "Backscatter coefficient from all %s hydrometeors" % cloud_str_full
-    model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["units"] = r"$m^{-1} sr^{-1}$"
     model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["Processing method"] = method_str
     model.ds["sub_col_beta_p_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
     model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["long_name"] = \
         "Extinction coefficient from all %s hydrometeors" % cloud_str_full
-    model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["units"] = "m^-1"
+    model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["units"] = r"$m^{-1}$"
     model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["Processing method"] = method_str
     model.ds["sub_col_alpha_p_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
     model.ds["sub_col_OD_tot_%s" % cloud_str].attrs["long_name"] = \
@@ -717,7 +716,7 @@ def calc_lidar_moments(instrument, model, is_conv,
         T * np.exp(-2 * eta * model.ds["sub_col_OD_tot_%s" % cloud_str])
     model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["long_name"] = \
         "Total attenuated backscatter from all %s hydrometeors (including atmospheric extinction)" % cloud_str_full
-    model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["units"] = "m^-1 sr^-1"
+    model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["units"] = r"$m^{-1} sr^{-1}$"
     model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["Processing method"] = method_str
     model.ds["sub_col_beta_att_tot_%s" % cloud_str].attrs["Ice scattering database"] = scat_str
 

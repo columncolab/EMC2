@@ -8,6 +8,8 @@ from scipy.interpolate import LinearNDInterpolator
 from .attenuation import calc_radar_atm_attenuation
 from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
+from pytmatrix.psd import UnnormalizedGammaPSD
+from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
 
 def calc_total_reflectivity(model, detect_mask=False):
@@ -824,10 +826,6 @@ def calc_radar_moments(instrument, model, is_conv,
     model: :func:`emc2.core.Model`
         The xarray Dataset containing the calculated radar moments.
     """
-    if dual_polarization:
-        from pytmatrix.psd import UnnormalizedGammaPSD
-        from pytmatrix import orientation, radar, tmatrix_aux, refractive
-
     hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:

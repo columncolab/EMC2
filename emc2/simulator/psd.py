@@ -121,11 +121,11 @@ def calc_mu_lambda(model, hyd_type="cl",
     # Eventually need to make this unit aware, pint as a dependency?
     column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0).astype(float)
     column_ds["lambda"].attrs["long_name"] = "Slope of gamma distribution fit"
-    column_ds["lambda"].attrs["units"] = "m-1"
+    column_ds["lambda"].attrs["units"] = r"$m^{-1}$"
     column_ds["N_0"] = column_ds[N_name].astype(float) * 1e6 * \
         column_ds["lambda"]**(column_ds["mu"] + 1.) / gamma(column_ds["mu"] + 1.)
     column_ds["N_0"].attrs["long_name"] = "Intercept of gamma fit"
-    column_ds["N_0"].attrs["units"] = "m-4"
+    column_ds["N_0"].attrs["units"] = r"$m^{-4}$"
     model.ds = column_ds
     return model
 

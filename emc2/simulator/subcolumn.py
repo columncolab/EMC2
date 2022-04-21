@@ -467,13 +467,13 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
     q_profs = np.where(np.isnan(q_profs), 0, q_profs)
     model.ds[q_name] = xr.DataArray(q_profs, dims=model.ds[frac_fieldname].dims)
     model.ds[q_name].attrs["long_name"] = "q in subcolumns"
-    model.ds[q_name].attrs["units"] = "kg/kg"
+    model.ds[q_name].attrs["units"] = r"$kg\ kg^{-1}$"
     model.ds[q_name].attrs["Processing method"] = method_str
     if not is_conv:
         N_profs = np.where(np.isnan(N_profs), 0, N_profs)
         model.ds[n_name] = xr.DataArray(N_profs, dims=model.ds[frac_fieldname].dims)
         model.ds[n_name].attrs["long_name"] = "N in subcolumns"
-        model.ds[n_name].attrs["units"] = "cm-3"
+        model.ds[n_name].attrs["units"] = r"$cm^{-3}$"
         model.ds[n_name].attrs["Processing method"] = method_str
 
     return model

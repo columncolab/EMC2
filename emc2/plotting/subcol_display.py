@@ -197,6 +197,67 @@ class SubcolumnDisplay(Display):
             SD = np.nanstd(variable, axis=axis)
         return Mean, SD
 
+    @staticmethod
+    def set_axis_label(ds, variable, max_long_name=20, use_prespec=True):
+        """
+        Setting the axis label based on whether a field name is one of prespecified fields,
+        its attributes exist, and whether these attributes are not "too long".
+
+        Parameters
+        ----------
+        ds: xr.Dataset
+            dataset containing the field for which to generate the label.
+        variable: str
+            Name of variable for which to generate axis title.
+        max_long_name: int
+            maximum length of the "long_name" attribute to include in plot
+        use_prespec: bool
+            If True, then setting axis label based on pre-specified variable names (if exist in variable name).
+
+        Returns
+        -------
+        axis_title: str
+            axis title
+        """
+        axis_label = None
+
+        if use_prespec:
+            # Choose label based on variable
+            variables = ['Ze', 'Vd', 'sigma_d', 'od', 'OD', 'beta', 'alpha', 'LDR']
+            hyd_met = ''
+            hyd_types = ['cl', 'ci', 'pl', 'pi', 'tot']
+            for hyd in hyd_types:
+                if hyd in variable:
+                    hyd_met = hyd
+
+            for var in variables:
+                if var in variable:
+                    if var == 'Ze':
+                        axis_label = r'$Z_{e, %s}$ [dBZ]' % hyd_met
+                    elif var == 'Vd':
+                        axis_label = r'$V_{d, %s}$ [m/s]' % hyd_met
+                    elif var == 'sigma_d':
+                        axis_label = r'$\sigma_{d, %s}$ [m/s]' % hyd_met
+                    elif var in ['od', 'OD']:
+                        axis_label = r'$\tau_{%s}$' % hyd_met
+                    elif var == 'beta':
+                        axis_label = r'$\beta_{%s}$ [$m^{-1} sr^{-1}$]' % hyd_met
+                    elif var == 'alpha':
+                        axis_label = r'$\alpha_{%s}$ [$m^{-1}$]' % hyd_met
+                    elif var == 'LDR':
+                        axis_label = 'LDR'
+
+        if axis_label is None:
+            if "units" in ds[variable].attrs:
+                axis_label = "[%s]" % ds[variable].attrs["units"]
+                if "long_name" in ds[variable].attrs:
+                    if len(ds[variable].attrs["long_name"]) <= max_long_name:
+                        axis_label = '%s [%s]' % (ds[variable].attrs["long_name"],
+                                                  ds[variable].attrs["units"])
+            else:
+                axis_label = variable
+        return axis_label
+
     def set_yrng(self, subplot_index, y_range):
         """
         Set the Y axes limits of the subplot
@@ -350,17 +411,10 @@ class SubcolumnDisplay(Display):
             y_variable = self.model.z_field
 
         x_label = 'Time [UTC]'
-        if "long_name" in my_ds[y_variable].attrs and "units" in my_ds[y_variable].attrs:
-            y_label = '%s [%s]' % (my_ds[y_variable].attrs["long_name"],
-                                   my_ds[y_variable].attrs["units"])
-        else:
-            y_label = y_variable
+        y_label = self.set_axis_label(my_ds, y_variable)
 
         if cbar_label is None:
-            if "long_name" in my_ds[variable].attrs.keys():
-                cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
-            else:
-                cbar_label = variable
+            cbar_label = self.set_axis_label(my_ds, variable)
 
         if pressure_coords:
             x = my_ds[x_variable].values
@@ -492,16 +546,10 @@ class SubcolumnDisplay(Display):
             y_variable = "height"
 
         x_label = 'Time [UTC]'
-        if "long_name" in my_ds[y_variable].attrs and "units" in my_ds[y_variable].attrs:
-            y_label = '%s [%s]' % (my_ds[y_variable].attrs["long_name"],
-                                   my_ds[y_variable].attrs["units"])
-        else:
-            y_label = y_variable
+        y_label = self.set_axis_label(my_ds, y_variable)
 
-        if "long_name" in my_ds[variable].attrs.keys():
-            cbar_label = '%s [%s]' % (my_ds[variable].attrs["long_name"], my_ds[variable].attrs["units"])
-        else:
-            cbar_label = variable
+        if cbar_label is None:
+            cbar_label = self.set_axis_label(my_ds, variable)
 
         x = my_ds[x_variable].values
         y = my_ds[y_variable].values
@@ -621,34 +669,10 @@ class SubcolumnDisplay(Display):
             y_variable = self.model.z_field
 
         x_label = 'Subcolumn #'
-        if "long_name" in my_ds[y_variable].attrs and "units" in my_ds[y_variable].attrs:
-            y_label = '%s [%s]' % (my_ds[y_variable].attrs["long_name"],
-                                   my_ds[y_variable].attrs["units"])
-        else:
-            y_label = y_variable
+        y_label = self.set_axis_label(my_ds, y_variable)
 
         if cbar_label is None:
-            variables = ['Ze', 'Vd', 'sigma_d', 'od', 'beta', 'alpha']
-            hyd_met = ''
-            hyd_types = ['cl', 'ci', 'pl', 'pi', 'tot']
-            for hyd in hyd_types:
-                if hyd in variable:
-                    hyd_met = hyd
-
-            for var in variables:
-                if var in variable:
-                    if var == 'Ze':
-                        cbar_label = r'$Z_{e, %s}$ [dBZ]' % hyd_met
-                    elif var == 'Vd':
-                        cbar_label = r'$V_{d, %s}$ [m/s]' % hyd_met
-                    elif var == 'sigma_d':
-                        cbar_label = r'$\sigma_{d, %s}$ [m/s]' % hyd_met
-                    elif var == 'od':
-                        cbar_label = r'$\tau_{%s}$' % hyd_met
-                    elif var == 'beta':
-                        cbar_label = r'$\beta_{%s}$ [$m^{-2}$]' % hyd_met
-                    elif var == 'alpha':
-                        cbar_label = r'$\alpha_{%s}$ [$m^{-2}$]' % hyd_met
+            cbar_label = self.set_axis_label(my_ds, variable)
 
         if pressure_coords:
             x = np.arange(0, self.model.num_subcolumns, 1)
@@ -845,27 +869,7 @@ class SubcolumnDisplay(Display):
                 hyd_met = hyd
 
         if Xlabel is None:
-            variables = ['Ze', 'Vd', 'sigma_d', 'od', 'beta', 'alpha', 'LDR_strat']
-
-            for var in variables:
-                if var in variable:
-                    if var == 'Ze':
-                        x_label += '$Z_{e, %s}$ [dBZ]' % hyd_met
-                    elif var == 'Vd':
-                        x_label += '$V_{d, %s}$ [m/s]' % hyd_met
-                    elif var == 'sigma_d':
-                        x_label += '$\\sigma_{d, %s}$ [m/s]' % hyd_met
-                    elif var == 'od':
-                        x_label += '$\\tau_{%s}$' % hyd_met
-                    elif var == 'beta':
-                        x_label += '$\\beta_{%s}$ [$m^{-1} sr^{-1}$]' % hyd_met
-                    elif var == 'alpha':
-                        x_label += '$\\alpha_{%s}$ [$m^{-1}$]' % hyd_met
-                    elif var == 'LDR_strat':
-                        x_label += 'LDR'
-
-            if x_label == '' or x_label == 'log ':
-                x_label = variable
+            x_label = self.set_axis_label(my_ds, variable)
         else:
             x_label = Xlabel
 
@@ -994,43 +998,14 @@ class SubcolumnDisplay(Display):
                 x_var, x_err = self.calc_mean_and_sd(x_variable, use_geom_mean, axis=0)
             x_fill = np.array([x_var - x_err, x_var + x_err])
             if log_plot:
-                x_label = 'log '
                 Xscale = 'log'
             else:
-                x_label = ''
                 Xscale = 'linear'
         x_lim = np.array([np.nanmin(x_fill[0]) * 0.95,
                           np.nanmax(x_fill[1] * 1.05)])
 
-        # Choose label based on variable
-        hyd_met = ''
-        hyd_types = ['cl', 'ci', 'pl', 'pi', 'tot']
-        for hyd in hyd_types:
-            if hyd in variable:
-                hyd_met = hyd
-
         if Xlabel is None:
-            variables = ['Ze', 'Vd', 'sigma_d', 'od', 'beta', 'alpha', 'LDR_strat']
-
-            for var in variables:
-                if var in variable:
-                    if var == 'Ze':
-                        x_label += '$Z_{e, %s}$ [dBZ]' % hyd_met
-                    elif var == 'Vd':
-                        x_label += '$V_{d, %s}$ [m/s]' % hyd_met
-                    elif var == 'sigma_d':
-                        x_label += '$\\sigma_{d, %s}$ [m/s]' % hyd_met
-                    elif var == 'od':
-                        x_label += '$\\tau_{%s}$' % hyd_met
-                    elif var == 'beta':
-                        x_label += '$\\beta_{%s}$ [$m^{-1} sr^{-1}$]' % hyd_met
-                    elif var == 'alpha':
-                        x_label += '$\\alpha_{%s}$ [$m^{-1}$]' % hyd_met
-                    elif var == 'LDR_strat':
-                        x_label += 'LDR'
-
-            if x_label == '' or x_label == 'log ':
-                x_label = variable
+            x_label = self.set_axis_label(my_ds, variable)
         else:
             x_label = Xlabel
 

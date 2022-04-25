@@ -9,9 +9,6 @@ import numpy as np
 
 from pint import UnitRegistry
 from ..io import load_arm_file
-from pytmatrix.tmatrix import Scatterer
-from pytmatrix.psd import PSDIntegrator, UnnormalizedGammaPSD
-from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
 ureg = UnitRegistry()
 quantity = ureg.Quantity

@@ -108,6 +108,7 @@ class Instrument(object):
         self.mie_table = {}
         self.scat_table = {}  # scattering calculation LUTs (e.g., C6 or m-D, A-D relationships).
         self.bulk_table = {}
+        self.scatterer = {}
         self.ds = None
 
     def read_arm_netcdf_file(self, filename, **kwargs):

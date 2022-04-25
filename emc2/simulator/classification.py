@@ -322,18 +322,18 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
                 ATB_tot, dims=model.ds["strat_q_subcolumns_cl"].dims)
             model.ds["COSP_ATBtot_%s" % cloud_class].attrs["long_name"] = \
                 "COSP emulation ATB_tot for %s clouds" % cloud_class
-            model.ds["COSP_ATBtot_%s" % cloud_class].attrs["units"] = "m^-1 sr^-1"
+            model.ds["COSP_ATBtot_%s" % cloud_class].attrs["units"] = r"$m^{-1}\ sr^{-1}$"
 
             model.ds["COSP_ATBcross_%s" % cloud_class] = xr.DataArray(
                 ATB_cross_tot, dims=model.ds["strat_q_subcolumns_cl"].dims)
             model.ds["COSP_ATBcross_%s" % cloud_class].attrs["long_name"] = \
                 "COSP emulation ATB_cross for %s clouds" % cloud_class
-            model.ds["COSP_ATBcross_%s" % cloud_class].attrs["units"] = "m^-1 sr^-1"
+            model.ds["COSP_ATBcross_%s" % cloud_class].attrs["units"] = r"$m^{-1}\ sr^{-1}$"
             model.ds["COSP_SR_%s" % cloud_class] = xr.DataArray(
                 SR, dims=model.ds["strat_q_subcolumns_cl"].dims)
             model.ds["COSP_SR_%s" % cloud_class].attrs["long_name"] = \
                 "COSP emulation scattering ratio for %s clouds" % cloud_class
-            model.ds["COSP_SR_%s" % cloud_class].attrs["units"] = "m^-1s r^-1"
+            model.ds["COSP_SR_%s" % cloud_class].attrs["units"] = r"$m^{-1}\ sr^{-1}$"
 
     # determine phase_mask for all hydrometeors
     ATB_tot_allhyd = (beta_p_allhyd + beta_p_cross_allhyd +
@@ -382,18 +382,18 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
             ATB_tot_allhyd, dims=model.ds["strat_q_subcolumns_cl"].dims)
         model.ds["COSP_ATBtot_all_hyd"].attrs["long_name"] = \
             "COSP emulation ATB_tot (convective + stratiform)"
-        model.ds["COSP_ATBtot_all_hyd"].attrs["units"] = "m^-1sr^-1"
+        model.ds["COSP_ATBtot_all_hyd"].attrs["units"] = r"$m^{-1}\ sr^{-1}$"
 
         model.ds["COSP_ATBcross_all_hyd"] = xr.DataArray(
             ATB_cross_allhyd, dims=model.ds["strat_q_subcolumns_cl"].dims)
         model.ds["COSP_ATBcross_all_hyd"].attrs["long_name"] = \
             "COSP emulation ATB_cross (convective + stratiform)"
-        model.ds["COSP_ATBcross_all_hyd"].attrs["units"] = "m^-1sr^-1"
+        model.ds["COSP_ATBcross_all_hyd"].attrs["units"] = r"$m^{-1}\ sr^{-1}$"
         model.ds["COSP_SR_all_hyd"] = xr.DataArray(
             SR_allhyd, dims=model.ds["strat_q_subcolumns_cl"].dims)
         model.ds["COSP_SR_all_hyd"].attrs["long_name"] = \
             "COSP emulation scattering ratio (convective + stratiform)"
-        model.ds["COSP_SR_all_hyd"].attrs["units"] = "m^-1sr^-1"
+        model.ds["COSP_SR_all_hyd"].attrs["units"] = r"$m^{-1}\ sr^{-1}$"
 
     return model
 

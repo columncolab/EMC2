@@ -80,15 +80,15 @@ def calc_radar_atm_attenuation(instrument, model):
 
     column_ds['kappa_o2'] = xr.DataArray(kappa_o2, dims=model.ds[t_field].dims)
     column_ds['kappa_o2'].attrs["long_name"] = "Gaseous attenuation due to O2"
-    column_ds['kappa_o2'].attrs["units"] = "dB/km"
+    column_ds['kappa_o2'].attrs["units"] = r"$dB\ km^{-1}$"
 
     column_ds['kappa_wv'] = xr.DataArray(kappa_wv.values, dims=model.ds[t_field].dims)
     column_ds['kappa_wv'].attrs["long_name"] = "Gaseous attenuation due to water vapor"
-    column_ds['kappa_wv'].attrs["units"] = "dB/km"
+    column_ds['kappa_wv'].attrs["units"] = r"$dB\ km^{-1}$"
 
     column_ds['kappa_att'] = column_ds['kappa_wv'] + column_ds['kappa_o2']
     column_ds['kappa_att'].attrs["long_name"] = "Gaseous attenuation due to O2 and water vapor"
-    column_ds['kappa_att'].attrs["units"] = "dB/km"
+    column_ds['kappa_att'].attrs["units"] = r"$dB\ km^{-1}$"
 
     model.ds = column_ds
     return model
@@ -174,23 +174,23 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
 
     model.ds["sigma_180_vol"] = xr.DataArray(sigma_180_vol, dims=my_dims)
     model.ds["sigma_180_vol"].attrs["long_name"] = "Volume backscatter cross section"
-    model.ds["sigma_180_vol"].attrs["units"] = "m^-1"
+    model.ds["sigma_180_vol"].attrs["units"] = r"$m^{-1}$"
 
     model.ds["sigma_180"] = xr.DataArray(sigma_180, dims=my_dims)
     model.ds["sigma_180"].attrs["long_name"] = "backscatter cross section per molecule"
-    model.ds["sigma_180"].attrs["units"] = "m^2"
+    model.ds["sigma_180"].attrs["units"] = r"$m^2$"
 
     model.ds["sigma"] = xr.DataArray(sigma, dims=my_dims)
     model.ds["sigma"].attrs["long_name"] = "Rayleigh scattering cross section per molecule"
-    model.ds["sigma"].attrs["units"] = "m^2"
+    model.ds["sigma"].attrs["units"] = r"$m^2$"
 
     model.ds["kappa"] = xr.DataArray(kappa, dims=my_dims)
     model.ds["kappa"].attrs["long_name"] = "Mass extinction cross section per molecule"
-    model.ds["kappa"].attrs["units"] = "kg m^-3"
+    model.ds["kappa"].attrs["units"] = r"$kg\ m^{-3}$"
 
     model.ds["N_s"] = xr.DataArray(N_s, dims=my_dims)
     model.ds["N_s"].attrs["long_name"] = "Number density profile"
-    model.ds["N_s"].attrs["units"] = "m-3"
+    model.ds["N_s"].attrs["units"] = r"$m^{-3}$"
 
     model.ds["n_s"] = xr.DataArray(n_s, dims=my_dims)
     model.ds["n_s"].attrs["long_name"] = "Refractive index"

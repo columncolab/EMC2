@@ -723,9 +723,6 @@ def calc_radar_moments(instrument, model, is_conv,
     model: :func:`emc2.core.Model`
         The xarray Dataset containing the calculated radar moments.
     """
-    if dual_polarization:
-        from pytmatrix.psd import UnnormalizedGammaPSD
-        from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
     hyd_types = model.set_hyd_types(hyd_types)
 

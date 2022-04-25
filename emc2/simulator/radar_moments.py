@@ -708,7 +708,7 @@ def calc_radar_moments(instrument, model, is_conv,
         particle scattering LUTs.
         NOTE: because of its single-particle calculation method, the microphysics
         approach is significantly slower than the radiation approach. Also, the cloud
-        fraction logic in these  schemes does not necessarilytly fully overlap.
+        fraction logic in these schemes does not necessarily fully overlap.
     use_empirical_calc: bool
         When True using empirical relations from literature for the fwd calculations
         (the cloud fraction still follows the scheme logic set by use_rad_logic).

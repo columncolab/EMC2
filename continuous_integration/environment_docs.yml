@@ -20,6 +20,7 @@ dependencies:
   - doctr
   - pandoc
   - nbsphinx
+  - numpydoc
   - pip:
     - pymiescatt
     - sphinx_gallery

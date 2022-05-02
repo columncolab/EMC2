@@ -24,4 +24,3 @@ dependencies:
     - pymiescatt
     - sphinx_gallery
     - sphinx-copybutton
-    - Jinja2==2.11.3

@@ -1,0 +1,28 @@
+name: testenv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - numpy
+  - scipy
+  - matplotlib
+  - netcdf4
+  - pytest
+  - pytest-mpl
+  - pytest-cov
+  - dask
+  - flake8
+  - pint
+  - act-atmos
+  - sphinx
+  - doctr
+  - pandoc
+  - nbsphinx
+  - numpydoc
+  - pip:
+    - pymiescatt
+    - sphinx_gallery
+    - sphinx-copybutton
+    - sphinx_rtd_theme

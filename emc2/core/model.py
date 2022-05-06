@@ -12,6 +12,7 @@ import numpy as np
 from act.io.armfiles import read_netcdf
 from .instrument import ureg, quantity
 from netCDF4 import Dataset
+from ..scattering import brandes
 
 try:
     from wrf import tk, getvar, ALL_TIMES
@@ -74,6 +75,8 @@ class Model():
     strat_re_fields: dict
        A dictionary containing the names of the effective radii of each stratiform
        hydrometeor class
+    asp_ratio_func: dict
+       A dictionary that returns hydrometeor aspect ratios as a function of maximum dimension in mm.
     hyd_types: list
        list of hydrometeor classes to include in calcuations. By default set to be consistent
        with the model represented by the Model subclass.
@@ -132,6 +135,7 @@ class Model():
                        "g": 9.80665,  # m/s^2
                        "Avogadro_c": 6.022140857e23,
                        "R": 8.3144598}  # J K^-1 mol^-1
+        self.asp_ratio_func = {}
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -712,6 +716,7 @@ class WRF(Model):
                                 'pl': 'conv_frac', 'pi': 'conv_frac'}
         self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                  'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
+        self.asp_ratio_func = {'cl': lambda x: 1, 'ci': lambda x: 1, 'pi': lambda x: 0.6, 'pl': brandes}
         self.conv_frac_names_for_rad = self.conv_frac_names
         self.strat_frac_names_for_rad = self.strat_frac_names
         self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
@@ -859,6 +864,7 @@ class WRF(Model):
         self.model_name = "WRF"
         self.lat_dim = "XLAT"
         self.lon_dim = "XLONG"
+        self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():
             try:

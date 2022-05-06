@@ -10,7 +10,7 @@ from .psd import calc_re_thompson
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
                         calc_re=False, skip_subcol_gen=False, finalize_fields=False, 
-                        dual_polarization=False, **kwargs):
+                        **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
 
@@ -46,8 +46,6 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     finalize_fields: bool
         True - set absolute 0 values in"sub_col"-containing fields to np.nan enabling analysis
         and visualization.
-    dual_polarization: bool
-        True - calculate dual polarization radar parameters
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -188,7 +186,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                 instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
                 parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
                 use_rad_logic=use_rad_logic,
-                use_empiric_calc=use_empiric_calc, dual_polarization=False, **kwargs)
+                use_empiric_calc=use_empiric_calc, **kwargs)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
         model = calc_total_reflectivity(model, detect_mask=True)

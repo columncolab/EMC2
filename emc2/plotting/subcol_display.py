@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import gmean, gstd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -8,6 +9,13 @@ import warnings
 import copy
 
 from act.plotting import Display
+
+
+# Treat pcolor shading deprecation warning (since matplotlib v.3.3)
+try:
+    mpl.rcParams['pcolor.shading'] = 'auto'
+except:
+    print("Could not set pcolor.shading to 'auto' to prevent matplotlib deprecation warning (since v.3.3)")
 
 
 class SubcolumnDisplay(Display):

@@ -8,8 +8,6 @@ from scipy.interpolate import LinearNDInterpolator
 from .attenuation import calc_radar_atm_attenuation
 from .psd import calc_mu_lambda
 from ..core.instrument import ureg, quantity
-from pytmatrix.psd import UnnormalizedGammaPSD
-from pytmatrix import orientation, radar, tmatrix_aux, refractive
 
 
 def calc_total_reflectivity(model, detect_mask=False):

@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import gmean, gstd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -8,6 +9,13 @@ import warnings
 import copy
 
 from act.plotting import Display
+
+
+# Treat pcolor shading deprecation warning (since matplotlib v.3.3)
+try:
+    mpl.rcParams['pcolor.shading'] = 'auto'
+except:
+    print("Could not set pcolor.shading to 'auto' to prevent matplotlib deprecation warning (since v.3.3)")
 
 
 class SubcolumnDisplay(Display):
@@ -422,7 +430,10 @@ class SubcolumnDisplay(Display):
             x, y = np.meshgrid(x, y)
         else:
             x = my_ds[x_variable].values
-            y = my_ds[y_variable].values.T
+            if my_ds[y_variable].ndim == 2:
+                y = np.mean(my_ds[y_variable].values, axis=0)
+            else:
+                y = my_ds[y_variable].values
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
 
@@ -680,7 +691,10 @@ class SubcolumnDisplay(Display):
             x, y = np.meshgrid(x, y)
         else:
             x = np.arange(0, self.model.num_subcolumns, 1)
-            y = my_ds[y_variable].values.T
+            if my_ds[y_variable].ndim == 2:
+                y = np.mean(my_ds[y_variable].values, axis=0)
+            else:
+                y = my_ds[y_variable].values
             p = my_ds[self.model.height_dim].values
             x, p = np.meshgrid(x, p)
 
@@ -819,7 +833,7 @@ class SubcolumnDisplay(Display):
         else:
             y_variable = my_ds[self.model.z_field]
             y_label = 'Height [m]'
-        if len(y_variable.shape) > 1:
+        if y_variable.ndim > 1:
             y_variable = np.nanmean(y_variable, axis=0)
 
         x_variable = my_ds[variable].squeeze().values

@@ -961,6 +961,7 @@ class TestModel(Model):
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - quantity(0.00649, 'kelvin/meter') * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC')
+        temp_k = temp
         p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
         es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c.magnitude / (temp_c.magnitude + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3)
@@ -980,8 +981,8 @@ class TestModel(Model):
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
-        t_units = temp_c.units
-        temp = xr.DataArray(temp_c.magnitude[np.newaxis, :], dims=('time', 'height'))
+        t_units = temp_k.units
+        temp = xr.DataArray(temp_k.magnitude[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
@@ -1048,6 +1049,7 @@ class TestConvection(Model):
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC')
+        temp_k = temp
         p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
         re_cl = 10 * np.ones_like(q) * ureg.micrometer
         re_pl = 100 * np.ones_like(q) * ureg.micrometer
@@ -1080,8 +1082,8 @@ class TestConvection(Model):
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
-        t_units = temp_c.units
-        temp = xr.DataArray(temp_c.magnitude[np.newaxis, :], dims=('time', 'height'))
+        t_units = temp_k.units
+        temp = xr.DataArray(temp_k.magnitude[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
@@ -1184,6 +1186,7 @@ class TestAllStratiform(Model):
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC').magnitude
+        temp_k = temp.magnitude
         p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
         es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c / (temp_c + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3) * q.units
@@ -1215,8 +1218,8 @@ class TestAllStratiform(Model):
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
-        t_units = "degC"
-        temp = xr.DataArray(temp_c[np.newaxis, :], dims=('time', 'height'))
+        t_units = "degK"
+        temp = xr.DataArray(temp_k[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 
@@ -1323,6 +1326,7 @@ class TestHalfAndHalf(Model):
         heights = np.linspace(0, 11000., 1000) * ureg.meter
         temp = 15.04 * ureg.kelvin - 0.00649 * (ureg.kelvin / ureg.meter) * heights + 273.15 * ureg.kelvin
         temp_c = temp.to('degC').magnitude
+        temp_k = temp.magnitude
         p = 1012.9 * ureg.hPa * (temp / (288.08 * ureg.kelvin)) ** 5.256
         es = 0.6112 * ureg.hPa * np.exp(17.67 * temp_c / (temp_c + 243.5))
         qv = 0.622 * es * 1e3 / (p * 1e2 - es * 1e3) * q.units
@@ -1352,8 +1356,8 @@ class TestHalfAndHalf(Model):
         qv.attrs["long_name"] = "Water vapor mixing ratio"
         qv.attrs["units"] = '%s' % qv_units
 
-        t_units = "degC"
-        temp = xr.DataArray(temp_c[np.newaxis, :], dims=('time', 'height'))
+        t_units = "degK"
+        temp = xr.DataArray(temp_k[np.newaxis, :], dims=('time', 'height'))
         temp.attrs["long_name"] = "Air temperature"
         temp.attrs["units"] = '%s' % t_units
 

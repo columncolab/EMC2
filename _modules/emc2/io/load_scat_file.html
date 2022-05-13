@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emc2.io.load_scat_file &mdash; EMC^2  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> EMC^2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">EMC^2 Usage guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EMC^2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>emc2.io.load_scat_file</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for emc2.io.load_scat_file</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="load_scat_file"><a class="viewcode-back" href="../../../API/generated/emc2.io.load_scat_file.html#emc2.io.load_scat_file">[docs]</a><span class="k">def</span> <span class="nf">load_scat_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">is_radar</span><span class="p">,</span> <span class="n">param_type</span><span class="o">=</span><span class="s2">&quot;C6&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads ice scattering LUTs from a file.</span>
+<span class="sd">    (by default using the PSD used in the C6 collection).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: str</span>
+<span class="sd">        The name of the file storing the scattering parameters</span>
+<span class="sd">    is_radar: bool</span>
+<span class="sd">        If True, the first LUT column is treated as the frequency,</span>
+<span class="sd">        otherwise, wavelength.</span>
+<span class="sd">    param_type: str</span>
+<span class="sd">        parameterization type:</span>
+<span class="sd">        C6 - C6 collection based on Yang et al., JAS, 2013 (as used in the GISS ModelE3).</span>
+<span class="sd">        mDAD - equivalent V/A spheres after implementing m-D and A-D parameterizations (as used in CESM and E3SM).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    my_df: xarray.Dataset</span>
+<span class="sd">        The xarray Dataset storing the scattering data, including</span>
+<span class="sd">        descriptive metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_radar</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">first_input</span> <span class="o">=</span> <span class="s2">&quot;frequency&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">first_input</span> <span class="o">=</span> <span class="s2">&quot;wavelength&quot;</span>
+    <span class="k">if</span> <span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;C6&quot;</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">first_input</span><span class="p">,</span> <span class="s2">&quot;p_diam&quot;</span><span class="p">,</span> <span class="s2">&quot;p_diam_eq_A&quot;</span><span class="p">,</span> <span class="s2">&quot;p_diam_eq_V&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_p&quot;</span><span class="p">,</span> <span class="s2">&quot;scat_p&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha_p&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_p_cross&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;mDAD&quot;</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">first_input</span><span class="p">,</span> <span class="s2">&quot;p_diam&quot;</span><span class="p">,</span> <span class="s2">&quot;p_diam_eq_A&quot;</span><span class="p">,</span> <span class="s2">&quot;p_diam_eq_V&quot;</span><span class="p">,</span> <span class="s2">&quot;p_diam_eq_VdivA&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_p&quot;</span><span class="p">,</span> <span class="s2">&quot;scat_p&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span>
+    <span class="n">my_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_A&quot;</span><span class="p">]</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_V&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_V&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;C6&quot;</span><span class="p">:</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p_cross&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p_cross&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="k">if</span> <span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;mDAD&quot;</span><span class="p">:</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_VdivA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_VdivA&quot;</span><span class="p">]</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-12</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;V&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;V&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-18</span>
+    <span class="n">my_df</span> <span class="o">=</span> <span class="n">my_df</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">is_radar</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;GHz&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Pulse frequency&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Frequency&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;microns&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Wavelength of beam&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Wavelength&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Maximum dimension of the particle&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;p_diam&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Maximum dimension&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of equivalent projected area sphere&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;p_diam_eq_A&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of equivalent A sphere&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_V&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_V&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of equivalent volume sphere&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;p_diam_eq_V&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of equivalent V sphere&quot;</span>
+
+    <span class="k">if</span> <span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;C6&quot;</span><span class="p">:</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p_cross&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters^2&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p_cross&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cross-polar backscattering cross section&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p_cross&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scat_cross_section_back_crosspol&quot;</span>
+    <span class="k">if</span> <span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;mDAD&quot;</span><span class="p">:</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_VdivA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;p_diam_eq_VdivA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of equivalent V/A sphere&quot;</span>
+        <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;p_diam_eq_VdivA&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diameter of equivalent V/A sphere&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters^2&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Projected area of particle&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Projected area&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;V&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters^3&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;V&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Particle volume&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s1">&#39;V&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Volume&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;microns^2&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scattering cross section&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;scat_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scat_cross_section&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters^2&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Backscattering cross section&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;beta_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Scat_cross_section_back&quot;</span>
+
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meters^2&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Extinction cross section&quot;</span>
+    <span class="n">my_df</span><span class="p">[</span><span class="s2">&quot;alpha_p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;standard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ext_cross_section&quot;</span>
+
+    <span class="k">return</span> <span class="n">my_df</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

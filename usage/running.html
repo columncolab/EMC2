@@ -20,8 +20,8 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -115,7 +115,7 @@
 </style>
 <section id="creating-your-simulated-variables">
 <h1>Creating your simulated variables<a class="headerlink" href="#creating-your-simulated-variables" title="Permalink to this headline">¶</a></h1>
-<p>Once you have created the <a class="reference internal" href="../API/core.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></a> and <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> objects creating
+<p>Once you have created the <a class="reference internal" href="../API/generated/emc2.core.Model.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></a> and <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> objects creating
 the simulated variables is as easy as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ my_model = emc2.simulator.main.make_simulated_data(my_model, my_instrument, num_columns)
 </pre></div>

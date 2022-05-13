@@ -1,0 +1,6 @@
+﻿emc2.io.load\_scat\_file
+========================
+
+.. currentmodule:: emc2.io
+
+.. autofunction:: load_scat_file

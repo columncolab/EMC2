@@ -1,4 +1,4 @@
-emc2.core.Instrument
+﻿emc2.core.Instrument
 ====================
 
 .. currentmodule:: emc2.core
@@ -14,6 +14,7 @@ emc2.core.Instrument
    .. autosummary::
    
       ~Instrument.__init__
+      ~Instrument.read_arm_netcdf_file
    
    
 

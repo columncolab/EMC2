@@ -22,7 +22,9 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="emc2.core.Model" href="emc2.core.Model.html" />
+    <link rel="prev" title="emc2.core.model.TestHalfAndHalf" href="emc2.core.model.TestHalfAndHalf.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,11 +43,36 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">EMC^2 Usage guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.CSAPR.html">emc2.core.instruments.CSAPR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.NEXRAD.html">emc2.core.instruments.NEXRAD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.XSACR.html">emc2.core.instruments.XSACR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.ModelE.html">emc2.core.model.ModelE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.E3SM.html">emc2.core.model.E3SM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.DHARMA.html">emc2.core.model.DHARMA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.WRF.html">emc2.core.model.WRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestConvection.html">emc2.core.model.TestConvection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestAllStratiform.html">emc2.core.model.TestAllStratiform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestHalfAndHalf.html">emc2.core.model.TestHalfAndHalf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.Instrument</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.Model.html">emc2.core.Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../io.html">emc2.io (emc2.io)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html">emc2.plotting (emc2.plotting)</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -62,6 +89,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+          <li><a href="../core.html">emc2.core (emc2.core)</a> &raquo;</li>
       <li>emc2.core.Instrument</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/API/generated/emc2.core.Instrument.rst.txt" rel="nofollow"> View page source</a>
@@ -100,7 +129,7 @@
 <h1>emc2.core.Instrument<a class="headerlink" href="#emc2-core-instrument" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.Instrument">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the base class which holds the information needed to contain the instrument parameters for the
 simulator.</p>
 <dl class="field-list simple">
@@ -158,7 +187,7 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -166,6 +195,9 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.Instrument.__init__" title="emc2.core.Instrument.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([frequency, wavelength])</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../core.html#emc2.core.Instrument.read_arm_netcdf_file" title="emc2.core.Instrument.read_arm_netcdf_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_arm_netcdf_file</span></code></a>(filename, **kwargs)</p></td>
+<td><p>Loads a netCDF file that corresponds to ARM standards.</p></td>
 </tr>
 </tbody>
 </table>
@@ -176,7 +208,10 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="emc2.core.model.TestHalfAndHalf.html" class="btn btn-neutral float-left" title="emc2.core.model.TestHalfAndHalf" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="emc2.core.Model.html" class="btn btn-neutral float-right" title="emc2.core.Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

@@ -1,0 +1,39 @@
+﻿emc2.core.model.DHARMA
+======================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: DHARMA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DHARMA.__init__
+      ~DHARMA.check_and_stack_time_lat_lon
+      ~DHARMA.finalize_subcol_fields
+      ~DHARMA.load_subcolumns_from_netcdf
+      ~DHARMA.permute_dims_for_processing
+      ~DHARMA.remove_appended_str
+      ~DHARMA.remove_subcol_fields
+      ~DHARMA.set_hyd_types
+      ~DHARMA.subcolumns_to_netcdf
+      ~DHARMA.unstack_time_lat_lon
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DHARMA.hydrometeor_classes
+      ~DHARMA.num_hydrometeor_classes
+      ~DHARMA.num_subcolumns
+   
+   

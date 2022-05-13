@@ -1,0 +1,39 @@
+﻿emc2.core.model.E3SM
+====================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: E3SM
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~E3SM.__init__
+      ~E3SM.check_and_stack_time_lat_lon
+      ~E3SM.finalize_subcol_fields
+      ~E3SM.load_subcolumns_from_netcdf
+      ~E3SM.permute_dims_for_processing
+      ~E3SM.remove_appended_str
+      ~E3SM.remove_subcol_fields
+      ~E3SM.set_hyd_types
+      ~E3SM.subcolumns_to_netcdf
+      ~E3SM.unstack_time_lat_lon
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~E3SM.hydrometeor_classes
+      ~E3SM.num_hydrometeor_classes
+      ~E3SM.num_subcolumns
+   
+   

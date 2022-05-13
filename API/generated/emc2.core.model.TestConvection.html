@@ -23,8 +23,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="emc2.io (emc2.io)" href="../io.html" />
-    <link rel="prev" title="emc2.core.model.TestModel" href="emc2.core.model.TestModel.html" /> 
+    <link rel="next" title="emc2.core.model.TestAllStratiform" href="emc2.core.model.TestAllStratiform.html" />
+    <link rel="prev" title="emc2.core.model.WRF" href="emc2.core.model.WRF.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,10 +51,21 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.CSAPR.html">emc2.core.instruments.CSAPR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.NEXRAD.html">emc2.core.instruments.NEXRAD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.XSACR.html">emc2.core.instruments.XSACR</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.ModelE.html">emc2.core.model.ModelE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.E3SM.html">emc2.core.model.E3SM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.DHARMA.html">emc2.core.model.DHARMA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.WRF.html">emc2.core.model.WRF</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.model.TestConvection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestAllStratiform.html">emc2.core.model.TestAllStratiform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestHalfAndHalf.html">emc2.core.model.TestHalfAndHalf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.Instrument.html">emc2.core.Instrument</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.Model.html">emc2.core.Model</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../io.html">emc2.io (emc2.io)</a></li>
@@ -118,7 +129,7 @@
 <h1>emc2.core.model.TestConvection<a class="headerlink" href="#emc2-core-model-testconvection" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.TestConvection">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">TestConvection</span></span><a class="reference internal" href="../../_modules/emc2/core/model.html#TestConvection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.TestConvection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">TestConvection</span></span><a class="reference internal" href="../../_modules/emc2/core/model.html#TestConvection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.TestConvection" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is a test Model structure used only for unit testing.
 This model has a 100% convective column from 1 km to 11 km.
 It is not recommended for end users.</p>
@@ -128,7 +139,7 @@ It is not recommended for end users.</p>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -137,19 +148,37 @@ It is not recommended for end users.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.TestConvection.__init__" title="emc2.core.model.TestConvection.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>
+<td><p>Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1) to enable EMC^2 processing of regional model output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_subcol_fields</span></code>([more_fieldnames])</p></td>
+<td><p>Remove all zero values from subcolumn output fields enabling better visualization.</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_subcolumns_from_netcdf</span></code>(file_name)</p></td>
 <td><p>Load all of the subcolumn data from a previously saved netCDF file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute_dims_for_processing</span></code>([base_order, ...])</p></td>
+<td><p>Reorder dims for consistent processing such that the order is: subcolumn x time x height.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_appended_str</span></code>([all_appended_in_lat])</p></td>
+<td><p>Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names (typically required when using post-processed output data files).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_subcol_fields</span></code>([cloud_class])</p></td>
+<td><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant for CESM and E3SM).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(file_name)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(file_name)</p></td>
 <td><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code>([order_dim])</p></td>
+<td><p>Unstack the time, lat, and lon dims if they were previously stacked together (self.stacked_time_dim is not None).</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -174,8 +203,8 @@ It is not recommended for end users.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="emc2.core.model.TestModel.html" class="btn btn-neutral float-left" title="emc2.core.model.TestModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../io.html" class="btn btn-neutral float-right" title="emc2.io (emc2.io)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="emc2.core.model.WRF.html" class="btn btn-neutral float-left" title="emc2.core.model.WRF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="emc2.core.model.TestAllStratiform.html" class="btn btn-neutral float-right" title="emc2.core.model.TestAllStratiform" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

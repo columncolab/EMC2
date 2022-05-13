@@ -1,4 +1,4 @@
-emc2.simulator.attenuation.calc\_radar\_atm\_attenuation
+﻿emc2.simulator.attenuation.calc\_radar\_atm\_attenuation
 ========================================================
 
 .. currentmodule:: emc2.simulator.attenuation

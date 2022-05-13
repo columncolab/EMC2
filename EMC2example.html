@@ -20,8 +20,8 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -286,7 +286,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -353,8 +353,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>import emc2
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import emc2
 import matplotlib.dates as mdates
 </pre></div>
 </div>
@@ -364,8 +363,7 @@ import matplotlib.dates as mdates
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>model_path = &#39;allsteps.allmergeSCM_AWARE_788.nc&#39;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_path = &#39;allsteps.allmergeSCM_AWARE_788.nc&#39;
 my_model = emc2.core.model.ModelE(model_path)
 </pre></div>
 </div>
@@ -375,8 +373,7 @@ my_model = emc2.core.model.ModelE(model_path)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>HSRL = emc2.core.instruments.HSRL(&#39;nsa&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>HSRL = emc2.core.instruments.HSRL(&#39;nsa&#39;)
 HSRL.read_arm_netcdf_file(&#39;awrhsrlM1.20160816.100000.nc&#39;)  # raw or processed ARM or ARM-like data file
 </pre></div>
 </div>
@@ -385,8 +382,7 @@ HSRL.read_arm_netcdf_file(&#39;awrhsrlM1.20160816.100000.nc&#39;)  # raw or proc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>HSRL.ds
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>HSRL.ds
 </pre></div>
 </div>
 </div>
@@ -1720,8 +1716,7 @@ dl.xr-attrs {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>my_model = emc2.simulator.main.make_simulated_data(my_model, HSRL, 8, do_classify=True, convert_zeros_to_nan=True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>my_model = emc2.simulator.main.make_simulated_data(my_model, HSRL, 8, do_classify=True, convert_zeros_to_nan=True)
 </pre></div>
 </div>
 </div>
@@ -1745,8 +1740,7 @@ Done! total processing time = 1.44s
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>my_model.ds
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>my_model.ds
 </pre></div>
 </div>
 </div>
@@ -9627,8 +9621,7 @@ data is masked where the particulate optical thickness is greater than 4, provid
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>display = emc2.plotting.SubcolumnDisplay(my_model, figsize=(20, 10))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>display = emc2.plotting.SubcolumnDisplay(my_model, figsize=(20, 10))
 ax, _ = display.plot_instrument_timeseries(HSRL, &quot;beta_a_backscat&quot;, log_plot=True, y_range=(0., 2000.),
                                            cmap=&quot;viridis&quot;, vmin=1e-6, vmax=1e-3,
                                            Mask_array=HSRL.ds[&quot;od_aerosol&quot;] &gt; 4.)
@@ -9648,8 +9641,7 @@ display.fig.savefig(&#39;HSRL_backscatter.png&#39;, dpi=200)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>model_display = emc2.plotting.SubcolumnDisplay(my_model, figsize=(20, 10))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_display = emc2.plotting.SubcolumnDisplay(my_model, figsize=(20, 10))
 ax_mod, _ = model_display.plot_subcolumn_timeseries(&quot;sub_col_beta_p_tot&quot;, 0, log_plot=True, y_range=(0., 2000.),
                                                  pressure_coords=False, cmap=&quot;viridis&quot;, vmin=1e-6, vmax=1e-3)
 ax_mod.xaxis.set_major_formatter(mdates.DateFormatter(&#39;%H:%M&#39;))
@@ -9669,8 +9661,7 @@ display.fig.savefig(&#39;HSRL_backscatter_simulated.png&#39;, dpi=200)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>model_display_prof = emc2.plotting.SubcolumnDisplay(my_model, figsize=(5,8))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_display_prof = emc2.plotting.SubcolumnDisplay(my_model, figsize=(5,8))
 axp = model_display_prof.plot_subcolumn_mean_profile(&quot;sub_col_beta_p_tot&quot;, &quot;2016-08-16T10:00:00&quot;, log_plot=True,
                                                      y_range=(0., 2000.), x_range=(1e-6, 1e-3), color=&#39;black&#39;,
                                                      pressure_coords=False, alpha=0.2)
@@ -9694,8 +9685,7 @@ display.fig.savefig(&#39;HSRL_backscatter_simulated_profile.png&#39;, dpi=200)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>model_display2 = emc2.plotting.SubcolumnDisplay(my_model, figsize=(20,10), subplot_shape=(2, 1))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_display2 = emc2.plotting.SubcolumnDisplay(my_model, figsize=(20,10), subplot_shape=(2, 1))
 ax2_1, cb2_1 = model_display2.plot_subcolumn_timeseries(&quot;phase_mask_HSRL_all_hyd&quot;, 0, y_range=(0., 2000.),
                                                  pressure_coords=False, subplot_index=0)
 model_display.change_plot_to_class_mask(cb2_1, variable=&quot;phase_mask_HSRL_all_hyd&quot;, convert_zeros_to_nan=True)

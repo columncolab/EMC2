@@ -57,10 +57,21 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.calculate_phase_ratio.html">emc2.simulator.classification.calculate_phase_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_re_thompson.html">emc2.simulator.psd.calc_re_thompson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_total_reflectivity.html">emc2.simulator.radar_moments.calc_total_reflectivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.accumulate_attenuation.html">emc2.simulator.radar_moments.accumulate_attenuation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_empirical.html">emc2.simulator.radar_moments.calc_radar_empirical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_bulk.html">emc2.simulator.radar_moments.calc_radar_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_micro.html">emc2.simulator.radar_moments.calc_radar_micro</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_total_alpha_beta.html">emc2.simulator.lidar_moments.calc_total_alpha_beta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.accumulate_OD.html">emc2.simulator.lidar_moments.accumulate_OD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_empirical.html">emc2.simulator.lidar_moments.calc_lidar_empirical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_bulk.html">emc2.simulator.lidar_moments.calc_lidar_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_micro.html">emc2.simulator.lidar_moments.calc_lidar_micro</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
@@ -130,10 +141,10 @@
 <dt class="sig sig-object py" id="emc2.simulator.subcolumn.set_convective_sub_col_frac">
 <span class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></span><span class="sig-name descname"><span class="pre">set_convective_sub_col_frac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_convective_sub_col_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_convective_sub_col_frac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the hydrometeor fraction due to convection in each subcolumn.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>model: :py:func: `emc2.core.Model`</strong></dt><dd><p>The model we are generating the subcolumns of convective fraction for.</p>
+<dd class="field-odd"><dl>
+<dt><strong>model:</strong><span class="classifier">py:func: <cite>emc2.core.Model</cite></span></dt><dd><p>The model we are generating the subcolumns of convective fraction for.</p>
 </dd>
 <dt><strong>hyd_type: str</strong></dt><dd><p>The hydrometeor type to generate the fraction for.</p>
 </dd>
@@ -150,8 +161,8 @@ use exactly the same cloud fraction logic).</p>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>model: :py:func: <cite>emc2.core.Model</cite></dt><dd><p>The Model object with the convective fraction in each subcolumn added.</p>
+<dd class="field-even"><dl>
+<dt><strong>model:</strong><span class="classifier">py:func: <cite>emc2.core.Model</cite></span></dt><dd><p>The Model object with the convective fraction in each subcolumn added.</p>
 </dd>
 </dl>
 </dd>

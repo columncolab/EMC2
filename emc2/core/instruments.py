@@ -159,6 +159,8 @@ class KAZR(Instrument):
         if site.lower() == "sgp":
             self.gain = 10**5.748
             self.Z_min_1km = -51.5
+        elif site.lower() == "ena":
+            self.Z_min_1km = -56.5  # KAZR2
         elif site.lower() == "nsa":
             self.gain = 10**5.337
             self.Z_min_1km = -48.5

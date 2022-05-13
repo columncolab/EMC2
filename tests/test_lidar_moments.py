@@ -20,8 +20,8 @@ def test_lidar_moments_all_convective():
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'ci', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pl', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pi', is_conv=False, qc_flag=False)
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True, 10)
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False, 10)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False)
     my_model = emc2.simulator.lidar_moments.calc_total_alpha_beta(my_model)
     # Check to see if the signal goes extinct. We should have thick enough cloud for this. OD should
     # increase with height
@@ -33,7 +33,7 @@ def test_lidar_moments_all_convective():
     assert my_model.ds['ext_mask'].max() == 2
 
     # We should have all zeros
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False, 10)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False)
     assert np.nanmax(my_model.ds['sub_col_OD_tot_strat'].values) == 0
 
 
@@ -55,8 +55,8 @@ def test_lidar_moments_all_stratiform():
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'ci', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pl', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pi', is_conv=False, qc_flag=False)
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False, 10)
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True, 10)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True)
     my_model = emc2.simulator.lidar_moments.calc_total_alpha_beta(my_model)
     # OD should increase with height
     assert np.all(np.logical_or(np.diff(my_model.ds['sub_col_OD_tot_strat'].values, axis=1) >= 0,
@@ -67,7 +67,7 @@ def test_lidar_moments_all_stratiform():
     assert my_model.ds['ext_mask'].max() == 2
 
     # We should have all zeros in convection
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True, 10)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True)
     assert np.all(my_model.ds['sub_col_OD_tot_conv'].values == 0)
 
 
@@ -89,8 +89,8 @@ def test_lidar_classification():
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'ci', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pl', is_conv=False, qc_flag=False)
     my_model = emc2.simulator.subcolumn.set_q_n(my_model, 'pi', is_conv=False, qc_flag=False)
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False, 10)
-    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True, 10)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, False)
+    my_model = emc2.simulator.lidar_moments.calc_lidar_moments(instrument, my_model, True)
     my_model = emc2.simulator.lidar_moments.calc_total_alpha_beta(my_model)
     my_model = emc2.simulator.lidar_moments.calc_LDR_and_ext(my_model)
     my_model = emc2.simulator.classification.lidar_classify_phase(instrument, my_model)

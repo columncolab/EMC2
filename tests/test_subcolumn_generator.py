@@ -7,19 +7,22 @@ def test_set_convective_profile():
     my_model = emc2.core.model.TestConvection()
     column_ds = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
                                                                      'cl', N_columns=8)
-    where_gt_1km = np.where(np.logical_and(column_ds.ds['height'] > 1000.,
-                                           column_ds.ds['t'] >= 273.15))[0]
-    where_lt_1km = np.where(np.logical_and(column_ds.ds['height'] < 1000.,
-                                           column_ds.ds['t'] >= 273.15))[0]
-    assert np.all(column_ds.ds['conv_frac_subcolumns_cl'].values[:, where_gt_1km, 0])
-    assert np.all(~column_ds.ds['conv_frac_subcolumns_cl'].values[:, where_lt_1km, 0])
-
+    where_gt_1km = np.argwhere(np.logical_and(
+        column_ds.ds['z'].values[0] > 1000.,
+        column_ds.ds['t'].values[0] >= 273.15))
+    where_lt_1km = np.argwhere(np.logical_and(
+        column_ds.ds['z'].values[0] < 1000.,
+        column_ds.ds['t'].values[0] >= 273.15))
+    print(where_lt_1km.shape)
+    assert np.all(column_ds.ds['conv_frac_subcolumns_cl'].values[:, 0, where_gt_1km])
+    assert np.all(~column_ds.ds['conv_frac_subcolumns_cl'].values[:, 0, where_lt_1km])
+    
     # Set convective fraction to half, but still have 8 subcolumns
     my_model.ds[my_model.conv_frac_names['cl']] *= 0.5
     column_ds = emc2.simulator.subcolumn.set_convective_sub_col_frac(my_model,
                                                                      'cl')
-    assert np.all(column_ds.ds['conv_frac_subcolumns_cl'].values[:4, where_gt_1km, 0])
-    assert np.all(~column_ds.ds['conv_frac_subcolumns_cl'].values[4:, where_gt_1km, 0])
+    assert np.all(column_ds.ds['conv_frac_subcolumns_cl'].values[:4, 0, where_gt_1km])
+    assert np.all(~column_ds.ds['conv_frac_subcolumns_cl'].values[4:, 0, where_gt_1km])
 
     # Zero convection = all false arrays
     my_model.ds[my_model.conv_frac_names['cl']] *= 0

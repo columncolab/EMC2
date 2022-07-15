@@ -38,8 +38,8 @@ def calc_mu_lambda(model, hyd_type="cl",
     dispersion_mu_bounds: 2-tuple
         The lower and upper bounds for the :math:`\mu` parameter.
     subcolumns: bool
-        If True, the fit parameters will be generated for the generated subcolumns
-        rather than the model data itself.
+        If True, the fit parameters will be generated using the generated subcolumns
+        rather than using the "raw" model output.
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
 

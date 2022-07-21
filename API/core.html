@@ -18,6 +18,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -127,7 +128,7 @@
 }
 </style>
 <span class="target" id="module-emc2.core"></span><section id="emc2-core-emc2-core">
-<h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Permalink to this headline">¶</a></h1>
+<h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Permalink to this heading">¶</a></h1>
 <p>The procedures in this module contain the core data structures of EMC^2.
 In particular, the Instrument class that describes the characteristics
 of the instrument to be simulated is stored here. In addition, global
@@ -156,7 +157,7 @@ constants used by EMC^2 are also stored in this module.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm" title="emc2.core.instruments.Ten64nm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.Ten64nm</span></code></a>([supercooled])</p></td>
 <td><p>This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE" title="emc2.core.model.ModelE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.ModelE</span></code></a>(file_path[, time_range])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE" title="emc2.core.model.ModelE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.ModelE</span></code></a>(file_path[, time_range, ...])</p></td>
 <td><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.model.TestModel.html#emc2.core.model.TestModel" title="emc2.core.model.TestModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.TestModel</span></code></a>()</p></td>
@@ -292,7 +293,7 @@ method is used for unstacking</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>out_coord_name: str</strong></dt><dd><p>Name of output stacked coordinate.</p>
 </dd>
-<dt><strong>file_path: str</strong></dt><dd><p>Path and filename of ModelE simulation output.</p>
+<dt><strong>file_path: str</strong></dt><dd><p>Path and filename of model simulation output.</p>
 </dd>
 <dt><strong>order_dim: bool</strong></dt><dd><p>When True, reorder dimensions to time x height for proper processing.</p>
 </dd>

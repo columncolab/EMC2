@@ -18,6 +18,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -126,10 +127,10 @@
 }
 </style>
 <section id="emc2-core-model-modele">
-<h1>emc2.core.model.ModelE<a class="headerlink" href="#emc2-core-model-modele" title="Permalink to this headline">¶</a></h1>
+<h1>emc2.core.model.ModelE<a class="headerlink" href="#emc2-core-model-modele" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.ModelE">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">ModelE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.ModelE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">ModelE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.ModelE" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -137,13 +138,16 @@
 <dt><strong>file_path: str</strong></dt><dd><p>Path to a ModelE simulation.</p>
 </dd>
 <dt><strong>time_range: tuple, list, or array, typically in datetime64 format</strong></dt><dd><p>Two-element array with starting and ending of time range.</p>
+</dd>
+<dt><strong>load_processed: bool</strong></dt><dd><p>If True, treating the ‘file_path’ variable as an EMC2-processed dataset; thus skipping
+dimension stacking as part of pre-processing.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.model.ModelE.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.ModelE.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#ModelE.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.ModelE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -151,6 +155,9 @@
 <dt><strong>file_path: str</strong></dt><dd><p>Path to a ModelE simulation.</p>
 </dd>
 <dt><strong>time_range: tuple, list, or array, typically in datetime64 format</strong></dt><dd><p>Two-element array with starting and ending of time range.</p>
+</dd>
+<dt><strong>load_processed: bool</strong></dt><dd><p>If True, treating the ‘file_path’ variable as an EMC2-processed dataset; thus skipping
+dimension stacking as part of pre-processing.</p>
 </dd>
 </dl>
 </dd>
@@ -164,7 +171,7 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.ModelE.__init__" title="emc2.core.model.ModelE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, time_range])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.ModelE.__init__" title="emc2.core.model.ModelE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, time_range, load_processed])</p></td>
 <td><p>This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>

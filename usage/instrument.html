@@ -18,6 +18,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -109,7 +110,7 @@
 }
 </style>
 <section id="construction-of-the-emc-2-instrument-object">
-<h1>Construction of the EMC^2 Instrument Object<a class="headerlink" href="#construction-of-the-emc-2-instrument-object" title="Permalink to this headline">¶</a></h1>
+<h1>Construction of the EMC^2 Instrument Object<a class="headerlink" href="#construction-of-the-emc-2-instrument-object" title="Permalink to this heading">¶</a></h1>
 <p>The <a class="reference internal" href="../API/generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a> object contains all of the information that is needed
 for EMC^2 to both visualize instrument data as well as the instrument specific parameters
 that are needed to simulate a lidar or a radar.</p>
@@ -174,7 +175,7 @@ $         self.mie_table[&quot;pi&quot;] = load_mie_file(data_path + &quot;/MieH
 </div>
 </section>
 <section id="addition-of-more-wavelengths-format-of-mie-tables">
-<h1>Addition of more wavelengths - format of Mie tables<a class="headerlink" href="#addition-of-more-wavelengths-format-of-mie-tables" title="Permalink to this headline">¶</a></h1>
+<h1>Addition of more wavelengths - format of Mie tables<a class="headerlink" href="#addition-of-more-wavelengths-format-of-mie-tables" title="Permalink to this heading">¶</a></h1>
 <p>If you wish to use an instrument with a different wavelength than what is currently used in EMC^2,
 then you must generate the Mie scattering parameters using your favorite Mie scattering code for
 the given wavelength. The mie scattering tables are xarray datasets with the following variables:</p>

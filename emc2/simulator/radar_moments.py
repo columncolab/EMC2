@@ -222,8 +222,11 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
         model.ds[var_name] = xr.DataArray(
             Ze_emp.values, dims=model.ds[q_field].dims)
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += Ze_emp.fillna(0)
-
-    kappa_f = 6 * np.pi / (instrument.wavelength * model.Rho_hyd["cl"].magnitude) * \
+    if not model.Rho_hyd["cl"] == 'variable':
+        Rho_hyd_cl = model.Rho_hyd["cl"].magnitude
+    else:
+        Rho_hyd_cl = model.ds[model.variable_density["cl"]].values.magnitude 
+    kappa_f = 6 * np.pi / (instrument.wavelength * Rho_hyd_cl) * \
         ((instrument.eps_liq - 1) / (instrument.eps_liq + 2)).imag * 4.34e6  # dB m^3 g^-1 km^-1
     model = accumulate_attenuation(model, is_conv, z_values, WC_tot * kappa_f, atm_ext,
                                    OD_from_sfc=OD_from_sfc, use_empiric_calc=True, **kwargs)
@@ -300,15 +303,21 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     for hyd_type in hyd_types:
         if hyd_type[-1] == 'l':
             rho_b = model.Rho_hyd[hyd_type]  # bulk water
+            if rho_b == 'variable':
+                rho_b = model.ds[model.variable_density[hyd_type]]
             re_array = np.tile(model.ds[re_fields[hyd_type]].values, (n_subcolumns, 1, 1))
             if model.lambda_field is not None:  # assuming my and lambda can be provided only for liq hydrometeors
                 if not model.lambda_field[hyd_type] is None:
                     lambda_array = model.ds[model.lambda_field[hyd_type]].values
                     mu_array = model.ds[model.mu_field[hyd_type]].values
         else:
-            rho_b = instrument.rho_i  # bulk ice
-            fi_factor = model.fluffy[hyd_type].magnitude * model.Rho_hyd[hyd_type] / rho_b + \
-                (1 - model.fluffy[hyd_type].magnitude) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
+            rho_b = instrument.rho_i.magnitude  # bulk ice
+            if model.Rho_hyd[hyd_type] == 'variable':
+                rho_hyd = model.ds[model.variable_density[hyd_type]].values
+            else:
+                rho_hyd = model.Rho_hyd[hyd_type].magnitude
+            fi_factor = model.fluffy[hyd_type].magnitude * rho_hyd / rho_b + \
+                (1 - model.fluffy[hyd_type].magnitude) * (rho_hyd / rho_b) ** (1 / 3)
             re_array = np.tile(model.ds[re_fields[hyd_type]].values * fi_factor,
                                (n_subcolumns, 1, 1))
 
@@ -317,7 +326,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                            (2 * rho_b * re_array * 1e-6), 0)
         A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
 
-        if np.isin(hyd_type, ["ci", "pi"]):
+        if np.isin(hyd_type, ["ci", "pi", "sn", "gr", "ha"]):
             if mie_for_ice:
                 r_eff_bulk = instrument.bulk_table[bulk_mie_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_back"].values

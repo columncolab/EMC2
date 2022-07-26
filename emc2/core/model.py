@@ -95,7 +95,10 @@ class Model():
         If True, then processing convective model output (can typically be set to False for
         some models).
     model_name: str
-       The name of the model.
+        The name of the model.
+    variable_density: dict
+        If the model allows for particle density for vary (i.e. 2-moment NSSL), then
+        this is a dict pointing to the variable with the density for each hydrometeor class
     """
 
     def __init__(self):
@@ -117,6 +120,7 @@ class Model():
         self.strat_frac_names = {}
         self.conv_frac_names_for_rad = {}
         self.strat_frac_names_for_rad = {}
+        self.variable_density = {}
         self.conv_re_fields = {}
         self.strat_re_fields = {}
         self.mu_field = None
@@ -649,9 +653,8 @@ class CESM2(E3SM):
 
 
 class WRF(Model):
-    def __init__(self, file_path, column_extent,
-                 z_range=None, time_range=None, w_thresh=1,
-                 t=None):
+    def __init__(self, file_path, z_range=None, time_range=None, 
+                 parameterization="nssl", NUWRF=False, bounding_box=None):
         """
         This load a WRF simulation and all of the necessary parameters from
         the simulation.
@@ -663,216 +666,254 @@ class WRF(Model):
         time_range: tuple or None
             Start and end time to include. If this is None, the entire
             simulation will be included.
-        column_extent: 4-tuple ints
-            The horizontal start and end boundaries (x1, y1, x2, y2) of
-            the column to consider.
         z_range: numpy array or None
             The z levels of the vertical grid you want to use. By default,
             the levels are 0 m to 15000 m, increasing by 500 m.
-        w_thresh: float
-            The threshold of vertical velocity for defining a grid cell
-            as convective.
-        t: int or None
-
-            The timestep number to subset the WRF data into. Set to None to
-            load all of the data
+        parameterization: str
+            3ice: Goddard 3ICE scheme
+            morrison: Morrison microphysics
+        NUWRF: bool
+            If true, model is NASA Unified WRF.
+        bounding_box: None or 4-tuple
+            If not none, then a tuple representing the bounding box
+            (lat_min, lon_min, lat_max, lon_max).
         """
         if not WRF_PYTHON_AVAILABLE:
             raise ModuleNotFoundError("wrf-python must be installed.")
 
         super().__init__()
-        self.hyd_types = ["cl", "ci", "pl", "pi"]
-        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
-                        'ci': 500. * ureg.kg / (ureg.m**3),
-                        'pl': 1000. * ureg.kg / (ureg.m**3),
-                        'pi': 250. * ureg.kg / (ureg.m**3)}
+        if parameterization.lower() == "morrison":
+            self.hyd_types = ["cl", "ci", "pl", "pi"]
+            self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
+                            'ci': 500. * ureg.kg / (ureg.m**3),
+                            'pl': 1000. * ureg.kg / (ureg.m**3),
+                            'pi': 250. * ureg.kg / (ureg.m**3)}
 
-        self.fluffy = {'ci': 1.0 * ureg.dimensionless,
-                       'pi': 1.0 * ureg.dimensionless}
-        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
-                            'ci': 24. * ureg.dimensionless,
-                            'pl': 5.5 * ureg.dimensionless,
-                            'pi': 24.0 * ureg.dimensionless}
-        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
-                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
-                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
-                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
-        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
-        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
-                            'ci': 1. * ureg.dimensionless,
-                            'pl': 0.8 * ureg.dimensionless,
-                            'pi': 0.41 * ureg.dimensionless}
-        self.fluffy = {'ci': 0.5 * ureg.dimensionless, 'pi': 0.5 * ureg.dimensionless}
-        super()._add_vel_units()
-        self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
-                        'pl': 'QRAIN', 'qpi': 'QSNOW'}
-        self.q_field = "QVAPOR"
-        self.N_field = {'cl': 'QNCLOUD', 'ci': 'QNICE',
-                        'pl': 'QNRAIN', 'pi': 'QNSNOW'}
-        self.p_field = "pressure"
-        self.z_field = "Z"
-        self.T_field = "T"
-        self.conv_frac_names = {'cl': 'conv_frac', 'ci': 'conv_frac',
-                                'pl': 'conv_frac', 'pi': 'conv_frac'}
-        self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                                 'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-        self.asp_ratio_func = {'cl': lambda x: 1, 'ci': lambda x: 1, 'pi': lambda x: 0.6, 'pl': brandes}
-        self.conv_frac_names_for_rad = self.conv_frac_names
-        self.strat_frac_names_for_rad = self.strat_frac_names
-        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                          'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
-        self.conv_frac_names_for_rad = {
-            'cl': 'conv_frac', 'ci': 'conv_frac',
-            'pl': 'conv_frac', 'pi': 'conv_frac'}
-        self.strat_frac_names_for_rad = {
-            'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-            'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-        self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                          'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
-        self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
-                                'pi': 'strat_pi_re', 'pl': 'strat_pl_frac'}
-        self.conv_re_fields = {'cl': 'conv_cl_re', 'ci': 'conv_ci_re',
-                               'pi': 'conv_pi_re', 'pl': 'conv_pl_re'}
-        self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
-                                   'pl': 'qplc', 'pi': 'qpic'}
-        self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
-                                   'pl': 'qpls', 'pi': 'qpis'}
+            self.fluffy = {'ci': 1.0 * ureg.dimensionless,
+                           'pi': 1.0 * ureg.dimensionless}
+            self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                                'ci': 24. * ureg.dimensionless,
+                                'pl': 5.5 * ureg.dimensionless,
+                                'pi': 24.0 * ureg.dimensionless}
+            self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                                'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                                'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                                'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+            self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+            self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                                'ci': 1. * ureg.dimensionless,
+                                'pl': 0.8 * ureg.dimensionless,
+                                'pi': 0.41 * ureg.dimensionless}
+            self.fluffy = {'ci': 0.5 * ureg.dimensionless,
+                           'pi': 0.5 * ureg.dimensionless}
+            super()._add_vel_units()
+            self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
+                            'pl': 'QRAIN', 'pi': 'QSNOW'}
+            self.q_field = "QVAPOR"
+            self.N_field = {'cl': 'QNCLOUD', 'ci': 'QNICE',
+                            'pl': 'QNRAIN', 'pi': 'QNSNOW'}
+            self.p_field = "pressure"
+            self.z_field = "Z"
+            self.T_field = "T"
+            self.conv_frac_names = {'cl': 'conv_frac', 'ci': 'conv_frac',
+                                   'pl': 'conv_frac', 'pi': 'conv_frac'}
+            self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                                     'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
+            self.conv_frac_names_for_rad = self.conv_frac_names
+            self.strat_frac_names_for_rad = self.strat_frac_names
+            self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                              'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+            self.conv_frac_names_for_rad = {
+                'cl': 'conv_frac', 'ci': 'conv_frac',
+                'pl': 'conv_frac', 'pi': 'conv_frac'}
+            self.strat_frac_names_for_rad = {
+                'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
+            self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                              'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+            self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
+                                    'pi': 'strat_pi_re', 'pl': 'strat_pl_frac'}
+            self.conv_re_fields = {'cl': 'conv_cl_re', 'ci': 'conv_ci_re',
+                                   'pi': 'conv_pi_re', 'pl': 'conv_pl_re'}
+            self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
+                                       'pl': 'qplc', 'pi': 'qpic'}
+            self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
+                                       'pl': 'qpls', 'pi': 'qpis'}
 
-        self.conv_re_fields = {'cl': 're_clc', 'ci': 're_cis',
-                               'pl': 're_plc', 'pi': 're_pis'}
-        self.strat_re_fields = {'cl': 're_cls', 'ci': 're_cis',
-                                'pl': 're_pls', 'pi': 're_pis'}
+            self.conv_re_fields = {'cl': 're_clc', 'ci': 're_cis',
+                                   'pl': 're_plc', 'pi': 're_pis'}
+            self.strat_re_fields = {'cl': 're_cls', 'ci': 're_cis',
+                                    'pl': 're_pls', 'pi': 're_pis'}
+        elif parameterization.lower() == "nssl":
+            self.hyd_types = ["cl", "ci", "pl", "sn", "gr", "ha"]
+            self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
+                            'ci': 500. * ureg.kg / (ureg.m**3),
+                            'pl': 1000. * ureg.kg / (ureg.m**3),
+                            'sn': 500. * ureg.kg / (ureg.m**3),
+                            'gr': 'variable',
+                            'ha': 'variable'}
+
+            self.fluffy = {'ci': 1.0 * ureg.dimensionless,
+                           'sn': 1.0 * ureg.dimensionless,
+                           'gr': 0.0 * ureg.dimensionless,
+                           'ha': 0.0 * ureg.dimensionless }
+            self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                                'ci': 24. * ureg.dimensionless,
+                                'pl': 5.5 * ureg.dimensionless,
+                                'sn': 24.0 * ureg.dimensionless,
+                                'gr': 24.0 * ureg.dimensionless}
+            self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                                'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                                'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                                'sn': 0.40 * 1 / (ureg.kg / (ureg.m**3)),
+                                'gr': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+            self.vel_param_a = {'cl': 3e7, 'ci': 700.,
+                                'pl': 841.997, 'sn': 12.42, 'gr': 330,
+                                'ha': 330}
+            self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                                'ci': 1. * ureg.dimensionless,
+                                'pl': 0.8 * ureg.dimensionless,
+                                'sn': 0.8 * ureg.dimensionless,
+                                'gr': 0.8 * ureg.dimensionless,
+                                'ha': 0.8 * ureg.dimensionless}
+            self.fluffy = {'ci': 0.5 * ureg.dimensionless, 
+                           'sn': 0.5 * ureg.dimensionless,
+                           'gr': 0 * ureg.dimensionless,
+                           'ha': 0 * ureg.dimensionless}
+            super()._add_vel_units()
+            self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
+                            'pl': 'QRAIN', 'sn': 'QSNOW',
+                            'gr': 'QGRAUP', 'ha': 'QHAIL'}
+            self.q_field = "QVAPOR"
+            self.N_field = {'cl': 'QNDROP', 'ci': 'QNICE',
+                            'pl': 'QNRAIN', 'sn': 'QNSNOW',
+                            'gr': 'QNGRAUPEL', 'ha': 'QHAIL'}
+            self.p_field = "pressure"
+            self.z_field = "Z"
+            self.T_field = "T"
+            self.conv_frac_names = {'cl': 'conv_frac', 'ci': 'conv_frac',
+                                    'pl': 'conv_frac', 'sn': 'conv_frac',
+                                    'gr': 'conv_frac', 'ha': 'conv_frac'}
+            self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                                     'pl': 'strat_pl_frac', 'sn': 'strat_sn_frac',
+                                     'gr': 'strat_gr_frac', 'ha': 'strat_ha_frac'}
+            self.conv_frac_names_for_rad = {'cl': 'conv_frac', 'ci': 'conv_frac',
+                                            'pl': 'conv_frac', 'sn': 'conv_frac',
+                                            'gr': 'conv_frac', 'ha': 'conv_frac'}
+            self.strat_frac_names_for_rad = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
+                                             'pl': 'strat_pl_frac', 'sn': 'strat_sn_frac',
+                                             'gr': 'strat_gr_frac', 'ha': 'strat_ha_frac'}
+            self.conv_re_fields = {'cl': 'RE_CLOUD', 'ci': 'RE_ICE',
+                                   'pl': 'RE_RAIN', 'sn': 'RE_SNOW',
+                                   'gr': 'RE_GRAUP', 'ha': 'RE_HAIL'}
+            self.strat_re_fields = {'cl': 'RE_CLOUD', 'ci': 'RE_ICE',
+                                    'pl': 'RE_RAIN', 'sn': 'RE_SNOW',
+                                    'gr': 'RE_GRAUP', 'ha': 'RE_HAIL'}
+            self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
+                                       'pl': 'qplc', 'sn': 'qsnc',
+                                       'gr': 'qgrc', 'ha': 'qhac'}
+            self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
+                                       'pl': 'qpls', 'sn': 'qsns',
+                                       'gr': 'qgrs', 'ha': 'qhas'}
+
+
         ds = xr.open_dataset(file_path)
         wrfin = Dataset(file_path)
-        self.ds = {}
+        self.ds = {} 
         self.ds["pressure"] = ds["P"] + ds["PB"]
         self.ds["Z"] = getvar(wrfin, "z", units="m", timeidx=ALL_TIMES)
         self.ds["T"] = getvar(wrfin, "tk", timeidx=ALL_TIMES)
         self.ds["T"] = self.ds["T"]
-        self.ds["pressure"] = self.ds["pressure"][
-            :, :, column_extent[0]:column_extent[1],
-            column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2)
+        self.ds["pressure"] = self.ds["pressure"] * 1e-2
         self.ds["pressure"].attrs["units"] = "hPa"
-        self.ds["Z"] = self.ds["Z"][
-            :, :, column_extent[0]:column_extent[1],
-            column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2)
-        self.ds["T"] = self.ds["T"][
-            :, :, column_extent[0]:column_extent[1],
-            column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2)
         self.ds["T"].attrs["units"] = "K"
         self.ds["Z"].attrs["units"] = "m"
         rho = self.ds["pressure"] / (287.058 * self.ds["T"])
+        qn_conversion = rho.values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
-        cldfrac = getvar(wrfin, "cloudfrac", timeidx=ALL_TIMES)
-        cldfrac2 = np.zeros_like(W)
-        for i in range(int(W.shape[1] / 3)):
-            cldfrac2[:, i, :, :] = cldfrac[0, :, :, :]
-        for i in range(int(W.shape[1] / 3), 2 * int(W.shape[1] / 3)):
-            cldfrac2[:, i, :, :] = cldfrac[1, :, :, :]
-        for i in range(2 * int(W.shape[1] / 3), int(W.shape[1])):
-            cldfrac2[:, i, :, :] = cldfrac[2, :, :, :]
+        if NUWRF is False:
+            cldfrac = getvar(wrfin, "cloudfrac", timeidx=ALL_TIMES)
+            cldfrac2 = np.zeros_like(W)
+            for i in range(int(W.shape[1] / 3)):
+                cldfrac2[:, i, :, :] = cldfrac[0, :, :, :]
+            for i in range(int(W.shape[1] / 3), 2 * int(W.shape[1] / 3)):
+                cldfrac2[:, i, :, :] = cldfrac[1, :, :, :]
+            for i in range(2 * int(W.shape[1] / 3), int(W.shape[1])):
+                cldfrac2[:, i, :, :] = cldfrac[2, :, :, :]
+        else:
+            cldfrac2 = ds["CLDFRA"].values
         
-        where_conv = np.zeros_like(cldfrac2)
-        where_strat = cldfrac2
         
-        num_points = (column_extent[3] - column_extent[2]) * \
-            (column_extent[1] - column_extent[0])
-        where_conv_column = where_conv[
-            :, :, column_extent[0]:column_extent[1],
-            column_extent[2]:column_extent[3]].sum(axis=3).sum(axis=2)
-        where_conv_strat = where_strat[
-            :, :, column_extent[0]:column_extent[1],
-            column_extent[2]:column_extent[3]].sum(axis=3).sum(axis=2)
-        cldfrac2 = cldfrac2[:, :, column_extent[0]:column_extent[1],
-            column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2)
-        self.ds["conv_frac"] = xr.DataArray(
-            where_conv_column / num_points * cldfrac2,
-             dims=('Time', 'bottom_top')).astype('float64')
-        conversion_factor_qn = rho * 1e-6
-        self.ds["qclc"] = xr.DataArray(
-            self.ds["conv_frac"].values, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qcic"] = xr.DataArray(
-            self.ds["conv_frac"].values, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qplc"] = xr.DataArray(
-            self.ds["conv_frac"].values, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qpic"] = xr.DataArray(self.ds["conv_frac"].values,
-                dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qcls"] = xr.DataArray(
-            ds["QCLOUD"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
-                dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qcis"] = xr.DataArray(
-            ds["QICE"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
-                dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qpls"] = xr.DataArray(
-            ds["QRAIN"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
-                dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["qpis"] = xr.DataArray(
-            ds["QSNOW"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
-                dims=('Time', 'bottom_top')).astype('float64')
-        cldfrac2_pl = np.where(self.ds["qpls"].values > 0, cldfrac2, 0)
-        self.ds["strat_pl_frac"] = xr.DataArray(
-            cldfrac2_pl,
-            dims=('Time', 'bottom_top')).astype('float64')
-        cldfrac2_cl = np.where(self.ds["qcls"].values > 0, cldfrac2, 0)
-        self.ds["strat_cl_frac"] = xr.DataArray(
-            cldfrac2_cl,
-            dims=('Time', 'bottom_top')).astype('float64')
-        cldfrac2_ci = np.where(self.ds["qcis"].values > 0, cldfrac2, 0)
-        self.ds["strat_ci_frac"] = xr.DataArray(
-            cldfrac2_ci,
-            dims=('Time', 'bottom_top')).astype('float64')
-        cldfrac2_pi = np.where(self.ds["qpis"].values > 0, cldfrac2, 0)
-        self.ds["strat_pi_frac"] = xr.DataArray(
-            cldfrac2_pi,
-            dims=('Time', 'bottom_top')).astype('float64')
+        for hyd_type in self.hyd_types:
+            self.ds[self.conv_frac_names[hyd_type]] = xr.DataArray(
+                np.zeros_like(ds["P"].values),
+                dims=('Time', 'bottom_top',
+                      'south_north', 'west_east')).astype('float64')
+            self.ds["q%sc" % hyd_type] = xr.DataArray(
+                self.ds["conv_frac"].values,
+                dims=('Time', 'bottom_top',
+                      'south_north', 'west_east')).astype('float64')
+            self.ds["q%ss" % hyd_type] = ds[self.q_names[hyd_type]]
+            cldfrac2_pl = cldfrac2
+            self.ds[self.strat_frac_names[hyd_type]] = xr.DataArray(
+                cldfrac2_pl,
+                dims=('Time', 'bottom_top',
+                      'south_north', 'west_east')).astype('float64')
+            self.ds[self.N_field[hyd_type]] = ds[
+                self.N_field[hyd_type]].astype('float64') * qn_conversion
+            
+            if parameterization.lower() == "nssl":
+                # Convert from microns to meters
+                self.ds[self.conv_re_fields[hyd_type]] = ds[self.conv_re_fields[hyd_type]].astype('float64') * 1e6
+                self.ds[self.conv_re_fields[hyd_type]].attrs["units"] = "microns"
+                self.ds[self.strat_re_fields[hyd_type]] = ds[self.strat_re_fields[hyd_type]].astype('float64') * 1e6
+                self.ds[self.strat_re_fields[hyd_type]].attrs["units"] = "microns"
 
-        self.ds["QNCLOUD"] = xr.DataArray(
-            ds["QNCLOUD"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["QNRAIN"] = xr.DataArray(
-            ds["QNRAIN"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["QNSNOW"] = xr.DataArray(
-            ds["QNSNOW"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["QNICE"] = xr.DataArray(
-            ds["QNICE"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2) *
-            conversion_factor_qn, dims=('Time', 'bottom_top')).astype('float64')
-        self.ds["QVAPOR"] = xr.DataArray(
-            ds["QVAPOR"].values[
-                :, :, column_extent[0]:column_extent[1],
-                column_extent[2]:column_extent[3]].mean(axis=3).mean(axis=2),
-            dims=('Time', 'bottom_top')).astype('float64')
+        
+        self.ds["QVAPOR"] = ds["QVAPOR"]
+        if parameterization == "nssl":
+            x = ds["QGRAUP"] / ds["QVGRAUPEL"]
+            x = np.where(np.isfinite(x), x, 900.)
+            self.ds["RHO_GRAUPEL"] = xr.DataArray(x, dims=ds["QGRAUP"].dims)
+            x = ds["QHAIL"] / ds["QVHAIL"]
+            x = np.where(np.isfinite(x), x, 900.)
+            self.ds["RHO_HAIL"] = xr.DataArray(x, dims=ds["QGRAUP"].dims)
+            self.ds["RHO_GRAUPEL"] = self.ds["RHO_GRAUPEL"] * (ureg.kg / (ureg.m**3))
+            self.ds["RHO_HAIL"] = self.ds["RHO_HAIL"] * (ureg.kg / (ureg.m**3))
+            self.variable_density = {'gr': "RHO_GRAUPEL",
+                                     'ha': "RHO_HAIL"}
         self.time_dim = "Time"
         self.height_dim = "bottom_top"
         self.model_name = "WRF"
-        self.lat_dim = "XLAT"
-        self.lon_dim = "XLONG"
+        self.lat_dim = "south_north"
+        self.lon_dim = "west_east"
         self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():
             try:
-                self.ds[keys] = self.ds[keys].drop("XTIME")
+                self.ds[keys] = self.ds[keys].drop_vars("Time")
             except (KeyError, ValueError):
                 continue
-        self.ds = xr.Dataset(self.ds)
+        for keys in self.ds.keys():
+            try:
+                self.ds[keys] = self.ds[keys].drop_vars("XTIME")
+            except (KeyError, ValueError):
+                continue
 
+        self.ds = xr.Dataset(self.ds)
+        if bounding_box is not None:
+           bounding_box_ind = np.zeros(4, dtype='int64')
+           XLAT_min = ds.XLAT.min(axis=2).mean(axis=0)
+           XLAT_max = ds.XLAT.max(axis=2).mean(axis=0)
+           XLONG_min = ds.XLONG.min(axis=1).mean(axis=0)
+           XLONG_max = ds.XLONG.max(axis=1).mean(axis=0)
+           bounding_box_ind[0] = np.argmin(np.abs(bounding_box[0] - np.squeeze(XLAT_min.values)))
+           bounding_box_ind[2] = np.argmin(np.abs(bounding_box[2] - np.squeeze(XLAT_max.values)))
+           bounding_box_ind[1] = np.argmin(np.abs(bounding_box[1] - np.squeeze(XLONG_min.values)))
+           bounding_box_ind[3] = np.argmin(np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
+           self.ds = self.ds.isel(south_north=slice(bounding_box_ind[0], bounding_box_ind[2]),
+               west_east=slice(bounding_box_ind[1], bounding_box_ind[3])) 
+        
         # crop specific model output time range (if requested)
         if time_range is not None:
             super()._crop_time_range(time_range)

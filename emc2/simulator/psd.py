@@ -85,7 +85,10 @@ def calc_mu_lambda(model, hyd_type="cl",
     frac_array = np.tile(
         model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
     frac_array = np.where(frac_array == 0, 1, frac_array)
-    Rho_hyd = model.Rho_hyd[hyd_type].magnitude
+    if model.Rho_hyd[hyd_type] == 'variable':    
+        Rho_hyd = model.Rho_hyd[hyd_type].magnitude
+    else:
+        Rho_hyd = model.ds[model.density_variable[hyd_type]].values
     column_ds = model.ds
 
     if hyd_type == "cl":

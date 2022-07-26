@@ -361,8 +361,11 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
                     mu_array = model.ds[model.mu_field[hyd_type]].values
         else:
             rho_b = instrument.rho_i  # bulk ice
-            fi_factor = model.fluffy[hyd_type].magnitude * model.Rho_hyd[hyd_type] / rho_b + \
-                (1 - model.fluffy[hyd_type].magnitude) * (model.Rho_hyd[hyd_type] / rho_b) ** (1 / 3)
+            rho_hyd = model.Rho_hyd[hyd_type]
+            if rho_hyd == 'variable':
+                rho_hyd = model.ds[model.variable_density[hyd_type]].values
+            fi_factor = model.fluffy[hyd_type].magnitude * rho_hyd / rho_b + \
+                (1 - model.fluffy[hyd_type].magnitude) * (rhy_hyd / rho_b) ** (1 / 3)
             re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
                                (model.num_subcolumns, 1, 1))
 

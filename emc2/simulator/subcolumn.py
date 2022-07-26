@@ -195,7 +195,7 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
 
 
 def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
-                            parallel=True, chunk=None):
+                            parallel=True, chunk=None, ice_hyd_type="pi"):
     """
     Sets the hydrometeor fraction due to precipitation in each subcolumn. This
     module works for both stratiform and convective precipitation.
@@ -222,6 +222,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
+    ice_hyd_type: str
+        The ice hydrometeor type to include in the subcolumn distribution for precipitation
 
     Returns
     -------
@@ -244,6 +246,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
+    # For subcolumn coverage, lump 3 ice precip categories into one
     if is_conv:
         precip_type = 'conv'
         precip_type_full = 'convective'
@@ -251,12 +254,12 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
             data_frac1 = data_frac1.where(model.ds[model.q_names_convective["pl"]] > 0, 0)
-            data_frac2 = model.ds[model.conv_frac_names_for_rad['pi']]
-            data_frac2 = data_frac2.where(model.ds[model.q_names_convective["pi"]] > 0, 0)
+            data_frac2 = model.ds[model.conv_frac_names_for_rad[ice_hyd_type]]
+            data_frac2 = data_frac2.where(model.ds[model.q_names_convective[ice_hyd_type]] > 0, 0)
         else:
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.conv_frac_names['pl']]
-            data_frac2 = model.ds[model.conv_frac_names['pi']]
+            data_frac2 = model.ds[model.conv_frac_names[ice_hyd_type]]
     else:
         precip_type = 'strat'
         precip_type_full = 'stratiform'
@@ -264,16 +267,16 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             method_str = "Radiation logic"
             data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
             data_frac1.where(model.ds[model.q_names_stratiform["pl"]] > 0, 0)
-            data_frac2 = model.ds[model.strat_frac_names_for_rad['pi']]
-            data_frac2.where(model.ds[model.q_names_stratiform["pi"]] > 0, 0)
+            data_frac2 = model.ds[model.strat_frac_names_for_rad[ice_hyd_type]]
+            data_frac2.where(model.ds[model.q_names_stratiform[ice_hyd_type]] > 0, 0)
         else:
             method_str = "Microphysics logic"
             data_frac1 = model.ds[model.strat_frac_names['pl']]
-            data_frac2 = model.ds[model.strat_frac_names['pi']]
+            data_frac2 = model.ds[model.strat_frac_names[ice_hyd_type]]
     out_prof_long_name1 = 'Liquid precipitation present? [%s]' % precip_type_full
     out_prof_long_name2 = 'Ice precipitation present? [%s]' % precip_type_full
     out_prof_name1 = precip_type + '_frac_subcolumns_pl'
-    out_prof_name2 = precip_type + '_frac_subcolumns_pi'
+    out_prof_name2 = precip_type + '_frac_subcolumns_%s' % ice_hyd_type
     in_prof_cloud_name_liq = precip_type + '_frac_subcolumns_cl'
     in_prof_cloud_name_ice = precip_type + '_frac_subcolumns_ci'
 
@@ -329,7 +332,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     full_overcast_pl_pi += np.sum([x[0] for x in my_tuple])
     p_strat_profs = np.stack([x[1] for x in my_tuple], axis=1)
 
-    print("Fully overcast pl & pi in %s voxels" % full_overcast_pl_pi)
+    print("Fully overcast pl & %s in %s voxels" % (ice_hyd_type, full_overcast_pl_pi))
     model.ds[out_prof_name1] = xr.DataArray(p_strat_profs[:, :, :, 0],
                                             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     model.ds[out_prof_name2] = xr.DataArray(p_strat_profs[:, :, :, 1],

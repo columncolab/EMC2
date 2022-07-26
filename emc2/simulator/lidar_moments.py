@@ -365,7 +365,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
             if rho_hyd == 'variable':
                 rho_hyd = model.ds[model.variable_density[hyd_type]].values
             fi_factor = model.fluffy[hyd_type].magnitude * rho_hyd / rho_b + \
-                (1 - model.fluffy[hyd_type].magnitude) * (rhy_hyd / rho_b) ** (1 / 3)
+                (1 - model.fluffy[hyd_type].magnitude) * (rho_hyd / rho_b) ** (1 / 3)
             re_array = np.tile(model.ds[re_fields[hyd_type]] * fi_factor,
                                (model.num_subcolumns, 1, 1))
 

@@ -97,7 +97,7 @@ class Model():
     model_name: str
         The name of the model.
     variable_density: dict
-        If the model allows for particle density for vary (i.e. 2-moment NSSL), then
+        If the model allows for particle density for vary (e.g. 2-moment NSSL), then
         this is a dict pointing to the variable with the density for each hydrometeor class
     """
 
@@ -654,7 +654,7 @@ class CESM2(E3SM):
 
 class WRF(Model):
     def __init__(self, file_path, z_range=None, time_range=None, 
-                 parameterization="nssl", NUWRF=False, bounding_box=None):
+                 mcphys_scheme="nssl", NUWRF=False, bounding_box=None):
         """
         This load a WRF simulation and all of the necessary parameters from
         the simulation.
@@ -669,7 +669,7 @@ class WRF(Model):
         z_range: numpy array or None
             The z levels of the vertical grid you want to use. By default,
             the levels are 0 m to 15000 m, increasing by 500 m.
-        parameterization: str
+        mcphys_scheme: str
             3ice: Goddard 3ICE scheme
             morrison: Morrison microphysics
         NUWRF: bool
@@ -682,7 +682,7 @@ class WRF(Model):
             raise ModuleNotFoundError("wrf-python must be installed.")
 
         super().__init__()
-        if parameterization.lower() == "morrison":
+        if mcphys_scheme.lower() == "morrison":
             self.hyd_types = ["cl", "ci", "pl", "pi"]
             self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
                             'ci': 500. * ureg.kg / (ureg.m**3),
@@ -721,16 +721,12 @@ class WRF(Model):
                                      'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
             self.conv_frac_names_for_rad = self.conv_frac_names
             self.strat_frac_names_for_rad = self.strat_frac_names
-            self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                              'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
             self.conv_frac_names_for_rad = {
                 'cl': 'conv_frac', 'ci': 'conv_frac',
                 'pl': 'conv_frac', 'pi': 'conv_frac'}
             self.strat_frac_names_for_rad = {
                 'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                 'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-            self.re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                              'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
             self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
                                     'pi': 'strat_pi_re', 'pl': 'strat_pl_frac'}
             self.conv_re_fields = {'cl': 'conv_cl_re', 'ci': 'conv_ci_re',
@@ -744,7 +740,7 @@ class WRF(Model):
                                    'pl': 're_plc', 'pi': 're_pis'}
             self.strat_re_fields = {'cl': 're_cls', 'ci': 're_cis',
                                     'pl': 're_pls', 'pi': 're_pis'}
-        elif parameterization.lower() == "nssl":
+        elif mcphys_scheme.lower() == "nssl":
             self.hyd_types = ["cl", "ci", "pl", "sn", "gr", "ha"]
             self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
                             'ci': 500. * ureg.kg / (ureg.m**3),
@@ -753,10 +749,10 @@ class WRF(Model):
                             'gr': 'variable',
                             'ha': 'variable'}
 
-            self.fluffy = {'ci': 1.0 * ureg.dimensionless,
-                           'sn': 1.0 * ureg.dimensionless,
-                           'gr': 0.0 * ureg.dimensionless,
-                           'ha': 0.0 * ureg.dimensionless }
+            self.fluffy = {'ci': 0.5 * ureg.dimensionless,
+                           'sn': 0.5 * ureg.dimensionless,
+                           'gr': 0.5 * ureg.dimensionless,
+                           'ha': 0.5 * ureg.dimensionless }
             self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
                                 'ci': 24. * ureg.dimensionless,
                                 'pl': 5.5 * ureg.dimensionless,
@@ -862,7 +858,7 @@ class WRF(Model):
             self.ds[self.N_field[hyd_type]] = ds[
                 self.N_field[hyd_type]].astype('float64') * qn_conversion
             
-            if parameterization.lower() == "nssl":
+            if mcphys_scheme.lower() == "nssl":
                 # Convert from microns to meters
                 self.ds[self.conv_re_fields[hyd_type]] = ds[self.conv_re_fields[hyd_type]].astype('float64') * 1e6
                 self.ds[self.conv_re_fields[hyd_type]].attrs["units"] = "microns"
@@ -871,7 +867,7 @@ class WRF(Model):
 
         
         self.ds["QVAPOR"] = ds["QVAPOR"]
-        if parameterization == "nssl":
+        if mcphys_scheme == "nssl":
             x = ds["QGRAUP"] / ds["QVGRAUPEL"]
             x = np.where(np.isfinite(x), x, 900.)
             self.ds["RHO_GRAUPEL"] = xr.DataArray(x, dims=ds["QGRAUP"].dims)

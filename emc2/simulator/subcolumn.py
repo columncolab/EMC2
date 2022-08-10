@@ -195,7 +195,8 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
 
 
 def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
-                            parallel=True, chunk=None, ice_hyd_type="pi"):
+                            parallel=True, chunk=None, 
+                            precip_types=["pl", "pi"]):
     """
     Sets the hydrometeor fraction due to precipitation in each subcolumn. This
     module works for both stratiform and convective precipitation.
@@ -246,37 +247,51 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
+    data_frac = []
     # For subcolumn coverage, lump 3 ice precip categories into one
     if is_conv:
         precip_type = 'conv'
         precip_type_full = 'convective'
         if use_rad_logic:
             method_str = "Radiation logic"
-            data_frac1 = model.ds[model.conv_frac_names_for_rad['pl']]
-            data_frac1 = data_frac1.where(model.ds[model.q_names_convective["pl"]] > 0, 0)
-            data_frac2 = model.ds[model.conv_frac_names_for_rad[ice_hyd_type]]
-            data_frac2 = data_frac2.where(model.ds[model.q_names_convective[ice_hyd_type]] > 0, 0)
+            i = 0
+            for hyd_type in precip_types:
+                data_frac.append(
+                    model.ds[model.conv_frac_names_for_rad[hyd_type]])
+                data_frac[i] = data_frac[i].where(
+                    model.ds[model.q_names_convective[hyd_type]] > 0, 0)
+                i += 1
         else:
             method_str = "Microphysics logic"
-            data_frac1 = model.ds[model.conv_frac_names['pl']]
-            data_frac2 = model.ds[model.conv_frac_names[ice_hyd_type]]
+            for hyd_type in precip_types:
+                data_frac.append(
+                    model.ds[model.conv_frac_names[hyd_type]])
     else:
         precip_type = 'strat'
         precip_type_full = 'stratiform'
         if use_rad_logic:
             method_str = "Radiation logic"
-            data_frac1 = model.ds[model.strat_frac_names_for_rad['pl']]
-            data_frac1.where(model.ds[model.q_names_stratiform["pl"]] > 0, 0)
-            data_frac2 = model.ds[model.strat_frac_names_for_rad[ice_hyd_type]]
-            data_frac2.where(model.ds[model.q_names_stratiform[ice_hyd_type]] > 0, 0)
+            i = 0
+            for hyd_type in precip_types:
+                data_frac.append(
+                    model.ds[model.strat_frac_names_for_rad[hyd_type]])
+                data_frac[i] = data_frac[i].where(
+                    model.ds[model.q_names_stratiform[hyd_type]] > 0, 0)
         else:
             method_str = "Microphysics logic"
-            data_frac1 = model.ds[model.strat_frac_names['pl']]
-            data_frac2 = model.ds[model.strat_frac_names[ice_hyd_type]]
-    out_prof_long_name1 = 'Liquid precipitation present? [%s]' % precip_type_full
-    out_prof_long_name2 = 'Ice precipitation present? [%s]' % precip_type_full
-    out_prof_name1 = precip_type + '_frac_subcolumns_pl'
-    out_prof_name2 = precip_type + '_frac_subcolumns_%s' % ice_hyd_type
+            for hyd_type in precip_types:
+                data_frac.append(
+                    model.ds[model.strat_frac_names[hyd_type]])
+    out_prof_long_name = []
+    out_prof_name = []
+    for hyd_type in precip_types:
+        if hyd_type == "pl":
+            out_prof_long_name.append(
+                'Liquid precipitation present? [%s]' % hyd_type)
+        else:
+            out_prof_long_name.append(
+                'Ice precipitation present? [%s]' % hyd_type)
+        out_prof_name.append(precip_type + '_frac_subcolumns_%s' % hyd_type)
     in_prof_cloud_name_liq = precip_type + '_frac_subcolumns_cl'
     in_prof_cloud_name_ice = precip_type + '_frac_subcolumns_ci'
 
@@ -291,24 +306,25 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                        "generated the cloud particle subcolumns before running this routine." %
                        in_prof_cloud_name_ice)
 
-    data_frac1 = np.round(data_frac1 * model.num_subcolumns)
-    data_frac2 = np.round(data_frac2 * model.num_subcolumns)
+    for i in range(len(data_frac)):
+        data_frac[i] = np.round(data_frac[i] * model.num_subcolumns)
     strat_profs = np.logical_or(model.ds[in_prof_cloud_name_ice].values,
                                 model.ds[in_prof_cloud_name_liq].values)
     subcolumn_dims = model.ds[in_prof_cloud_name_ice].dims
-    is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
+    is_cloud = data_frac[0] > 0
+    for i in range(1, len(data_frac)):
+        is_cloud = np.logical_or(is_cloud, data_frac[i] > 0)
     is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
     is_cloud_one_above[:, -1] = False
     overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
-    precip_exist = np.stack([data_frac1 > 0, data_frac2 > 0])
-    PF_val = np.max(np.stack([data_frac1, data_frac2]), axis=0)
+    precip_exist = np.stack([frac > 0 for frac in data_frac])
+    PF_val = np.max(np.stack(data_frac), axis=0)
     cond = [strat_profs, ~strat_profs]
-
     _allocate_precip_sub_cols = lambda x: _allocate_precip_sub_col(
-        x, cond, N_columns, data_frac1, data_frac2, PF_val,
+        x, cond, N_columns, data_frac, PF_val,
         precip_exist, full_overcast_pl_pi, overlapping_cloud)
 
-    t_dim = data_frac1.shape[0]
+    t_dim = data_frac[0].shape[0]
     if parallel:
         print("Now performing parallel %s precipitation allocation in subcolumns" % precip_type)
         if chunk is None:
@@ -331,18 +347,19 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
 
     full_overcast_pl_pi += np.sum([x[0] for x in my_tuple])
     p_strat_profs = np.stack([x[1] for x in my_tuple], axis=1)
+    typ_string = ""
+    for typ in precip_types:
+        typ_string = typ_string + " & " + typ
+    typ_string = typ_string[3:]    
+    print("Fully overcast %s in %s voxels" % (typ_string, full_overcast_pl_pi))
 
-    print("Fully overcast pl & %s in %s voxels" % (ice_hyd_type, full_overcast_pl_pi))
-    model.ds[out_prof_name1] = xr.DataArray(p_strat_profs[:, :, :, 0],
-                                            dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
-    model.ds[out_prof_name2] = xr.DataArray(p_strat_profs[:, :, :, 1],
-                                            dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
-    model.ds[out_prof_name1].attrs["long_name"] = out_prof_long_name1
-    model.ds[out_prof_name1].attrs["units"] = "0 = no, 1 = yes"
-    model.ds[out_prof_name1].attrs["Processing method"] = method_str
-    model.ds[out_prof_name2].attrs["long_name"] = out_prof_long_name2
-    model.ds[out_prof_name2].attrs["units"] = "0 = no, 1 = yes"
-    model.ds[out_prof_name2].attrs["Processing method"] = method_str
+    for i in range(len(out_prof_name)):
+        model.ds[out_prof_name[i]] = xr.DataArray(p_strat_profs[:, :, :, i],
+                                               dims=(
+                                               subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
+        model.ds[out_prof_name[i]].attrs["long_name"] = out_prof_long_name[i]
+        model.ds[out_prof_name[i]].attrs["units"] = "0 = no, 1 = yes"
+        model.ds[out_prof_name[i]].attrs["Processing method"] = method_str
 
     print("Done! total processing time = %.2fs" % (time() - t0))
 
@@ -584,26 +601,33 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
     return full_overcast_cl_ci, strat_profs1, strat_profs2
 
 
-def _allocate_precip_sub_col(tt, cond, N_columns, data_frac1, data_frac2, PF_val,
+def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
                              precip_exist, full_overcast_pl_pi, overlapping_cloud):
-    p_strat_profs = np.zeros((N_columns, data_frac1.shape[1], 2), dtype=bool)
-    for j in range(data_frac1.shape[1] - 2, -1, -1):
-        if np.logical_and(data_frac1[tt, j] == N_columns,
-                          data_frac2[tt, j] == N_columns):
+    p_strat_profs = np.zeros(
+        (N_columns, data_frac[0].shape[1], len(data_frac)), dtype=bool)
+
+    for j in range(data_frac[0].shape[1] - 2, -1, -1):
+        all_overlap = True
+        for i in range(len(data_frac)):
+            all_overlap = np.logical_and(
+                all_overlap, data_frac[i][tt, j] == N_columns)
+        
+        if all_overlap:
             p_strat_profs[:, j, :] = True
             full_overcast_pl_pi += 1
             continue
+        
         if overlapping_cloud[tt, j]:
             overlying_locs = np.where(np.any(p_strat_profs[:, j + 1, :], axis=1))[0]
             overlying_num = len(overlying_locs)
             if overlying_num > PF_val[tt, j]:
                 rand_locs = _randperm(overlying_num, PF_val[tt, j])
-                for i in range(2):
+                for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
                         p_strat_profs[overlying_locs[rand_locs], j, i] = True
                 PF_val[tt, j] = 0.
             else:
-                for i in range(2):
+                for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
                         p_strat_profs[overlying_locs, j, i] = True
                 PF_val[tt, j] -= overlying_num

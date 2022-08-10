@@ -757,12 +757,14 @@ class WRF(Model):
                                 'ci': 24. * ureg.dimensionless,
                                 'pl': 5.5 * ureg.dimensionless,
                                 'sn': 24.0 * ureg.dimensionless,
-                                'gr': 24.0 * ureg.dimensionless}
+                                'gr': 24.0 * ureg.dimensionless,
+                                'ha': 24.0 * ureg.dimensionless}
             self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
                                 'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
                                 'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
                                 'sn': 0.40 * 1 / (ureg.kg / (ureg.m**3)),
-                                'gr': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+                                'gr': 0.40 * 1 / (ureg.kg / (ureg.m**3)),
+                                'ha': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
             self.vel_param_a = {'cl': 3e7, 'ci': 700.,
                                 'pl': 841.997, 'sn': 12.42, 'gr': 330,
                                 'ha': 330}
@@ -772,10 +774,6 @@ class WRF(Model):
                                 'sn': 0.8 * ureg.dimensionless,
                                 'gr': 0.8 * ureg.dimensionless,
                                 'ha': 0.8 * ureg.dimensionless}
-            self.fluffy = {'ci': 0.5 * ureg.dimensionless, 
-                           'sn': 0.5 * ureg.dimensionless,
-                           'gr': 0 * ureg.dimensionless,
-                           'ha': 0 * ureg.dimensionless}
             super()._add_vel_units()
             self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
                             'pl': 'QRAIN', 'sn': 'QSNOW',
@@ -903,11 +901,16 @@ class WRF(Model):
            XLAT_max = ds.XLAT.max(axis=2).mean(axis=0)
            XLONG_min = ds.XLONG.min(axis=1).mean(axis=0)
            XLONG_max = ds.XLONG.max(axis=1).mean(axis=0)
-           bounding_box_ind[0] = np.argmin(np.abs(bounding_box[0] - np.squeeze(XLAT_min.values)))
-           bounding_box_ind[2] = np.argmin(np.abs(bounding_box[2] - np.squeeze(XLAT_max.values)))
-           bounding_box_ind[1] = np.argmin(np.abs(bounding_box[1] - np.squeeze(XLONG_min.values)))
-           bounding_box_ind[3] = np.argmin(np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
-           self.ds = self.ds.isel(south_north=slice(bounding_box_ind[0], bounding_box_ind[2]),
+           bounding_box_ind[0] = np.argmin(
+               np.abs(bounding_box[0] - np.squeeze(XLAT_min.values)))
+           bounding_box_ind[2] = np.argmin(
+               np.abs(bounding_box[2] - np.squeeze(XLAT_max.values)))
+           bounding_box_ind[1] = np.argmin(
+               np.abs(bounding_box[1] - np.squeeze(XLONG_min.values)))
+           bounding_box_ind[3] = np.argmin(
+               np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
+           self.ds = self.ds.isel(
+               south_north=slice(bounding_box_ind[0], bounding_box_ind[2]),
                west_east=slice(bounding_box_ind[1], bounding_box_ind[3])) 
         
         # crop specific model output time range (if requested)

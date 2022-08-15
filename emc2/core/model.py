@@ -155,6 +155,35 @@ class Model():
                 continue
             self.ds[variable].attrs = attrs
 
+    def _crop_bounding_box(self, bounding_box):
+        """
+        Crop the input region to a given bounding box for a regional model.
+  
+        Parameters
+        ----------
+        bounding_box: 4-tuple
+            A tuple in the format of (lat min, lon min, lat max, lon max).
+        """
+
+        bounding_box_ind = np.zeros(4, dtype='int64')
+        
+        XLAT_min = self.ds[self.lat_name].min(axis=2).mean(axis=0)
+        XLAT_max = self.ds[self.lat_name].max(axis=2).mean(axis=0)
+        XLONG_min = self.ds[self.lon_name].min(axis=1).mean(axis=0)
+        XLONG_max = self.ds[self.lon_name].max(axis=1).mean(axis=0)
+        bounding_box_ind[0] = np.argmin(
+               np.abs(bounding_box[0] - np.squeeze(XLAT_min.values)))
+        bounding_box_ind[2] = np.argmin(
+               np.abs(bounding_box[2] - np.squeeze(XLAT_max.values)))
+        bounding_box_ind[1] = np.argmin(
+               np.abs(bounding_box[1] - np.squeeze(XLONG_min.values)))
+        bounding_box_ind[3] = np.argmin(
+               np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
+        input_dict = {}
+        input_dict[self.lon_dim] = slice(bounding_box_ind[0], bounding_box_ind[2])
+        input_dict[self.lat_dim] = slice(bounding_box_ind[1], bounding_box_ind[3])
+        self.ds = self.ds.isel(input_dict)
+
     def _crop_time_range(self, time_range, alter_coord=None):
         """
         Crop model output time range (time coords must be of np.datetime64 datatype).
@@ -743,9 +772,9 @@ class WRF(Model):
         elif mcphys_scheme.lower() == "nssl":
             self.hyd_types = ["cl", "ci", "pl", "sn", "gr", "ha"]
             self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
-                            'ci': 500. * ureg.kg / (ureg.m**3),
+                            'ci': 459. * ureg.kg / (ureg.m**3),
                             'pl': 1000. * ureg.kg / (ureg.m**3),
-                            'sn': 500. * ureg.kg / (ureg.m**3),
+                            'sn': 100. * ureg.kg / (ureg.m**3),
                             'gr': 'variable',
                             'ha': 'variable'}
 
@@ -881,6 +910,8 @@ class WRF(Model):
         self.model_name = "WRF"
         self.lat_dim = "south_north"
         self.lon_dim = "west_east"
+        self.lat_name = "XLAT"
+        self.lon_name = "XLONG"
         self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():
@@ -896,22 +927,7 @@ class WRF(Model):
 
         self.ds = xr.Dataset(self.ds)
         if bounding_box is not None:
-           bounding_box_ind = np.zeros(4, dtype='int64')
-           XLAT_min = ds.XLAT.min(axis=2).mean(axis=0)
-           XLAT_max = ds.XLAT.max(axis=2).mean(axis=0)
-           XLONG_min = ds.XLONG.min(axis=1).mean(axis=0)
-           XLONG_max = ds.XLONG.max(axis=1).mean(axis=0)
-           bounding_box_ind[0] = np.argmin(
-               np.abs(bounding_box[0] - np.squeeze(XLAT_min.values)))
-           bounding_box_ind[2] = np.argmin(
-               np.abs(bounding_box[2] - np.squeeze(XLAT_max.values)))
-           bounding_box_ind[1] = np.argmin(
-               np.abs(bounding_box[1] - np.squeeze(XLONG_min.values)))
-           bounding_box_ind[3] = np.argmin(
-               np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
-           self.ds = self.ds.isel(
-               south_north=slice(bounding_box_ind[0], bounding_box_ind[2]),
-               west_east=slice(bounding_box_ind[1], bounding_box_ind[3])) 
+            super()._crop_bounding_box(bounding_box)
         
         # crop specific model output time range (if requested)
         if time_range is not None:

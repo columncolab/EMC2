@@ -254,11 +254,10 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         precip_type_full = 'convective'
         if use_rad_logic:
             method_str = "Radiation logic"
-            i = 0
             for hyd_type in precip_types:
                 data_frac.append(
                     model.ds[model.conv_frac_names_for_rad[hyd_type]])
-                data_frac[i] = data_frac[i].where(
+                data_frac[-1] = data_frac[i].where(
                     model.ds[model.q_names_convective[hyd_type]] > 0, 0)
                 i += 1
         else:
@@ -271,11 +270,10 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         precip_type_full = 'stratiform'
         if use_rad_logic:
             method_str = "Radiation logic"
-            i = 0
             for hyd_type in precip_types:
                 data_frac.append(
                     model.ds[model.strat_frac_names_for_rad[hyd_type]])
-                data_frac[i] = data_frac[i].where(
+                data_frac[-1] = data_frac[i].where(
                     model.ds[model.q_names_stratiform[hyd_type]] > 0, 0)
         else:
             method_str = "Microphysics logic"
@@ -356,7 +354,9 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     for i in range(len(out_prof_name)):
         model.ds[out_prof_name[i]] = xr.DataArray(p_strat_profs[:, :, :, i],
                                                dims=(
-                                               subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
+                                               subcolumn_dims[0],
+                                               subcolumn_dims[1],
+                                               subcolumn_dims[2]))
         model.ds[out_prof_name[i]].attrs["long_name"] = out_prof_long_name[i]
         model.ds[out_prof_name[i]].attrs["units"] = "0 = no, 1 = yes"
         model.ds[out_prof_name[i]].attrs["Processing method"] = method_str

@@ -128,8 +128,16 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
         # Subcolumn Generator
         model = set_stratiform_sub_col_frac(
             model, use_rad_logic=use_rad_logic, N_columns=N_columns, parallel=parallel, chunk=chunk)
+        precip_types = list(hydrometeor_classes)
+        if "cl" in precip_types:
+            precip_types.remove("cl")
+        if "ci" in precip_types:
+            precip_types.remove("ci")
+
+        
         model = set_precip_sub_col_frac(
-            model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
+                model, is_conv=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk,
+                precip_types=precip_types)
         if model.process_conv:
             model = set_precip_sub_col_frac(
                 model, is_conv=True, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)

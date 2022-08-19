@@ -130,7 +130,7 @@
 <h1>emc2.core.model.WRF<a class="headerlink" href="#emc2-core-model-wrf" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.WRF">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">WRF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">WRF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nssl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUWRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF" title="Permalink to this definition">¶</a></dt>
 <dd><p>This load a WRF simulation and all of the necessary parameters from
 the simulation.</p>
 <dl class="field-list simple">
@@ -141,24 +141,23 @@ the simulation.</p>
 <dt><strong>time_range: tuple or None</strong></dt><dd><p>Start and end time to include. If this is None, the entire
 simulation will be included.</p>
 </dd>
-<dt><strong>column_extent: 4-tuple ints</strong></dt><dd><p>The horizontal start and end boundaries (x1, y1, x2, y2) of
-the column to consider.</p>
-</dd>
 <dt><strong>z_range: numpy array or None</strong></dt><dd><p>The z levels of the vertical grid you want to use. By default,
 the levels are 0 m to 15000 m, increasing by 500 m.</p>
 </dd>
-<dt><strong>w_thresh: float</strong></dt><dd><p>The threshold of vertical velocity for defining a grid cell
-as convective.</p>
+<dt><strong>mcphys_scheme: str</strong></dt><dd><p>3ice: Goddard 3ICE scheme
+morrison: Morrison microphysics</p>
 </dd>
-<dt><strong>t: int or None</strong></dt><dd><p>The timestep number to subset the WRF data into. Set to None to
-load all of the data</p>
+<dt><strong>NUWRF: bool</strong></dt><dd><p>If true, model is NASA Unified WRF.</p>
+</dd>
+<dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not none, then a tuple representing the bounding box
+(lat_min, lon_min, lat_max, lon_max).</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.model.WRF.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nssl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUWRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>This load a WRF simulation and all of the necessary parameters from
 the simulation.</p>
 <dl class="field-list simple">
@@ -169,17 +168,16 @@ the simulation.</p>
 <dt><strong>time_range: tuple or None</strong></dt><dd><p>Start and end time to include. If this is None, the entire
 simulation will be included.</p>
 </dd>
-<dt><strong>column_extent: 4-tuple ints</strong></dt><dd><p>The horizontal start and end boundaries (x1, y1, x2, y2) of
-the column to consider.</p>
-</dd>
 <dt><strong>z_range: numpy array or None</strong></dt><dd><p>The z levels of the vertical grid you want to use. By default,
 the levels are 0 m to 15000 m, increasing by 500 m.</p>
 </dd>
-<dt><strong>w_thresh: float</strong></dt><dd><p>The threshold of vertical velocity for defining a grid cell
-as convective.</p>
+<dt><strong>mcphys_scheme: str</strong></dt><dd><p>3ice: Goddard 3ICE scheme
+morrison: Morrison microphysics</p>
 </dd>
-<dt><strong>t: int or None</strong></dt><dd><p>The timestep number to subset the WRF data into. Set to None to
-load all of the data</p>
+<dt><strong>NUWRF: bool</strong></dt><dd><p>If true, model is NASA Unified WRF.</p>
+</dd>
+<dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not none, then a tuple representing the bounding box
+(lat_min, lon_min, lat_max, lon_max).</p>
 </dd>
 </dl>
 </dd>
@@ -193,7 +191,7 @@ load all of the data</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.WRF.__init__" title="emc2.core.model.WRF.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path, column_extent[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.WRF.__init__" title="emc2.core.model.WRF.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, z_range, time_range, ...])</p></td>
 <td><p>This load a WRF simulation and all of the necessary parameters from the simulation.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>

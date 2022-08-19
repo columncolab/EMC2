@@ -169,7 +169,7 @@ constants used by EMC^2 are also stored in this module.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.model.DHARMA.html#emc2.core.model.DHARMA" title="emc2.core.model.DHARMA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.DHARMA</span></code></a>(file_path[, time_range])</p></td>
 <td><p>This loads a DHARMA simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.model.WRF.html#emc2.core.model.WRF" title="emc2.core.model.WRF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.WRF</span></code></a>(file_path, column_extent[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.model.WRF.html#emc2.core.model.WRF" title="emc2.core.model.WRF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.WRF</span></code></a>(file_path[, z_range, time_range, ...])</p></td>
 <td><p>This load a WRF simulation and all of the necessary parameters from the simulation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.core.model.TestConvection.html#emc2.core.model.TestConvection" title="emc2.core.model.TestConvection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.TestConvection</span></code></a>()</p></td>
@@ -273,6 +273,9 @@ stacking was required to enable EMC2 to processes a domain output (time x lat x 
 some models).</p>
 </dd>
 <dt><strong>model_name: str</strong></dt><dd><p>The name of the model.</p>
+</dd>
+<dt><strong>variable_density: dict</strong></dt><dd><p>If the model allows for particle density for vary (e.g. 2-moment NSSL), then
+this is a dict pointing to the variable with the density for each hydrometeor class</p>
 </dd>
 </dl>
 </dd>

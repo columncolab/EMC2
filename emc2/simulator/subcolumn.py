@@ -257,9 +257,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             for hyd_type in precip_types:
                 data_frac.append(
                     model.ds[model.conv_frac_names_for_rad[hyd_type]])
-                data_frac[-1] = data_frac[i].where(
+                data_frac[-1] = data_frac[-1].where(
                     model.ds[model.q_names_convective[hyd_type]] > 0, 0)
-                i += 1
         else:
             method_str = "Microphysics logic"
             for hyd_type in precip_types:
@@ -273,7 +272,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
             for hyd_type in precip_types:
                 data_frac.append(
                     model.ds[model.strat_frac_names_for_rad[hyd_type]])
-                data_frac[-1] = data_frac[i].where(
+                data_frac[-1] = data_frac[-1].where(
                     model.ds[model.q_names_stratiform[hyd_type]] > 0, 0)
         else:
             method_str = "Microphysics logic"

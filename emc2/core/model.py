@@ -363,12 +363,14 @@ class Model():
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
-    def unstack_time_lat_lon(self, order_dim=True):
+    def unstack_time_lat_lon(self, order_dim=True, squeeze_single_dims=True):
         """
         Unstack the time, lat, and lon dims if they were previously stacked together
         (self.stacked_time_dim is not None). Finally, the method reorder dimensions to time x height for proper
         processing by calling the "permute_dims_for_processing" class method.
-        Note that if the the time dimension size is 1, that dimension is squeezed.
+        Note (relevant for squeeze_single_dims == True):
+        If the time dimension size is 1, that dimension is squeezed. Similarly, if the number of
+        subcolumns is 1 (subcolumn generator is turned off), the subcolumn dimension is squeezed as well.
         NOTE: This is a dedicated method written because xr.Datasets still have many unresolved bugs
         associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
         Practically, after the subcolumn processing the stacking information is lost so this is an alternative
@@ -378,6 +380,8 @@ class Model():
         ----------
         order_dim: bool
             When True, reorder dimensions to subcolumn x time x height for proper processing.
+        squeeze_single_dims: bool
+            If True, squeezing the time and/or subcolumn dimension(s) if their lengh is 1.
         """
         if self.stacked_time_dim is None:
             raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
@@ -412,8 +416,11 @@ class Model():
             self.ds = self.ds.rename({self.lon_dim + "_tmp": self.lon_dim})
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (subcolumn x time x height).
-        if self.ds[self.time_dim].size == 1:
-            self.ds = self.ds.squeeze(self.time_dim)
+        if squeeze_single_dims:
+            if self.ds[self.time_dim].size == 1:
+                self.ds = self.ds.squeeze(self.time_dim)
+            if self.num_subcolumns == 1:
+                self.ds = self.ds.squeeze("subcolumn")
 
     def permute_dims_for_processing(self, base_order=None, base_dim_first=True):
         """

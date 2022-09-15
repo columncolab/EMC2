@@ -321,7 +321,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                            (2 * rho_b * re_array * 1e-6), 0)
         A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
 
-        if np.isin(hyd_type, ["ci", "pi", "sn", "gr", "ha"]):
+        if np.isin(hyd_type, ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]):
             if mie_for_ice:
                 r_eff_bulk = instrument.bulk_table[bulk_mie_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_back"].values
@@ -461,7 +461,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
         beta_pv = None
         kdp_factor = None
-        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
+        if np.logical_and(np.isin(hyd_type, ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]),
+                          not mie_for_ice):
             p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
             beta_p = instrument.scat_table[ice_lut]["beta_p"].values
             alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values

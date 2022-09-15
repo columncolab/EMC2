@@ -130,7 +130,7 @@
 <h1>emc2.core.model.DHARMA<a class="headerlink" href="#emc2-core-model-dharma" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.DHARMA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a DHARMA simulation with all of the necessary parameters
 for EMC^2 to run.</p>
 <dl class="field-list simple">
@@ -140,13 +140,19 @@ for EMC^2 to run.</p>
 </dd>
 <dt><strong>time_range: tuple or None</strong></dt><dd><p>Start and end time to include. If this is None, the entire
 simulation will be included.</p>
+</dd>
+<dt><strong>time_dim: str</strong></dt><dd><p>name of time dimension.</p>
+</dd>
+<dt><strong>single_pi_class: bool</strong></dt><dd><p>If True, using a single precipitating ice class (pi).
+If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
+using the same LUTs).</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.model.DHARMA.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>This loads a DHARMA simulation with all of the necessary parameters
 for EMC^2 to run.</p>
 <dl class="field-list simple">
@@ -156,6 +162,12 @@ for EMC^2 to run.</p>
 </dd>
 <dt><strong>time_range: tuple or None</strong></dt><dd><p>Start and end time to include. If this is None, the entire
 simulation will be included.</p>
+</dd>
+<dt><strong>time_dim: str</strong></dt><dd><p>name of time dimension.</p>
+</dd>
+<dt><strong>single_pi_class: bool</strong></dt><dd><p>If True, using a single precipitating ice class (pi).
+If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
+using the same LUTs).</p>
 </dd>
 </dl>
 </dd>
@@ -169,7 +181,7 @@ simulation will be included.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.DHARMA.__init__" title="emc2.core.model.DHARMA.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, time_range])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.DHARMA.__init__" title="emc2.core.model.DHARMA.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, time_range, time_dim, ...])</p></td>
 <td><p>This loads a DHARMA simulation with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>
@@ -196,7 +208,7 @@ simulation will be included.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(file_name)</p></td>
 <td><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code>([order_dim])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code>([order_dim, ...])</p></td>
 <td><p>Unstack the time, lat, and lon dims if they were previously stacked together (self.stacked_time_dim is not None).</p></td>
 </tr>
 </tbody>

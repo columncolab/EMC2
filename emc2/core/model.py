@@ -320,6 +320,11 @@ class Model():
             When True, reorder dimensions to time x height for proper processing.
         """
         do_process = 0  # 0 - do nothing, 1 - stack lat+lon, 2 - stack lat dim only
+        
+        # Add time dimension for processing (remove later if length = 1)
+        if not self.time_dim in [x for x in self.ds.dims.keys()]:
+            self.ds = self.ds.expand_dims(self.time_dim)
+
         # Check to make sure we are loading a single column
         if self.lat_dim in [x for x in self.ds.dims.keys()]:
             if self.ds.dims[self.lat_dim] != 1:
@@ -363,6 +368,7 @@ class Model():
         Unstack the time, lat, and lon dims if they were previously stacked together
         (self.stacked_time_dim is not None). Finally, the method reorder dimensions to time x height for proper
         processing by calling the "permute_dims_for_processing" class method.
+        Note that if the the time dimension size is 1, that dimension is squeezed.
         NOTE: This is a dedicated method written because xr.Datasets still have many unresolved bugs
         associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
         Practically, after the subcolumn processing the stacking information is lost so this is an alternative
@@ -406,6 +412,8 @@ class Model():
             self.ds = self.ds.rename({self.lon_dim + "_tmp": self.lon_dim})
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (subcolumn x time x height).
+        if self.ds[self.time_dim].size == 1:
+            self.ds = self.ds.squeeze(self.time_dim)
 
     def permute_dims_for_processing(self, base_order=None, base_dim_first=True):
         """
@@ -961,7 +969,7 @@ class WRF(Model):
 
 
 class DHARMA(Model):
-    def __init__(self, file_path, time_range=None):
+    def __init__(self, file_path, time_range=None, time_dim="dom_col", single_pi_class=True):
         """
         This loads a DHARMA simulation with all of the necessary parameters
         for EMC^2 to run.
@@ -973,6 +981,12 @@ class DHARMA(Model):
         time_range: tuple or None
             Start and end time to include. If this is None, the entire
             simulation will be included.
+        time_dim: str
+            name of time dimension.
+        single_pi_class: bool
+            If True, using a single precipitating ice class (pi).
+            If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
+            using the same LUTs).
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -991,6 +1005,13 @@ class DHARMA(Model):
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
                             'pi': 0.41 * ureg.dimensionless}
+        if not single_pi_class:
+            self.Rho_hyd.update({'pir': 100. * ureg.kg / (ureg.m**3)})
+            self.fluffy.update({'pir': 0.5 * ureg.dimensionless})
+            self.lidar_ratio.update({'pir': 24.0 * ureg.dimensionless})
+            self.LDR_per_hyd.update({'pir': 0.40 * 1 / (ureg.kg / (ureg.m**3))})
+            self.vel_param_a.update({'pir': 11.72})
+            self.vel_param_b.update({'pir': 0.41 * ureg.dimensionless})
         super()._add_vel_units()
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
@@ -998,7 +1019,9 @@ class DHARMA(Model):
         self.z_field = "z"
         self.T_field = "t"
         self.height_dim = "hgt"
-        self.time_dim = "dom_col"
+        self.lat_dim = "y"
+        self.lon_dim = "x"
+        self.time_dim = time_dim
         self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat',
                                 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
@@ -1014,6 +1037,20 @@ class DHARMA(Model):
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
+        if not single_pi_class:
+            self.N_field.update({'pir': 'npir'})
+            self.conv_frac_names.update({'pir': 'conv_dat'})
+            self.strat_frac_names.update({'pir': 'strat_pir_frac'})
+            self.conv_frac_names_for_rad.update({'pir': 'conv_dat'})
+            self.strat_frac_names_for_rad.update({'pir': 'strat_pir_frac'})
+            self.conv_re_fields.update({'pir': 'strat_pir_frac'})
+            self.strat_re_fields.update({'pir': 'strat_pir_frac'})
+            self.q_names_convective.update({'pir': 'conv_dat'})
+            self.q_names_stratiform.update({'pir': 'qpir'})
+            self.hyd_types.append("pir")
+
+        self.process_conv = False
+
         self.ds = xr.open_dataset(file_path)
 
         for variable in self.ds.variables.keys():

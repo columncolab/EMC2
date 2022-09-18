@@ -164,9 +164,9 @@ def calc_theory_beta_m(model, Lambda, OD_from_sfc=True):
     model.ds["tau"].attrs["long_name"] = "Two-way transmittance"
     model.ds["tau"].attrs["units"] = "1"
 
-    model.ds["u"] = xr.DataArray(u, dims=my_dims)
-    model.ds["u"].attrs["long_name"] = "Atmospheric optical depth"
-    model.ds["u"].attrs["units"] = "1"
+    model.ds["u_atm"] = xr.DataArray(u, dims=my_dims)
+    model.ds["u_atm"].attrs["long_name"] = "Atmospheric optical depth"
+    model.ds["u_atm"].attrs["units"] = "1"
 
     model.ds["beta"] = xr.DataArray(beta, dims=my_dims)
     model.ds["beta"].attrs["long_name"] = "Volume extinction cross section"

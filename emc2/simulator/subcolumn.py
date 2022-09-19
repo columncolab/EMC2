@@ -46,7 +46,8 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
 
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
-    elif model.num_subcolumns == 1:
+
+    if N_columns == 1:
        print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
               f"fields for convective {hyd_type} based on q > 0. kg/kg")
        model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
@@ -135,7 +136,7 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
         conv_profs = np.zeros((N_columns, *model.ds[model.strat_frac_names["cl"]].shape),
                               dtype=bool)
     subcolumn_dims = ("subcolumn", *model.ds[model.strat_frac_names_for_rad["cl"]].dims)
-    if model.num_subcolumns == 1:
+    if N_columns == 1:
         print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
               f"fields to 1 for startiform cl and ci based on q > 0. kg/kg")
         model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(
@@ -315,7 +316,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     in_prof_cloud_name_ice = precip_type + '_frac_subcolumns_ci'
     subcolumn_dims = model.ds[in_prof_cloud_name_ice].dims
 
-    if model.num_subcolumns == 1:
+    if N_columns == 1:
         print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
               f"fields to 1 for {precip_type} precip based on q > 0. kg/kg")
         for hyd_type in precip_types:

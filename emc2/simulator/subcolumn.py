@@ -71,7 +71,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
                 conv_profs[0:i, mask, k] = True
         model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
             conv_profs, dims=('subcolumn', my_dims[0], my_dims[1]))
-    model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["units"] = "boolean"
+    model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["units"] = "0 = no, 1 = yes"
     model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["long_name"] = (
         "Is there hydrometeors of type %s in each subcolumn?" % hyd_type)
     model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["Processing method"] = method_str

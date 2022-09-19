@@ -50,7 +50,7 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
        print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
               f"fields for convective {hyd_type} based on q > 0. kg/kg")
        model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
-           np.where(model.ds[q_names_convective[hyd_type]].values > 0, 1., 0.),
+           np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, 1., 0.),
            dims=('subcolumn', my_dims[0], my_dims[1]))
     else:  # num_subcolumns > 1
         if use_rad_logic:

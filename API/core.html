@@ -20,6 +20,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -71,9 +72,28 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.Model.html">emc2.core.Model</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.check_and_stack_time_lat_lon"><code class="docutils literal notranslate"><span class="pre">Model.check_and_stack_time_lat_lon()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.finalize_subcol_fields"><code class="docutils literal notranslate"><span class="pre">Model.finalize_subcol_fields()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.hydrometeor_classes"><code class="docutils literal notranslate"><span class="pre">Model.hydrometeor_classes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.load_subcolumns_from_netcdf"><code class="docutils literal notranslate"><span class="pre">Model.load_subcolumns_from_netcdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.num_hydrometeor_classes"><code class="docutils literal notranslate"><span class="pre">Model.num_hydrometeor_classes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.num_subcolumns"><code class="docutils literal notranslate"><span class="pre">Model.num_subcolumns</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.permute_dims_for_processing"><code class="docutils literal notranslate"><span class="pre">Model.permute_dims_for_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.remove_appended_str"><code class="docutils literal notranslate"><span class="pre">Model.remove_appended_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.remove_subcol_fields"><code class="docutils literal notranslate"><span class="pre">Model.remove_subcol_fields()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.subcolumns_to_netcdf"><code class="docutils literal notranslate"><span class="pre">Model.subcolumns_to_netcdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.unstack_time_lat_lon"><code class="docutils literal notranslate"><span class="pre">Model.unstack_time_lat_lon()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Instrument.read_arm_netcdf_file"><code class="docutils literal notranslate"><span class="pre">Instrument.read_arm_netcdf_file()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="io.html">emc2.io (emc2.io)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="simulator.html">emc2.simulator (emc2.simulator)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plotting.html">emc2.plotting (emc2.plotting)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -127,7 +147,7 @@
     text-align: unset;
 }
 </style>
-<span class="target" id="module-emc2.core"></span><section id="emc2-core-emc2-core">
+<section id="emc2-core-emc2-core">
 <h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Permalink to this heading">¶</a></h1>
 <p>The procedures in this module contain the core data structures of EMC^2.
 In particular, the Instrument class that describes the characteristics
@@ -196,7 +216,7 @@ constants used by EMC^2 are also stored in this module.</p>
 UnitRegistry().Quantity object. This allows for the use of quantities
 with units, making EMC^2 unit aware.</p>
 </section>
-<div class="toctree-wrapper compound">
+<span class="target" id="module-emc2.core"></span><div class="toctree-wrapper compound">
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.Model">

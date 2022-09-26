@@ -20,6 +20,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -50,9 +51,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="core.html">emc2.core (emc2.core)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="io.html">emc2.io (emc2.io)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="simulator.html">emc2.simulator (emc2.simulator)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plotting.html">emc2.plotting (emc2.plotting)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -112,7 +116,7 @@
 <dd class="field-odd"><p></p>
 </dd>
 <dt class="field-even">Date</dt>
-<dd class="field-even"><p>Sep 19, 2022</p>
+<dd class="field-even"><p>Sep 26, 2022</p>
 </dd>
 </dl>
 <p>This shows the details of the API of the Earth Model Column Collaboratory (EMC^2). Documentation
@@ -120,64 +124,242 @@ of each procedure in each module is provided as a reference.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="core.html">emc2.core (emc2.core)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.CSAPR.html">emc2.core.instruments.CSAPR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.NEXRAD.html">emc2.core.instruments.NEXRAD</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.XSACR.html">emc2.core.instruments.XSACR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.ModelE.html">emc2.core.model.ModelE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.E3SM.html">emc2.core.model.E3SM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.DHARMA.html">emc2.core.model.DHARMA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.WRF.html">emc2.core.model.WRF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestConvection.html">emc2.core.model.TestConvection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestAllStratiform.html">emc2.core.model.TestAllStratiform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestHalfAndHalf.html">emc2.core.model.TestHalfAndHalf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.Instrument.html">emc2.core.Instrument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.Model.html">emc2.core.Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR"><code class="docutils literal notranslate"><span class="pre">KAZR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL"><code class="docutils literal notranslate"><span class="pre">HSRL</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.CSAPR.html">emc2.core.instruments.CSAPR</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.CSAPR.html#emc2.core.instruments.CSAPR"><code class="docutils literal notranslate"><span class="pre">CSAPR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.NEXRAD.html">emc2.core.instruments.NEXRAD</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.NEXRAD.html#emc2.core.instruments.NEXRAD"><code class="docutils literal notranslate"><span class="pre">NEXRAD</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.XSACR.html">emc2.core.instruments.XSACR</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.XSACR.html#emc2.core.instruments.XSACR"><code class="docutils literal notranslate"><span class="pre">XSACR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm"><code class="docutils literal notranslate"><span class="pre">Ten64nm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.ModelE.html">emc2.core.model.ModelE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.ModelE.html#emc2.core.model.ModelE"><code class="docutils literal notranslate"><span class="pre">ModelE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestModel.html">emc2.core.model.TestModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.TestModel.html#emc2.core.model.TestModel"><code class="docutils literal notranslate"><span class="pre">TestModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.E3SM.html">emc2.core.model.E3SM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.E3SM.html#emc2.core.model.E3SM"><code class="docutils literal notranslate"><span class="pre">E3SM</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.DHARMA.html">emc2.core.model.DHARMA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.DHARMA.html#emc2.core.model.DHARMA"><code class="docutils literal notranslate"><span class="pre">DHARMA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.WRF.html">emc2.core.model.WRF</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.WRF.html#emc2.core.model.WRF"><code class="docutils literal notranslate"><span class="pre">WRF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestConvection.html">emc2.core.model.TestConvection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.TestConvection.html#emc2.core.model.TestConvection"><code class="docutils literal notranslate"><span class="pre">TestConvection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestAllStratiform.html">emc2.core.model.TestAllStratiform</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.TestAllStratiform.html#emc2.core.model.TestAllStratiform"><code class="docutils literal notranslate"><span class="pre">TestAllStratiform</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestHalfAndHalf.html">emc2.core.model.TestHalfAndHalf</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.TestHalfAndHalf.html#emc2.core.model.TestHalfAndHalf"><code class="docutils literal notranslate"><span class="pre">TestHalfAndHalf</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.model.TestModel.html">emc2.core.model.TestModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.model.TestModel.html#emc2.core.model.TestModel"><code class="docutils literal notranslate"><span class="pre">TestModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.Instrument.html">emc2.core.Instrument</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.Instrument.html#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.core.Model.html">emc2.core.Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.core.Model.html#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.check_and_stack_time_lat_lon"><code class="docutils literal notranslate"><span class="pre">Model.check_and_stack_time_lat_lon()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.finalize_subcol_fields"><code class="docutils literal notranslate"><span class="pre">Model.finalize_subcol_fields()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.hydrometeor_classes"><code class="docutils literal notranslate"><span class="pre">Model.hydrometeor_classes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.load_subcolumns_from_netcdf"><code class="docutils literal notranslate"><span class="pre">Model.load_subcolumns_from_netcdf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.num_hydrometeor_classes"><code class="docutils literal notranslate"><span class="pre">Model.num_hydrometeor_classes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.num_subcolumns"><code class="docutils literal notranslate"><span class="pre">Model.num_subcolumns</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.permute_dims_for_processing"><code class="docutils literal notranslate"><span class="pre">Model.permute_dims_for_processing()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.remove_appended_str"><code class="docutils literal notranslate"><span class="pre">Model.remove_appended_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.remove_subcol_fields"><code class="docutils literal notranslate"><span class="pre">Model.remove_subcol_fields()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.subcolumns_to_netcdf"><code class="docutils literal notranslate"><span class="pre">Model.subcolumns_to_netcdf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model.unstack_time_lat_lon"><code class="docutils literal notranslate"><span class="pre">Model.unstack_time_lat_lon()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Instrument.read_arm_netcdf_file"><code class="docutils literal notranslate"><span class="pre">Instrument.read_arm_netcdf_file()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="io.html">emc2.io (emc2.io)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_mie_file.html">emc2.io.load_mie_file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_scat_file.html">emc2.io.load_scat_file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_bulk_scat_file.html">emc2.io.load_bulk_scat_file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_arm_file.html">emc2.io.load_arm_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_mie_file.html">emc2.io.load_mie_file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.io.load_mie_file.html#emc2.io.load_mie_file"><code class="docutils literal notranslate"><span class="pre">load_mie_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_scat_file.html">emc2.io.load_scat_file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.io.load_scat_file.html#emc2.io.load_scat_file"><code class="docutils literal notranslate"><span class="pre">load_scat_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_bulk_scat_file.html">emc2.io.load_bulk_scat_file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.io.load_bulk_scat_file.html#emc2.io.load_bulk_scat_file"><code class="docutils literal notranslate"><span class="pre">load_bulk_scat_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.io.load_arm_file.html">emc2.io.load_arm_file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.io.load_arm_file.html#emc2.io.load_arm_file"><code class="docutils literal notranslate"><span class="pre">load_arm_file()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="simulator.html">emc2.simulator (emc2.simulator)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_radar_Ze_min.html">emc2.simulator.attenuation.calc_radar_Ze_min</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.calculate_phase_ratio.html">emc2.simulator.classification.calculate_phase_ratio</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.psd.calc_re_thompson.html">emc2.simulator.psd.calc_re_thompson</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_total_reflectivity.html">emc2.simulator.radar_moments.calc_total_reflectivity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.accumulate_attenuation.html">emc2.simulator.radar_moments.accumulate_attenuation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_empirical.html">emc2.simulator.radar_moments.calc_radar_empirical</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_bulk.html">emc2.simulator.radar_moments.calc_radar_bulk</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_micro.html">emc2.simulator.radar_moments.calc_radar_micro</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_total_alpha_beta.html">emc2.simulator.lidar_moments.calc_total_alpha_beta</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.accumulate_OD.html">emc2.simulator.lidar_moments.accumulate_OD</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_empirical.html">emc2.simulator.lidar_moments.calc_lidar_empirical</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_bulk.html">emc2.simulator.lidar_moments.calc_lidar_bulk</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_micro.html">emc2.simulator.lidar_moments.calc_lidar_micro</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_q_n.html">emc2.simulator.subcolumn.set_q_n</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_radar_atm_attenuation.html#emc2.simulator.attenuation.calc_radar_atm_attenuation"><code class="docutils literal notranslate"><span class="pre">calc_radar_atm_attenuation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_theory_beta_m.html#emc2.simulator.attenuation.calc_theory_beta_m"><code class="docutils literal notranslate"><span class="pre">calc_theory_beta_m()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_radar_Ze_min.html">emc2.simulator.attenuation.calc_radar_Ze_min</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.attenuation.calc_radar_Ze_min.html#emc2.simulator.attenuation.calc_radar_Ze_min"><code class="docutils literal notranslate"><span class="pre">calc_radar_Ze_min()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_classify_phase.html#emc2.simulator.classification.lidar_classify_phase"><code class="docutils literal notranslate"><span class="pre">lidar_classify_phase()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.classification.radar_classify_phase.html#emc2.simulator.classification.radar_classify_phase"><code class="docutils literal notranslate"><span class="pre">radar_classify_phase()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_emulate_cosp_phase.html#emc2.simulator.classification.lidar_emulate_cosp_phase"><code class="docutils literal notranslate"><span class="pre">lidar_emulate_cosp_phase()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.classification.calculate_phase_ratio.html">emc2.simulator.classification.calculate_phase_ratio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.classification.calculate_phase_ratio.html#emc2.simulator.classification.calculate_phase_ratio"><code class="docutils literal notranslate"><span class="pre">calculate_phase_ratio()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda"><code class="docutils literal notranslate"><span class="pre">calc_mu_lambda()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.psd.calc_re_thompson.html">emc2.simulator.psd.calc_re_thompson</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.psd.calc_re_thompson.html#emc2.simulator.psd.calc_re_thompson"><code class="docutils literal notranslate"><span class="pre">calc_re_thompson()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_total_reflectivity.html">emc2.simulator.radar_moments.calc_total_reflectivity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_total_reflectivity.html#emc2.simulator.radar_moments.calc_total_reflectivity"><code class="docutils literal notranslate"><span class="pre">calc_total_reflectivity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.accumulate_attenuation.html">emc2.simulator.radar_moments.accumulate_attenuation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.accumulate_attenuation.html#emc2.simulator.radar_moments.accumulate_attenuation"><code class="docutils literal notranslate"><span class="pre">accumulate_attenuation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_empirical.html">emc2.simulator.radar_moments.calc_radar_empirical</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_empirical.html#emc2.simulator.radar_moments.calc_radar_empirical"><code class="docutils literal notranslate"><span class="pre">calc_radar_empirical()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_bulk.html">emc2.simulator.radar_moments.calc_radar_bulk</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_bulk.html#emc2.simulator.radar_moments.calc_radar_bulk"><code class="docutils literal notranslate"><span class="pre">calc_radar_bulk()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_micro.html">emc2.simulator.radar_moments.calc_radar_micro</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_micro.html#emc2.simulator.radar_moments.calc_radar_micro"><code class="docutils literal notranslate"><span class="pre">calc_radar_micro()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_moments.html#emc2.simulator.radar_moments.calc_radar_moments"><code class="docutils literal notranslate"><span class="pre">calc_radar_moments()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_total_alpha_beta.html">emc2.simulator.lidar_moments.calc_total_alpha_beta</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_total_alpha_beta.html#emc2.simulator.lidar_moments.calc_total_alpha_beta"><code class="docutils literal notranslate"><span class="pre">calc_total_alpha_beta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_LDR_and_ext.html#emc2.simulator.lidar_moments.calc_LDR_and_ext"><code class="docutils literal notranslate"><span class="pre">calc_LDR_and_ext()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.accumulate_OD.html">emc2.simulator.lidar_moments.accumulate_OD</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.accumulate_OD.html#emc2.simulator.lidar_moments.accumulate_OD"><code class="docutils literal notranslate"><span class="pre">accumulate_OD()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_empirical.html">emc2.simulator.lidar_moments.calc_lidar_empirical</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_empirical.html#emc2.simulator.lidar_moments.calc_lidar_empirical"><code class="docutils literal notranslate"><span class="pre">calc_lidar_empirical()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_bulk.html">emc2.simulator.lidar_moments.calc_lidar_bulk</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_bulk.html#emc2.simulator.lidar_moments.calc_lidar_bulk"><code class="docutils literal notranslate"><span class="pre">calc_lidar_bulk()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_micro.html">emc2.simulator.lidar_moments.calc_lidar_micro</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_micro.html#emc2.simulator.lidar_moments.calc_lidar_micro"><code class="docutils literal notranslate"><span class="pre">calc_lidar_micro()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.lidar_moments.calc_lidar_moments.html#emc2.simulator.lidar_moments.calc_lidar_moments"><code class="docutils literal notranslate"><span class="pre">calc_lidar_moments()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data"><code class="docutils literal notranslate"><span class="pre">make_simulated_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_convective_sub_col_frac.html#emc2.simulator.subcolumn.set_convective_sub_col_frac"><code class="docutils literal notranslate"><span class="pre">set_convective_sub_col_frac()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html#emc2.simulator.subcolumn.set_stratiform_sub_col_frac"><code class="docutils literal notranslate"><span class="pre">set_stratiform_sub_col_frac()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.html#emc2.simulator.subcolumn.set_precip_sub_col_frac"><code class="docutils literal notranslate"><span class="pre">set_precip_sub_col_frac()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_q_n.html">emc2.simulator.subcolumn.set_q_n</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.subcolumn.set_q_n.html#emc2.simulator.subcolumn.set_q_n"><code class="docutils literal notranslate"><span class="pre">set_q_n()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">emc2.plotting (emc2.plotting)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/emc2.plotting.SubcolumnDisplay.html">emc2.plotting.SubcolumnDisplay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/emc2.plotting.SubcolumnDisplay.html">emc2.plotting.SubcolumnDisplay</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.plotting.SubcolumnDisplay.html#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.calc_mean_and_sd"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.calc_mean_and_sd()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.change_plot_to_class_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_instrument_mean_profile()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_instrument_timeseries()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_single_profile()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_subcolumn_mean_profile()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_subcolumn_timeseries()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.set_axis_label()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.set_xrng()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.set_yrng()</span></code></a></li>
 </ul>
 </li>
 </ul>

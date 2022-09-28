@@ -634,7 +634,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;input time range is not in the required datetime64 data type&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">load_processed</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">load_processed</span><span class="p">:</span>
 
             <span class="c1"># stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_and_stack_time_lat_lon</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>

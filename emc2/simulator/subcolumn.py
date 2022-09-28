@@ -503,22 +503,22 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
             if parallel:
                 print("Now distributing q in subcolumns in parallel")
                 if chunk is None:
-                    tt_bag = db.from_sequence(np.arange(t_dim - 1, -1, -1))
+                    tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
                     my_tuple = tt_bag.map(_distribute_cl_q_n_sub_cols).compute()
                 else:
                     my_tuple = []
                     j = t_dim - 1
                     while j >= 0:
-                        if j - chunk < 0:
-                            ind_min = 0
+                        if j + chunk > t_dim:
+                            ind_max = t_dim
                         else:
-                            ind_min = j - chunk
-                        print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, t_dim - ind_min, t_dim))
-                        tt_bag = db.from_sequence(np.arange(j, ind_min, -1))
+                            ind_max = j + chunk
+                        print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, ind_max, t_dim))
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
                         my_tuple += tt_bag.map(_distribute_cl_q_n_sub_cols).compute()
                         j -= chunk
             else:
-                my_tuple = [x for x in map(_distribute_cl_q_n_sub_cols, np.arange(t_dim - 1, -1, -1))]
+                my_tuple = [x for x in map(_distribute_cl_q_n_sub_cols, np.arange(0, t_dim, 1))]
 
             q_profs = np.stack([x for x in my_tuple], axis=1)
 

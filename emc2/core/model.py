@@ -558,7 +558,7 @@ class ModelE(Model):
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        if load_processed:
+        if not load_processed:
 
             # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
             super().check_and_stack_time_lat_lon(file_path=file_path)

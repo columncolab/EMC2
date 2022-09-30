@@ -559,7 +559,7 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                             full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud):
     strat_profs1 = np.zeros((N_columns, data_frac1.shape[1]), dtype=bool)
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
-    for j in range(data_frac1.shape[1] - 2, -1, -1):
+    for j in range(data_frac1.shape[1] - 1, -1, -1):  # loop from penultimate height to sfc
         cld_2_assign = np.array([data_frac1[tt, j], data_frac2[tt, j]])
         I_min = np.argmin(cld_2_assign)
         I_max = np.argmax(cld_2_assign)
@@ -570,6 +570,8 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
             strat_profs2[:, j] = True
             full_overcast_cl_ci += 1
             continue
+        elif I_min == I_max:  # This is the case of cl_frac == ci_frac != 1
+            I_max = 1
         if overlapping_cloud[tt, j]:
             overlying_locs1 = np.where(np.logical_and(strat_profs1[:, j + 1], ~conv_profs[:, tt, j]))[0]
             overlying_locs2 = np.where(np.logical_and(strat_profs2[:, j + 1], ~conv_profs[:, tt, j]))[0]
@@ -587,22 +589,22 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
                     locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
                 cld_2_assign = np.zeros(2)
-            elif overlying_num[Iover_min] > cld_2_assign[I_min]:
-                if cld_2_assign[I_min] > 0:
+            elif overlying_num[Iover_min] > cld_2_assign[I_min]:  # overlying_num[Iover_min] <= cld_2_assign[I_max]
+                if cld_2_assign[I_min] > 0: 
                     rand_locs = _randperm(overlying_num.min(), size=cld_2_assign[I_min])
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
                     locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
-                    inds = locals()["overlying_locs%d" % (Iover_min + 1)]
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
-                cld_2_assign[I_min] = 0
+                    cld_2_assign[I_min] = 0
+                inds = locals()["overlying_locs%d" % (Iover_min + 1)]
+                locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
                 cld_2_assign[I_max] -= overlying_num[Iover_min]
 
-                if cld_2_assign[I_max] > 0 and over_diff > 0:
+                if over_diff > cld_2_assign[I_max]:  # over_n[Iover_min] < cld_2_assign[I_max] < over_n[Iover_max]
                     rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
                     inds = over_unique_lo[rand_locs]
                     locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
                     cld_2_assign[I_max] = 0.
-                else:
+                else:  # over_n[Iover_max] <= cld_2_assign[I_max]
                     locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, j] = True
                     cld_2_assign[I_max] -= over_diff
             elif overlying_num[Iover_max] > cld_2_assign[I_min]:
@@ -623,7 +625,7 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                         rand_locs = _randperm(over_diff, size=cld_2_assign[I_min])
                         inds = over_unique_lo[rand_locs]
                         locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
-                    cld_2_assign[I_min] = 0
+                        cld_2_assign[I_min] = 0
                     locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, j] = True
                     cld_2_assign[I_max] -= over_diff
             else:
@@ -650,7 +652,7 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
     p_strat_profs = np.zeros(
         (N_columns, data_frac[0].shape[1], len(data_frac)), dtype=bool)
 
-    for j in range(data_frac[0].shape[1] - 2, -1, -1):
+    for j in range(data_frac[0].shape[1] - 1, -1, -1):  # loop from penultimate height to sfc
         all_overlap = True
         for i in range(len(data_frac)):
             all_overlap = np.logical_and(
@@ -660,38 +662,53 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
             p_strat_profs[:, j, :] = True
             full_overcast_pl_pi += 1
             continue
-        
-        if overlapping_cloud[tt, j]:
+
+        PF_per_val = [None] * len(data_frac)  # remaining to allocate per precip class
+        for i in range(len(data_frac)):
+            PF_per_val[i] = data_frac[i][tt, j]
+        if overlapping_cloud[tt, j]:  # First allocate to overlying precip (extend vertically)
             overlying_locs = np.where(np.any(p_strat_profs[:, j + 1, :], axis=1))[0]
             overlying_num = len(overlying_locs)
-            if overlying_num > PF_val[tt, j]:
+            if overlying_num > PF_val[tt, j]:  # more overlying than the class w/ maximum frac
                 rand_locs = _randperm(overlying_num, PF_val[tt, j])
                 for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
-                        p_strat_profs[overlying_locs[rand_locs], j, i] = True
-                PF_val[tt, j] = 0.
+                        p_strat_profs[overlying_locs[rand_locs[:data_frac[i][tt, j]]], j, i] = True
+                PF_val[tt, j] = 0
             else:
+                rand_locs = np.random.permutation(overlying_num)  # random before loop to ensure max overlap
                 for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
-                        p_strat_profs[overlying_locs, j, i] = True
+                        if overlying_num > PF_per_val[i]:  # more overlying than current precip class frac
+                            p_strat_profs[overlying_locs[rand_locs[:PF_per_val[i]]], j, i] = True
+                            PF_per_val[i] = 0
+                        else:
+                            p_strat_profs[overlying_locs, j, i] = True
+                            PF_per_val[i] -= overlying_num
                 PF_val[tt, j] -= overlying_num
 
-        for ii in range(2):
+        for ii in range(2):  # Second, allocate to cloudy subcol; then to hyd-free subcol
             if PF_val[tt, j] > 0:
                 free_locs = np.where(np.logical_and(
-                    ~np.all(p_strat_profs[:, j, :], axis=1), cond[ii][:, tt, j]))[0]
+                    ~np.any(p_strat_profs[:, j, :], axis=1), cond[ii][:, tt, j]))[0]  # True for remaining allocate
                 free_num = len(free_locs)
                 if free_num > 0:
                     if free_num > PF_val[tt, j]:
                         rand_locs = _randperm(free_num, PF_val[tt, j])
-                        for i in range(2):
+                        for i in range(len(data_frac)):
                             if precip_exist[i, tt, j]:
-                                p_strat_profs[free_locs[rand_locs], j, i] = True
+                                p_strat_profs[free_locs[rand_locs[:PF_per_val[i]]], j, i] = True
                         PF_val[tt, j] = 0
                     else:
-                        for i in range(2):
+                        rand_locs = np.random.permutation(free_num)  # random before loop to ensure max overlap
+                        for i in range(len(data_frac)):
                             if precip_exist[i, tt, j]:
-                                p_strat_profs[free_locs, j, i] = True
+                                if free_num > PF_per_val[i]:  # more free locs than current precip class frac
+                                    p_strat_profs[free_locs[rand_locs[:PF_per_val[i]]], j, i] = True
+                                    PF_per_val[i] = 0
+                                else:
+                                    p_strat_profs[free_locs, j, i] = True
+                                    PF_per_val[i] -= free_num
                         PF_val[tt, j] -= free_num
 
     return full_overcast_pl_pi, p_strat_profs
@@ -701,6 +718,7 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
     q_profs = np.zeros((N_columns, q_ic_mean.shape[1]), dtype=float)
     for j in range(q_ic_mean.shape[1]):
         hyd_in_sub_loc = np.where(sub_data_frac[:, tt, j])[0]
+        print(f"ind {j} tot hyd in subcol {tot_hyd_in_sub[tt, j]}")
         if tot_hyd_in_sub[tt, j] == 1:
             q_profs[hyd_in_sub_loc, j] = q_ic_mean[tt, j]
         elif tot_hyd_in_sub[tt, j] > 1:
@@ -708,17 +726,23 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
             a = inv_rel_var
             b = 1 / alpha
             randlocs = np.random.permutation(tot_hyd_in_sub[tt, j])
-            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j] - 1)
+            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 preven valid_vals issue
             valid_vals = False
             counter_4_valid = 0
-            while not valid_vals:
+            print(f"{randlocs}  w/ total hyd in subcol {tot_hyd_in_sub[tt,j]}")
+            print(f"{rand_gamma_vals}  ind {j}")
+            while not valid_vals:  # Finding first index w/ random value sum > cell mean --> randomize up there
                 counter_4_valid += 1
                 valid_vals = (q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
-                              rand_gamma_vals[0:-counter_4_valid].sum()) > 0
-            q_profs[hyd_in_sub_loc[randlocs[:-(counter_4_valid + 1)]], j] = \
+                              rand_gamma_vals[:-counter_4_valid].sum()) > 0
+            if counter_4_valid == 1:  # all randomized gamma values are OK so only need to make subcolave=ic_mean
+                print("all_valid")
+            else:
+                print("yipi yay")
+            q_profs[hyd_in_sub_loc[randlocs[:-counter_4_valid]], j] = \
                 rand_gamma_vals[:-counter_4_valid]
             q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j] = (
-                q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] - np.sum(rand_gamma_vals[:-counter_4_valid])) / \
-                (1 + counter_4_valid)
+                q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
+                np.sum(rand_gamma_vals[:-counter_4_valid])) / float(counter_4_valid)
 
     return q_profs

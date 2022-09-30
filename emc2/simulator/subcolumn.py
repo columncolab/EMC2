@@ -559,7 +559,7 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                             full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud):
     strat_profs1 = np.zeros((N_columns, data_frac1.shape[1]), dtype=bool)
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
-    for j in range(data_frac1.shape[1] - 1, -1, -1):  # loop from penultimate height to sfc
+    for j in range(data_frac1.shape[1] - 2, -1, -1):  # loop from 2nd penultimate height to sfc
         cld_2_assign = np.array([data_frac1[tt, j], data_frac2[tt, j]])
         I_min = np.argmin(cld_2_assign)
         I_max = np.argmax(cld_2_assign)
@@ -652,7 +652,7 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
     p_strat_profs = np.zeros(
         (N_columns, data_frac[0].shape[1], len(data_frac)), dtype=bool)
 
-    for j in range(data_frac[0].shape[1] - 1, -1, -1):  # loop from penultimate height to sfc
+    for j in range(data_frac[0].shape[1] - 2, -1, -1):  # loop from 2nd penultimate height to sfc
         all_overlap = True
         for i in range(len(data_frac)):
             all_overlap = np.logical_and(

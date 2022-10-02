@@ -55,10 +55,12 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
            dims=('subcolumn', my_dims[0], my_dims[1]))
     else:  # num_subcolumns > 1
         if use_rad_logic:
-            data_frac = np.round(model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns)
+            data_frac = np.round(
+                model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns).astype(int)
             data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
         else:
-            data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
+            data_frac = np.round(
+                model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns).astype(int)
 
         # In case we only have one time step
         if len(data_frac.shape) == 1:
@@ -339,7 +341,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                            in_prof_cloud_name_ice)
 
         for i in range(len(data_frac)):
-            data_frac[i] = np.round(data_frac[i] * model.num_subcolumns)
+            data_frac[i] = np.round(data_frac[i] * model.num_subcolumns).astype(int)
         strat_profs = np.logical_or(model.ds[in_prof_cloud_name_ice].values,
                                     model.ds[in_prof_cloud_name_liq].values)
         is_cloud = data_frac[0] > 0
@@ -665,7 +667,7 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
 
         PF_per_val = [None] * len(data_frac)  # remaining to allocate per precip class
         for i in range(len(data_frac)):
-            PF_per_val[i] = data_frac[i][tt, j]
+            PF_per_val[i] = int(data_frac[i][tt, j])
         if overlapping_cloud[tt, j]:  # First allocate to overlying precip (extend vertically)
             overlying_locs = np.where(np.any(p_strat_profs[:, j + 1, :], axis=1))[0]
             overlying_num = len(overlying_locs)
@@ -673,7 +675,7 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
                 rand_locs = _randperm(overlying_num, PF_val[tt, j])
                 for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
-                        p_strat_profs[overlying_locs[rand_locs[:data_frac[i][tt, j]]], j, i] = True
+                        p_strat_profs[overlying_locs[rand_locs[:PF_per_val[i]]], j, i] = True
                 PF_val[tt, j] = 0
             else:
                 rand_locs = np.random.permutation(overlying_num)  # random before loop to ensure max overlap
@@ -718,7 +720,6 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
     q_profs = np.zeros((N_columns, q_ic_mean.shape[1]), dtype=float)
     for j in range(q_ic_mean.shape[1]):
         hyd_in_sub_loc = np.where(sub_data_frac[:, tt, j])[0]
-        print(f"ind {j} tot hyd in subcol {tot_hyd_in_sub[tt, j]}")
         if tot_hyd_in_sub[tt, j] == 1:
             q_profs[hyd_in_sub_loc, j] = q_ic_mean[tt, j]
         elif tot_hyd_in_sub[tt, j] > 1:
@@ -726,19 +727,13 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
             a = inv_rel_var
             b = 1 / alpha
             randlocs = np.random.permutation(tot_hyd_in_sub[tt, j])
-            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 preven valid_vals issue
+            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 prevent idexing issues
             valid_vals = False
             counter_4_valid = 0
-            print(f"{randlocs}  w/ total hyd in subcol {tot_hyd_in_sub[tt,j]}")
-            print(f"{rand_gamma_vals}  ind {j}")
             while not valid_vals:  # Finding first index w/ random value sum > cell mean --> randomize up there
                 counter_4_valid += 1
                 valid_vals = (q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
                               rand_gamma_vals[:-counter_4_valid].sum()) > 0
-            if counter_4_valid == 1:  # all randomized gamma values are OK so only need to make subcolave=ic_mean
-                print("all_valid")
-            else:
-                print("yipi yay")
             q_profs[hyd_in_sub_loc[randlocs[:-counter_4_valid]], j] = \
                 rand_gamma_vals[:-counter_4_valid]
             q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j] = (

@@ -976,7 +976,8 @@ class WRF(Model):
 
 
 class DHARMA(Model):
-    def __init__(self, file_path, time_range=None, time_dim="dom_col", single_pi_class=True):
+    def __init__(self, file_path, time_range=None, time_dim="dom_col", single_pi_class=True,
+                 load_processed=False):
         """
         This loads a DHARMA simulation with all of the necessary parameters
         for EMC^2 to run.
@@ -994,6 +995,9 @@ class DHARMA(Model):
             If True, using a single precipitating ice class (pi).
             If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
             using the same LUTs).
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -1058,19 +1062,28 @@ class DHARMA(Model):
 
         self.process_conv = False
 
-        self.ds = xr.open_dataset(file_path)
-
-        for variable in self.ds.variables.keys():
-            my_attrs = self.ds[variable].attrs
-            self.ds[variable] = self.ds[variable].astype('float64')
-            self.ds[variable].attrs = my_attrs
+        if load_processed:
+            self.ds = xr.Dataset()
+            self.load_subcolumns_from_netcdf(file_path)
+        else:
+            self.ds = xr.open_dataset(file_path)
+            for variable in self.ds.variables.keys():
+                my_attrs = self.ds[variable].attrs
+                self.ds[variable] = self.ds[variable].astype('float64')
+                self.ds[variable].attrs = my_attrs
 
         # crop specific model output time range (if requested)
         if time_range is not None:
-            super()._crop_time_range(time_range)
+            if np.issubdtype(time_range.dtype, np.datetime64):
+                super()._crop_time_range(time_range)
+            else:
+                raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
-        super().check_and_stack_time_lat_lon(file_path=file_path)
+        if not load_processed:
+
+            # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+            super().check_and_stack_time_lat_lon(file_path=file_path)
+
         self.model_name = "DHARMA"
 
 

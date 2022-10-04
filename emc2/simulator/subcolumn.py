@@ -561,7 +561,7 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                             full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud):
     strat_profs1 = np.zeros((N_columns, data_frac1.shape[1]), dtype=bool)
     strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
-    for j in range(data_frac1.shape[1] - 2, -1, -1):  # loop from 2nd penultimate height to sfc
+    for j in range(data_frac1.shape[1] - 2, -1, -1):  # loop from 2nd from top height to sfc prevents cosp issues
         cld_2_assign = np.array([data_frac1[tt, j], data_frac2[tt, j]])
         I_min = np.argmin(cld_2_assign)
         I_max = np.argmax(cld_2_assign)
@@ -727,10 +727,10 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
             a = inv_rel_var
             b = 1 / alpha
             randlocs = np.random.permutation(tot_hyd_in_sub[tt, j])
-            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 prevent idexing issues
+            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 prevent indexing issues
             valid_vals = False
             counter_4_valid = 0
-            while not valid_vals:  # Finding first index w/ random value sum > cell mean --> randomize up there
+            while not valid_vals:  # Finding first index w/ random value sum > cell mean --> randomize up to there
                 counter_4_valid += 1
                 valid_vals = (q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
                               rand_gamma_vals[:-counter_4_valid].sum()) > 0

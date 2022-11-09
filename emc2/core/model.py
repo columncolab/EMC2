@@ -88,6 +88,9 @@ class Model():
         Name of the latitude dimension in the model (relevant for regional output)
     lon_dim: str
         Name of the longitude dimension in the model (relevant for regional output)
+    mcphys_scheme: str
+        Name of the microphysics scheme to use for models with 
+        multiple microphysics schemes.
     stacked_time_dim: str or None
         This attribute becomes a string of the original time dimension name only if
         stacking was required to enable EMC2 to processes a domain output (time x lat x lon).
@@ -131,6 +134,7 @@ class Model():
         self.height_dim = "height"
         self.lat_dim = "lat"
         self.lon_dim = "lon"
+        self.mcphys_scheme = ""
         self.stacked_time_dim = None
         self.process_conv = True
         self.model_name = ""
@@ -912,6 +916,7 @@ class WRF(Model):
         self.lon_dim = "west_east"
         self.lat_name = "XLAT"
         self.lon_name = "XLONG"
+        self.mcphys_sheme = mcphys_scheme
         self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():

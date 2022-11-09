@@ -82,6 +82,7 @@ def calc_mu_lambda(model, hyd_type="cl",
             q_name = "conv_q_subcolumns_%s" % hyd_type
             frac_name = model.conv_frac_names[hyd_type]
 
+    
     frac_array = np.tile(
         model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
     frac_array = np.where(frac_array == 0, 1, frac_array)

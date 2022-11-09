@@ -2,6 +2,7 @@ import xarray as xr
 import numpy as np
 import dask.bag as db
 import dask.array as da
+
 from time import time
 from scipy.interpolate import LinearNDInterpolator
 
@@ -60,6 +61,41 @@ def calc_total_reflectivity(model, detect_mask=False):
     model.ds["detect_mask"].attrs["units"] = ("1 = radar signal below noise floor, 0 = signal detected")
 
     return model
+
+def calc_velocity_nssl(model, diam, rhoe, hyd_type):
+    """
+    Calculate the terminal velocity according to the NSSL 2-moment scheme.
+
+    Parameters
+    ----------
+    model: Model object
+        The model object to calculate the velocities for.
+    diam: float array
+        The particle maximum dimensions in mm.
+    rhoe: float array
+        The particle effective density. 
+    hyd_type: str
+        The hydrometeor type code (i.e. 'cl', 'gr').
+    """
+
+    rhoair_800mb = 1.007
+    if hyd_type.lower() == "cl" or hyd_type.lower == "pl":
+        return 10 * (1 - np.exp(-516.575 * diam))
+    if hyd_type.lower() == "gr":
+        cd = np.fmax(0.45, np.fmin(1.2, 
+                0.45 + 0.55 * (800 - np.fmax(170, np.fmin(800, rhoe)))))
+        vt = np.sqrt(4.0 * rhoe * model.consts["g"] / (3.0 * cd * rhoair_800mb)) \
+            * np.sqrt(diam)
+    elif hyd_type.lower() == "ha":
+        cd = np.fmax(0.45, np.fmin(1.2,
+                0.45 + 0.55 * (800 - np.fmax(500, np.fmin(800, rhoe)))))
+        vt = np.sqrt(4.0 * rhoe * model.consts["g"] / (3.0 * cd * rhoair_800mb)) \
+            * np.sqrt(diam)
+    elif hyd_type.lower() == "sn":
+        vt = 21.52823061429272 * diams ** 0.42
+    elif hyd_type.lower() == "cl":
+        vt = 131.6 * diams ** 0.824
+    return 0
 
 
 def accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext, OD_from_sfc=True,
@@ -470,8 +506,14 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             beta_p = instrument.mie_table[hyd_type]["beta_p"].values
             alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
         num_subcolumns = model.num_subcolumns
-        v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
-        v_tmp = -v_tmp.magnitude
+        if model.mcphys_scheme == "nssl":
+            rhoe = model.rho_hyd[hyd_type]
+            if rhoe == 'variable':
+                rhoe =  
+            v_tmp = calc_velocity_nssl(model, p_diam, rhoe, hyd_type)
+        else:
+            v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
+            v_tmp = -v_tmp.magnitude
         if hyd_type == "cl":
             _calc_liquid = lambda x: _calculate_observables_liquid(
                 x, total_hydrometeor, N_0, lambdas, mu,

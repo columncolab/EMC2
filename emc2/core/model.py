@@ -144,6 +144,7 @@ class Model():
                        "Avogadro_c": 6.022140857e23,
                        "R": 8.3144598}  # J K^-1 mol^-1
         self.asp_ratio_func = {}
+        self.ice_hyd_types = ["ci", "pi"]
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -842,6 +843,7 @@ class WRF(Model):
             self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
                                        'pl': 'qpls', 'sn': 'qsns',
                                        'gr': 'qgrs', 'ha': 'qhas'}
+            self.ice_hyd_types = ["ci", "sn", "gr", "ha"]
 
 
         ds = xr.open_dataset(file_path)
@@ -916,7 +918,7 @@ class WRF(Model):
         self.lon_dim = "west_east"
         self.lat_name = "XLAT"
         self.lon_name = "XLONG"
-        self.mcphys_sheme = mcphys_scheme
+        self.mcphys_scheme = mcphys_scheme
         self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():

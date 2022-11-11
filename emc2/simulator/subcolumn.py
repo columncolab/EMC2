@@ -258,12 +258,12 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                 data_frac.append(
                     model.ds[model.conv_frac_names_for_rad[hyd_type]])
                 data_frac[-1] = data_frac[-1].where(
-                    model.ds[model.q_names_convective[hyd_type]] > 0, 0)
+                    model.ds[model.q_names_convective[hyd_type]] > 0, 0).values
         else:
             method_str = "Microphysics logic"
             for hyd_type in precip_types:
                 data_frac.append(
-                    model.ds[model.conv_frac_names[hyd_type]])
+                    model.ds[model.conv_frac_names[hyd_type]].values)
     else:
         precip_type = 'strat'
         precip_type_full = 'stratiform'
@@ -273,12 +273,12 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                 data_frac.append(
                     model.ds[model.strat_frac_names_for_rad[hyd_type]])
                 data_frac[-1] = data_frac[-1].where(
-                    model.ds[model.q_names_stratiform[hyd_type]] > 0, 0)
+                    model.ds[model.q_names_stratiform[hyd_type]] > 0, 0).values
         else:
             method_str = "Microphysics logic"
             for hyd_type in precip_types:
                 data_frac.append(
-                    model.ds[model.strat_frac_names[hyd_type]])
+                    model.ds[model.strat_frac_names[hyd_type]].values)
     out_prof_long_name = []
     out_prof_name = []
     for hyd_type in precip_types:
@@ -512,8 +512,8 @@ def _setxor(x, y):
 
 def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                             full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud):
-    strat_profs1 = np.zeros((N_columns, data_frac1.shape[1]), dtype=bool)
-    strat_profs2 = np.zeros_like(strat_profs1, dtype=bool)
+    strat_profs = np.zeros((2, N_columns, data_frac1.shape[1]), dtype=bool)
+
     for j in range(data_frac1.shape[1] - 2, -1, -1):
         cld_2_assign = np.array([data_frac1[tt, j], data_frac2[tt, j]])
         I_min = np.argmin(cld_2_assign)
@@ -521,13 +521,13 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
         if cld_2_assign[I_max] == 0:
             continue
         if cld_2_assign[I_min] == N_columns:
-            strat_profs1[:, j] = True
-            strat_profs2[:, j] = True
+            strat_profs[:, :, j] = True
             full_overcast_cl_ci += 1
             continue
         if overlapping_cloud[tt, j]:
-            overlying_locs1 = np.where(np.logical_and(strat_profs1[:, j + 1], ~conv_profs[:, tt, j]))[0]
-            overlying_locs2 = np.where(np.logical_and(strat_profs2[:, j + 1], ~conv_profs[:, tt, j]))[0]
+            overlying_locs = np.zeros((2, strat_profs.shape[1]))
+            overlying_locs1 = np.argwhere(np.logical_and(strat_profs[0, :, j + 1], ~conv_profs[:, tt, j]))
+            overlying_locs2 = np.argwhere(np.logical_and(strat_profs[1, :, j + 1], ~conv_profs[:, tt, j]))
             overlying_num = np.array([len(overlying_locs1), len(overlying_locs2)], dtype=int)
             over_diff = abs(overlying_num[1] - overlying_num[0])
             Iover_min = np.argmin(overlying_num)
@@ -538,66 +538,65 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                 if cld_2_assign[I_max] > 0:
                     rand_locs = _randperm(overlying_num.min(), size=cld_2_assign[I_max])
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs[0:cld_2_assign[I_min]]]
-                    locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
+                    strat_profs[I_min, inds, j] = True
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
+                    strat_profs[I_max, inds, j] = True
                 cld_2_assign = np.zeros(2)
             elif overlying_num[Iover_min] > cld_2_assign[I_min]:
                 if cld_2_assign[I_min] > 0:
                     rand_locs = _randperm(overlying_num.min(), size=cld_2_assign[I_min])
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
-                    locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
+                    strat_profs[I_min, inds, j] = True
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)]
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
+                    strat_profs[I_max, inds, j] = True
                 cld_2_assign[I_min] = 0
                 cld_2_assign[I_max] -= overlying_num[Iover_min]
 
                 if cld_2_assign[I_max] > 0 and over_diff > 0:
                     rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
                     inds = over_unique_lo[rand_locs]
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
+                    strat_profs[I_max, inds, j] = True
                     cld_2_assign[I_max] = 0.
                 else:
-                    locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, j] = True
+                    strat_profs[I_max, over_unique_lo, j] = True
                     cld_2_assign[I_max] -= over_diff
             elif overlying_num[Iover_max] > cld_2_assign[I_min]:
                 inds = locals()["overlying_locs%d" % (Iover_min + 1)]
-                locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
-                locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
+                strat_profs[I_min, inds, j] = True
+                strat_profs[I_max, inds, j] = True
                 cld_2_assign -= overlying_num[Iover_min]
 
                 if over_diff > cld_2_assign[I_max]:
                     rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
                     inds = over_unique_lo[rand_locs[0:cld_2_assign[I_min]]]
-                    locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
+                    strat_profs[I_min, inds, j] = True
                     inds = over_unique_lo[rand_locs]
-                    locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
+                    strat_profs[I_max, inds, j] = True
                     cld_2_assign = np.zeros(2)
                 else:
                     if cld_2_assign[I_min] > 0:
                         rand_locs = _randperm(over_diff, size=cld_2_assign[I_min])
                         inds = over_unique_lo[rand_locs]
-                        locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
+                        strat_profs[I_min, inds, j] = True
                     cld_2_assign[I_min] = 0
-                    locals()['strat_profs%d' % (I_max + 1)][over_unique_lo, j] = True
+                    strat_profs[I_max, over_unique_lo, j] = True
                     cld_2_assign[I_max] -= over_diff
             else:
                 inds = locals()["overlying_locs%d" % (Iover_max + 1)]
-                locals()['strat_profs%d' % (I_min + 1)][inds, j] = True
-                locals()['strat_profs%d' % (I_max + 1)][inds, j] = True
+                strat_profs[I_min, inds, j] = True
+                strat_profs[I_max, inds, j] = True
                 cld_2_assign -= overlying_num[Iover_max]
 
         if cld_2_assign[I_max] > 0:
-            sprof = locals()["strat_profs%d" % (I_max + 1)]
+            sprof = strat_profs[I_max, :, :]
             free_locs_max = np.where(np.logical_and(~sprof[:, j], ~conv_profs[:, tt, j]))[0]
             free_num = len(free_locs_max)
             rand_locs = _randperm(free_num, size=int(cld_2_assign[I_max]))
-            locals()["strat_profs%d" % (I_max + 1)][free_locs_max[rand_locs], j] = True
+            strat_profs[I_max + 1, free_locs_max[rand_locs], j] = True
             if cld_2_assign[I_min] > 0.:
-                locals()["strat_profs%d"
-                         % (I_min + 1)][free_locs_max[rand_locs[0:cld_2_assign[I_min]]], j] = True
+                strat_profs[I_min, free_locs_max[rand_locs[0:cld_2_assign[I_min]]], j] = True
 
-    return full_overcast_cl_ci, strat_profs1, strat_profs2
+    return full_overcast_cl_ci, strat_profs[0, :, :], strat_profs[1, :, :]
 
 
 def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,

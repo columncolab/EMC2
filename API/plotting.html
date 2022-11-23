@@ -89,9 +89,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">API Reference</a> &raquo;</li>
-      <li>emc2.plotting (emc2.plotting)</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">emc2.plotting (emc2.plotting)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/API/plotting.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -257,10 +257,10 @@ to nans, i.e., ‘convert_zeros_to_nan’ was True when the classification metho
 <dd><p>This function will plot a mean vertical profile of an instrument variable averaged over a given
 time period. The thick line will represent the mean profile along the given period, and the
 shading represents one standard deviation about the mean.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>instrument:</strong><span class="classifier">py:mod:<cite>emc2.core.Instrument</cite></span></dt><dd><p>The Instrument class that you wish to plot.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>instrument: :py:mod:`emc2.core.Instrument`</strong></dt><dd><p>The Instrument class that you wish to plot.</p>
 </dd>
 <dt><strong>variable: str</strong></dt><dd><p>The name of the variable to plot.</p>
 </dd>
@@ -305,6 +305,8 @@ and arithmetic for V_D.</p>
 <dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries">
 <span class="sig-name descname"><span class="pre">plot_instrument_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hatched_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_dateformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%b%d-%H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_instrument_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots timeseries of a given instrument variable.</p>
+<section id="parameters">
+<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h1>
 <dl class="simple">
 <dt>instrument: <a class="reference internal" href="generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a></dt><dd><p>The Instrument class that you wish to plot.</p>
 </dd>
@@ -346,6 +348,7 @@ str - use the str as the hatch pattern (see:
 </dl>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">

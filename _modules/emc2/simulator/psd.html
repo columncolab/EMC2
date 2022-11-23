@@ -62,9 +62,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>emc2.simulator.psd</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">emc2.simulator.psd</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -171,9 +171,9 @@
     <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s2">&quot;cl&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">calc_dispersion</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">subcolumns</span><span class="p">:</span>
-                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>
+                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>  <span class="c1"># converting to cm-3 per Martin, 1994</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">frac_array</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>
+                <span class="n">mus</span> <span class="o">=</span> <span class="mf">0.0005714</span> <span class="o">*</span> <span class="p">(</span><span class="n">column_ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">frac_array</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2714</span>  <span class="c1"># converting to cm-3</span>
             <span class="n">mus</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">mus</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mus</span> <span class="o">&lt;</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mus</span><span class="p">)</span>
             <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mus</span> <span class="o">&gt;</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dispersion_mu_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mus</span><span class="p">)</span>

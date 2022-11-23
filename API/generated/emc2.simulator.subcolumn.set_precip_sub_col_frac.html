@@ -106,10 +106,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">API Reference</a> &raquo;</li>
-          <li><a href="../simulator.html">emc2.simulator (emc2.simulator)</a> &raquo;</li>
-      <li>emc2.simulator.subcolumn.set_precip_sub_col_frac</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
+      <li class="breadcrumb-item active">emc2.simulator.subcolumn.set_precip_sub_col_frac</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/API/generated/emc2.simulator.subcolumn.set_precip_sub_col_frac.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -150,10 +150,10 @@
 <span class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></span><span class="sig-name descname"><span class="pre">set_precip_sub_col_frac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precip_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['pl',</span> <span class="pre">'pi']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_precip_sub_col_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_precip_sub_col_frac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the hydrometeor fraction due to precipitation in each subcolumn. This
 module works for both stratiform and convective precipitation.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>model:</strong><span class="classifier">py:func: <cite>emc2.core.Model</cite></span></dt><dd><p>The model we are generating the subcolumns of stratiform fraction for.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: :py:func: `emc2.core.Model`</strong></dt><dd><p>The model we are generating the subcolumns of stratiform fraction for.</p>
 </dd>
 <dt><strong>is_conv: bool</strong></dt><dd><p>Set to True to generate subcolumns for convective precipitation.
 Set to False to generate subcolumns for stratiform precipitation.</p>
@@ -178,8 +178,8 @@ might be needed if that happens.</p>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><dl>
-<dt><strong>model:</strong><span class="classifier">py:func: <cite>emc2.core.Model</cite></span></dt><dd><p>The Model object with the stratiform hydrometeor fraction in each subcolumn added.</p>
+<dd class="field-even"><dl class="simple">
+<dt>model: :py:func: <cite>emc2.core.Model</cite></dt><dd><p>The Model object with the stratiform hydrometeor fraction in each subcolumn added.</p>
 </dd>
 </dl>
 </dd>

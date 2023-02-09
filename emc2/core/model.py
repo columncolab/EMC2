@@ -883,7 +883,11 @@ class WRF(Model):
                 dims=('Time', 'bottom_top',
                       'south_north', 'west_east')).astype('float64')
             self.ds["q%ss" % hyd_type] = ds[self.q_names[hyd_type]]
-            cldfrac2_pl = cldfrac2
+            # We can have out of cloud precip, so don't consider cloud fraction there
+            if hyd_type in ['ci', 'cl']:
+                cldfrac2_pl = cldfrac2
+            else:
+                cldfrac2_pl = np.where(ds[self.q_names[hyd_type]].values > 0, 1, 0)
             self.ds[self.strat_frac_names[hyd_type]] = xr.DataArray(
                 cldfrac2_pl,
                 dims=('Time', 'bottom_top',

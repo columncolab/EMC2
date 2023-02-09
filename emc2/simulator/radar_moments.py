@@ -84,15 +84,19 @@ def calc_velocity_nssl(diam, rhoe, hyd_type):
                 0.45 + 0.55 * (800 - np.fmax(170, np.fmin(800, rhoe)))))
         vt = np.sqrt(4.0 * rhoe * 9.81 / (3.0 * cd * rhoair_800mb)) \
             * np.sqrt(diam)
+        return vt
     elif hyd_type.lower() == "ha":
         cd = np.fmax(0.45, np.fmin(1.2,
                 0.45 + 0.55 * (800 - np.fmax(500, np.fmin(800, rhoe)))))
         vt = np.sqrt(4.0 * rhoe * 9.81 / (3.0 * cd * rhoair_800mb)) \
             * np.sqrt(diam)
+        return vt
     elif hyd_type.lower() == "sn":
         vt = 21.52823061429272 * diam ** 0.42
+        return vt
     elif hyd_type.lower() == "cl":
         vt = 131.6 * diam ** 0.824
+        return vt
     return np.zeros_like(diam)
 
 
@@ -178,7 +182,7 @@ def accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext, OD_from_s
 
 
 def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_values, atm_ext,
-                         OD_from_sfc=True, use_empiric_calc=False, hyd_types=None, **kwargs):
+                         OD_from_sfc=True, hyd_types=None, **kwargs):
     """
     Calculates the radar stratiform or convective reflectivity and attenuation
     in a sub-columns using empirical formulation from literature.
@@ -410,7 +414,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
 def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                      hyd_types=None, mie_for_ice=True, parallel=True, chunk=None,
-                    **kwargs):
+                     **kwargs):
     """
     Calculates the first 3 radar moments (reflectivity, mean Doppler velocity and spectral
     width) in a given column for the given radar using the microphysics (MG2) logic.
@@ -954,9 +958,14 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
         N_D = np.stack(N_D, axis=1).astype('float64')
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D.T
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
-        if rhoe is not None and v_tmp == 'variable':
-            v_tmp = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
-        Calc_tmp2 = (v_tmp - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
+        if rhoe is not None:
+            if isinstance(v_tmp, str):
+                v_tmp2 = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
+            else:
+                v_tmp2 = v_tmp
+        else:
+            v_tmp2 = v_tmp
+        Calc_tmp2 = (v_tmp2 - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
         Calc_tmp2 = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         sigma_d_numer[:, k] = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
 
@@ -1054,7 +1063,7 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
                 (moment_denom * wavelength ** 4) / (K_w * np.pi ** 5) * 1e-6
         else:
             Zv[:, k] = np.nan
-        if rhoe is not None and v_tmp == 'variable':
+        if rhoe is not None and isinstance(v_tmp, str):
             v_tmp = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
         Calc_tmp2 = Calc_tmp * v_tmp
         V_d_numer = np.trapz(Calc_tmp2, axis=1, x=p_diam)

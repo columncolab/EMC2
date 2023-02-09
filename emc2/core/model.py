@@ -185,8 +185,8 @@ class Model():
         bounding_box_ind[3] = np.argmin(
                np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
         input_dict = {}
-        input_dict[self.lon_dim] = slice(bounding_box_ind[0], bounding_box_ind[2])
-        input_dict[self.lat_dim] = slice(bounding_box_ind[1], bounding_box_ind[3])
+        input_dict[self.lat_dim] = slice(bounding_box_ind[0], bounding_box_ind[2])
+        input_dict[self.lon_dim] = slice(bounding_box_ind[1], bounding_box_ind[3])
         self.ds = self.ds.isel(input_dict)
 
     def _crop_time_range(self, time_range, alter_coord=None):
@@ -457,7 +457,7 @@ class Model():
             The name of the file to save to.
         """
         # Set all relevant variables to save:
-        vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr"]
+        vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr", self.time_dim, "Times"]
         var_dict = {}
         for my_var in self.ds.variables.keys():
             if np.any([x in my_var for x in vars_to_keep]):
@@ -831,12 +831,12 @@ class WRF(Model):
             self.strat_frac_names_for_rad = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                              'pl': 'strat_pl_frac', 'sn': 'strat_sn_frac',
                                              'gr': 'strat_gr_frac', 'ha': 'strat_ha_frac'}
-            self.conv_re_fields = {'cl': 'RE_CLOUD', 'ci': 'RE_ICE',
-                                   'pl': 'RE_RAIN', 'sn': 'RE_SNOW',
-                                   'gr': 'RE_GRAUP', 'ha': 'RE_HAIL'}
-            self.strat_re_fields = {'cl': 'RE_CLOUD', 'ci': 'RE_ICE',
-                                    'pl': 'RE_RAIN', 'sn': 'RE_SNOW',
-                                    'gr': 'RE_GRAUP', 'ha': 'RE_HAIL'}
+            self.conv_re_fields = {'cl': 'REFC', 'ci': 'REFI',
+                                   'pl': 'REFR', 'sn': 'REFS',
+                                   'gr': 'REFG', 'ha': 'REFH'}
+            self.strat_re_fields = {'cl': 'REFC', 'ci': 'REFI',
+                                    'pl': 'REFR', 'sn': 'REFS',
+                                    'gr': 'REFG', 'ha': 'REFH'}
             self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
                                        'pl': 'qplc', 'sn': 'qsnc',
                                        'gr': 'qgrc', 'ha': 'qhac'}
@@ -892,11 +892,10 @@ class WRF(Model):
                 self.N_field[hyd_type]].astype('float64') * qn_conversion
             
             if mcphys_scheme.lower() == "nssl":
-                # Convert from microns to meters
-                self.ds[self.conv_re_fields[hyd_type]] = ds[self.conv_re_fields[hyd_type]].astype('float64') * 1e6
-                self.ds[self.conv_re_fields[hyd_type]].attrs["units"] = "microns"
-                self.ds[self.strat_re_fields[hyd_type]] = ds[self.strat_re_fields[hyd_type]].astype('float64') * 1e6
-                self.ds[self.strat_re_fields[hyd_type]].attrs["units"] = "microns"
+                self.ds[self.conv_re_fields[hyd_type]] = ds[self.conv_re_fields[hyd_type]].astype('float64')
+                self.ds[self.conv_re_fields[hyd_type]].attrs["units"] = "micron"
+                self.ds[self.strat_re_fields[hyd_type]] = ds[self.strat_re_fields[hyd_type]].astype('float64')
+                self.ds[self.strat_re_fields[hyd_type]].attrs["units"] = "micron"
 
         
         self.ds["QVAPOR"] = ds["QVAPOR"]

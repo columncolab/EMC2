@@ -592,7 +592,7 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
             free_locs_max = np.where(np.logical_and(~sprof[:, j], ~conv_profs[:, tt, j]))[0]
             free_num = len(free_locs_max)
             rand_locs = _randperm(free_num, size=int(cld_2_assign[I_max]))
-            strat_profs[I_max + 1, free_locs_max[rand_locs], j] = True
+            strat_profs[I_max, free_locs_max[rand_locs], j] = True
             if cld_2_assign[I_min] > 0.:
                 strat_profs[I_min, free_locs_max[rand_locs[0:cld_2_assign[I_min]]], j] = True
 

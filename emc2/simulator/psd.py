@@ -38,8 +38,8 @@ def calc_mu_lambda(model, hyd_type="cl",
     dispersion_mu_bounds: 2-tuple
         The lower and upper bounds for the :math:`\mu` parameter.
     subcolumns: bool
-        If True, the fit parameters will be generated for the generated subcolumns
-        rather than the model data itself.
+        If True, the fit parameters will be generated using the generated subcolumns
+        rather than using the "raw" model output.
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
 
@@ -96,9 +96,9 @@ def calc_mu_lambda(model, hyd_type="cl",
     if hyd_type == "cl":
         if calc_dispersion is True:
             if not subcolumns:
-                mus = 0.0005714 * (column_ds[N_name].values) + 0.2714
+                mus = 0.0005714 * (column_ds[N_name].values * 1e-6) + 0.2714  # converting to cm-3 per Martin, 1994
             else:
-                mus = 0.0005714 * (column_ds[N_name].values * frac_array) + 0.2714
+                mus = 0.0005714 * (column_ds[N_name].values * frac_array * 1e-6) + 0.2714  # converting to cm-3
             mus = 1 / mus**2 - 1
             mus = np.where(mus < dispersion_mu_bounds[0], dispersion_mu_bounds[0], mus)
             mus = np.where(mus > dispersion_mu_bounds[1], dispersion_mu_bounds[1], mus)

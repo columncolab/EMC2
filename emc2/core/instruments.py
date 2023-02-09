@@ -153,9 +153,9 @@ class KAZR(Instrument):
         else:
             self.pt = 2000.
         if site.lower() == "sgp":
-            self.theta = 0.19
+            self.theta = 0.20  # Widener et al. (2012)
         else:
-            self.theta = 0.31
+            self.theta = 0.31  # Valid for all other KAZR and KAZR2
         if site.lower() == "sgp":
             self.gain = 10**5.748
             self.Z_min_1km = -51.5

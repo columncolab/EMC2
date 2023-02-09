@@ -308,6 +308,8 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     """
     hyd_types = model.set_hyd_types(hyd_types)
 
+    optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
+
     n_subcolumns = model.num_subcolumns
     if is_conv:
         cloud_str = "conv"
@@ -359,7 +361,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                            (2 * rho_b * re_array * 1e-6), 0)
         A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
 
-        if np.isin(hyd_type, ["ci", "pi", "sn", "gr", "ha"]):
+        if np.isin(hyd_type, optional_ice_classes):
             if mie_for_ice:
                 r_eff_bulk = instrument.bulk_table[bulk_mie_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_back"].values
@@ -454,6 +456,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     """
     hyd_types = model.set_hyd_types(hyd_types)
 
+    optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
+
     method_str = "LUTs (microphysics logic)"
 
     Dims = model.ds["strat_q_subcolumns_cl"].values.shape
@@ -500,18 +504,25 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
         beta_pv = None
         kdp_factor = None
-        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
-            beta_p = instrument.scat_table[ice_lut]["beta_p"].values
-            alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
-        else:
-            if hyd_type in model.ice_hyd_types:
-                mie_lut = "pi"
+
+        if np.isin(hyd_type, optional_ice_classes):
+            if mie_for_ice:
+                if hyd_type == "ci":
+                    hyd_type_2_use = "ci"
+                else:
+                    hyd_type_2_use = "pi"  # Currently, all optional precipitating ice classes
+                p_diam = instrument.mie_table[hyd_type_2_use]["p_diam"].values
+                beta_p = instrument.mie_table[hyd_type_2_use]["beta_p"].values
+                alpha_p = instrument.mie_table[hyd_type_2_use]["alpha_p"].values
             else:
-                mie_lut = hyd_type
-            p_diam = instrument.mie_table[mie_lut]["p_diam"].values
-            beta_p = instrument.mie_table[mie_lut]["beta_p"].values
-            alpha_p = instrument.mie_table[mie_lut]["alpha_p"].values
+                p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
+                beta_p = instrument.scat_table[ice_lut]["beta_p"].values
+                alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
+        else:  # Liquid classes (assuming only cl and pl)
+            p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+            beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+            alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
+
         num_subcolumns = model.num_subcolumns
         if model.mcphys_scheme == "nssl":
             rhoe = model.Rho_hyd[hyd_type]
@@ -625,18 +636,24 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         N_0 = fits_ds["N_0"].values
         lambdas = fits_ds["lambda"].values
         mu = fits_ds["mu"].values
-        if np.logical_and(np.isin(hyd_type, ["ci", "pi"]), not mie_for_ice):
-            p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
-            beta_p = instrument.scat_table[ice_lut]["beta_p"].values
-            alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
-        else:
-            if hyd_type in model.ice_hyd_types:
-                mie_lut = "pi"
+
+       if np.isin(hyd_type, optional_ice_classes):
+            if mie_for_ice:
+                if hyd_type == "ci":
+                    hyd_type_2_use = "ci"
+                else:
+                    hyd_type_2_use = "pi"  # Currently, all optional precipitating ice classes
+                p_diam = instrument.mie_table[hyd_type_2_use]["p_diam"].values
+                beta_p = instrument.mie_table[hyd_type_2_use]["beta_p"].values
+                alpha_p = instrument.mie_table[hyd_type_2_use]["alpha_p"].values
             else:
-                mie_lut = hyd_type
-            p_diam = instrument.mie_table[mie_lut]["p_diam"].values
-            beta_p = instrument.mie_table[mie_lut]["beta_p"].values
-            alpha_p = instrument.mie_table[mie_lut]["alpha_p"].values
+                p_diam = instrument.scat_table[ice_lut][ice_diam_var].values
+                beta_p = instrument.scat_table[ice_lut]["beta_p"].values
+                alpha_p = instrument.scat_table[ice_lut]["alpha_p"].values
+        else:  # Liquid classes (assuming only cl and pl)
+            p_diam = instrument.mie_table[hyd_type]["p_diam"].values
+            beta_p = instrument.mie_table[hyd_type]["beta_p"].values
+            alpha_p = instrument.mie_table[hyd_type]["alpha_p"].values
         if model.mcphys_scheme == "nssl":
             rhoe = model.Rho_hyd[hyd_type]
             if rhoe == 'variable':
@@ -648,6 +665,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
             v_tmp = -v_tmp.magnitude
             rhoe = None
+
         vel_param_a = model.vel_param_a
         vel_param_b = model.vel_param_b
         frac_names = model.strat_frac_names[hyd_type]

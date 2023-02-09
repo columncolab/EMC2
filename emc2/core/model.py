@@ -320,11 +320,16 @@ class Model():
         out_coord_name: str
             Name of output stacked coordinate.
         file_path: str
-            Path and filename of ModelE simulation output.
+            Path and filename of model simulation output.
         order_dim: bool
             When True, reorder dimensions to time x height for proper processing.
         """
         do_process = 0  # 0 - do nothing, 1 - stack lat+lon, 2 - stack lat dim only
+        
+        # Add time dimension for processing (remove later if length = 1)
+        if not self.time_dim in [x for x in self.ds.dims.keys()]:
+            self.ds = self.ds.expand_dims(self.time_dim)
+
         # Check to make sure we are loading a single column
         if self.lat_dim in [x for x in self.ds.dims.keys()]:
             if self.ds.dims[self.lat_dim] != 1:
@@ -363,11 +368,14 @@ class Model():
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
-    def unstack_time_lat_lon(self, order_dim=True):
+    def unstack_time_lat_lon(self, order_dim=True, squeeze_single_dims=True):
         """
         Unstack the time, lat, and lon dims if they were previously stacked together
         (self.stacked_time_dim is not None). Finally, the method reorder dimensions to time x height for proper
         processing by calling the "permute_dims_for_processing" class method.
+        Note (relevant for squeeze_single_dims == True):
+        If the time dimension size is 1, that dimension is squeezed. Similarly, if the number of
+        subcolumns is 1 (subcolumn generator is turned off), the subcolumn dimension is squeezed as well.
         NOTE: This is a dedicated method written because xr.Datasets still have many unresolved bugs
         associated with pandas multi-indexing implemented in xarray for stacking (e.g., new GitHub issue #5692).
         Practically, after the subcolumn processing the stacking information is lost so this is an alternative
@@ -377,6 +385,8 @@ class Model():
         ----------
         order_dim: bool
             When True, reorder dimensions to subcolumn x time x height for proper processing.
+        squeeze_single_dims: bool
+            If True, squeezing the time and/or subcolumn dimension(s) if their lengh is 1.
         """
         if self.stacked_time_dim is None:
             raise TypeError("stacked_time_dim is None so dataset is apparently already unstacked!")
@@ -411,6 +421,11 @@ class Model():
             self.ds = self.ds.rename({self.lon_dim + "_tmp": self.lon_dim})
         if order_dim:
             self.permute_dims_for_processing()  # Consistent dim order (subcolumn x time x height).
+        if squeeze_single_dims:
+            if self.ds[self.time_dim].size == 1:
+                self.ds = self.ds.squeeze(self.time_dim)
+            if self.num_subcolumns == 1:
+                self.ds = self.ds.squeeze("subcolumn")
 
     def permute_dims_for_processing(self, base_order=None, base_dim_first=True):
         """
@@ -482,7 +497,7 @@ class Model():
 
 
 class ModelE(Model):
-    def __init__(self, file_path, time_range=None):
+    def __init__(self, file_path, time_range=None, load_processed=False):
         """
         This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.
 
@@ -492,6 +507,9 @@ class ModelE(Model):
             Path to a ModelE simulation.
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            dimension stacking as part of pre-processing.
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -529,7 +547,12 @@ class ModelE(Model):
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
-        self.ds = read_netcdf(file_path)
+
+        if load_processed:
+            self.ds = xr.Dataset()
+            self.load_subcolumns_from_netcdf(file_path)
+        else:
+            self.ds = read_netcdf(file_path)
         if np.logical_and("level" in self.ds.coords, not "p" in self.ds.coords):
             self.height_dim = "level"
 
@@ -540,16 +563,19 @@ class ModelE(Model):
             else:
                 raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
-        super().check_and_stack_time_lat_lon(file_path=file_path)
+        if not load_processed:
 
-        # ModelE has pressure units in mb, but pint only supports hPa
-        self.ds["p_3d"].attrs["units"] = "hPa"
+            # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+            super().check_and_stack_time_lat_lon(file_path=file_path)
+
+            # ModelE has pressure units in mb, but pint only supports hPa
+            self.ds["p_3d"].attrs["units"] = "hPa"
+
         self.model_name = "ModelE3"
 
 
 class E3SM(Model):
-    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False,
+    def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
                  all_appended_in_lat=False):
         """
         This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
@@ -560,6 +586,9 @@ class E3SM(Model):
             Path to an E3SM simulation.
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
         time_dim: str
             Name of the time dimension. Typically "time" or "ncol".
         appended_str: bool
@@ -608,67 +637,71 @@ class E3SM(Model):
         self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.hyd_types = ["cl", "ci", "pi"]
         self.process_conv = False
-        self.ds = read_netcdf(file_path)
-        if appended_str:
-            if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
-                for x in self.ds.dims:
-                    if 'ncol' in x:  # ncol in dims but for some reason not in the coords
-                        self.ds = self.ds.assign_coords({'ncol': self.ds[x]})
-                        self.ds = self.ds.swap_dims({x: "ncol"})
-                        break
-            super().remove_appended_str(all_appended_in_lat)
-            if all_appended_in_lat:
-                self.lat_dim = "ncol"  # here 'ncol' is the spatial dim (acknowledging cube-sphere coords)
+        if load_processed:
+            self.ds = xr.Dataset()
+            self.load_subcolumns_from_netcdf(file_path)
+        else:
+            self.ds = read_netcdf(file_path)
+            if appended_str:
+                if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
+                    for x in self.ds.dims:
+                        if 'ncol' in x:  # ncol in dims but for some reason not in the coords
+                            self.ds = self.ds.assign_coords({'ncol': self.ds[x]})
+                            self.ds = self.ds.swap_dims({x: "ncol"})
+                            break
+                super().remove_appended_str(all_appended_in_lat)
+                if all_appended_in_lat:
+                    self.lat_dim = "ncol"  # here 'ncol' is the spatial dim (acknowledging cube-sphere coords)
 
-        if time_dim == "ncol":
-            time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
-                                       dtype='datetime64')
-            self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
+            if time_dim == "ncol":
+                time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                           dtype='datetime64')
+                self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
 
-        # crop specific model output time range (if requested)
-        if time_range is not None:
-            if np.issubdtype(time_range.dtype, np.datetime64):
-                if time_dim == "ncol":
-                    super()._crop_time_range(time_range, alter_coord="time")
+            # crop specific model output time range (if requested)
+            if time_range is not None:
+                if np.issubdtype(time_range.dtype, np.datetime64):
+                    if time_dim == "ncol":
+                        super()._crop_time_range(time_range, alter_coord="time")
+                    else:
+                        super()._crop_time_range(time_range)
                 else:
-                    super()._crop_time_range(time_range)
-            else:
-                raise RuntimeError("input time range is not in the required datetime64 data type")
+                    raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
-        self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
-        for key in self.ds.keys():
-            if self.height_dim in self.ds[key].dims:
-                rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
-                self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
+            # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
+            self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
+            for key in self.ds.keys():
+                if self.height_dim in self.ds[key].dims:
+                    rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
+                    self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
 
-        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
-        super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
+            # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+            super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
 
-        self.ds[self.p_field] = \
-            ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
-            *self.ds[self.T_field].dims)
-        self.ds[self.p_field].attrs["units"] = "hPa"
-        self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
-                                           dims=self.ds[self.p_field].dims)
-        self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
-        for hyd in ["pl", "pi"]:
-            self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
-        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
-        for hyd in ["cl", "ci", "pl", "pi"]:
-            self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
-            self.ds[self.strat_re_fields[hyd]].values = \
-                np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
-                         np.nan, self.ds[self.strat_re_fields[hyd]].values)
+            self.ds[self.p_field] = \
+                ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
+                *self.ds[self.T_field].dims)
+            self.ds[self.p_field].attrs["units"] = "hPa"
+            self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
+                                               dims=self.ds[self.p_field].dims)
+            self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
+            for hyd in ["pl", "pi"]:
+                self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
+            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            for hyd in ["cl", "ci", "pl", "pi"]:
+                self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+                self.ds[self.strat_re_fields[hyd]].values = \
+                    np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
+                             np.nan, self.ds[self.strat_re_fields[hyd]].values)
 
-        self.permute_dims_for_processing()  # Consistent dim order (time x height).
+            self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
         self.model_name = "E3SM"
 
 
 class CESM2(E3SM):
-    def __init__(self, file_path, time_range=None, time_dim="time", appended_str=False):
+    def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False):
         """
         This loads a CESM2 simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -678,11 +711,16 @@ class CESM2(E3SM):
             Path to an E3SM simulation.
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
+        time_dim: str
+            Name of the time dimension. Typically "time" or "ncol".
         appended_str: bool
             If True, removing appended strings added to fieldnames and coordinates during
             post-processing (e.g., in cropped regions from global simualtions).
         """
-        super().__init__(file_path, time_range, time_dim, appended_str)
+        super().__init__(file_path, time_range, load_processed, time_dim, appended_str)
         self.model_name = "CESM2"
 
 
@@ -948,7 +986,8 @@ class WRF(Model):
 
 
 class DHARMA(Model):
-    def __init__(self, file_path, time_range=None):
+    def __init__(self, file_path, time_range=None, time_dim="dom_col", single_pi_class=True,
+                 load_processed=False):
         """
         This loads a DHARMA simulation with all of the necessary parameters
         for EMC^2 to run.
@@ -960,6 +999,15 @@ class DHARMA(Model):
         time_range: tuple or None
             Start and end time to include. If this is None, the entire
             simulation will be included.
+        time_dim: str
+            name of time dimension.
+        single_pi_class: bool
+            If True, using a single precipitating ice class (pi).
+            If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
+            using the same LUTs).
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -978,6 +1026,13 @@ class DHARMA(Model):
                             'ci': 1. * ureg.dimensionless,
                             'pl': 0.8 * ureg.dimensionless,
                             'pi': 0.41 * ureg.dimensionless}
+        if not single_pi_class:
+            self.Rho_hyd.update({'pir': 100. * ureg.kg / (ureg.m**3)})
+            self.fluffy.update({'pir': 0.5 * ureg.dimensionless})
+            self.lidar_ratio.update({'pir': 24.0 * ureg.dimensionless})
+            self.LDR_per_hyd.update({'pir': 0.40 * 1 / (ureg.kg / (ureg.m**3))})
+            self.vel_param_a.update({'pir': 11.72})
+            self.vel_param_b.update({'pir': 0.41 * ureg.dimensionless})
         super()._add_vel_units()
         self.q_field = "q"
         self.N_field = {'cl': 'ncl', 'ci': 'nci', 'pl': 'npl', 'pi': 'npi'}
@@ -985,7 +1040,9 @@ class DHARMA(Model):
         self.z_field = "z"
         self.T_field = "t"
         self.height_dim = "hgt"
-        self.time_dim = "dom_col"
+        self.lat_dim = "y"
+        self.lon_dim = "x"
+        self.time_dim = time_dim
         self.conv_frac_names = {'cl': 'conv_dat', 'ci': 'conv_dat',
                                 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
@@ -994,26 +1051,49 @@ class DHARMA(Model):
                                         'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.strat_frac_names_for_rad = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                          'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-        self.conv_re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                               'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
-        self.strat_re_fields = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                                'pi': 'strat_pi_frac', 'pl': 'strat_pl_frac'}
+        self.conv_re_fields = {'cl': 'conv_dat', 'ci': 'conv_dat',
+                               'pi': 'conv_dat', 'pl': 'conv_dat'}
+        self.strat_re_fields = {'cl': 're_strat_cl', 'ci': 're_strat_ci',
+                                'pi': 're_strat_pi', 'pl': 're_strat_pl'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
-        self.ds = xr.open_dataset(file_path)
+        if not single_pi_class:
+            self.N_field.update({'pir': 'npir'})
+            self.conv_frac_names.update({'pir': 'conv_dat'})
+            self.strat_frac_names.update({'pir': 'strat_pir_frac'})
+            self.conv_frac_names_for_rad.update({'pir': 'conv_dat'})
+            self.strat_frac_names_for_rad.update({'pir': 'strat_pir_frac'})
+            self.conv_re_fields.update({'pir': 'strat_pir_frac'})
+            self.strat_re_fields.update({'pir': 'strat_pir_frac'})
+            self.q_names_convective.update({'pir': 'conv_dat'})
+            self.q_names_stratiform.update({'pir': 'qpir'})
+            self.hyd_types.append("pir")
 
-        for variable in self.ds.variables.keys():
-            my_attrs = self.ds[variable].attrs
-            self.ds[variable] = self.ds[variable].astype('float64')
-            self.ds[variable].attrs = my_attrs
+        self.process_conv = False
+
+        if load_processed:
+            self.ds = xr.Dataset()
+            self.load_subcolumns_from_netcdf(file_path)
+        else:
+            self.ds = xr.open_dataset(file_path)
+            for variable in self.ds.variables.keys():
+                my_attrs = self.ds[variable].attrs
+                self.ds[variable] = self.ds[variable].astype('float64')
+                self.ds[variable].attrs = my_attrs
 
         # crop specific model output time range (if requested)
         if time_range is not None:
-            super()._crop_time_range(time_range)
+            if np.issubdtype(time_range.dtype, np.datetime64):
+                super()._crop_time_range(time_range)
+            else:
+                raise RuntimeError("input time range is not in the required datetime64 data type")
 
-        # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
-        super().check_and_stack_time_lat_lon(file_path=file_path)
+        if not load_processed:
+
+            # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+            super().check_and_stack_time_lat_lon(file_path=file_path)
+
         self.model_name = "DHARMA"
 
 

@@ -38,31 +38,43 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
         raise ValueError("The number of subcolumns has already been specified (%d) and != %d" %
                          (model.num_subcolumns, N_columns))
 
+    if use_rad_logic:
+        method_str = "Radiation logic"
+    else:
+        method_str = "Microphysics logic"
+    my_dims = model.ds[model.conv_frac_names[hyd_type]].dims
+
     if model.num_subcolumns == 0:
         model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
 
-    if use_rad_logic:
-        method_str = "Radiation logic"
-        data_frac = np.round(model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns)
-        data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
-    else:
-        method_str = "Microphysics logic"
-        data_frac = np.round(model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns)
+    if N_columns == 1:
+       print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
+              f"fields for convective {hyd_type} based on q > 0. kg/kg")
+       model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
+           np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, 1., 0.),
+           dims=('subcolumn', my_dims[0], my_dims[1]))
+    else:  # num_subcolumns > 1
+        if use_rad_logic:
+            data_frac = np.round(
+                model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns).astype(int)
+            data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
+        else:
+            data_frac = np.round(
+                model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns).astype(int)
 
-    # In case we only have one time step
-    if len(data_frac.shape) == 1:
-        data_frac = data_frac[np.newaxis, :]
+        # In case we only have one time step
+        if len(data_frac.shape) == 1:
+            data_frac = data_frac[np.newaxis, :]
 
-    conv_profs = np.zeros((model.num_subcolumns, data_frac.shape[0], data_frac.shape[1]),
-                          dtype=bool)
-    for i in range(1, model.num_subcolumns + 1):
-        for k in range(data_frac.shape[1]):
-            mask = np.where(data_frac[:, k] == i)[0]
-            conv_profs[0:i, mask, k] = True
-    my_dims = model.ds[model.conv_frac_names[hyd_type]].dims
-    model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
-        conv_profs, dims=('subcolumn', my_dims[0], my_dims[1]))
-    model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["units"] = "boolean"
+        conv_profs = np.zeros((model.num_subcolumns, data_frac.shape[0], data_frac.shape[1]),
+                              dtype=bool)
+        for i in range(1, model.num_subcolumns + 1):
+            for k in range(data_frac.shape[1]):
+                mask = np.where(data_frac[:, k] == i)[0]
+                conv_profs[0:i, mask, k] = True
+        model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
+            conv_profs, dims=('subcolumn', my_dims[0], my_dims[1]))
+    model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["units"] = "0 = no, 1 = yes"
     model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["long_name"] = (
         "Is there hydrometeors of type %s in each subcolumn?" % hyd_type)
     model.ds[("conv_frac_subcolumns_" + hyd_type)].attrs["Processing method"] = method_str
@@ -103,6 +115,11 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
     """
     t0 = time()
 
+    if use_rad_logic:
+        method_str = "Radiation logic"
+    else:
+        method_str = "Microphysics logic"
+
     if model.process_conv:
         if "conv_frac_subcolumns_cl" not in model.ds.variables.keys():
             raise KeyError("You have to generate the convective fraction in each subcolumn " +
@@ -120,66 +137,74 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
             model.ds['subcolumn'] = xr.DataArray(np.arange(0, N_columns), dims='subcolumn')
         conv_profs = np.zeros((N_columns, *model.ds[model.strat_frac_names["cl"]].shape),
                               dtype=bool)
-    N_columns = len(model.ds["subcolumn"])
     subcolumn_dims = ("subcolumn", *model.ds[model.strat_frac_names_for_rad["cl"]].dims)
-    if use_rad_logic:
-        method_str = "Radiation logic"
-        data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
-        data_frac1 = data_frac1.where(model.ds[model.q_names_stratiform["cl"]] > 0, 0)
-        data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
-        data_frac2 = data_frac2.where(model.ds[model.q_names_stratiform["ci"]] > 0, 0)
-    else:
-        method_str = "Microphysics logic"
-        data_frac1 = model.ds[model.strat_frac_names["cl"]]
-        data_frac2 = model.ds[model.strat_frac_names["ci"]]
-    data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
-    data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
-    full_overcast_cl_ci = 0
-
-    is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
-    is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
-    overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
-
-    cld_2_assigns = np.stack([data_frac1, data_frac2], axis=0)
-    I_min = np.argmin(cld_2_assigns, axis=0)
-    I_max = np.argmax(cld_2_assigns, axis=0)
-
-    _allocate_strat_sub_cols = lambda x: _allocate_strat_sub_col(
-        x, cld_2_assigns, I_min, I_max, conv_profs,
-        full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud)
-
-    t_dim = data_frac1.shape[0]
-    if parallel:
-        print("Now performing parallel stratiform hydrometeor allocation in subcolumns")
-        if chunk is None:
-            tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
-            my_tuple = tt_bag.map(_allocate_strat_sub_cols).compute()
+    if N_columns == 1:
+        print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
+              f"fields to 1 for startiform cl and ci based on q > 0. kg/kg")
+        model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(
+            np.where(np.tile(model.ds[model.q_names_stratiform["cl"]], (1, 1, 1)) > 0, 1., 0.),
+            dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
+        model.ds['strat_frac_subcolumns_ci'] = xr.DataArray(
+            np.where(np.tile(model.ds[model.q_names_stratiform["ci"]], (1, 1, 1)) > 0, 1., 0.),
+            dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
+    else:  # num_subcolumns > 1
+        N_columns = len(model.ds["subcolumn"])
+        if use_rad_logic:
+            data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
+            data_frac1 = data_frac1.where(model.ds[model.q_names_stratiform["cl"]] > 0, 0)
+            data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
+            data_frac2 = data_frac2.where(model.ds[model.q_names_stratiform["ci"]] > 0, 0)
         else:
-            my_tuple = []
-            j = 0
-            while j < t_dim:
-                if j + chunk >= t_dim:
-                    ind_max = t_dim
-                else:
-                    ind_max = j + chunk
-                print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, ind_max, t_dim))
-                tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
-                my_tuple += tt_bag.map(_allocate_strat_sub_cols).compute()
-                j += chunk
-    else:
-        my_tuple = [x for x in map(_allocate_strat_sub_cols, np.arange(0, t_dim, 1))]
+            data_frac1 = model.ds[model.strat_frac_names["cl"]]
+            data_frac2 = model.ds[model.strat_frac_names["ci"]]
+        data_frac1 = np.round(data_frac1.values * N_columns).astype(int)
+        data_frac2 = np.round(data_frac2.values * N_columns).astype(int)
+        full_overcast_cl_ci = 0
 
-    full_overcast_cl_ci += np.sum([x[0] for x in my_tuple])
-    strat_profs1 = np.stack([x[1] for x in my_tuple], axis=1)
-    strat_profs2 = np.stack([x[2] for x in my_tuple], axis=1)
+        is_cloud = np.logical_or(data_frac1 > 0, data_frac2 > 0)
+        is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
+        overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
 
-    print("Fully overcast cl & ci in %s voxels" % full_overcast_cl_ci)
-    model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(strat_profs1,
-                                                        dims=(subcolumn_dims[0],
-                                                              subcolumn_dims[1], subcolumn_dims[2]))
-    model.ds['strat_frac_subcolumns_ci'] = xr.DataArray(strat_profs2,
-                                                        dims=(subcolumn_dims[0],
-                                                              subcolumn_dims[1], subcolumn_dims[2]))
+        cld_2_assigns = np.stack([data_frac1, data_frac2], axis=0)
+        I_min = np.argmin(cld_2_assigns, axis=0)
+        I_max = np.argmax(cld_2_assigns, axis=0)
+
+        _allocate_strat_sub_cols = lambda x: _allocate_strat_sub_col(
+            x, cld_2_assigns, I_min, I_max, conv_profs,
+            full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud)
+
+        t_dim = data_frac1.shape[0]
+        if parallel:
+            print("Now performing parallel stratiform hydrometeor allocation in subcolumns")
+            if chunk is None:
+                tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
+                my_tuple = tt_bag.map(_allocate_strat_sub_cols).compute()
+            else:
+                my_tuple = []
+                j = 0
+                while j < t_dim:
+                    if j + chunk >= t_dim:
+                        ind_max = t_dim
+                    else:
+                        ind_max = j + chunk
+                    print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, ind_max, t_dim))
+                    tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                    my_tuple += tt_bag.map(_allocate_strat_sub_cols).compute()
+                    j += chunk
+        else:
+            my_tuple = [x for x in map(_allocate_strat_sub_cols, np.arange(0, t_dim, 1))]
+
+        full_overcast_cl_ci += np.sum([x[0] for x in my_tuple])
+        strat_profs1 = np.stack([x[1] for x in my_tuple], axis=1)
+        strat_profs2 = np.stack([x[2] for x in my_tuple], axis=1)
+
+        print("Fully overcast cl & ci in %s voxels" % full_overcast_cl_ci)
+        model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(strat_profs1,
+                                                            dims=(subcolumn_dims[0],
+                                                                  subcolumn_dims[1], subcolumn_dims[2]))
+        model.ds['strat_frac_subcolumns_ci'] = xr.DataArray(strat_profs2,
+                                                            dims=(subcolumn_dims[0],
+                                                                  subcolumn_dims[1], subcolumn_dims[2]))
     model.ds['strat_frac_subcolumns_cl'].attrs["long_name"] = \
         "Liquid cloud particles present? [stratiform]"
     model.ds['strat_frac_subcolumns_cl'].attrs["units"] = "0 = no, 1 = yes"
@@ -291,71 +316,83 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         out_prof_name.append(precip_type + '_frac_subcolumns_%s' % hyd_type)
     in_prof_cloud_name_liq = precip_type + '_frac_subcolumns_cl'
     in_prof_cloud_name_ice = precip_type + '_frac_subcolumns_ci'
-
-    full_overcast_pl_pi = 0
-    if in_prof_cloud_name_liq not in model.ds.variables.keys():
-        raise KeyError("%s is not a variable in the model object. Please ensure that you have" +
-                       "generated the cloud particle subcolumns before running this routine." %
-                       in_prof_cloud_name_liq)
-
-    if in_prof_cloud_name_ice not in model.ds.variables.keys():
-        raise KeyError("%s is not a variable in the model object. Please ensure that you have" +
-                       "generated the cloud particle subcolumns before running this routine." %
-                       in_prof_cloud_name_ice)
-
-    for i in range(len(data_frac)):
-        data_frac[i] = np.round(data_frac[i] * model.num_subcolumns)
-    strat_profs = np.logical_or(model.ds[in_prof_cloud_name_ice].values,
-                                model.ds[in_prof_cloud_name_liq].values)
     subcolumn_dims = model.ds[in_prof_cloud_name_ice].dims
-    is_cloud = data_frac[0] > 0
-    for i in range(1, len(data_frac)):
-        is_cloud = np.logical_or(is_cloud, data_frac[i] > 0)
-    is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
-    is_cloud_one_above[:, -1] = False
-    overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
-    precip_exist = np.stack([frac > 0 for frac in data_frac])
-    PF_val = np.max(np.stack(data_frac), axis=0)
-    cond = [strat_profs, ~strat_profs]
-    _allocate_precip_sub_cols = lambda x: _allocate_precip_sub_col(
-        x, cond, N_columns, data_frac, PF_val,
-        precip_exist, full_overcast_pl_pi, overlapping_cloud)
 
-    t_dim = data_frac[0].shape[0]
-    if parallel:
-        print("Now performing parallel %s precipitation allocation in subcolumns" % precip_type)
-        if chunk is None:
-            tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
-            my_tuple = tt_bag.map(_allocate_precip_sub_cols).compute()
-        else:
-            my_tuple = []
-            j = 0
-            while j < t_dim:
-                if j + chunk >= t_dim:
-                    ind_max = t_dim
-                else:
-                    ind_max = j + chunk
-                print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, ind_max, t_dim))
-                tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
-                my_tuple += tt_bag.map(_allocate_precip_sub_cols).compute()
-                j += chunk
+    if N_columns == 1:
+        print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
+              f"fields to 1 for {precip_type} precip based on q > 0. kg/kg")
+        for hyd_type in precip_types:
+            if is_conv:
+                q_use = np.tile(model.ds[model.q_names_stratiform[hyd_type]], (1, 1, 1))
+            else:
+                q_use = np.tile(model.ds[model.q_names_convective[hyd_type]], (1, 1, 1))
+            model.ds[precip_type + '_frac_subcolumns_%s' % hyd_type] = xr.DataArray(
+                np.where(q_use > 0, 1., 0.), dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     else:
-        my_tuple = [x for x in map(_allocate_precip_sub_cols, np.arange(0, t_dim, 1))]
+        full_overcast_pl_pi = 0
+        if in_prof_cloud_name_liq not in model.ds.variables.keys():
+            raise KeyError("%s is not a variable in the model object. Please ensure that you have" +
+                           "generated the cloud particle subcolumns before running this routine." %
+                           in_prof_cloud_name_liq)
 
-    full_overcast_pl_pi += np.sum([x[0] for x in my_tuple])
-    p_strat_profs = np.stack([x[1] for x in my_tuple], axis=1)
-    typ_string = ""
-    for typ in precip_types:
-        typ_string = typ_string + " & " + typ
-    typ_string = typ_string[3:]    
-    print("Fully overcast %s in %s voxels" % (typ_string, full_overcast_pl_pi))
+        if in_prof_cloud_name_ice not in model.ds.variables.keys():
+            raise KeyError("%s is not a variable in the model object. Please ensure that you have" +
+                           "generated the cloud particle subcolumns before running this routine." %
+                           in_prof_cloud_name_ice)
 
+        for i in range(len(data_frac)):
+            data_frac[i] = np.round(data_frac[i] * model.num_subcolumns).astype(int)
+        strat_profs = np.logical_or(model.ds[in_prof_cloud_name_ice].values,
+                                    model.ds[in_prof_cloud_name_liq].values)
+        is_cloud = data_frac[0] > 0
+        for i in range(1, len(data_frac)):
+            is_cloud = np.logical_or(is_cloud, data_frac[i] > 0)
+        is_cloud_one_above = np.roll(is_cloud, -1, axis=1)
+        is_cloud_one_above[:, -1] = False
+        overlapping_cloud = np.logical_and(is_cloud, is_cloud_one_above)
+        precip_exist = np.stack([frac > 0 for frac in data_frac])
+        PF_val = np.max(np.stack(data_frac), axis=0)
+        cond = [strat_profs, ~strat_profs]
+        _allocate_precip_sub_cols = lambda x: _allocate_precip_sub_col(
+            x, cond, N_columns, data_frac, PF_val,
+            precip_exist, full_overcast_pl_pi, overlapping_cloud)
+
+        t_dim = data_frac[0].shape[0]
+        if parallel:
+            print("Now performing parallel %s precipitation allocation in subcolumns" % precip_type)
+            if chunk is None:
+                tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
+                my_tuple = tt_bag.map(_allocate_precip_sub_cols).compute()
+            else:
+                my_tuple = []
+                j = 0
+                while j < t_dim:
+                    if j + chunk >= t_dim:
+                        ind_max = t_dim
+                    else:
+                        ind_max = j + chunk
+                    print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, ind_max, t_dim))
+                    tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                    my_tuple += tt_bag.map(_allocate_precip_sub_cols).compute()
+                    j += chunk
+        else:
+            my_tuple = [x for x in map(_allocate_precip_sub_cols, np.arange(0, t_dim, 1))]
+
+        full_overcast_pl_pi += np.sum([x[0] for x in my_tuple])
+        p_strat_profs = np.stack([x[1] for x in my_tuple], axis=1)
+        typ_string = ""
+        for typ in precip_types:
+            typ_string = typ_string + " & " + typ
+        typ_string = typ_string[3:]    
+        print("Fully overcast %s in %s voxels" % (typ_string, full_overcast_pl_pi))
+
+        for i in range(len(out_prof_name)):
+            model.ds[out_prof_name[i]] = xr.DataArray(p_strat_profs[:, :, :, i],
+                                                   dims=(
+                                                   subcolumn_dims[0],
+                                                   subcolumn_dims[1],
+                                                   subcolumn_dims[2]))
     for i in range(len(out_prof_name)):
-        model.ds[out_prof_name[i]] = xr.DataArray(p_strat_profs[:, :, :, i],
-                                               dims=(
-                                               subcolumn_dims[0],
-                                               subcolumn_dims[1],
-                                               subcolumn_dims[2]))
         model.ds[out_prof_name[i]].attrs["long_name"] = out_prof_long_name[i]
         model.ds[out_prof_name[i]].attrs["units"] = "0 = no, 1 = yes"
         model.ds[out_prof_name[i]].attrs["Processing method"] = method_str
@@ -447,50 +484,60 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         q_array = model.ds[model.q_names_convective[hyd_type]].astype('float64').values
         q_name = "conv_q_subcolumns_%s" % hyd_type
 
-    if qc_flag:
-        q_ic_mean = np.where(q_array > 0, q_array / data_frac, 0)
-        q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
-        tot_hyd_in_sub = sub_data_frac.sum(axis=0)
-
-        _distribute_cl_q_n_sub_cols = lambda x: _distribute_cl_q_n(
-            x, sub_data_frac, inv_rel_var, model.num_subcolumns, tot_hyd_in_sub, q_ic_mean)
-
-        t_dim = data_frac.shape[0]
-        if parallel:
-            print("Now distributing q in subcolumns in parallel")
-            if chunk is None:
-                tt_bag = db.from_sequence(np.arange(t_dim - 1, -1, -1))
-                my_tuple = tt_bag.map(_distribute_cl_q_n_sub_cols).compute()
-            else:
-                my_tuple = []
-                j = t_dim - 1
-                while j >= 0:
-                    if j - chunk < 0:
-                        ind_min = 0
-                    else:
-                        ind_min = j - chunk
-                    print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, t_dim - ind_min, t_dim))
-                    tt_bag = db.from_sequence(np.arange(j, ind_min, -1))
-                    my_tuple += tt_bag.map(_distribute_cl_q_n_sub_cols).compute()
-                    j -= chunk
-        else:
-            my_tuple = [x for x in map(_distribute_cl_q_n_sub_cols, np.arange(t_dim - 1, -1, -1))]
-
-        q_profs = np.stack([x for x in my_tuple], axis=1)
-
+    if model.num_subcolumns == 1:
+        print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns q (and N micro logic) "
+              f"fields for {hyd_type} equal to grid-cell mean")
+        model.ds[q_name] = xr.DataArray(np.tile(q_array, (1, 1, 1)), dims=model.ds[frac_fieldname].dims)
+        if not is_conv:
+            model.ds[n_name] = xr.DataArray(
+                np.tile(model.ds[model.N_field[hyd_type]].astype('float64').values, (1, 1, 1)),
+                                            dims=model.ds[frac_fieldname].dims)
     else:
-        q_profs = np.where(q_array > 0, q_array / data_frac, 0)
-        q_profs = np.tile(q_profs, (model.num_subcolumns, 1, 1))
-        q_profs = np.where(sub_data_frac, q_profs, 0)
+        if qc_flag:
+            q_ic_mean = np.where(q_array > 0, q_array / data_frac, 0)
+            q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
+            tot_hyd_in_sub = sub_data_frac.sum(axis=0)
 
-    q_profs = np.where(np.isnan(q_profs), 0, q_profs)
-    model.ds[q_name] = xr.DataArray(q_profs, dims=model.ds[frac_fieldname].dims)
+            _distribute_cl_q_n_sub_cols = lambda x: _distribute_cl_q_n(
+                x, sub_data_frac, inv_rel_var, model.num_subcolumns, tot_hyd_in_sub, q_ic_mean)
+
+            t_dim = data_frac.shape[0]
+            if parallel:
+                print("Now distributing q in subcolumns in parallel")
+                if chunk is None:
+                    tt_bag = db.from_sequence(np.arange(0, t_dim, 1))
+                    my_tuple = tt_bag.map(_distribute_cl_q_n_sub_cols).compute()
+                else:
+                    my_tuple = []
+                    j = t_dim - 1
+                    while j >= 0:
+                        if j + chunk > t_dim:
+                            ind_max = t_dim
+                        else:
+                            ind_max = j + chunk
+                        print("Stage 1 of 2: Processing columns %d-%d out of %d" % (j, ind_max, t_dim))
+                        tt_bag = db.from_sequence(np.arange(j, ind_max, 1))
+                        my_tuple += tt_bag.map(_distribute_cl_q_n_sub_cols).compute()
+                        j -= chunk
+            else:
+                my_tuple = [x for x in map(_distribute_cl_q_n_sub_cols, np.arange(0, t_dim, 1))]
+
+            q_profs = np.stack([x for x in my_tuple], axis=1)
+
+        else:
+            q_profs = np.where(q_array > 0, q_array / data_frac, 0)
+            q_profs = np.tile(q_profs, (model.num_subcolumns, 1, 1))
+            q_profs = np.where(sub_data_frac, q_profs, 0)
+        q_profs = np.where(np.isnan(q_profs), 0, q_profs)
+        model.ds[q_name] = xr.DataArray(q_profs, dims=model.ds[frac_fieldname].dims)
+        if not is_conv:
+            N_profs = np.where(np.isnan(N_profs), 0, N_profs)
+            model.ds[n_name] = xr.DataArray(N_profs, dims=model.ds[frac_fieldname].dims)
+
     model.ds[q_name].attrs["long_name"] = "q in subcolumns"
     model.ds[q_name].attrs["units"] = r"$kg\ kg^{-1}$"
     model.ds[q_name].attrs["Processing method"] = method_str
     if not is_conv:
-        N_profs = np.where(np.isnan(N_profs), 0, N_profs)
-        model.ds[n_name] = xr.DataArray(N_profs, dims=model.ds[frac_fieldname].dims)
         model.ds[n_name].attrs["long_name"] = "N in subcolumns"
         model.ds[n_name].attrs["units"] = r"$cm^{-3}$"
         model.ds[n_name].attrs["Processing method"] = method_str
@@ -512,6 +559,7 @@ def _setxor(x, y):
 
 def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                             full_overcast_cl_ci, data_frac1, data_frac2, N_columns, overlapping_cloud):
+
     strat_profs = np.zeros((2, N_columns, data_frac1.shape[1]), dtype=bool)
 
     for j in range(data_frac1.shape[1] - 2, -1, -1):
@@ -524,6 +572,8 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
             strat_profs[:, :, j] = True
             full_overcast_cl_ci += 1
             continue
+        elif I_min == I_max:  # This is the case of cl_frac == ci_frac != 1
+            I_max = 1
         if overlapping_cloud[tt, j]:
             overlying_locs = np.zeros((2, strat_profs.shape[1]))
             overlying_locs1 = np.argwhere(np.logical_and(strat_profs[0, :, j + 1], ~conv_profs[:, tt, j]))
@@ -542,8 +592,8 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
                     strat_profs[I_max, inds, j] = True
                 cld_2_assign = np.zeros(2)
-            elif overlying_num[Iover_min] > cld_2_assign[I_min]:
-                if cld_2_assign[I_min] > 0:
+            elif overlying_num[Iover_min] > cld_2_assign[I_min]:  # overlying_num[Iover_min] <= cld_2_assign[I_max]
+                if cld_2_assign[I_min] > 0: 
                     rand_locs = _randperm(overlying_num.min(), size=cld_2_assign[I_min])
                     inds = locals()["overlying_locs%d" % (Iover_min + 1)][rand_locs]
                     strat_profs[I_min, inds, j] = True
@@ -552,7 +602,7 @@ def _allocate_strat_sub_col(tt, cld_2_assigns, I_min, I_max, conv_profs,
                 cld_2_assign[I_min] = 0
                 cld_2_assign[I_max] -= overlying_num[Iover_min]
 
-                if cld_2_assign[I_max] > 0 and over_diff > 0:
+                if over_diff > cld_2_assign[I_max]:  # over_n[Iover_min] < cld_2_assign[I_max] < over_n[Iover_max]
                     rand_locs = _randperm(over_diff, size=cld_2_assign[I_max])
                     inds = over_unique_lo[rand_locs]
                     strat_profs[I_max, inds, j] = True
@@ -604,7 +654,7 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
     p_strat_profs = np.zeros(
         (N_columns, data_frac[0].shape[1], len(data_frac)), dtype=bool)
 
-    for j in range(data_frac[0].shape[1] - 2, -1, -1):
+    for j in range(data_frac[0].shape[1] - 2, -1, -1):  # loop from 2nd penultimate height to sfc
         all_overlap = True
         for i in range(len(data_frac)):
             all_overlap = np.logical_and(
@@ -614,38 +664,53 @@ def _allocate_precip_sub_col(tt, cond, N_columns, data_frac, PF_val,
             p_strat_profs[:, j, :] = True
             full_overcast_pl_pi += 1
             continue
-        
-        if overlapping_cloud[tt, j]:
+
+        PF_per_val = [None] * len(data_frac)  # remaining to allocate per precip class
+        for i in range(len(data_frac)):
+            PF_per_val[i] = int(data_frac[i][tt, j])
+        if overlapping_cloud[tt, j]:  # First allocate to overlying precip (extend vertically)
             overlying_locs = np.where(np.any(p_strat_profs[:, j + 1, :], axis=1))[0]
             overlying_num = len(overlying_locs)
-            if overlying_num > PF_val[tt, j]:
+            if overlying_num > PF_val[tt, j]:  # more overlying than the class w/ maximum frac
                 rand_locs = _randperm(overlying_num, PF_val[tt, j])
                 for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
-                        p_strat_profs[overlying_locs[rand_locs], j, i] = True
-                PF_val[tt, j] = 0.
+                        p_strat_profs[overlying_locs[rand_locs[:PF_per_val[i]]], j, i] = True
+                PF_val[tt, j] = 0
             else:
+                rand_locs = np.random.permutation(overlying_num)  # random before loop to ensure max overlap
                 for i in range(len(data_frac)):
                     if precip_exist[i, tt, j]:
-                        p_strat_profs[overlying_locs, j, i] = True
+                        if overlying_num > PF_per_val[i]:  # more overlying than current precip class frac
+                            p_strat_profs[overlying_locs[rand_locs[:PF_per_val[i]]], j, i] = True
+                            PF_per_val[i] = 0
+                        else:
+                            p_strat_profs[overlying_locs, j, i] = True
+                            PF_per_val[i] -= overlying_num
                 PF_val[tt, j] -= overlying_num
 
-        for ii in range(2):
+        for ii in range(2):  # Second, allocate to cloudy subcol; then to hyd-free subcol
             if PF_val[tt, j] > 0:
                 free_locs = np.where(np.logical_and(
-                    ~np.all(p_strat_profs[:, j, :], axis=1), cond[ii][:, tt, j]))[0]
+                    ~np.any(p_strat_profs[:, j, :], axis=1), cond[ii][:, tt, j]))[0]  # True for remaining allocate
                 free_num = len(free_locs)
                 if free_num > 0:
                     if free_num > PF_val[tt, j]:
                         rand_locs = _randperm(free_num, PF_val[tt, j])
-                        for i in range(2):
+                        for i in range(len(data_frac)):
                             if precip_exist[i, tt, j]:
-                                p_strat_profs[free_locs[rand_locs], j, i] = True
+                                p_strat_profs[free_locs[rand_locs[:PF_per_val[i]]], j, i] = True
                         PF_val[tt, j] = 0
                     else:
-                        for i in range(2):
+                        rand_locs = np.random.permutation(free_num)  # random before loop to ensure max overlap
+                        for i in range(len(data_frac)):
                             if precip_exist[i, tt, j]:
-                                p_strat_profs[free_locs, j, i] = True
+                                if free_num > PF_per_val[i]:  # more free locs than current precip class frac
+                                    p_strat_profs[free_locs[rand_locs[:PF_per_val[i]]], j, i] = True
+                                    PF_per_val[i] = 0
+                                else:
+                                    p_strat_profs[free_locs, j, i] = True
+                                    PF_per_val[i] -= free_num
                         PF_val[tt, j] -= free_num
 
     return full_overcast_pl_pi, p_strat_profs
@@ -662,17 +727,17 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
             a = inv_rel_var
             b = 1 / alpha
             randlocs = np.random.permutation(tot_hyd_in_sub[tt, j])
-            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j] - 1)
+            rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 prevent indexing issues
             valid_vals = False
             counter_4_valid = 0
-            while not valid_vals:
+            while not valid_vals:  # Finding first index w/ random value sum > cell mean --> randomize up to there
                 counter_4_valid += 1
                 valid_vals = (q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
-                              rand_gamma_vals[0:-counter_4_valid].sum()) > 0
-            q_profs[hyd_in_sub_loc[randlocs[:-(counter_4_valid + 1)]], j] = \
+                              rand_gamma_vals[:-counter_4_valid].sum()) > 0
+            q_profs[hyd_in_sub_loc[randlocs[:-counter_4_valid]], j] = \
                 rand_gamma_vals[:-counter_4_valid]
             q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j] = (
-                q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] - np.sum(rand_gamma_vals[:-counter_4_valid])) / \
-                (1 + counter_4_valid)
+                q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
+                np.sum(rand_gamma_vals[:-counter_4_valid])) / float(counter_4_valid)
 
     return q_profs

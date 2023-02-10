@@ -853,7 +853,7 @@ class WRF(Model):
             self.q_field = "QVAPOR"
             self.N_field = {'cl': 'QNDROP', 'ci': 'QNICE',
                             'pl': 'QNRAIN', 'sn': 'QNSNOW',
-                            'gr': 'QNGRAUPEL', 'ha': 'QHAIL'}
+                            'gr': 'QNGRAUPEL', 'ha': 'QNHAIL'}
             self.p_field = "pressure"
             self.z_field = "Z"
             self.T_field = "T"
@@ -895,7 +895,8 @@ class WRF(Model):
         self.ds["pressure"].attrs["units"] = "hPa"
         self.ds["T"].attrs["units"] = "K"
         self.ds["Z"].attrs["units"] = "m"
-        rho = self.ds["pressure"] / (287.058 * self.ds["T"])
+        rho = (self.ds["pressure"] * 1e2) / (287.058 * self.ds["T"])
+        # Qn in kg-1 --> cm-3 * rho to get m-3 * 1e-6 for cm-3
         qn_conversion = rho.values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
         if NUWRF is False:

@@ -637,7 +637,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         lambdas = fits_ds["lambda"].values
         mu = fits_ds["mu"].values
 
-       if np.isin(hyd_type, optional_ice_classes):
+        if np.isin(hyd_type, optional_ice_classes):
             if mie_for_ice:
                 if hyd_type == "ci":
                     hyd_type_2_use = "ci"

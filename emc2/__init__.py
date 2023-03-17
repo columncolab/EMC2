@@ -10,3 +10,4 @@ from . import simulator
 from . import plotting
 from . import test_files
 from . import scattering
+from . import statistics_LLNL

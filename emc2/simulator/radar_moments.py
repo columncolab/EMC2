@@ -7,7 +7,7 @@ from time import time
 from scipy.interpolate import LinearNDInterpolator
 
 from .attenuation import calc_radar_atm_attenuation
-from .psd import calc_mu_lambda
+from .psd import calc_mu_lambda, calc_velocity_nssl
 from ..core.instrument import ureg, quantity
 
 
@@ -61,43 +61,6 @@ def calc_total_reflectivity(model, detect_mask=False):
     model.ds["detect_mask"].attrs["units"] = ("1 = radar signal below noise floor, 0 = signal detected")
 
     return model
-
-def calc_velocity_nssl(diam, rhoe, hyd_type):
-    """
-    Calculate the terminal velocity according to the NSSL 2-moment scheme.
-
-    Parameters
-    ----------
-    diam: float array
-        The particle maximum dimensions in m.
-    rhoe: float array
-        The particle effective density. 
-    hyd_type: str
-        The hydrometeor type code (i.e. 'cl', 'gr').
-    """
-
-    rhoair_800mb = 1.007
-    if hyd_type.lower() == "pl":
-        return 10 * (1 - np.exp(-516.575 * diam))
-    if hyd_type.lower() == "gr":
-        cd = np.fmax(0.45, np.fmin(1.2, 
-                0.45 + 0.55 * (800 - np.fmax(170, np.fmin(800, rhoe)))))
-        vt = np.sqrt(4.0 * rhoe * 9.81 / (3.0 * cd * rhoair_800mb)) \
-            * np.sqrt(diam)
-        return vt
-    elif hyd_type.lower() == "ha":
-        cd = np.fmax(0.45, np.fmin(1.2,
-                0.45 + 0.55 * (800 - np.fmax(500, np.fmin(800, rhoe)))))
-        vt = np.sqrt(4.0 * rhoe * 9.81 / (3.0 * cd * rhoair_800mb)) \
-            * np.sqrt(diam)
-        return vt
-    elif hyd_type.lower() == "sn":
-        vt = 21.52823061429272 * diam ** 0.42
-        return vt
-    elif hyd_type.lower() == "cl":
-        vt = 131.6 * diam ** 0.824
-        return vt
-    return np.zeros_like(diam)
 
 
 def accumulate_attenuation(model, is_conv, z_values, hyd_ext, atm_ext, OD_from_sfc=True,
@@ -1002,7 +965,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
     hyd_ext = np.zeros_like(V_d_numer_tot)
     num_diam = len(p_diam)
     if tt % 50 == 0:
-        print("Processing column %d" % tt)
+        print("Processing column %d/%d" % (tt, N_0.shape[1]))
     np.seterr(all="ignore")
     for k in range(height_dims):
         if np.all(total_hydrometeor[tt, k] == 0):
@@ -1047,7 +1010,7 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
                                  rhoe):
     Dims = sub_q_array.shape
     if tt % 100 == 0:
-        print("Processing column %d" % tt)
+        print("Processing column %d/%d" % (tt, Dims[1]))
     Ze = np.zeros((num_subcolumns, Dims[2]))
     Zv = np.zeros((num_subcolumns, Dims[2]))
     V_d = np.zeros_like(Ze)

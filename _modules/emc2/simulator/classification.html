@@ -15,9 +15,6 @@
   <![endif]-->
   
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -31,11 +28,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> EMC^2
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EMC^2
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -62,7 +63,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">emc2.simulator.classification</li>
       <li class="wy-breadcrumbs-aside">
@@ -82,7 +83,7 @@
 
 <div class="viewcode-block" id="lidar_classify_phase"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.lidar_classify_phase.html#emc2.simulator.classification.lidar_classify_phase">[docs]</a><span class="k">def</span> <span class="nf">lidar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta_p_phase_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">remove_sub_detect</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Phase classification based on fixed thresholds of a lidar&#39;s LDR and</span>
 <span class="sd">    tot beta_p variables.</span>
 
@@ -171,7 +172,7 @@
 
 
 <div class="viewcode-block" id="radar_classify_phase"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.radar_classify_phase.html#emc2.simulator.classification.radar_classify_phase">[docs]</a><span class="k">def</span> <span class="nf">radar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_height_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Phase classification based on cloud occurrence and Ze_min threshold (equivalent</span>
 <span class="sd">        to the KAZR-sounding dataset used in Silber et al., ACP, 2020).</span>
 
@@ -250,7 +251,7 @@
                              <span class="n">atb_cross_coeff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cloud_SR_thresh</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">undef_SR_thresh</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                              <span class="n">inc_precip_hyd_atb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_ATB</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                              <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Phase classification method to emulate COSP based on attenuated total backscatter</span>
 <span class="sd">        (ATB) analysis following Cesana and Chepfer (2013).</span>
 
@@ -476,7 +477,7 @@
 
 <div class="viewcode-block" id="calculate_phase_ratio"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.calculate_phase_ratio.html#emc2.simulator.classification.calculate_phase_ratio">[docs]</a><span class="k">def</span> <span class="nf">calculate_phase_ratio</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">mask_class</span><span class="p">,</span> <span class="n">mask_allhyd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mass_pr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                           <span class="n">mpr_subcolmod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).</span>
 
 <span class="sd">    Parameters</span>

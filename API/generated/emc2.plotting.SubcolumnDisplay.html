@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.plotting.SubcolumnDisplay &mdash; EMC^2  documentation</title>
@@ -16,9 +16,6 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -33,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> EMC^2
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EMC^2
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -79,7 +80,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="../plotting.html">emc2.plotting (emc2.plotting)</a></li>
       <li class="breadcrumb-item active">emc2.plotting.SubcolumnDisplay</li>
@@ -92,31 +93,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="emc2-plotting-subcolumndisplay">
+  <section id="emc2-plotting-subcolumndisplay">
 <h1>emc2.plotting.SubcolumnDisplay<a class="headerlink" href="#emc2-plotting-subcolumndisplay" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay">
@@ -129,7 +106,7 @@ The plotting dataset is automatically cropped to include only single lat and lon
 of a regional output, but can always be replaced with different coordinates using the internal methods.
 Note that there is no dedicated option to plot subcolumns vs. lat or lon, since subcolumns at a given
 grid cell are independent of subcolumns attributed to other neighboring grid cells.
-Note: if older version of ACT are installed (e.g., 0.2.4), “_obj” should be replaced with “_arm”.</p>
+Note: if older version of ACT are installed (e.g., 0.2.4), “_ds” should be replaced with “_arm”.</p>
 <p class="rubric">Examples</p>
 <p>This example makes a four panel plot of 4 subcolumns of EMC^2 simulated reflectivity:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ model_display = emc2.plotting.SubcolumnDisplay(my_model, subplot_shape=(2, 2), figsize=(30, 20))
@@ -140,7 +117,7 @@ $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subp
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model object containing the subcolumn data to plot.</p>
 </dd>
@@ -148,7 +125,7 @@ $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subp
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model containing the subcolumn data to plot.</p>
 </dd>
@@ -172,7 +149,7 @@ if None, then using index 0 to prevent issues.</p>
 <dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model containing the subcolumn data to plot.</p>
 </dd>
@@ -196,14 +173,10 @@ if None, then using index 0 to prevent issues.</p>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.__init__" title="emc2.plotting.SubcolumnDisplay.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model[, lat_sel, lon_sel])</p></td>
 <td><p><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 </p></td>
@@ -223,31 +196,34 @@ if None, then using index 0 to prevent issues.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask" title="emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">change_plot_to_class_mask</span></code></a>(cbar[, ...])</p></td>
 <td><p>Updates the colorbar to show phase classification.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_mean_profile</span></code></a>(instrument, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_by</span></code>(units)</p></td>
+<td><p>Group the Display by specific units of time.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_mean_profile</span></code></a>(instrument, ...)</p></td>
 <td><p>This function will plot a mean vertical profile of an instrument variable averaged over a given time period.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_timeseries</span></code></a>(instrument, variable)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_timeseries</span></code></a>(instrument, variable)</p></td>
 <td><p>Plots timeseries of a given instrument variable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile" title="emc2.plotting.SubcolumnDisplay.plot_single_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_single_profile</span></code></a>(variable, time[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile" title="emc2.plotting.SubcolumnDisplay.plot_single_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_single_profile</span></code></a>(variable, time[, ...])</p></td>
 <td><p>Plots the single profile of subcolumns for a given time period.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_mean_profile</span></code></a>(variable[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_mean_profile</span></code></a>(variable[, ...])</p></td>
 <td><p>This function will plot a mean vertical profile of a subcolumn variable for a given time period.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_timeseries</span></code></a>(variable[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_timeseries</span></code></a>(variable[, ...])</p></td>
 <td><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_display_in_subplot</span></code>(display, subplot_index)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_display_in_subplot</span></code>(display, subplot_index)</p></td>
 <td><p>This will place a Display object into a specific subplot.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label" title="emc2.plotting.SubcolumnDisplay.set_axis_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_axis_label</span></code></a>(ds, variable[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label" title="emc2.plotting.SubcolumnDisplay.set_axis_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_axis_label</span></code></a>(ds, variable[, ...])</p></td>
 <td><p>Setting the axis label based on whether a field name is one of prespecified fields, its attributes exist, and whether these attributes are not &quot;too long&quot;.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng" title="emc2.plotting.SubcolumnDisplay.set_xrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_xrng</span></code></a>(subplot_index, x_range)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng" title="emc2.plotting.SubcolumnDisplay.set_xrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_xrng</span></code></a>(subplot_index, x_range)</p></td>
 <td><p>Set the Y axes limits of the subplot</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng" title="emc2.plotting.SubcolumnDisplay.set_yrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_yrng</span></code></a>(subplot_index, y_range)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng" title="emc2.plotting.SubcolumnDisplay.set_yrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_yrng</span></code></a>(subplot_index, y_range)</p></td>
 <td><p>Set the Y axes limits of the subplot</p></td>
 </tr>
 </tbody>

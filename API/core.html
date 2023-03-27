@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.core (emc2.core) &mdash; EMC^2  documentation</title>
@@ -16,9 +16,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,11 +33,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> EMC^2
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            EMC^2
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -111,7 +112,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
       <li class="breadcrumb-item active">emc2.core (emc2.core)</li>
       <li class="wy-breadcrumbs-aside">
@@ -123,41 +124,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<span class="target" id="module-emc2.core"></span><section id="emc2-core-emc2-core">
+  <span class="target" id="module-emc2.core"></span><section id="emc2-core-emc2-core">
 <h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Permalink to this heading">¶</a></h1>
 <p>The procedures in this module contain the core data structures of EMC^2.
 In particular, the Instrument class that describes the characteristics
 of the instrument to be simulated is stored here. In addition, global
 constants used by EMC^2 are also stored in this module.</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR" title="emc2.core.instruments.KAZR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instruments.KAZR</span></code></a>(site[, supercooled])</p></td>
 <td><p>This stores the information for the KAZR (Ka-band radar).</p></td>
@@ -223,7 +196,7 @@ with units, making EMC^2 unit aware.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="reference internal" href="../_modules/emc2/core/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class stores the model specific parameters for the radar simulator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>Rho_hyd: dict</strong></dt><dd><p>A dictionary whose keys are the names of the model’s hydrometeor classes and
 whose values are the density of said hydrometeors in <span class="math notranslate nohighlight">\(kg\ m^{-3}\)</span></p>
@@ -286,6 +259,9 @@ with the model represented by the Model subclass.</p>
 </dd>
 <dt><strong>lon_dim: str</strong></dt><dd><p>Name of the longitude dimension in the model (relevant for regional output)</p>
 </dd>
+<dt><strong>mcphys_scheme: str</strong></dt><dd><p>Name of the microphysics scheme to use for models with 
+multiple microphysics schemes.</p>
+</dd>
 <dt><strong>stacked_time_dim: str or None</strong></dt><dd><p>This attribute becomes a string of the original time dimension name only if
 stacking was required to enable EMC2 to processes a domain output (time x lat x lon).</p>
 </dd>
@@ -312,7 +288,7 @@ associated with pandas multi-indexing implemented in xarray for stacking (e.g., 
 Practically, after the subcolumn processing the stacking information is lost so an alternative dedicated
 method is used for unstacking</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>out_coord_name: str</strong></dt><dd><p>Name of output stacked coordinate.</p>
 </dd>
@@ -345,7 +321,7 @@ over additional fields using the more_fieldnames input parameter.</p>
 The dataset being loaded must match the current number of subcolumns if there are any
 generated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>file_name: str</strong></dt><dd><p>Name of the file to save.</p>
 </dd>
@@ -374,7 +350,7 @@ return 0 if the number of subcolumns has not yet been set.</p>
 subcolumn x time x height.
 Note: lat/lon dims are assumed to already be stacked with the time dim.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>base_order: list or None</strong></dt><dd><p>List of preffered dimension order. Use default if None</p>
 </dd>
@@ -391,7 +367,7 @@ Note: lat/lon dims are assumed to already be stacked with the time dim.</p>
 <dd><p>Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
 (typically required when using post-processed output data files).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>all_appended_in_lat: bool</strong></dt><dd><p>If True using only the appended str portion to the lat_dim. Otherwise, combining
 the appended str from both the lat and lon dims (relevant if appended_str is True).</p>
@@ -413,7 +389,7 @@ for CESM and E3SM).</p>
 <span class="sig-name descname"><span class="pre">subcolumns_to_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.subcolumns_to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.subcolumns_to_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>file_name: str</strong></dt><dd><p>The name of the file to save to.</p>
 </dd>
@@ -436,7 +412,7 @@ associated with pandas multi-indexing implemented in xarray for stacking (e.g., 
 Practically, after the subcolumn processing the stacking information is lost so this is an alternative
 dedicated method.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>order_dim: bool</strong></dt><dd><p>When True, reorder dimensions to subcolumn x time x height for proper processing.</p>
 </dd>
@@ -455,7 +431,7 @@ dedicated method.</p>
 <dd><p>This is the base class which holds the information needed to contain the instrument parameters for the
 simulator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>instrument_str: str</strong></dt><dd><p>The name of the instrument.</p>
 </dd>
@@ -508,7 +484,7 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 <span class="sig-name descname"><span class="pre">read_arm_netcdf_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a netCDF file that corresponds to ARM standards.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>filename: str</strong></dt><dd></dd>
 <dt><strong>Additional keyword arguments are passed into :py:func:`act.io.armfiles.read_netcdf`</strong></dt><dd></dd>

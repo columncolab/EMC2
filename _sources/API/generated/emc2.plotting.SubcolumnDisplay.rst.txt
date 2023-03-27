@@ -19,6 +19,7 @@
       ~SubcolumnDisplay.assign_to_figure_axis
       ~SubcolumnDisplay.calc_mean_and_sd
       ~SubcolumnDisplay.change_plot_to_class_mask
+      ~SubcolumnDisplay.group_by
       ~SubcolumnDisplay.plot_instrument_mean_profile
       ~SubcolumnDisplay.plot_instrument_timeseries
       ~SubcolumnDisplay.plot_single_profile

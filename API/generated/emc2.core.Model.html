@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.core.Model &mdash; EMC^2  documentation</title>
@@ -16,9 +16,6 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,11 +33,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> EMC^2
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EMC^2
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -98,7 +99,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="../core.html">emc2.core (emc2.core)</a></li>
       <li class="breadcrumb-item active">emc2.core.Model</li>
@@ -111,38 +112,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="emc2-core-model">
+  <section id="emc2-core-model">
 <h1>emc2.core.Model<a class="headerlink" href="#emc2-core-model" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.Model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="reference internal" href="../../_modules/emc2/core/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class stores the model specific parameters for the radar simulator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Attributes</dt>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>Rho_hyd: dict</strong></dt><dd><p>A dictionary whose keys are the names of the model’s hydrometeor classes and
 whose values are the density of said hydrometeors in <span class="math notranslate nohighlight">\(kg\ m^{-3}\)</span></p>
@@ -205,6 +182,9 @@ with the model represented by the Model subclass.</p>
 </dd>
 <dt><strong>lon_dim: str</strong></dt><dd><p>Name of the longitude dimension in the model (relevant for regional output)</p>
 </dd>
+<dt><strong>mcphys_scheme: str</strong></dt><dd><p>Name of the microphysics scheme to use for models with 
+multiple microphysics schemes.</p>
+</dd>
 <dt><strong>stacked_time_dim: str or None</strong></dt><dd><p>This attribute becomes a string of the original time dimension name only if
 stacking was required to enable EMC2 to processes a domain output (time x lat x lon).</p>
 </dd>
@@ -226,10 +206,6 @@ this is a dict pointing to the variable with the density for each hydrometeor cl
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.Model.__init__" title="emc2.core.Model.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
@@ -265,10 +241,6 @@ this is a dict pointing to the variable with the density for each hydrometeor cl
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.hydrometeor_classes" title="emc2.core.Model.hydrometeor_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrometeor_classes</span></code></a></p></td>
 <td><p>The list of hydrometeor classes.</p></td>

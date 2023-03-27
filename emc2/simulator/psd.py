@@ -5,6 +5,44 @@ from scipy.special import gamma
 from ..core.instrument import ureg, quantity
 
 
+def calc_velocity_nssl(dmax, rhoe, hyd_type):
+    """
+    Calculate the terminal velocity according to the NSSL 2-moment scheme.
+
+    Parameters
+    ----------
+    dmax: float array
+        The particle maximum dimensions in m.
+    rhoe: float array
+        The particle effective density. 
+    hyd_type: str
+        The hydrometeor type code (i.e. 'cl', 'gr').
+    """
+
+    rhoair_800mb = 1.007
+    if hyd_type.lower() == "pl":
+        return 10 * (1 - np.exp(-516.575 * dmax))
+    if hyd_type.lower() == "gr":
+        cd = np.fmax(0.45, np.fmin(1.2,
+                0.45 + 0.55 * (800 - np.fmax(170, np.fmin(800, rhoe)))))
+        vt = np.sqrt(4.0 * rhoe * 9.81 / (3.0 * cd * rhoair_800mb)) \
+            * np.sqrt(dmax)
+        return vt
+    elif hyd_type.lower() == "ha":
+        cd = np.fmax(0.45, np.fmin(1.2,
+                0.45 + 0.55 * (800 - np.fmax(500, np.fmin(800, rhoe)))))
+        vt = np.sqrt(4.0 * rhoe * 9.81 / (3.0 * cd * rhoair_800mb)) \
+            * np.sqrt(dmax)
+        return vt
+    elif hyd_type.lower() == "sn":
+        vt = 21.52823061429272 * dmax ** 0.42
+        return vt
+    elif hyd_type.lower() == "cl":
+        vt = 131.6 * dmax ** 0.824
+        return vt
+    return np.zeros_like(dmax)
+
+
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=None, dispersion_mu_bounds=(2, 15),
                    subcolumns=False, is_conv=False, **kwargs):
@@ -82,11 +120,12 @@ def calc_mu_lambda(model, hyd_type="cl",
             q_name = "conv_q_subcolumns_%s" % hyd_type
             frac_name = model.conv_frac_names[hyd_type]
 
+    
     frac_array = np.tile(
         model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
     frac_array = np.where(frac_array == 0, 1, frac_array)
     if model.Rho_hyd[hyd_type] == 'variable':    
-        Rho_hyd = model.ds[model.density_variable[hyd_type]].values
+        Rho_hyd = model.ds[model.variable_density[hyd_type]].values
     else:
         Rho_hyd = model.Rho_hyd[hyd_type].magnitude
 

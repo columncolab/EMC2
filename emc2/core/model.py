@@ -88,6 +88,9 @@ class Model():
         Name of the latitude dimension in the model (relevant for regional output)
     lon_dim: str
         Name of the longitude dimension in the model (relevant for regional output)
+    mcphys_scheme: str
+        Name of the microphysics scheme to use for models with 
+        multiple microphysics schemes.
     stacked_time_dim: str or None
         This attribute becomes a string of the original time dimension name only if
         stacking was required to enable EMC2 to processes a domain output (time x lat x lon).
@@ -131,6 +134,7 @@ class Model():
         self.height_dim = "height"
         self.lat_dim = "lat"
         self.lon_dim = "lon"
+        self.mcphys_scheme = ""
         self.stacked_time_dim = None
         self.process_conv = True
         self.model_name = ""
@@ -140,6 +144,7 @@ class Model():
                        "Avogadro_c": 6.022140857e23,
                        "R": 8.3144598}  # J K^-1 mol^-1
         self.asp_ratio_func = {}
+        self.ice_hyd_types = ["ci", "pi"]
 
     def _add_vel_units(self):
         for my_keys in self.vel_param_a.keys():
@@ -180,8 +185,8 @@ class Model():
         bounding_box_ind[3] = np.argmin(
                np.abs(bounding_box[3] - np.squeeze(XLONG_max.values)))
         input_dict = {}
-        input_dict[self.lon_dim] = slice(bounding_box_ind[0], bounding_box_ind[2])
-        input_dict[self.lat_dim] = slice(bounding_box_ind[1], bounding_box_ind[3])
+        input_dict[self.lat_dim] = slice(bounding_box_ind[0], bounding_box_ind[2])
+        input_dict[self.lon_dim] = slice(bounding_box_ind[1], bounding_box_ind[3])
         self.ds = self.ds.isel(input_dict)
 
     def _crop_time_range(self, time_range, alter_coord=None):
@@ -467,7 +472,7 @@ class Model():
             The name of the file to save to.
         """
         # Set all relevant variables to save:
-        vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr"]
+        vars_to_keep = ["sub_col", "subcol", "strat_", "conv_", "_tot", "_ext", "_mask", "_min", "mpr", "fpr", self.time_dim, "Times"]
         var_dict = {}
         for my_var in self.ds.variables.keys():
             if np.any([x in my_var for x in vars_to_keep]):
@@ -848,7 +853,7 @@ class WRF(Model):
             self.q_field = "QVAPOR"
             self.N_field = {'cl': 'QNDROP', 'ci': 'QNICE',
                             'pl': 'QNRAIN', 'sn': 'QNSNOW',
-                            'gr': 'QNGRAUPEL', 'ha': 'QHAIL'}
+                            'gr': 'QNGRAUPEL', 'ha': 'QNHAIL'}
             self.p_field = "pressure"
             self.z_field = "Z"
             self.T_field = "T"
@@ -864,18 +869,19 @@ class WRF(Model):
             self.strat_frac_names_for_rad = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                              'pl': 'strat_pl_frac', 'sn': 'strat_sn_frac',
                                              'gr': 'strat_gr_frac', 'ha': 'strat_ha_frac'}
-            self.conv_re_fields = {'cl': 'RE_CLOUD', 'ci': 'RE_ICE',
-                                   'pl': 'RE_RAIN', 'sn': 'RE_SNOW',
-                                   'gr': 'RE_GRAUP', 'ha': 'RE_HAIL'}
-            self.strat_re_fields = {'cl': 'RE_CLOUD', 'ci': 'RE_ICE',
-                                    'pl': 'RE_RAIN', 'sn': 'RE_SNOW',
-                                    'gr': 'RE_GRAUP', 'ha': 'RE_HAIL'}
+            self.conv_re_fields = {'cl': 'REFC', 'ci': 'REFI',
+                                   'pl': 'REFR', 'sn': 'REFS',
+                                   'gr': 'REFG', 'ha': 'REFH'}
+            self.strat_re_fields = {'cl': 'REFC', 'ci': 'REFI',
+                                    'pl': 'REFR', 'sn': 'REFS',
+                                    'gr': 'REFG', 'ha': 'REFH'}
             self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
                                        'pl': 'qplc', 'sn': 'qsnc',
                                        'gr': 'qgrc', 'ha': 'qhac'}
             self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
                                        'pl': 'qpls', 'sn': 'qsns',
                                        'gr': 'qgrs', 'ha': 'qhas'}
+            self.ice_hyd_types = ["ci", "sn", "gr", "ha"]
 
 
         ds = xr.open_dataset(file_path)
@@ -889,7 +895,8 @@ class WRF(Model):
         self.ds["pressure"].attrs["units"] = "hPa"
         self.ds["T"].attrs["units"] = "K"
         self.ds["Z"].attrs["units"] = "m"
-        rho = self.ds["pressure"] / (287.058 * self.ds["T"])
+        rho = (self.ds["pressure"] * 1e2) / (287.058 * self.ds["T"])
+        # Qn in kg-1 --> cm-3 * rho to get m-3 * 1e-6 for cm-3
         qn_conversion = rho.values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
         if NUWRF is False:
@@ -915,7 +922,11 @@ class WRF(Model):
                 dims=('Time', 'bottom_top',
                       'south_north', 'west_east')).astype('float64')
             self.ds["q%ss" % hyd_type] = ds[self.q_names[hyd_type]]
-            cldfrac2_pl = cldfrac2
+            # We can have out of cloud precip, so don't consider cloud fraction there
+            if hyd_type in ['ci', 'cl']:
+                cldfrac2_pl = cldfrac2
+            else:
+                cldfrac2_pl = np.where(ds[self.q_names[hyd_type]].values > 0, 1, 0)
             self.ds[self.strat_frac_names[hyd_type]] = xr.DataArray(
                 cldfrac2_pl,
                 dims=('Time', 'bottom_top',
@@ -924,11 +935,10 @@ class WRF(Model):
                 self.N_field[hyd_type]].astype('float64') * qn_conversion
             
             if mcphys_scheme.lower() == "nssl":
-                # Convert from microns to meters
-                self.ds[self.conv_re_fields[hyd_type]] = ds[self.conv_re_fields[hyd_type]].astype('float64') * 1e6
-                self.ds[self.conv_re_fields[hyd_type]].attrs["units"] = "microns"
-                self.ds[self.strat_re_fields[hyd_type]] = ds[self.strat_re_fields[hyd_type]].astype('float64') * 1e6
-                self.ds[self.strat_re_fields[hyd_type]].attrs["units"] = "microns"
+                self.ds[self.conv_re_fields[hyd_type]] = ds[self.conv_re_fields[hyd_type]].astype('float64')
+                self.ds[self.conv_re_fields[hyd_type]].attrs["units"] = "micron"
+                self.ds[self.strat_re_fields[hyd_type]] = ds[self.strat_re_fields[hyd_type]].astype('float64')
+                self.ds[self.strat_re_fields[hyd_type]].attrs["units"] = "micron"
 
         
         self.ds["QVAPOR"] = ds["QVAPOR"]
@@ -950,6 +960,7 @@ class WRF(Model):
         self.lon_dim = "west_east"
         self.lat_name = "XLAT"
         self.lon_name = "XLONG"
+        self.mcphys_scheme = mcphys_scheme
         self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():

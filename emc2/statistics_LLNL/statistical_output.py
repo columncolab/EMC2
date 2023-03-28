@@ -13,6 +13,50 @@ import xarray as xr
 
 def save_to_nc(my_e3sm,kazr_DBZE_BINS_ground,N_sub,CF_3D,SR_4D,cfaddbz35_cal_alltime,cfadSR_cal_alltime,outdir,file_name_array):
 
+    """
+    save processed CFADs into nc file
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model 
+    
+    Returns
+    -------
+    kazr_DBZE_BINS_ground: float 
+        radar CFAD bins, unit: dBZ  
+        
+    N_sub: int
+        number of subcolumns
+        
+    CF_3D: float 
+        cloud fraction, unit: none
+        
+        
+    SR_4D : float
+        calculated lidar scattering ratio, unit: none
+        
+        
+    cfaddbz35_cal_alltime: float
+        radar cfad, unit: none
+        
+        
+    cfadSR_cal_alltime: float
+        lidar SR cfad, unit: none        
+        
+ 
+    outdir: string
+        output file directory
+        
+        
+    file_name_array: string
+        output file name    
+        
+ 
+    """        
+    
+    
+    
     my_e3sm_ds_add=my_e3sm.ds
     #my_e3sm_ds_add = my_e3sm_ds_add.expand_dims(cosp_ze=kazr_DBZE_BINS_ground)
     #my_e3sm_ds_add = my_e3sm_ds_add.expand_dims(cosp_scol_emc2=np.arange(N_sub))

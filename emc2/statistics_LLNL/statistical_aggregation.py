@@ -25,6 +25,29 @@ import matplotlib.cm as cm
 
 
 def get_radar_lidar_signals(my_e3sm):
+    
+    """
+    get or calculate radar and lidar signals.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+    
+    Returns
+    -------
+    atb_total_4D: float 
+        lidar total attenuated backscatter coefficient, unit: m^{-1} sr^{-1}
+    atb_mol_4D: float
+        lidar backscatter coefficient for molecuar, unit: m^{-1} sr^{-1}
+    z_full_km_3D: float 
+        height, unit: km
+    z_half_km_3D : float
+        height at half level, unit: km
+    Ze_att_total_4D: float
+        radar reflectivity after attenuation, unit: dBZ
+        
+    """    
 
     atb_total_4D=np.empty_like(my_e3sm.ds.sub_col_beta_att_tot.values)
     atb_mol_4D=np.empty_like(my_e3sm.ds.sub_col_beta_att_tot.values)
@@ -54,11 +77,48 @@ def get_radar_lidar_signals(my_e3sm):
 
 def get_ATB_ATBmol(my_e3sm,subcolum_index,time_index,ncol_index):
     
+    
+    """
+    get subcolumn radar and lidar signals, to be used for radar reflectivity and lidar SR CFADs.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+
+    subcolum_index: int
+        subcolumn index
+        
+    time_index: int
+        time index
+        
+    ncol_index: int
+        column index
+        
+
+    Returns
+    -------
+    ,,,,
+    
+    sub_atb_total: float 
+        subcolumn total attenuated backscatter coefficient, unit: m^{-1} sr^{-1}
+    sub_atb_mol: float
+        subcolumn attenuated molecular backscatter coefficient, unit: m^{-1} sr^{-1}
+    sub_ze_att_total: float
+        subcolumn radar reflectivity after attenuation, unit: dBZ
+        
+    z_filed_m: float 
+        height, unit: km
+    zhalf : float
+        height at half level, unit: km
+
+    """        
+    
     sub_col_beta_att_tot_sub=my_e3sm.ds.sub_col_beta_att_tot[subcolum_index,time_index,:,ncol_index]#.values
 
     sigma_180_vol_sub=my_e3sm.ds.sigma_180_vol[time_index,:,ncol_index]#.values
 
-    tau_sub=my_e3sm.ds.tau[time_index,:,ncol_index]#.values
+    tau_sub=my_e3sm.ds.tau[time_index,:,ncol_index]#.values # Two-way transmittance from Atmospheric optical depth
 
     sub_col_beta_p_tot_sub=my_e3sm.ds.sub_col_beta_p_tot[subcolum_index,time_index,:,ncol_index]#.values
 
@@ -67,7 +127,7 @@ def get_ATB_ATBmol(my_e3sm,subcolum_index,time_index,ncol_index):
     sub_col_Ze_att_tot_sub=my_e3sm.ds.sub_col_Ze_att_tot[subcolum_index,time_index,:,ncol_index]#.values
      
     
-    sub_col_beta_att_tot_sub_est=(sigma_180_vol_sub+sub_col_beta_p_tot_sub.fillna(0))*tau_sub*np.exp(-2.*1.*sub_col_OD_tot_sub.fillna(0))
+    #sub_col_beta_att_tot_sub_est=(sigma_180_vol_sub+sub_col_beta_p_tot_sub.fillna(0))*tau_sub*np.exp(-2.*1.*sub_col_OD_tot_sub.fillna(0))
 
     # get the right singal values
     sub_atb_mol=(sigma_180_vol_sub*tau_sub).values
@@ -89,7 +149,68 @@ def get_ATB_ATBmol(my_e3sm,subcolum_index,time_index,ncol_index):
 def calculate_SR(atb_total_4D,atb_mol_4D,subcolum_num,time_num,lev_num,z_full_km_3D,z_half_km_3D,\
                  Ncolumns,Npoints,Nlevels,Nglevels,col_num,newgrid_bot,newgrid_top):
     
+    
+    """
+    calculate lidar scattering ratio, and conduct vertical regriding. 
+    
 
+    Parameters
+    ----------
+    
+    sub_atb_total: float 
+        subcolumn total attenuated backscatter coefficient, unit: m^{-1} sr^{-1}
+        
+    sub_atb_mol: float
+        subcolumn attenuated molecular backscatter coefficient, unit: m^{-1} sr^{-1}
+        
+    subcolum_num: int
+        number of subcolumns
+      
+    time_num: int 
+        number of time
+      
+    lev_num: int
+        number of levels 
+          
+    z_full_km_3D: float 
+        height, unit: km
+        
+    z_half_km_3D : float
+        height at half level, unit: km
+
+    Ncolumns: int 
+        number of subcolum
+        
+    Npoints : int
+        number of time
+        
+    Nlevels : int
+        number of levels before vertical regridding 
+        
+    Nglevels : int
+        number of levels after vertical regridding
+        
+        
+    col_num: int 
+        number of columns
+        
+    newgrid_bot : float
+         bottom height in each regrided height bin, unit: km 
+        
+    newgrid_top : float
+         top height in each regrided height bin, unit: km 
+      
+
+    Returns
+    -------
+    ,,,,
+    
+    SR_4D: float 
+        calculated subcolumn lidar scattering ratio, unit: none
+
+
+    """  
+    
 
     R_UNDEF      = -1.0E30   #   Missing value
     b=copy.deepcopy(atb_total_4D)
@@ -132,6 +253,53 @@ def calculate_SR(atb_total_4D,atb_mol_4D,subcolum_num,time_num,lev_num,z_full_km
 
 def COSP_CHANGE_VERTICAL_GRID(Npoints,Ncolumns,Nlevels,zfull,zhalf,y,Nglevels,newgrid_bot,newgrid_top,lunits=False):
 
+
+    """
+    vertical regridding
+
+    Parameters
+    ----------
+    
+    y: float 
+        variable need to be regrided vertically
+          
+    zfull: float 
+        height, unit: km
+        
+    zhalf : float
+        height at half level, unit: km
+
+    Ncolumns: int 
+        number of subcolum
+        
+    Npoints : int
+        number of time
+        
+    Nlevels : int
+        number of levels before vertical regridding 
+        
+    Nglevels : int
+        number of levels after vertical regridding
+        
+    newgrid_bot : float
+        bottom height in each regrided height bin, unit: km 
+        
+    newgrid_top : float
+        top height in each regrided height bin, unit: km 
+      
+
+    Returns
+    -------
+    ,,,,
+    
+    r: float 
+       variable after vertical regriding 
+
+
+    """      
+    
+    
+    
     
     r = np.zeros([Npoints, Ncolumns, Nglevels]) # (1236, 20 , 40)
 
@@ -255,6 +423,62 @@ def COSP_CHANGE_VERTICAL_GRID(Npoints,Ncolumns,Nlevels,zfull,zhalf,y,Nglevels,ne
 
 def get_regridded_ze_att_tot(Ze_att_total_4D,z_full_km_3D,z_half_km_3D,subcolum_num,time_num,Nglevels,col_num,newgrid_bot,newgrid_top,Ncolumns,Npoints,Nlevels):
     
+    
+    
+    """
+    calculate lidar scattering ratio, and conduct vertical regriding. 
+    
+
+    Parameters
+    ----------
+    
+    Ze_att_total_4D: float 
+        subcolumn total attenuated radar reflecitivity, unit: dBZ
+
+
+    subcolum_num: int 
+        number of sub-columns
+        
+        
+    time_num: int 
+        number of time
+        
+        
+    Nglevels : int
+        number of levels after vertical regridding
+        
+        
+    col_num: int 
+        number of columns
+        
+    newgrid_bot : float
+         bottom height in each regrided height bin, unit: km 
+        
+    newgrid_top : float
+         top height in each regrided height bin, unit: km 
+      
+    Ncolumns: int 
+        number of subcolum
+        
+    Npoints : int
+        number of time
+        
+    Nlevels : int
+        number of levels before vertical regridding 
+        
+        
+    Returns
+    -------
+    ,,,,
+    
+    Regrided_Ze_att_tot_reorder_4D: float 
+    
+        regrided attenuated radar reflectivity, unit: dBZ
+
+
+    """      
+    
+    
     R_UNDEF      = -1.0E30   #   Missing value
 
     a=copy.deepcopy(Ze_att_total_4D)
@@ -285,6 +509,43 @@ def get_regridded_ze_att_tot(Ze_att_total_4D,z_full_km_3D,z_half_km_3D,subcolum_
 
 def calculate_lidar_CF(SR_4D,time_num,Nglevels,col_num):
     
+    
+    """
+    estimate cloud fraction based on lidar SR
+    
+
+    Parameters
+    ----------
+    
+    SR_4D: float 
+        subcolumn total attenuated radar reflecitivity, unit: dBZ
+
+        
+    time_num: int 
+        number of time
+        
+        
+    Nglevels : int
+        number of levels after vertical regridding
+        
+        
+    col_num: int 
+        number of columns
+
+        
+        
+    Returns
+    -------
+    ,,,,
+    
+    CF_3D: float 
+    
+        cloud fraction, unit: none
+
+
+    """       
+    
+    
     S_cld=5.
     s_att=0.01    
 
@@ -311,6 +572,41 @@ def calculate_lidar_CF(SR_4D,time_num,Nglevels,col_num):
 
 def cal_cfad_radar_40levels(nsubcolumn,levStat_km,Ze_EDGES,a):
     
+    """
+    calcaulte CFAD
+    
+
+    Parameters
+    ----------
+    
+    a: float 
+       input variable to be calculated into CFADs
+
+        
+    nsubcolumn: int 
+        number of subcolumns
+        
+        
+    levStat_km : float
+        levels, unit: km
+        
+        
+    Ze_EDGES: float 
+        bin edges
+
+        
+        
+    Returns
+    -------
+    ,,,,
+    
+    cfaddbz94_space_cal_sub: float 
+    
+        CFADs of variable a
+
+
+    """       
+    
     
     cfaddbz94_space_cal_sub=np.empty( ( ( (len(levStat_km)) ,(len(Ze_EDGES)-1) ) ) )*np.nan
 
@@ -333,7 +629,46 @@ def cal_cfad_radar_40levels(nsubcolumn,levStat_km,Ze_EDGES,a):
 
 def get_cfaddBZ(Ze_EDGES,newgrid_mid,Npoints,Ncolumns,Regrided_Ze_att_tot_reorder_4D,col_index):
 
+    """
+    calcaulte radar CFAD
+    
 
+    Parameters
+    ----------    
+            
+    Ze_EDGES: float 
+        bin edges
+    
+    newgrid_mid : float
+        mid-level heights in each regrided height bin, unit: km
+
+    Npoints: int 
+        number of subcolumns
+      
+    Ncolumns: int 
+        number of subcolum
+        
+    Npoints : int
+        number of time
+        
+    Regrided_Ze_att_tot_reorder_4D: float 
+       input radar variable to be calculated into CFADs
+
+    col_index: int 
+        column index
+        
+        
+    Returns
+    -------
+    ,,,,
+    
+    cfaddbz94_space_cal_sub: float 
+    
+        CFADs of variable a
+
+
+    """   
+    
     # height
     levStat_km=copy.deepcopy(newgrid_mid)
     levStat_km_add0=np.arange(len(levStat_km)+1)*0.48
@@ -354,6 +689,43 @@ def get_cfaddBZ(Ze_EDGES,newgrid_mid,Npoints,Ncolumns,Regrided_Ze_att_tot_reorde
 
 
 def get_cfad_SR(SR_EDGES,newgrid_mid,Npoints,Ncolumns,SR_4D,col_index):
+
+    """
+    calcaulte lidar SR CFAD
+    
+
+    Parameters
+    ----------    
+            
+    SR_EDGES: float 
+        bin edges
+    
+    newgrid_mid : float
+        mid-level heights in each regrided height bin, unit: km
+
+    Npoints: int 
+        number of subcolumns
+      
+    Ncolumns: int 
+        number of subcolum
+        
+    SR_4D: float 
+       input lidar SR to be calculated into CFADs
+
+    col_index: int 
+        column index
+        
+        
+    Returns
+    -------
+    ,,,,
+    
+    cfaddbz94_space_cal_sub: float 
+    
+        CFADs of variable a
+
+
+    """     
 
     
     # how to use

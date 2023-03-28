@@ -31,12 +31,11 @@ def plot_column_input_q_timeseries(self, variable, pressure_coords=True, title=N
     """
     Plots timeseries of subcolumn parameters for a given variable and subcolumn.
     In the case of a 2D (time x height) field, plotting a time-height curtain.
+    
     Parameters
     ----------
     variable: str
         The subcolumn variable to plot.
-    column_no: int
-        The subcolumn number to plot. By default, using the first subcolumn.
     pressure_coords: bool
         Set to true to plot in pressure coordinates, false to height coordinates.
     title: str or None
@@ -103,7 +102,7 @@ def plot_column_input_q_timeseries(self, variable, pressure_coords=True, title=N
     y=y/1000. # to km
 
     
-# jingjing modified    
+    #modified    
     var_array = my_ds[variable].values.T *1000. # unit change to g /kg    
     
     
@@ -171,11 +170,52 @@ def plot_column_input_q_timeseries(self, variable, pressure_coords=True, title=N
 
 
 
-# Height is in height rather than in pressure
+# Height is in km rather than in pressure
 def plot_regridded_CF_timeseries(self, var_array_3D, newgrid_mid,col_index,title=None,
                               subplot_index=(0, ), colorbar=True, cbar_label=None,
                               x_range=None, y_range=None, x_dateformat="%b%d-%H",
                               x_rotation=30., **kwargs):
+    
+    """
+    Plots timeseries of cloud fraction
+    
+    Parameters
+    ----------
+    var_array_3D: float
+        input variable, cloud fraction
+    newgrid_mid: float
+        vertical heights, unit: km
+    col_index: int
+        column index
+
+    title: str or None
+        The title of the plot. Set to None to have EMC^2 generate a title for you.
+    subplot_index: tuple
+        The index of the subplot to make the plot in.
+    colorbar: bool
+        If true, plot the colorbar.
+    cbar_label: None or str
+        The colorbar label. Set to None to provide a default label.
+        
+    x_range: tuple, list, or None
+        The x range of the plot (also accepts datetime64 format).
+    y_range: tuple, list, or None
+        The y range of the plot.
+    x_dateformat: str
+        Date format for the x-axis.
+    x_rotation: float
+        x-axis label rotation for a date axis.
+        
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
+    Returns
+    -------
+    axes: Matplotlib axes handle
+        The matplotlib axes handle of the plot.
+    cbar: Matplotlib axes handle
+        The matplotlib colorbar handle of the plot.
+    """
+    
+   
     
     ds_name = [x for x in self._obj.keys()][0]  #E3SM
     
@@ -197,7 +237,7 @@ def plot_regridded_CF_timeseries(self, var_array_3D, newgrid_mid,col_index,title
     y = newgrid_mid #  m
     x, y = np.meshgrid(x, y)
     
-# jingjing modified    
+    #  modified    
     var_array = np.squeeze(var_array_3D[:,:,col_index]).T
     var_array[var_array<=0]=np.nan  # can be with blue 
              
@@ -249,6 +289,49 @@ def plot_regridded_SR_timeseries(self, var_array_4D, newgrid_mid,col_index,subco
                               x_rotation=30., **kwargs):
 
        
+    
+    """
+    Plots timeseries of cloud fraction
+    
+    Parameters
+    ----------
+    var_array_4D: float
+        input variable, lidar scattering ratio
+    newgrid_mid: float
+        vertical heights, unit: km
+    col_index: int
+        column index
+    subcol_index: int
+        subcolumn index
+        
+        
+    title: str or None
+        The title of the plot. Set to None to have EMC^2 generate a title for you.
+    subplot_index: tuple
+        The index of the subplot to make the plot in.
+    colorbar: bool
+        If true, plot the colorbar.
+    cbar_label: None or str
+        The colorbar label. Set to None to provide a default label.
+        
+    x_range: tuple, list, or None
+        The x range of the plot (also accepts datetime64 format).
+    y_range: tuple, list, or None
+        The y range of the plot.
+    x_dateformat: str
+        Date format for the x-axis.
+    x_rotation: float
+        x-axis label rotation for a date axis.
+        
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
+    Returns
+    -------
+    axes: Matplotlib axes handle
+        The matplotlib axes handle of the plot.
+    cbar: Matplotlib axes handle
+        The matplotlib colorbar handle of the plot.
+    """
+    
     
     ds_name = [x for x in self._obj.keys()][0]  #E3SM
     
@@ -320,10 +403,42 @@ def plot_regridded_SR_timeseries(self, var_array_4D, newgrid_mid,col_index,subco
 
 
 def plot_radar_CFAD(Ze_EDGES,newgrid_mid,cfaddbz35_cal_alltime,save_flag,fig_path,fig_name):
+
+    """
+    generate radar CFAD figure
+
+    Parameters
+    ----------
+    Ze_EDGES: float 
+        radar CFAD bins, unit: dBZ  
+        
+    newgrid_mid: float
+        height, unit: km  
+
+    cfaddbz35_cal_alltime: float
+        radar cfad, unit: none
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name    
+        
+        
+    Returns
+    -------
+    .png figure 
+        
+ 
+    """        
+        
     
     
     
-        # height
+    # height
     levStat_km=copy.deepcopy(newgrid_mid)
     levStat_km_add0=np.arange(len(levStat_km)+1)*0.48
     
@@ -377,7 +492,36 @@ def plot_radar_CFAD(Ze_EDGES,newgrid_mid,cfaddbz35_cal_alltime,save_flag,fig_pat
 
 def plot_lidar_SR_CFAD(SR_EDGES,newgrid_mid,cfadSR_cal_alltime,save_flag,fig_path,fig_name):
     
+    """
+    generate lidar CFAD figure
 
+    Parameters
+    ----------
+    SR_EDGES: float 
+        lidar SR CFAD bins, unit: none  
+        
+    newgrid_mid: float
+        height, unit: km  
+
+    cfadSR_cal_alltime: float
+        lidar SR cfad, unit: none
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name    
+        
+        
+    Returns
+    -------
+    .png figure 
+        
+ 
+    """   
     
     # height
     levStat_km=copy.deepcopy(newgrid_mid)
@@ -436,9 +580,6 @@ def plot_lidar_SR_CFAD(SR_EDGES,newgrid_mid,cfadSR_cal_alltime,save_flag,fig_pat
     ax.set_xticklabels(labels)
     
 
-    
-    
-
     if save_flag=='save':
         fig.savefig(f'{fig_path}/CFAD_SR_{fig_name}.png', dpi=400)
 
@@ -447,6 +588,36 @@ def plot_lidar_SR_CFAD(SR_EDGES,newgrid_mid,cfadSR_cal_alltime,save_flag,fig_pat
         
 ### plot radar lidar signal with all subcolumns
 def plot_every_subcolumn_timeseries_radarlidarsignal(my_e3sm,col_index,save_flag,fig_path,fig_name):
+    
+    """
+    generate timeseries of radar and lidar signal from every subcolumn.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+        
+    col_index: int 
+        column index, unit: none  
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name 
+                
+    
+    Returns
+    -------
+    .png figure
+
+        
+    """  
+   
+    
     
     subcolum_num=len(my_e3sm.ds.subcolumn)
     time_num=len(my_e3sm.ds.time)
@@ -562,6 +733,35 @@ def plot_every_subcolumn_timeseries_radarlidarsignal(my_e3sm,col_index,save_flag
         
         
 def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(my_e3sm,col_index,save_flag,fig_path,fig_name):
+    
+    """
+    generate timeseries of non-attenuated radar and lidar signal from every subcolumn.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+        
+    col_index: int 
+        column index, unit: none  
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name 
+                
+    
+    Returns
+    -------
+    .png figure
+
+        
+    """      
+    
     
     subcolum_num=len(my_e3sm.ds.subcolumn)
     time_num=len(my_e3sm.ds.time)
@@ -681,6 +881,39 @@ def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(my_e3sm,col_index,sa
 def plot_every_subcolumn_timeseries_SR(my_e3sm,atb_total_4D,atb_mol_4D,col_index,save_flag,fig_path,fig_name):
 
     
+    """
+    generate timeseries of lidar scattering ratio from every subcolumn.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+        
+    atb_total_4D: float 
+        lidar total attenuated backscatter coefficient, unit: m^{-1} sr^{-1}
+    atb_mol_4D: float
+        lidar backscatter coefficient for molecuar, unit: m^{-1} sr^{-1}
+        
+    col_index: int 
+        column index, unit: none  
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name 
+                
+    
+    Returns
+    -------
+    .png figure
+
+        
+    """  
+    
     subcolum_num=len(my_e3sm.ds.subcolumn)
     time_num=len(my_e3sm.ds.time)
     col_num=len(my_e3sm.ds.ncol)
@@ -764,7 +997,36 @@ def plot_every_subcolumn_timeseries_SR(my_e3sm,atb_total_4D,atb_mol_4D,col_index
     
 
 def plot_every_subcolumn_timeseries_mixingratio(my_e3sm,col_index,save_flag,fig_path,fig_name):
+ 
+    """
+    generate timeseries of mixing ratio from every subcolumn.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+        
+    col_index: int 
+        column index, unit: none  
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name 
+                
     
+    Returns
+    -------
+    .png figure
+
+        
+    """ 
+
+
     subcolum_num=len(my_e3sm.ds.subcolumn)
     time_num=len(my_e3sm.ds.time)
     col_num=len(my_e3sm.ds.ncol)
@@ -920,6 +1182,40 @@ def plot_every_subcolumn_timeseries_mixingratio(my_e3sm,col_index,save_flag,fig_
 
         
 def plot_every_subcolumn_timeseries_mixingratio_cloud_precipitation(my_e3sm,col_index,save_flag,fig_path,fig_name):
+    
+    """
+    generate timeseries of cloud and precipitation mixing ratios from every subcolumn.
+
+    Parameters
+    ----------
+    my_e3sm: func:`emc2.core.Model` class
+        The model to read in some of pre-calculated variables.
+        
+    atb_total_4D: float 
+        lidar total attenuated backscatter coefficient, unit: m^{-1} sr^{-1}
+    atb_mol_4D: float
+        lidar backscatter coefficient for molecuar, unit: m^{-1} sr^{-1}
+        
+    col_index: int 
+        column index, unit: none  
+        
+    save_flag: float
+        0 or 1, if save (1) the figure or not (0)
+ 
+    fig_path: string
+        output figure directory
+       
+    fig_name: string
+        output figure name 
+                
+    
+    Returns
+    -------
+    .png figure
+
+        
+    """     
+    
     
     subcolum_num=len(my_e3sm.ds.subcolumn)
     time_num=len(my_e3sm.ds.time)

@@ -23,7 +23,7 @@ import matplotlib.cm as cm
 
 
 
-def plot_column_input_q_timeseries(self, variable, pressure_coords=True, title=None,
+def plot_column_input_q_timeseries(self, variable,column_no=0, pressure_coords=True, title=None,
                               subplot_index=(0, ), colorbar=True, cbar_label=None,
                               log_plot=False, Mask_array=None, hatched_mask=False,
                               x_range=None, y_range=None, x_dateformat="%b%d-%H",
@@ -36,6 +36,8 @@ def plot_column_input_q_timeseries(self, variable, pressure_coords=True, title=N
     ----------
     variable: str
         The subcolumn variable to plot.
+    column_no: int
+        column index
     pressure_coords: bool
         Set to true to plot in pressure coordinates, false to height coordinates.
     title: str or None

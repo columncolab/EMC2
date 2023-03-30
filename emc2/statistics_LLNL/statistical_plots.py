@@ -9,9 +9,155 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+def plot_column_input_q_timeseries(self, variable, column_no=0, pressure_coords=True, title=None,
+                                   subplot_index=(0, ), colorbar=True, cbar_label=None,
+                                   log_plot=False, Mask_array=None, hatched_mask=False,
+                                   x_range=None, y_range=None, x_dateformat="%b%d-%H",
+                                   x_rotation=30., **kwargs):
+    """
+    Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+    In the case of a 2D (time x height) field, plotting a time-height curtain.
+
+    Parameters
+    ----------
+    variable: str
+        The subcolumn variable to plot.
+    column_no: int
+        column index
+    pressure_coords: bool
+        Set to true to plot in pressure coordinates, false to height coordinates.
+    title: str or None
+        The title of the plot. Set to None to have EMC^2 generate a title for you.
+    subplot_index: tuple
+        The index of the subplot to make the plot in.
+    colorbar: bool
+        If true, plot the colorbar.
+    cbar_label: None or str
+        The colorbar label. Set to None to provide a default label.
+    log_plot: bool
+        Set to true to plot variable in logarithmic space.
+    Mask_array: bool, int, or float (same dims as "variable")
+        Set to true or to other values greater than 0 in grid cells to make them transparent.
+    hatched_mask: bool or str
+        True - masked areas show masked '/' pattern, False - Masked area is transparent,
+        str - use the str as the hatch pattern (see:
+        https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html).
+    x_range: tuple, list, or None
+        The x range of the plot (also accepts datetime64 format).
+    y_range: tuple, list, or None
+        The y range of the plot.
+    x_dateformat: str
+        Date format for the x-axis.
+    x_rotation: float
+        x-axis label rotation for a date axis.
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
+    Returns
+    -------
+    axes: Matplotlib axes handle
+        The matplotlib axes handle of the plot.
+    cbar: Matplotlib axes handle
+        The matplotlib colorbar handle of the plot.
+    """
+    ds_name = [x for x in self._obj.keys()][0]
+    if len(self.model.ds[variable].dims) == 3:
+        my_ds = self._obj[ds_name].sel(subcolumn=column_no)
+    else:
+        my_ds = self._obj[ds_name]
+    x_variable = self.model.time_dim
+    if pressure_coords:
+        y_variable = self.model.height_dim
+    else:
+        y_variable = self.model.z_field
+
+    x_label = 'Time [UTC]'
+    # y_label = self.set_axis_label(my_ds, y_variable)
+    y_label = 'Height [km]'  # Jingjing changed
+
+    if pressure_coords:
+        x = my_ds[x_variable].values
+        y = my_ds[y_variable].values
+        x, y = np.meshgrid(x, y)
+    else:
+        x = my_ds[x_variable].values
+        if my_ds[y_variable].ndim == 2:
+            y = np.mean(my_ds[y_variable].values, axis=0)
+        else:
+            y = my_ds[y_variable].values
+        p = my_ds[self.model.height_dim].values
+        x, p = np.meshgrid(x, p)
+
+    y = y / 1000.  # to km
+
+    # modified
+    var_array = my_ds[variable].values.T * 1000.  # unit change to g /kg
+
+    if Mask_array is not None:
+        Mask_array = Mask_array.T
+        if Mask_array.shape == var_array.shape:
+            if not hatched_mask:
+                var_array = np.where(Mask_array <= 0, var_array, np.nan)
+        else:
+            print("Mask dimensions " + str(Mask_array.shape) +
+                  " are different than in the requested field " +
+                  str(var_array.shape) + " - ignoring mask")
+    if y_range is not None:
+        self.axes[subplot_index].set_ylim(y_range)
+    if x_range is not None:
+        self.axes[subplot_index].set_xlim(x_range)
+
+    if np.issubdtype(x.dtype, np.datetime64):
+        date_xaxis = True
+        x = mdates.date2num([y for y in x])
+    else:
+        date_xaxis = False
+
+    if log_plot is True:
+        if 'vmin' in kwargs.keys():
+            vmin = kwargs['vmin']
+            del kwargs['vmin']
+        if 'vmax' in kwargs.keys():
+            vmax = kwargs['vmax']
+            del kwargs['vmax']
+        mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+                                                   **kwargs)
+    else:
+        mesh = self.axes[subplot_index].pcolormesh(x, y, var_array, **kwargs)
+    if isinstance(hatched_mask, str):
+        hatch = hatched_mask
+        hatched_mask = True
+    else:
+        hatch = '\\/...'
+    if hatched_mask:
+        self.axes[subplot_index].pcolor(x, y, np.ma.masked_where(Mask_array == 0, np.ones_like(var_array)),
+                                        hatch=hatch, alpha=0.)
+
+    if date_xaxis:
+        self.axes[subplot_index].xaxis.set_major_formatter(
+            mdates.DateFormatter(x_dateformat))
+        for label in self.axes[subplot_index].get_xticklabels(which='major'):
+            label.set(rotation=x_rotation, horizontalalignment='right')
+
+    if title is None:
+        self.axes[subplot_index].set_title(self.model.model_name + ' ' +
+                                           np.datetime_as_string(self.model.ds[x_variable][0].values))
+    else:
+        self.axes[subplot_index].set_title(title)
+
+    if pressure_coords:
+        self.axes[subplot_index].invert_yaxis()
+    self.axes[subplot_index].set_xlabel(x_label)
+    self.axes[subplot_index].set_ylabel(y_label)
+    if colorbar:
+        cbar = plt.colorbar(mesh, ax=self.axes[subplot_index])
+        cbar.set_label(cbar_label)
+        return self.axes[subplot_index], cbar
+
+    return self.axes[subplot_index]
+
+
 def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig_path, fig_name):
     """
-    generate radar CFAD figure
+    Generate radar CFAD figure
 
     Parameters
     ----------
@@ -37,24 +183,24 @@ def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig
     clb_dy, clb_ddy = 0.15, 0.03
 
     cdict = {'red': ((0., 1, 1),
-                     (0.05, 1, 1),
-                     (0.11, 0, 0),
-                     (0.66, 1, 1),
-                     (0.89, 1, 1),
-                     (1, 0.5, 0.5)),
-             'green': ((0., 1, 1),
-                       (0.05, 1, 1),
-                       (0.11, 0, 0),
-                       (0.375, 1, 1),
-                       (0.64, 1, 1),
-                       (0.91, 0, 0),
-                       (1, 0, 0)),
-             'blue': ((0., 1, 1),
-                      (0.05, 1, 1),
-                      (0.11, 1, 1),
-                      (0.34, 1, 1),
-                      (0.65, 0, 0),
-                      (1, 0, 0))}
+                    (0.05, 1, 1),
+                    (0.11, 0, 0),
+                    (0.66, 1, 1),
+                    (0.89, 1, 1),
+                    (1, 0.5, 0.5)),
+            'green': ((0., 1, 1),
+                    (0.05, 1, 1),
+                    (0.11, 0, 0),
+                    (0.375, 1, 1),
+                    (0.64, 1, 1),
+                    (0.91, 0, 0),
+                    (1, 0, 0)),
+            'blue': ((0., 1, 1),
+                    (0.05, 1, 1),
+                    (0.11, 1, 1),
+                    (0.34, 1, 1),
+                    (0.65, 0, 0),
+                    (1, 0, 0))}
 
     palette = matplotlib.colors.LinearSegmentedColormap(
         'my_colormap', cdict, 256)
@@ -66,7 +212,7 @@ def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig
     ax.set_title('Radar')
     x1 = np.array(ax.get_position())[0, 0]
     y1 = np.array(ax.get_position())[0, 1]
-    ddx = np.array(ax.get_position())[1, 0]-np.array(ax.get_position())[0, 0]
+    ddx = np.array(ax.get_position())[1, 0] - np.array(ax.get_position())[0, 0]
     cb_ax = fig.add_axes([x1, y1-clb_dy, ddx, clb_ddy])
     clb = fig.colorbar(c1, cax=cb_ax, orientation='horizontal')
     clb.set_label('frequency')
@@ -76,6 +222,7 @@ def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig
 
     if save_flag == 'save':
         fig.savefig(f'{fig_path}/CFAD_Radar_{fig_name}.png', dpi=400)
+
 
 
 def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime, save_flag, fig_path, fig_name):
@@ -150,8 +297,6 @@ def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime, save_flag, fig
 
     if save_flag == 'save':
         fig.savefig(f'{fig_path}/CFAD_SR_{fig_name}.png', dpi=400)
-
-# plot radar lidar signal with all subcolumns
 
 
 def plot_every_subcolumn_timeseries_radarlidarsignal(

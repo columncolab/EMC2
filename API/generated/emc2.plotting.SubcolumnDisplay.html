@@ -199,31 +199,40 @@ if None, then using index 0 to prevent issues.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">group_by</span></code>(units)</p></td>
 <td><p>Group the Display by specific units of time.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_mean_profile</span></code></a>(instrument, ...)</p></td>
-<td><p>This function will plot a mean vertical profile of an instrument variable averaged over a given time period.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_timeseries</span></code></a>(instrument, variable)</p></td>
-<td><p>Plots timeseries of a given instrument variable.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile" title="emc2.plotting.SubcolumnDisplay.plot_single_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_single_profile</span></code></a>(variable, time[, ...])</p></td>
-<td><p>Plots the single profile of subcolumns for a given time period.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_mean_profile</span></code></a>(variable[, ...])</p></td>
-<td><p>This function will plot a mean vertical profile of a subcolumn variable for a given time period.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_timeseries</span></code></a>(variable[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_column_input_q_timeseries</span></code></a>(variable[, ...])</p></td>
 <td><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_display_in_subplot</span></code>(display, subplot_index)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_mean_profile</span></code></a>(instrument, ...)</p></td>
+<td><p>This function will plot a mean vertical profile of an instrument variable averaged over a given time period.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_instrument_timeseries</span></code></a>(instrument, variable)</p></td>
+<td><p>Plots timeseries of a given instrument variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_regridded_CF_timeseries</span></code></a>(var_array_3D, ...)</p></td>
+<td><p>Plots timeseries of cloud fraction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_regridded_SR_timeseries</span></code></a>(var_array_4D, ...)</p></td>
+<td><p>Plots timeseries of cloud fraction</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile" title="emc2.plotting.SubcolumnDisplay.plot_single_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_single_profile</span></code></a>(variable, time[, ...])</p></td>
+<td><p>Plots the single profile of subcolumns for a given time period.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_mean_profile</span></code></a>(variable[, ...])</p></td>
+<td><p>This function will plot a mean vertical profile of a subcolumn variable for a given time period.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_subcolumn_timeseries</span></code></a>(variable[, ...])</p></td>
+<td><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_display_in_subplot</span></code>(display, subplot_index)</p></td>
 <td><p>This will place a Display object into a specific subplot.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label" title="emc2.plotting.SubcolumnDisplay.set_axis_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_axis_label</span></code></a>(ds, variable[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label" title="emc2.plotting.SubcolumnDisplay.set_axis_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_axis_label</span></code></a>(ds, variable[, ...])</p></td>
 <td><p>Setting the axis label based on whether a field name is one of prespecified fields, its attributes exist, and whether these attributes are not &quot;too long&quot;.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng" title="emc2.plotting.SubcolumnDisplay.set_xrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_xrng</span></code></a>(subplot_index, x_range)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng" title="emc2.plotting.SubcolumnDisplay.set_xrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_xrng</span></code></a>(subplot_index, x_range)</p></td>
 <td><p>Set the Y axes limits of the subplot</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng" title="emc2.plotting.SubcolumnDisplay.set_yrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_yrng</span></code></a>(subplot_index, y_range)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng" title="emc2.plotting.SubcolumnDisplay.set_yrng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_yrng</span></code></a>(subplot_index, y_range)</p></td>
 <td><p>Set the Y axes limits of the subplot</p></td>
 </tr>
 </tbody>

@@ -20,8 +20,11 @@
       ~SubcolumnDisplay.calc_mean_and_sd
       ~SubcolumnDisplay.change_plot_to_class_mask
       ~SubcolumnDisplay.group_by
+      ~SubcolumnDisplay.plot_column_input_q_timeseries
       ~SubcolumnDisplay.plot_instrument_mean_profile
       ~SubcolumnDisplay.plot_instrument_timeseries
+      ~SubcolumnDisplay.plot_regridded_CF_timeseries
+      ~SubcolumnDisplay.plot_regridded_SR_timeseries
       ~SubcolumnDisplay.plot_single_profile
       ~SubcolumnDisplay.plot_subcolumn_mean_profile
       ~SubcolumnDisplay.plot_subcolumn_timeseries

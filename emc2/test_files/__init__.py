@@ -11,3 +11,4 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
 TEST_SUBCOL_FILE = os.path.join(DATA_PATH, 'test_subcol.20160816.010000.nc')
 TEST_INST_PLOT_FILE = os.path.join(DATA_PATH, 'test_instrument_plot.20160816.100000.nc')
+TEST_E3SM_FILE = os.path.join(DATA_PATH, 'test_hindcast_file.nc')

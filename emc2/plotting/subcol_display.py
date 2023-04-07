@@ -29,7 +29,7 @@ class SubcolumnDisplay(Display):
     of a regional output, but can always be replaced with different coordinates using the internal methods.
     Note that there is no dedicated option to plot subcolumns vs. lat or lon, since subcolumns at a given
     grid cell are independent of subcolumns attributed to other neighboring grid cells.
-    Note: if older version of ACT are installed (e.g., 0.2.4), "_obj" should be replaced with "_arm".
+    Note: if older version of ACT are installed (e.g., 0.2.4), "_ds" should be replaced with "_arm".
 
     Attributes
     ----------
@@ -167,9 +167,9 @@ class SubcolumnDisplay(Display):
             A model containing the subcolumn data to relpace the current model data.
 
         """
-        self._obj.pop(self.model.model_name)
+        self._ds.pop(self.model.model_name)
         self.model = model
-        self._obj.update({self.model.model_name: self.model.ds})
+        self._ds.update({self.model.model_name: self.model.ds})
 
     def calc_mean_and_sd(self, variable, use_geom_mean=False, axis=None):
         """
@@ -407,11 +407,11 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._obj.keys()][0]
+        ds_name = [x for x in self._ds.keys()][0]
         if len(self.model.ds[variable].dims) == 3:
-            my_ds = self._obj[ds_name].sel(subcolumn=column_no)
+            my_ds = self._ds[ds_name].sel(subcolumn=column_no)
         else:
-            my_ds = self._obj[ds_name]
+            my_ds = self._ds[ds_name]
         x_variable = self.model.time_dim
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -671,8 +671,8 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._obj.keys()][0]
-        my_ds = self._obj[ds_name].sel({self.model.time_dim: time}, method='nearest')
+        ds_name = [x for x in self._ds.keys()][0]
+        my_ds = self._ds[ds_name].sel({self.model.time_dim: time}, method='nearest')
 
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -813,19 +813,19 @@ class SubcolumnDisplay(Display):
                 print("'use_geom_mean' is an unknown string. Using arithmetic mean and SD")
                 use_geom_mean = False
 
-        ds_name = [x for x in self._obj.keys()][0]
+        ds_name = [x for x in self._ds.keys()][0]
         x_variable = self.model.time_dim
         if time is not None:
             if np.logical_or(type(time) is tuple, type(time) is str):
                 time = np.array(time)
             if time.size == 1:
-                my_ds = self._obj[ds_name].sel({x_variable: time}, method='nearest')
+                my_ds = self._ds[ds_name].sel({x_variable: time}, method='nearest')
             else:
-                time_ind = np.logical_and(self._obj[ds_name][x_variable] >= time[0],
-                                          self._obj[ds_name][x_variable] < time[1])
-                my_ds = self._obj[ds_name].isel({x_variable: time_ind})
+                time_ind = np.logical_and(self._ds[ds_name][x_variable] >= time[0],
+                                          self._ds[ds_name][x_variable] < time[1])
+                my_ds = self._ds[ds_name].isel({x_variable: time_ind})
         else:
-            my_ds = self._obj[ds_name]
+            my_ds = self._ds[ds_name]
 
         if pressure_coords:
             y_variable = my_ds[self.model.p_field]
@@ -1101,11 +1101,11 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._obj.keys()][0]
+        ds_name = [x for x in self._ds.keys()][0]
         if len(self.model.ds[variable].dims) == 3:
-            my_ds = self._obj[ds_name].sel(subcolumn=column_no)
+            my_ds = self._ds[ds_name].sel(subcolumn=column_no)
         else:
-            my_ds = self._obj[ds_name]
+            my_ds = self._ds[ds_name]
         x_variable = self.model.time_dim
         if pressure_coords:
             y_variable = self.model.height_dim
@@ -1238,8 +1238,8 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._obj.keys()][0]  #E3SM
-        my_ds = self._obj[ds_name]
+        ds_name = [x for x in self._ds.keys()][0]  #E3SM
+        my_ds = self._ds[ds_name]
             
         # keep    
         x_variable = self.model.time_dim
@@ -1332,8 +1332,8 @@ class SubcolumnDisplay(Display):
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
         """
-        ds_name = [x for x in self._obj.keys()][0]  #E3SM
-        my_ds = self._obj[ds_name]
+        ds_name = [x for x in self._ds.keys()][0]  #E3SM
+        my_ds = self._ds[ds_name]
             
         # keep    
         x_variable = self.model.time_dim

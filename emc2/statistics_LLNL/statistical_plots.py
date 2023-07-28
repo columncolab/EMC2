@@ -51,6 +51,7 @@ def plot_column_input_q_timeseries(self, variable, column_no=0, pressure_coords=
     x_rotation: float
         x-axis label rotation for a date axis.
     Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
+
     Returns
     -------
     axes: Matplotlib axes handle
@@ -155,14 +156,15 @@ def plot_column_input_q_timeseries(self, variable, column_no=0, pressure_coords=
     return self.axes[subplot_index]
 
 
-def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig_path, fig_name):
+def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime,
+                    save_flag, fig_path=None, fig_name=None, **kwargs):
     """
     Generate radar CFAD figure
 
     Parameters
     ----------
     Ze_EDGES: float
-        radar CFAD bins, unit: dBZ
+        radar CFAD bins, units: dBZ
     newgrid_mid: float
         height, unit: km
     cfaddbz35_cal_alltime: float
@@ -170,9 +172,11 @@ def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig
     save_flag: float
         0 or 1, if save (1) the figure or not (0)
     fig_path: string
-        output figure directory
+        Output figure directory. This is not used if save_flag is None.
     fig_name: string
-        output figure name
+        Output figure name. This is not used if save_flag is None.
+
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
     """
 
     # height
@@ -202,11 +206,25 @@ def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig
                     (0.65, 0, 0),
                     (1, 0, 0))}
 
-    palette = matplotlib.colors.LinearSegmentedColormap(
-        'my_colormap', cdict, 256)
+    if not 'cmap' in kwargs.keys():
+        palette = matplotlib.colors.LinearSegmentedColormap(
+            'my_colormap', cdict, 256)
+        cmap = palette
+    else:
+        cmap = kwargs.pop('cmap')
 
+    if not 'vmin' in kwargs.keys():
+        vmin = 0.0
+    else:
+        vmin = kwargs.pop('vmax')
+
+    if not 'vmax' in kwargs.keys():
+        vmax = 0.0
+    else:
+        vmax = kwargs.pop('vmax')    
     c1 = ax.pcolormesh(Ze_EDGES, levStat_km_add0,
-                       cfaddbz35_cal_alltime, cmap=palette, vmin=0.0, vmax=0.2)
+                       cfaddbz35_cal_alltime, cmap=cmap, vmin=0.0, vmax=0.2,
+                       **kwargs)
     ax.set_xlabel('Ze bins [dBZ]')
     ax.set_ylabel('Height [km]')
     ax.set_title('Radar')
@@ -225,7 +243,8 @@ def plot_radar_CFAD(Ze_EDGES, newgrid_mid, cfaddbz35_cal_alltime, save_flag, fig
 
 
 
-def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime, save_flag, fig_path, fig_name):
+def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime,
+                      save_flag, fig_path=None, fig_name=None, **kwargs):
     """
     Generate lidar CFAD figure
 
@@ -240,10 +259,11 @@ def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime, save_flag, fig
     save_flag: float
         0 or 1, if save (1) the figure or not (0)
     fig_path: string
-        output figure directory
+        Output figure directory. This is not used if save_flag is None.
     fig_name: string
-        output figure name
+        Output figure name. This is not used if save_flag is None.
 
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
     """
 
     # height
@@ -272,14 +292,25 @@ def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime, save_flag, fig
                       (0.34, 1, 1),
                       (0.65, 0, 0),
                       (1, 0, 0))}
-
-    palette = matplotlib.colors.LinearSegmentedColormap(
+    if not 'cmap' in kwargs.keys():
+        cmap = matplotlib.colors.LinearSegmentedColormap(
         'my_colormap', cdict, 256)
+    else:
+        cmap = kwargs.pop('cmap')
 
     SR_BINS_index = np.arange(len(SR_EDGES))
+    if not 'vmin' in kwargs.keys():
+        vmin = 0.0
+    else:
+        vmin = kwargs.pop('vmax')
 
+    if not 'vmax' in kwargs.keys():
+        vmax = 0.0
+    else:
+        vmax = kwargs.pop('vmax')    
     c1 = ax.pcolormesh(SR_BINS_index, levStat_km_add0,
-                       cfadSR_cal_alltime, cmap=palette, vmin=0.0, vmax=0.2)
+                       cfadSR_cal_alltime, cmap=cmap, vmin=vmin, vmax=vmax,
+                       **kwargs)
     ax.set_xlabel('SR bins')
     ax.set_ylabel('Height [km]')
     ax.set_title('Lidar')
@@ -300,9 +331,11 @@ def plot_lidar_SR_CFAD(SR_EDGES, newgrid_mid, cfadSR_cal_alltime, save_flag, fig
 
 
 def plot_every_subcolumn_timeseries_radarlidarsignal(
-        model, col_index, save_flag, fig_path, fig_name):
+        model, col_index, save_flag, fig_path=None, fig_name=None,
+        vmin_radar=-50, vmax_radar=10,
+        vmin_lidar=1e-8, vmax_lidar=1e-1, **kwargs):
     """
-    generate timeseries of radar and lidar signal from every subcolumn.
+    Generate timeseries of radar reflectivity and lidar backscatter from every subcolumn.
 
     Parameters
     ----------
@@ -313,9 +346,15 @@ def plot_every_subcolumn_timeseries_radarlidarsignal(
     save_flag: float
         0 or 1, if save (1) the figure or not (0)
     fig_path: string
-        output figure directory
+        Output figure directory. This is not used if save_flag is None.
     fig_name: string
-        output figure name
+        Output figure name. This is not used if save_flag is None.
+    vmin_radar, vmax_radar: float
+        Minimum and maximum values for the reflectivity subplot.
+    vmin_lidar, vmax_lidar: float
+        Minimum and maximum values for the backscatter subplot.    
+
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
     """
 
     subcolumn_num = len(model.ds.subcolumn)
@@ -360,17 +399,29 @@ def plot_every_subcolumn_timeseries_radarlidarsignal(
     fig.subplots_adjust(top=0.96, bottom=0.06, left=0.09,
                         right=0.9, wspace=0.1, hspace=0.2)
     ax = axes.flatten()
-    cmap_plot = 'act_HomeyerRainbow'
+    if not 'cmap' in kwargs.keys():
+        cmap = 'Spectral_r'
+    else:
+        cmap = kwargs.pop('cmap')
 
     fontsize_input = 12
     plt.rcParams.update({'font.size': 12})
 
     textx, texty = 0.04, 1.03
     ifig = 0
+    if not 'vmin' in list(kwargs.keys()):
+        vmin = -50.0
+    else:
+        vmin = kwargs.pop('vmin')
+
+    if not 'vmax' in list(kwargs.keys()):
+        vmax = 10.0
+    else:
+        vmax = kwargs.pop('vmin')    
     # var=np.transpose(dbze35_ground_th, axes=(0,2,1)).reshape(lev_ground.shape[0], -1)
     Ze_att_tot_plt[Ze_att_tot_plt <= -1.e+20] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long,
-                             Ze_att_tot_plt, vmin=-50, vmax=10, cmap=cmap_plot)
+                             Ze_att_tot_plt, vmin=-50, vmax=10, cmap=cmap, **kwargs)
     ax[ifig].text(textx, texty, 'Radar', transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]
     ddy = np.array(ax[ifig].get_position())[1, 1] - \
@@ -394,7 +445,8 @@ def plot_every_subcolumn_timeseries_radarlidarsignal(
     # var=np.transpose(dbze35_ground_th, axes=(0,2,1)).reshape(lev_ground.shape[0], -1)
     beta_att_tot_plt[beta_att_tot_plt <= -1.e+40] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long,
-                             beta_att_tot_plt, norm=colors.LogNorm(vmin=vmin, vmax=vmax), cmap=cmap_plot)
+                             beta_att_tot_plt, norm=colors.LogNorm(vmin=vmin, vmax=vmax), 
+                             cmap=cmap)
     ax[ifig].text(textx, texty, 'Lidar', transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]
     ddy = np.array(ax[ifig].get_position())[1, 1] - \
@@ -416,9 +468,14 @@ def plot_every_subcolumn_timeseries_radarlidarsignal(
             f'{fig_path}/radar_lidar_att_allsubcols_{fig_name}.png', dpi=400)
 
 
-def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, save_flag, fig_path, fig_name):
+def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, save_flag,
+                                                            fig_path=None, fig_name=None,
+                                                            vmin_radar=-50, vmax_radar=10,
+                                                            vmin_lidar=1e-8, vmax_lidar=1e-1,
+                                                            **kwargs):
     """
-    Generate timeseries of non-attenuated radar and lidar signal from every subcolumn.
+    Generate timeseries of non-attenuated radar reflectivity and
+    lidar backscatter from every subcolumn.
 
     Parameters
     ----------
@@ -429,10 +486,14 @@ def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, sa
     save_flag: float
         0 or 1, if save (1) the figure or not (0)
     fig_path: string
-        output figure directory
+        Output figure directory. This is not used if save_flag is None.
     fig_name: string
-        output figure name
-
+        Output figure name. This is not used if save_flag is None.
+    vmin_radar, vmax_radar: float
+        Minimum and maximum values for the reflectivity subplot.
+    vmin_lidar, vmax_lidar: float
+        Minimum and maximum values for the backscatter subplot.    
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
     """
 
     subcolumn_num = len(model.ds.subcolumn)
@@ -473,7 +534,10 @@ def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, sa
     fig.subplots_adjust(top=0.96, bottom=0.06, left=0.09,
                         right=0.9, wspace=0.1, hspace=0.2)
     ax = axes.flatten()
-    cmap_plot = 'act_HomeyerRainbow'
+    if not 'cmap' in kwargs.keys():
+        cmap = 'Spectral_r'
+    else:
+        cmap = kwargs.pop('cmap')
 
     fontsize_input = 12
     plt.rcParams.update({'font.size': 12})
@@ -481,10 +545,9 @@ def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, sa
     textx, texty = 0.04, 1.03
 
     ifig = 0
-    # var=np.transpose(dbze35_ground_th, axes=(0,2,1)).reshape(lev_ground.shape[0], -1)
     Ze_tot_plt[Ze_tot_plt <= -1.e+20] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long,
-                             Ze_tot_plt, vmin=-50, vmax=10, cmap=cmap_plot)
+                             Ze_tot_plt, vmin=vmin_radar, vmax=vmax_radar, cmap=cmap, **kwargs)
     ax[ifig].text(textx, texty, 'Radar', transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]
     ddy = np.array(ax[ifig].get_position())[1, 1] - \
@@ -501,13 +564,21 @@ def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, sa
     for label in ax[subplot_index].get_xticklabels(which='major'):
         label.set(rotation=x_rotation, horizontalalignment='right')
 
-    vmin = 1e-8
-    vmax = 1e-3
+    if not 'vmin' in kwargs.keys():
+        vmin = 1e-8
+    else:
+        vmin = kwargs.pop('vmin')
+    if not 'vmin' in kwargs.keys():
+        vmin = 1e-3
+    else:
+        vmin = kwargs.pop('vmax')    
 
     ifig = 1
     beta_tot_plt[beta_tot_plt <= -1.e+40] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long,
-                             beta_tot_plt, norm=colors.LogNorm(vmin=vmin, vmax=vmax), cmap=cmap_plot)
+                             beta_tot_plt,
+                             norm=colors.LogNorm(vmin=vmin_lidar, vmax=vmax_lidar),
+                             cmap=cmap, **kwargs)
     ax[ifig].text(textx, texty, 'Lidar', transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]
     ddy = np.array(ax[ifig].get_position())[1, 1] - \
@@ -530,7 +601,9 @@ def plot_every_subcolumn_timeseries_nonatt_radarlidarsignal(model, col_index, sa
 
 
 # plot radar lidar signal with all subcolumns
-def plot_every_subcolumn_timeseries_SR(model, atb_total_4D, atb_mol_4D, col_index, save_flag, fig_path, fig_name):
+def plot_every_subcolumn_timeseries_SR(model, atb_total_4D, atb_mol_4D,
+                                      col_index, save_flag, fig_path=None, fig_name=None,
+                                      **kwargs):
     """
     generate timeseries of lidar scattering ratio from every subcolumn.
 
@@ -547,9 +620,11 @@ def plot_every_subcolumn_timeseries_SR(model, atb_total_4D, atb_mol_4D, col_inde
     save_flag: float
         0 or 1, if save (1) the figure or not (0)
     fig_path: string
-        output figure directory
+        Output figure directory. This is not used if save_flag is None.
     fig_name: string
-        output figure name
+        Output figure name. This is not used if save_flag is None.
+    
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
     """
 
     subcolumn_num = len(model.ds.subcolumn)
@@ -593,7 +668,18 @@ def plot_every_subcolumn_timeseries_SR(model, atb_total_4D, atb_mol_4D, col_inde
     fig.subplots_adjust(top=0.96, bottom=0.06, left=0.09,
                         right=0.9, wspace=0.1, hspace=0.2)
     # ax=axes.flatten()
-    cmap_plot = 'act_HomeyerRainbow'
+    if not 'cmap' in kwargs.keys():
+        cmap = 'Spectral_r'
+    else:
+        cmap = kwargs.pop('cmap')
+    if not 'vmin' in kwargs.keys():
+        vmin = 0
+    else:
+        vmin = kwargs.pop('vmin')
+    if not 'vmax' in kwargs.keys():
+        vmax = 0
+    else:
+        vmax = kwargs.pop('vmax')    
 
     fontsize_input = 12
     plt.rcParams.update({'font.size': 12})
@@ -602,7 +688,7 @@ def plot_every_subcolumn_timeseries_SR(model, atb_total_4D, atb_mol_4D, col_inde
     sr_model_level = beta_att_tot_plt/beta_mol_plt
     sr_model_level[sr_model_level <= -1.e+40] = np.nan
     c1 = ax.pcolormesh(input_time_2d_long, input_height_half_long,
-                       sr_model_level, cmap=cmap_plot, vmin=0, vmax=80)
+                       sr_model_level, cmap=cmap, vmin=vmin, vmax=vmax)
     ax.text(textx, texty, 'SR', transform=ax.transAxes)
     y1 = np.array(ax.get_position())[0, 1]
     ddy = np.array(ax.get_position())[1, 1]-np.array(ax.get_position())[0, 1]
@@ -622,7 +708,8 @@ def plot_every_subcolumn_timeseries_SR(model, atb_total_4D, atb_mol_4D, col_inde
             f'{fig_path}/radar_lidar_SR_allsubcols_{fig_name}.png', dpi=400)
 
 
-def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig_path, fig_name):
+def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag,
+                                                fig_path=None, fig_name=None, **kwargs):
     """
     Generate timeseries of mixing ratio from every subcolumn.
 
@@ -635,10 +722,11 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
     save_flag: float
         0 or 1, if save (1) the figure or not (0)
     fig_path: string
-        output figure directory
+        Output figure directory. This is not used if save_flag is None.
     fig_name: string
-        output figure name
-
+        Output figure name. This is not used if save_flag is None.
+    
+    Additional keyword arguments are passed into matplotlib's matplotlib.pyplot.pcolormesh.
     """
 
     subcolumn_num = len(model.ds.subcolumn)
@@ -701,7 +789,20 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
     fig.subplots_adjust(top=0.96, bottom=0.06, left=0.09,
                         right=0.9, wspace=0.1, hspace=0.2)
     ax = axes.flatten()
-    cmap_plot = 'act_HomeyerRainbow'
+    if not 'cmap' in kwargs.keys():
+        cmap = 'Spectral_r'
+    else:
+        cmap = kwargs.pop('cmap')
+
+    if not 'vmin' in kwargs.keys():
+        vmin = 0
+    else:
+        vmin = kwargs.pop('vmin')
+
+    if not 'vmax' in kwargs.keys():
+        vmax = 0.1
+    else:
+        vmax = kwargs.pop('vmax')    
 
     fontsize_input = 12
     plt.rcParams.update({'font.size': 12})
@@ -711,7 +812,8 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
     ifig = 0
     strat_q_subcolumns_cl_plt[strat_q_subcolumns_cl_plt <= 0] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long/1000.,
-                             strat_q_subcolumns_cl_plt*1000., vmin=0, vmax=0.1, cmap=cmap_plot)
+                             strat_q_subcolumns_cl_plt*1000., vmin=vmin,
+                             vmax=vmax, cmap=cmap)
     ax[ifig].text(textx, texty, 'strat_q_subcolumns_cl',
                   transform=ax[ifig].transAxes)
 
@@ -733,7 +835,8 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
     ifig = 1
     strat_q_subcolumns_ci_plt[strat_q_subcolumns_ci_plt <= 0] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long/1000.,
-                             strat_q_subcolumns_ci_plt*1000., vmin=0, vmax=0.01, cmap=cmap_plot)
+                             strat_q_subcolumns_ci_plt*1000., vmin=vmin,
+                             vmax=vmax, cmap=cmap)
     ax[ifig].text(textx, texty, 'strat_q_subcolumns_ci',
                   transform=ax[ifig].transAxes)
     # ax[ifig].set_xlabel('loc')
@@ -755,7 +858,8 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
     ifig = 2
     strat_q_subcolumns_pl_plt[strat_q_subcolumns_pl_plt <= 0] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long/1000.,
-                             strat_q_subcolumns_pl_plt*1000., vmin=0, vmax=0.01, cmap=cmap_plot)
+                             strat_q_subcolumns_pl_plt*1000., vmin=vmin,
+                             vmax=vmax, cmap=cmap)
     ax[ifig].text(textx, texty, 'strat_q_subcolumns_pl',
                   transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]
@@ -776,7 +880,8 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
     ifig = 3
     strat_q_subcolumns_pi_plt[strat_q_subcolumns_pi_plt <= 0] = np.nan
     c1 = ax[ifig].pcolormesh(input_time_2d_long, input_height_half_long/1000.,
-                             strat_q_subcolumns_pi_plt*1000., vmin=0, vmax=0.1, cmap=cmap_plot)
+                             strat_q_subcolumns_pi_plt*1000., vmin=vmin,
+                             vmax=vmax, cmap=cmap)
     ax[ifig].text(textx, texty, 'strat_q_subcolumns_pi',
                   transform=ax[ifig].transAxes)
     # ax[ifig].set_xlabel('loc')
@@ -800,7 +905,8 @@ def plot_every_subcolumn_timeseries_mixingratio(model, col_index, save_flag, fig
         fig.savefig(f'{fig_path}/q_allsubcols_{fig_name}.png', dpi=400)
 
 
-def plot_every_subcolumn_timeseries_mixingratio_cloud_precipitation(model, col_index, save_flag, fig_path, fig_name):
+def plot_every_subcolumn_timeseries_mixingratio_cloud_precipitation(
+        model, col_index, save_flag, fig_path, fig_name, **kwargs):
     """
     Generate timeseries of cloud and precipitation mixing ratios from every subcolumn.
 
@@ -882,8 +988,20 @@ def plot_every_subcolumn_timeseries_mixingratio_cloud_precipitation(model, col_i
     fig.subplots_adjust(top=0.96, bottom=0.06, left=0.09,
                         right=0.9, wspace=0.1, hspace=0.2)
     ax = axes.flatten()
-    cmap_plot = 'act_HomeyerRainbow'
+    if not 'cmap' in kwargs.keys():
+        cmap = 'act_HomeyerRainbow'
+    else:
+        cmap = kwargs.pop('cmap')
 
+    if not 'vmin' in kwargs.keys():
+        vmin = 0
+    else:
+        vmin = kwargs.pop('vmin')
+
+    if not 'vmax' in kwargs.keys():
+        vmax = 0.1
+    else:
+        vmax = kwargs.pop('vmax')    
     fontsize_input = 12
     plt.rcParams.update({'font.size': 12})
 
@@ -893,7 +1011,7 @@ def plot_every_subcolumn_timeseries_mixingratio_cloud_precipitation(model, col_i
     plot_var0[plot_var0 < 0] = np.nan
     c1 = ax[ifig].pcolormesh(
         input_time_2d_long, input_height_half_long / 1000.,
-        plot_var0*1000., vmin=0, vmax=0.1, cmap=cmap_plot)
+        plot_var0*1000., vmin=vmin, vmax=vmax, cmap=cmap, **kwargs)
     ax[ifig].text(textx, texty, '(a) Cloud', transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]
     ddy = np.array(ax[ifig].get_position())[1, 1] - \

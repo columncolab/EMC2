@@ -1033,7 +1033,7 @@ def plot_every_subcolumn_timeseries_mixingratio_cloud_precipitation(
     plot_var1[plot_var1 < 0] = np.nan
     c1 = ax[ifig].pcolormesh(
         input_time_2d_long, input_height_half_long / 1000.,
-        plot_var1*1000., vmin=0, vmax=0.1, cmap=cmap_plot)
+        plot_var1*1000., vmin=0, vmax=0.1, cmap=cmap)
     ax[ifig].text(textx, texty, '(b) Precipitation',
                   transform=ax[ifig].transAxes)
     y1 = np.array(ax[ifig].get_position())[0, 1]

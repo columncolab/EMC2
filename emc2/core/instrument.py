@@ -119,7 +119,7 @@ class Instrument(object):
         ----------
         filename: str
 
-        Additional keyword arguments are passed into :py:func:`act.io.armfiles.read_netcdf`
+        Additional keyword arguments are passed into :py:func:`act.io.arm.read_arm_netcdf`
 
         """
         self.ds = load_arm_file(filename, **kwargs)

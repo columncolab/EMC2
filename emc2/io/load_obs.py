@@ -1,8 +1,8 @@
 try:
-    from act.io.arm import read_arm_netcdf
+    from act.io.arm import read_arm_netcdf as read_netcdf
 except:
     print('Using act-atmos v1.5.3 or earlier. Please update to v2.0.0 or newer')
-    from act.io.armfiles import read_netcdf as read_arm_netcdf
+    from act.io.armfiles import read_netcdf
 
 
 def load_arm_file(filename, **kwargs):
@@ -22,4 +22,4 @@ def load_arm_file(filename, **kwargs):
         The xarray dataset containing the file data.
     """
 
-    return read_arm_netcdf(filename, **kwargs)
+    return read_netcdf(filename, **kwargs)

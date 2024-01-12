@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.simulator.radar_moments &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -88,7 +90,9 @@
 <span class="kn">from</span> <span class="nn">..core.instrument</span> <span class="kn">import</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
 
 
-<div class="viewcode-block" id="calc_total_reflectivity"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_total_reflectivity.html#emc2.simulator.radar_moments.calc_total_reflectivity">[docs]</a><span class="k">def</span> <span class="nf">calc_total_reflectivity</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">detect_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_total_reflectivity">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_total_reflectivity.html#emc2.simulator.radar_moments.calc_total_reflectivity">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_total_reflectivity</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">detect_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This method calculates the total (convective + stratiform) reflectivity (Ze).</span>
 
@@ -140,7 +144,10 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="accumulate_attenuation"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.accumulate_attenuation.html#emc2.simulator.radar_moments.accumulate_attenuation">[docs]</a><span class="k">def</span> <span class="nf">accumulate_attenuation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">hyd_ext</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="accumulate_attenuation">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.accumulate_attenuation.html#emc2.simulator.radar_moments.accumulate_attenuation">[docs]</a>
+<span class="k">def</span> <span class="nf">accumulate_attenuation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">hyd_ext</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                            <span class="n">use_empiric_calc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Accumulates atmospheric and condensate radar attenuation (linear units) from TOA or the surface.</span>
@@ -221,7 +228,10 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="calc_radar_empirical"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_empirical.html#emc2.simulator.radar_moments.calc_radar_empirical">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_empirical</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">p_values</span><span class="p">,</span> <span class="n">t_values</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span>
+
+<div class="viewcode-block" id="calc_radar_empirical">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_empirical.html#emc2.simulator.radar_moments.calc_radar_empirical">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_radar_empirical</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">p_values</span><span class="p">,</span> <span class="n">t_values</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span>
                          <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the radar stratiform or convective reflectivity and attenuation</span>
@@ -309,7 +319,10 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="calc_radar_bulk"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_bulk.html#emc2.simulator.radar_moments.calc_radar_bulk">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_bulk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">p_values</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="calc_radar_bulk">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_bulk.html#emc2.simulator.radar_moments.calc_radar_bulk">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_radar_bulk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">p_values</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the radar stratiform or convective reflectivity and attenuation</span>
@@ -454,7 +467,10 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="calc_radar_micro"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_micro.html#emc2.simulator.radar_moments.calc_radar_micro">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_micro</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="calc_radar_micro">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_micro.html#emc2.simulator.radar_moments.calc_radar_micro">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_radar_micro</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">atm_ext</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                      <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -787,7 +803,10 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="calc_radar_moments"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_moments.html#emc2.simulator.radar_moments.calc_radar_moments">[docs]</a><span class="k">def</span> <span class="nf">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span>
+
+<div class="viewcode-block" id="calc_radar_moments">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.radar_moments.calc_radar_moments.html#emc2.simulator.radar_moments.calc_radar_moments">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_radar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span>
                        <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">use_rad_logic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_empiric_calc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -958,6 +977,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done! total processing time = </span><span class="si">%.2f</span><span class="s2">s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">model</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_calc_sigma_d_tot_cl</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">N_0</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span>

@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.core.model &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -86,7 +88,11 @@
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">act.io.armfiles</span> <span class="kn">import</span> <span class="n">read_netcdf</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">act.io.arm</span> <span class="kn">import</span> <span class="n">read_arm_netcdf</span> <span class="k">as</span> <span class="n">read_netcdf</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using act-atmos v1.5.3 or earlier. Please update to v2.0.0 or newer&#39;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">act.io.armfiles</span> <span class="kn">import</span> <span class="n">read_netcdf</span>
 <span class="kn">from</span> <span class="nn">.instrument</span> <span class="kn">import</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">..scattering</span> <span class="kn">import</span> <span class="n">brandes</span>
@@ -98,7 +104,9 @@
     <span class="n">WRF_PYTHON_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../API/generated/emc2.core.Model.html#emc2.core.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">():</span>
+<div class="viewcode-block" id="Model">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.Model.html#emc2.core.Model">[docs]</a>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class stores the model specific parameters for the radar simulator.</span>
 
@@ -181,7 +189,9 @@
 <span class="sd">        this is a dict pointing to the variable with the density for each hydrometeor class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Model.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.Model.html#emc2.core.Model.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.Model.html#emc2.core.Model.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Rho_hyd</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fluffy</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lidar_ratio</span> <span class="o">=</span> <span class="p">{}</span>
@@ -222,6 +232,7 @@
                        <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="mf">8.3144598</span><span class="p">}</span>  <span class="c1"># J K^-1 mol^-1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">asp_ratio_func</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ice_hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span></div>
+
 
     <span class="k">def</span> <span class="nf">_add_vel_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">my_keys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_a</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -327,7 +338,9 @@
         <span class="n">subcolumn</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="s1">&#39;subcolumn&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;subcolumn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subcolumn</span>
 
-<div class="viewcode-block" id="Model.remove_subcol_fields"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.remove_subcol_fields">[docs]</a>    <span class="k">def</span> <span class="nf">remove_subcol_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cloud_class</span><span class="o">=</span><span class="s2">&quot;conv&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.remove_subcol_fields">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.remove_subcol_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_subcol_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cloud_class</span><span class="o">=</span><span class="s2">&quot;conv&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant</span>
 <span class="sd">        for CESM and E3SM).</span>
@@ -339,7 +352,10 @@
                 <span class="n">vars_to_drop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_drop</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.finalize_subcol_fields"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.finalize_subcol_fields">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_subcol_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">more_fieldnames</span><span class="o">=</span><span class="p">[]):</span>
+
+<div class="viewcode-block" id="Model.finalize_subcol_fields">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.finalize_subcol_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">finalize_subcol_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">more_fieldnames</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all zero values from subcolumn output fields enabling better visualization. Can be applied</span>
 <span class="sd">        over additional fields using the more_fieldnames input parameter.</span>
@@ -348,7 +364,10 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="n">fstr</span> <span class="ow">in</span> <span class="n">key</span> <span class="k">for</span> <span class="n">fstr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sub_col&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">more_fieldnames</span><span class="p">]):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.remove_appended_str"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.remove_appended_str">[docs]</a>    <span class="k">def</span> <span class="nf">remove_appended_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_appended_in_lat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Model.remove_appended_str">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.remove_appended_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_appended_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_appended_in_lat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names</span>
 <span class="sd">        (typically required when using post-processed output data files).</span>
@@ -381,7 +400,10 @@
                         <span class="n">to_rename</span><span class="p">[</span><span class="n">out_fields</span><span class="p">[</span><span class="n">ind</span><span class="p">]]</span> <span class="o">=</span> <span class="n">out_fields</span><span class="p">[</span><span class="n">ind</span><span class="p">][:</span><span class="n">appended_fields</span><span class="p">[</span><span class="n">ind</span><span class="p">]]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">to_rename</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.check_and_stack_time_lat_lon"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.check_and_stack_time_lat_lon">[docs]</a>    <span class="k">def</span> <span class="nf">check_and_stack_time_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_coord_name</span><span class="o">=</span><span class="s2">&quot;time_lat_lon&quot;</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order_dim</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Model.check_and_stack_time_lat_lon">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.check_and_stack_time_lat_lon">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_and_stack_time_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_coord_name</span><span class="o">=</span><span class="s2">&quot;time_lat_lon&quot;</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order_dim</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1)</span>
 <span class="sd">        to enable EMC^2 processing of regional model output. Otherwise, squeezing the lat and lon dims (if they</span>
@@ -445,7 +467,10 @@
         <span class="k">if</span> <span class="n">order_dim</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">permute_dims_for_processing</span><span class="p">()</span>  <span class="c1"># Consistent dim order (time x height).</span></div>
 
-<div class="viewcode-block" id="Model.unstack_time_lat_lon"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.unstack_time_lat_lon">[docs]</a>    <span class="k">def</span> <span class="nf">unstack_time_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order_dim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">squeeze_single_dims</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Model.unstack_time_lat_lon">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.unstack_time_lat_lon">[docs]</a>
+    <span class="k">def</span> <span class="nf">unstack_time_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order_dim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">squeeze_single_dims</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unstack the time, lat, and lon dims if they were previously stacked together</span>
 <span class="sd">        (self.stacked_time_dim is not None). Finally, the method reorder dimensions to time x height for proper</span>
@@ -504,7 +529,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subcolumns</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="s2">&quot;subcolumn&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.permute_dims_for_processing"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.permute_dims_for_processing">[docs]</a>    <span class="k">def</span> <span class="nf">permute_dims_for_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_dim_first</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Model.permute_dims_for_processing">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.permute_dims_for_processing">[docs]</a>
+    <span class="k">def</span> <span class="nf">permute_dims_for_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_dim_first</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reorder dims for consistent processing such that the order is:</span>
 <span class="sd">        subcolumn x time x height.</span>
@@ -529,6 +557,7 @@
             <span class="n">Dims_new_order</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">Dims_new_order</span> <span class="o">+</span> <span class="n">base_order</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">Dims_new_order</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">set_hyd_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hyd_types</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">hyd_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_hydrometeor_classes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -539,7 +568,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">hyd_types</span>
 
-<div class="viewcode-block" id="Model.subcolumns_to_netcdf"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.subcolumns_to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">subcolumns_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.subcolumns_to_netcdf">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.subcolumns_to_netcdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">subcolumns_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saves all of the simulated subcolumn parameters to a netCDF file.</span>
 
@@ -557,7 +588,10 @@
         <span class="n">out_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">var_dict</span><span class="p">)</span>
         <span class="n">out_ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.load_subcolumns_from_netcdf"><a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.load_subcolumns_from_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">load_subcolumns_from_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Model.load_subcolumns_from_netcdf">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.load_subcolumns_from_netcdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_subcolumns_from_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load all of the subcolumn data from a previously saved netCDF file.</span>
 <span class="sd">        The dataset being loaded must match the current number of subcolumns if there are any</span>
@@ -570,11 +604,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">my_file</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="n">my_file</span><span class="p">])</span>
-        <span class="n">my_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+        <span class="n">my_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ModelE"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.ModelE.html#emc2.core.ModelE">[docs]</a><span class="k">class</span> <span class="nc">ModelE</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-<div class="viewcode-block" id="ModelE.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.ModelE.html#emc2.core.ModelE.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ModelE">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.ModelE.html#emc2.core.ModelE">[docs]</a>
+<span class="k">class</span> <span class="nc">ModelE</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelE.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.ModelE.html#emc2.core.ModelE.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This loads a ModelE simulation with all of the necessary parameters for EMC^2 to run.</span>
 
@@ -648,11 +688,17 @@
             <span class="c1"># ModelE has pressure units in mb, but pint only supports hPa</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;p_3d&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hPa&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;ModelE3&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;ModelE3&quot;</span></div>
+</div>
 
 
-<div class="viewcode-block" id="E3SM"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.E3SM.html#emc2.core.E3SM">[docs]</a><span class="k">class</span> <span class="nc">E3SM</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-<div class="viewcode-block" id="E3SM.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.E3SM.html#emc2.core.E3SM.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">appended_str</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="E3SM">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.E3SM.html#emc2.core.E3SM">[docs]</a>
+<span class="k">class</span> <span class="nc">E3SM</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="E3SM.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.E3SM.html#emc2.core.E3SM.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">appended_str</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">all_appended_in_lat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.</span>
@@ -774,7 +820,9 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">permute_dims_for_processing</span><span class="p">()</span>  <span class="c1"># Consistent dim order (time x height).</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;E3SM&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;E3SM&quot;</span></div>
+</div>
+
 
 
 <span class="k">class</span> <span class="nc">CESM2</span><span class="p">(</span><span class="n">E3SM</span><span class="p">):</span>
@@ -801,8 +849,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;CESM2&quot;</span>
 
 
-<div class="viewcode-block" id="WRF"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.WRF.html#emc2.core.WRF">[docs]</a><span class="k">class</span> <span class="nc">WRF</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-<div class="viewcode-block" id="WRF.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.WRF.html#emc2.core.WRF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">z_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+<div class="viewcode-block" id="WRF">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.WRF.html#emc2.core.WRF">[docs]</a>
+<span class="k">class</span> <span class="nc">WRF</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="WRF.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.WRF.html#emc2.core.WRF.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">z_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">mcphys_scheme</span><span class="o">=</span><span class="s2">&quot;nssl&quot;</span><span class="p">,</span> <span class="n">NUWRF</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This load a WRF simulation and all of the necessary parameters from</span>
@@ -1060,11 +1112,17 @@
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_crop_time_range</span><span class="p">(</span><span class="n">time_range</span><span class="p">)</span>
 
         <span class="c1"># stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_and_stack_time_lat_lon</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_and_stack_time_lat_lon</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DHARMA"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.DHARMA.html#emc2.core.DHARMA">[docs]</a><span class="k">class</span> <span class="nc">DHARMA</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-<div class="viewcode-block" id="DHARMA.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.DHARMA.html#emc2.core.DHARMA.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;dom_col&quot;</span><span class="p">,</span> <span class="n">single_pi_class</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="DHARMA">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.DHARMA.html#emc2.core.DHARMA">[docs]</a>
+<span class="k">class</span> <span class="nc">DHARMA</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="DHARMA.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.DHARMA.html#emc2.core.DHARMA.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;dom_col&quot;</span><span class="p">,</span> <span class="n">single_pi_class</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This loads a DHARMA simulation with all of the necessary parameters</span>
@@ -1172,14 +1230,20 @@
             <span class="c1"># stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_and_stack_time_lat_lon</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;DHARMA&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;DHARMA&quot;</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TestModel"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestModel.html#emc2.core.TestModel">[docs]</a><span class="k">class</span> <span class="nc">TestModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestModel">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestModel.html#emc2.core.TestModel">[docs]</a>
+<span class="k">class</span> <span class="nc">TestModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a test Model structure used only for unit testing. It is not recommended for end users.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TestModel.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestModel.html#emc2.core.TestModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestModel.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestModel.html#emc2.core.TestModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">centimeter</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
         <span class="n">heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">11000.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
@@ -1257,16 +1321,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">my_ds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> <span class="s2">&quot;height&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TestConvection"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestConvection.html#emc2.core.TestConvection">[docs]</a><span class="k">class</span> <span class="nc">TestConvection</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestConvection">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestConvection.html#emc2.core.TestConvection">[docs]</a>
+<span class="k">class</span> <span class="nc">TestConvection</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a test Model structure used only for unit testing.</span>
 <span class="sd">    This model has a 100% convective column from 1 km to 11 km.</span>
 <span class="sd">    It is not recommended for end users.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TestConvection.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestConvection.html#emc2.core.TestConvection.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestConvection.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestConvection.html#emc2.core.TestConvection.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">centimeter</span> <span class="o">**</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">Npl</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">centimeter</span> <span class="o">**</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
@@ -1395,16 +1465,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names_for_rad</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsscl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;cldssci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspi&#39;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">my_ds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> <span class="s2">&quot;height&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TestAllStratiform"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestAllStratiform.html#emc2.core.TestAllStratiform">[docs]</a><span class="k">class</span> <span class="nc">TestAllStratiform</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestAllStratiform">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestAllStratiform.html#emc2.core.TestAllStratiform">[docs]</a>
+<span class="k">class</span> <span class="nc">TestAllStratiform</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a test Model structure used only for unit testing.</span>
 <span class="sd">    This model has a 100% stratiform column from 1 km to 11 km.</span>
 <span class="sd">    It is not recommended for end users.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TestAllStratiform.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestAllStratiform.html#emc2.core.TestAllStratiform.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestAllStratiform.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestAllStratiform.html#emc2.core.TestAllStratiform.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">centimeter</span> <span class="o">**</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">11000.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
@@ -1535,16 +1611,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names_for_rad</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsscl&#39;</span><span class="p">,</span> <span class="s1">&#39;ci&#39;</span><span class="p">:</span> <span class="s1">&#39;cldssci&#39;</span><span class="p">,</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspl&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">:</span> <span class="s1">&#39;cldsspi&#39;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">my_ds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> <span class="s2">&quot;height&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TestHalfAndHalf"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestHalfAndHalf.html#emc2.core.TestHalfAndHalf">[docs]</a><span class="k">class</span> <span class="nc">TestHalfAndHalf</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestHalfAndHalf">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestHalfAndHalf.html#emc2.core.TestHalfAndHalf">[docs]</a>
+<span class="k">class</span> <span class="nc">TestHalfAndHalf</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a test Model structure used only for unit testing.</span>
 <span class="sd">    This model has a 50% stratiform, 50% convective column from 1 km to 11 km.</span>
 <span class="sd">    It is not recommended for end users.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TestHalfAndHalf.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestHalfAndHalf.html#emc2.core.TestHalfAndHalf.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestHalfAndHalf.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.model.TestHalfAndHalf.html#emc2.core.TestHalfAndHalf.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">gram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span>
         <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">centimeter</span> <span class="o">**</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">11000.</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
@@ -1655,7 +1737,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hyd_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">my_ds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> <span class="s2">&quot;height&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span></div>
+</div>
+
 </pre></div>
 
            </div>

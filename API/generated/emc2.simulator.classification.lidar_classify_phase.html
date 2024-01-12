@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.simulator.classification.lidar_classify_phase &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -121,10 +123,10 @@
            <div itemprop="articleBody">
              
   <section id="emc2-simulator-classification-lidar-classify-phase">
-<h1>emc2.simulator.classification.lidar_classify_phase<a class="headerlink" href="#emc2-simulator-classification-lidar-classify-phase" title="Permalink to this heading">¶</a></h1>
+<h1>emc2.simulator.classification.lidar_classify_phase<a class="headerlink" href="#emc2-simulator-classification-lidar-classify-phase" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="emc2.simulator.classification.lidar_classify_phase">
-<span class="sig-prename descclassname"><span class="pre">emc2.simulator.classification.</span></span><span class="sig-name descname"><span class="pre">lidar_classify_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_p_phase_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_zeros_to_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_sub_detect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/classification.html#lidar_classify_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.classification.lidar_classify_phase" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">emc2.simulator.classification.</span></span><span class="sig-name descname"><span class="pre">lidar_classify_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_p_phase_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_zeros_to_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_sub_detect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/classification.html#lidar_classify_phase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.classification.lidar_classify_phase" title="Link to this definition">¶</a></dt>
 <dd><p>Phase classification based on fixed thresholds of a lidar’s LDR and
 tot beta_p variables.</p>
 <dl class="field-list simple">

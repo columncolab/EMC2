@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.core (emc2.core) &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -124,8 +126,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <span class="target" id="module-emc2.core"></span><section id="emc2-core-emc2-core">
-<h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Permalink to this heading">¶</a></h1>
+  <section id="emc2-core-emc2-core">
+<span id="module-emc2.core"></span><h1>emc2.core (emc2.core)<a class="headerlink" href="#emc2-core-emc2-core" title="Link to this heading">¶</a></h1>
 <p>The procedures in this module contain the core data structures of EMC^2.
 In particular, the Instrument class that describes the characteristics
 of the instrument to be simulated is stored here. In addition, global
@@ -193,7 +195,7 @@ with units, making EMC^2 unit aware.</p>
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.Model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="reference internal" href="../_modules/emc2/core/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="reference internal" href="../_modules/emc2/core/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model" title="Link to this definition">¶</a></dt>
 <dd><p>This class stores the model specific parameters for the radar simulator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
@@ -278,7 +280,7 @@ this is a dict pointing to the variable with the density for each hydrometeor cl
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.check_and_stack_time_lat_lon">
-<span class="sig-name descname"><span class="pre">check_and_stack_time_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_coord_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time_lat_lon'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.check_and_stack_time_lat_lon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.check_and_stack_time_lat_lon" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">check_and_stack_time_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_coord_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time_lat_lon'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.check_and_stack_time_lat_lon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.check_and_stack_time_lat_lon" title="Link to this definition">¶</a></dt>
 <dd><p>Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1)
 to enable EMC^2 processing of regional model output. Otherwise, squeezing the lat and lon dims (if they
 exist in dataset). Finally, the method reorder dimensions to time x height for proper processing by
@@ -303,20 +305,20 @@ method is used for unstacking</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.finalize_subcol_fields">
-<span class="sig-name descname"><span class="pre">finalize_subcol_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">more_fieldnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.finalize_subcol_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.finalize_subcol_fields" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">finalize_subcol_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">more_fieldnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.finalize_subcol_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.finalize_subcol_fields" title="Link to this definition">¶</a></dt>
 <dd><p>Remove all zero values from subcolumn output fields enabling better visualization. Can be applied
 over additional fields using the more_fieldnames input parameter.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="emc2.core.Model.hydrometeor_classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hydrometeor_classes</span></span><a class="headerlink" href="#emc2.core.Model.hydrometeor_classes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hydrometeor_classes</span></span><a class="headerlink" href="#emc2.core.Model.hydrometeor_classes" title="Link to this definition">¶</a></dt>
 <dd><p>The list of hydrometeor classes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.load_subcolumns_from_netcdf">
-<span class="sig-name descname"><span class="pre">load_subcolumns_from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.load_subcolumns_from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.load_subcolumns_from_netcdf" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">load_subcolumns_from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.load_subcolumns_from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.load_subcolumns_from_netcdf" title="Link to this definition">¶</a></dt>
 <dd><p>Load all of the subcolumn data from a previously saved netCDF file.
 The dataset being loaded must match the current number of subcolumns if there are any
 generated.</p>
@@ -332,20 +334,20 @@ generated.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="emc2.core.Model.num_hydrometeor_classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_hydrometeor_classes</span></span><a class="headerlink" href="#emc2.core.Model.num_hydrometeor_classes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_hydrometeor_classes</span></span><a class="headerlink" href="#emc2.core.Model.num_hydrometeor_classes" title="Link to this definition">¶</a></dt>
 <dd><p>The number of hydrometeor classes used</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="emc2.core.Model.num_subcolumns">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_subcolumns</span></span><a class="headerlink" href="#emc2.core.Model.num_subcolumns" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_subcolumns</span></span><a class="headerlink" href="#emc2.core.Model.num_subcolumns" title="Link to this definition">¶</a></dt>
 <dd><p>Gets the number of subcolumns in the model. Will
 return 0 if the number of subcolumns has not yet been set.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.permute_dims_for_processing">
-<span class="sig-name descname"><span class="pre">permute_dims_for_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dim_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.permute_dims_for_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.permute_dims_for_processing" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">permute_dims_for_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dim_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.permute_dims_for_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.permute_dims_for_processing" title="Link to this definition">¶</a></dt>
 <dd><p>Reorder dims for consistent processing such that the order is:
 subcolumn x time x height.
 Note: lat/lon dims are assumed to already be stacked with the time dim.</p>
@@ -363,7 +365,7 @@ Note: lat/lon dims are assumed to already be stacked with the time dim.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.remove_appended_str">
-<span class="sig-name descname"><span class="pre">remove_appended_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.remove_appended_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.remove_appended_str" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_appended_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.remove_appended_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.remove_appended_str" title="Link to this definition">¶</a></dt>
 <dd><p>Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
 (typically required when using post-processed output data files).</p>
 <dl class="field-list simple">
@@ -379,14 +381,14 @@ the appended str from both the lat and lon dims (relevant if appended_str is Tru
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.remove_subcol_fields">
-<span class="sig-name descname"><span class="pre">remove_subcol_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloud_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.remove_subcol_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.remove_subcol_fields" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_subcol_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloud_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.remove_subcol_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.remove_subcol_fields" title="Link to this definition">¶</a></dt>
 <dd><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant
 for CESM and E3SM).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.subcolumns_to_netcdf">
-<span class="sig-name descname"><span class="pre">subcolumns_to_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.subcolumns_to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.subcolumns_to_netcdf" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">subcolumns_to_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.subcolumns_to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.subcolumns_to_netcdf" title="Link to this definition">¶</a></dt>
 <dd><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -400,7 +402,7 @@ for CESM and E3SM).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Model.unstack_time_lat_lon">
-<span class="sig-name descname"><span class="pre">unstack_time_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze_single_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.unstack_time_lat_lon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.unstack_time_lat_lon" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">unstack_time_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze_single_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.unstack_time_lat_lon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.unstack_time_lat_lon" title="Link to this definition">¶</a></dt>
 <dd><p>Unstack the time, lat, and lon dims if they were previously stacked together
 (self.stacked_time_dim is not None). Finally, the method reorder dimensions to time x height for proper
 processing by calling the “permute_dims_for_processing” class method.
@@ -427,7 +429,7 @@ dedicated method.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.Instrument">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument" title="Link to this definition">¶</a></dt>
 <dd><p>This is the base class which holds the information needed to contain the instrument parameters for the
 simulator.</p>
 <dl class="field-list simple">
@@ -481,13 +483,13 @@ See the ARM KAZR handbook (Widener et al. 2012)</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.Instrument.read_arm_netcdf_file">
-<span class="sig-name descname"><span class="pre">read_arm_netcdf_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">read_arm_netcdf_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/instrument.html#Instrument.read_arm_netcdf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Instrument.read_arm_netcdf_file" title="Link to this definition">¶</a></dt>
 <dd><p>Loads a netCDF file that corresponds to ARM standards.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>filename: str</strong></dt><dd></dd>
-<dt><strong>Additional keyword arguments are passed into :py:func:`act.io.armfiles.read_netcdf`</strong></dt><dd></dd>
+<dt><strong>Additional keyword arguments are passed into :py:func:`act.io.arm.read_arm_netcdf`</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>

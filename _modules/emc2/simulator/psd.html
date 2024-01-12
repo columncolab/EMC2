@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.simulator.psd &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -120,7 +122,9 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dmax</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="calc_mu_lambda"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda">[docs]</a><span class="k">def</span> <span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="calc_mu_lambda">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
                    <span class="n">calc_dispersion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dispersion_mu_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
                    <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -250,7 +254,10 @@
     <span class="k">return</span> <span class="n">model</span></div>
 
 
-<div class="viewcode-block" id="calc_re_thompson"><a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_re_thompson.html#emc2.simulator.psd.calc_re_thompson">[docs]</a><span class="k">def</span> <span class="nf">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
+
+<div class="viewcode-block" id="calc_re_thompson">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_re_thompson.html#emc2.simulator.psd.calc_re_thompson">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
                      <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the effective radius using the Thompson et al. (2004)</span>
@@ -329,6 +336,7 @@
                               <span class="s1">&#39;Thompson et al. (2004)&#39;</span><span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">re_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_w</span>
     <span class="k">return</span> <span class="n">model</span></div>
+
 </pre></div>
 
            </div>

@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.plotting.subcol_display &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -95,7 +97,9 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Could not set pcolor.shading to &#39;auto&#39; to prevent matplotlib deprecation warning (since v.3.3)&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SubcolumnDisplay"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay">[docs]</a><span class="k">class</span> <span class="nc">SubcolumnDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
+<div class="viewcode-block" id="SubcolumnDisplay">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay">[docs]</a>
+<span class="k">class</span> <span class="nc">SubcolumnDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class contains modules for displaying the generated subcolumn parameters as quicklook</span>
 <span class="sd">    plots. It is inherited from `ACT &lt;https://arm-doe.github.io/ACT&gt;`_&#39;s Display object. For more</span>
@@ -124,7 +128,9 @@
 <span class="sd">    $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subplot_index=(1, 1))</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SubcolumnDisplay.__init__"><a class="viewcode-back" href="../../../API/generated/emc2.plotting.SubcolumnDisplay.html#emc2.plotting.SubcolumnDisplay.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="SubcolumnDisplay.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.plotting.SubcolumnDisplay.html#emc2.plotting.SubcolumnDisplay.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -157,6 +163,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model_c</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_crop_lat_lon</span><span class="p">(</span><span class="n">model_c</span><span class="p">,</span> <span class="n">lat_sel</span><span class="p">,</span> <span class="n">lon_sel</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_c</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_name</span><span class="o">=</span><span class="n">ds_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_crop_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -248,7 +255,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">})</span>
 
-<div class="viewcode-block" id="SubcolumnDisplay.calc_mean_and_sd"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.calc_mean_and_sd">[docs]</a>    <span class="k">def</span> <span class="nf">calc_mean_and_sd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SubcolumnDisplay.calc_mean_and_sd">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.calc_mean_and_sd">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_mean_and_sd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function calculates geometric or arithmetic mean and SD of arrays.</span>
 
@@ -282,7 +291,10 @@
             <span class="n">SD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Mean</span><span class="p">,</span> <span class="n">SD</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.set_axis_label"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.set_axis_label">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">set_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">max_long_name</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">use_prespec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setting the axis label based on whether a field name is one of prespecified fields,</span>
@@ -343,7 +355,10 @@
                 <span class="n">axis_label</span> <span class="o">=</span> <span class="n">variable</span>
         <span class="k">return</span> <span class="n">axis_label</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.set_yrng"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng">[docs]</a>    <span class="k">def</span> <span class="nf">set_yrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.set_yrng">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_yrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Y axes limits of the subplot</span>
 
@@ -360,7 +375,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_range</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.set_xrng"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng">[docs]</a>    <span class="k">def</span> <span class="nf">set_xrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">x_range</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.set_xrng">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_xrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">x_range</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Y axes limits of the subplot</span>
 
@@ -377,7 +395,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_range</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.change_plot_to_class_mask"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask">[docs]</a>    <span class="k">def</span> <span class="nf">change_plot_to_class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">class_legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.change_plot_to_class_mask">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask">[docs]</a>
+    <span class="k">def</span> <span class="nf">change_plot_to_class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">class_legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                                   <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates the colorbar to show phase classification.</span>
@@ -434,7 +455,10 @@
 
         <span class="k">return</span> <span class="n">cbar</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_timeseries"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_subcolumn_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">column_no</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_timeseries">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_subcolumn_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">column_no</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                   <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
@@ -577,7 +601,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.plot_instrument_timeseries"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_instrument_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_instrument_timeseries">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_instrument_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                    <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
@@ -703,7 +730,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.plot_single_profile"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_single_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_single_profile">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_single_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -832,7 +862,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_mean_profile"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_subcolumn_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_mean_profile">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_subcolumn_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_SD</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -993,7 +1026,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SubcolumnDisplay.plot_instrument_mean_profile"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_instrument_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_instrument_mean_profile">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_instrument_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                      <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_SD</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                      <span class="n">Xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                      <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1127,8 +1163,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span></div>
 
+
     
-<div class="viewcode-block" id="SubcolumnDisplay.plot_column_input_q_timeseries"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_column_input_q_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="SubcolumnDisplay.plot_column_input_q_timeseries">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_column_input_q_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                     <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
@@ -1272,8 +1311,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
 
 
+
     <span class="c1"># Height is in km rather than in pressure</span>
-<div class="viewcode-block" id="SubcolumnDisplay.plot_regridded_CF_timeseries"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_regridded_CF_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_3D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span><span class="n">col_index</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="SubcolumnDisplay.plot_regridded_CF_timeseries">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_regridded_CF_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_3D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span><span class="n">col_index</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
                                     <span class="n">x_rotation</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1366,7 +1408,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="SubcolumnDisplay.plot_regridded_SR_timeseries"><a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_regridded_SR_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_4D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span> <span class="n">col_index</span><span class="p">,</span> <span class="n">subcol_index</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SubcolumnDisplay.plot_regridded_SR_timeseries">
+<a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_regridded_SR_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_4D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span> <span class="n">col_index</span><span class="p">,</span> <span class="n">subcol_index</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
                                     <span class="n">x_rotation</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1459,7 +1504,9 @@
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">],</span> <span class="n">cbar</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">subplot_index</span><span class="p">]</span></div>
+</div>
+
 </pre></div>
 
            </div>

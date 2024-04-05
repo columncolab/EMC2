@@ -6,7 +6,7 @@
 Welcome to EMC²'s documentation!
 =================================
 
-The Earth Model Column Collaboratory (EMC² is an open-source framework for conducting
+The Earth Model Column Collaboratory (EMC²) is an open-source framework for conducting
 intercomparisons between models, with an emphasis on climate and earth system models, and
 observations from remote sensing instruments such as radars and lidars.
 

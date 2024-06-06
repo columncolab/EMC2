@@ -337,9 +337,9 @@ class SubcolumnDisplay(Display):
         l_legend = len(class_legend)
         if cmap is None:
             if convert_zeros_to_nan:
-                cmap = cm.get_cmap("tab20c", lut=l_legend)
+                cmap = plt.get_cmap("tab20c", lut=l_legend)
             else:
-                cmap = cm.get_cmap("tab20c", lut=l_legend + 1)
+                cmap = plt.get_cmap("tab20c", lut=l_legend + 1)
 
         if convert_zeros_to_nan:
             cm.ScalarMappable.set_clim(cbar.mappable, vmin=0.5, vmax=l_legend + 0.5)

@@ -443,8 +443,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
     for hyd_type in hyd_types:
         print("Calculating moments for hydrometeor %s" % hyd_type)
-        frac_names = "strat_frac_subcolumns_%s" % hyd_type #++MZ bug fix model.strat_frac_names[hyd_type]
-        n_names = "strat_n_subcolumns_%s" % hyd_type #++MZ bug fix model.N_field[hyd_type]
+        frac_names = "strat_frac_subcolumns_%s" % hyd_type
+        n_names = "strat_n_subcolumns_%s" % hyd_type
         if not np.isin("sub_col_Ze_tot_strat", [x for x in model.ds.keys()]):
             model.ds["sub_col_Ze_tot_strat"] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
@@ -631,9 +631,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
         vel_param_a = model.vel_param_a
         vel_param_b = model.vel_param_b
-        frac_names = "strat_frac_subcolumns_%s" % hyd_type #++MZ bug fix model.strat_frac_names[hyd_type]
-        n_names = "strat_n_subcolumns_%s" % hyd_type #++MZ bug fix model.N_field[hyd_type]
-        total_hydrometeor = model.ds[frac_names] * model.ds[n_names] #++MZ model.ds[model.N_field[hyd_type]]
+        frac_names = "strat_frac_subcolumns_%s" % hyd_type
+        n_names = "strat_n_subcolumns_%s" % hyd_type
+        total_hydrometeor = model.ds[frac_names] * model.ds[n_names]
 
         Vd_tot = model.ds["sub_col_Vd_tot_strat"].values
         if hyd_type == "cl":
@@ -896,7 +896,7 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
     num_diam = len(p_diam)
     Dims = Vd_tot.shape
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor[0, tt, k] == 0): #++MZ total_hydrometeor[tt, k] == 0):
+        if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
         N_0_tmp = N_0[:, tt, k].astype('float64')
         N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
@@ -927,7 +927,7 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
     if tt % 50 == 0:
         print('Stratiform moment for class progress: %d/%d' % (tt, Dims[1]))
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor[0, tt, k] == 0): #++MZ total_hydrometeor[tt, k] == 0):
+        if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
         N_0_tmp = N_0[:, tt, k]
         lambda_tmp = lambdas[:, tt, k]
@@ -968,7 +968,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         print("Processing column %d/%d" % (tt, N_0.shape[1]))
     np.seterr(all="ignore")
     for k in range(height_dims):
-        if np.all(total_hydrometeor[0, tt, k] == 0): #++MZ total_hydrometeor[tt,k] == 0; original
+        if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
         if num_subcolumns > 1:
             N_0_tmp = np.squeeze(N_0[:, tt, k])
@@ -1019,7 +1019,7 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas,
     moment_denom_tot = np.zeros_like(Ze)
     hyd_ext = np.zeros_like(Ze)
     for k in range(Dims[2]):
-        if np.all(total_hydrometeor[0, tt, k] == 0): #++MZ total_hydrometeor[tt,k] == 0; original
+        if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
 
         num_diam = len(p_diam)

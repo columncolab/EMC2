@@ -106,24 +106,17 @@ def calc_mu_lambda(model, hyd_type="cl",
         N_name = model.N_field[hyd_type]
         if not is_conv:
             q_name = model.q_names_stratiform[hyd_type]
-            frac_name = model.strat_frac_names[hyd_type]
         else:
             q_name = model.q_names_convective[hyd_type]
-            frac_name = model.conv_frac_names[hyd_type]
     else:
         if not is_conv:
             N_name = "strat_n_subcolumns_%s" % hyd_type
             q_name = "strat_q_subcolumns_%s" % hyd_type
-            frac_name = model.strat_frac_names[hyd_type]
         else:
             N_name = "conv_n_subcolumns_%s" % hyd_type
             q_name = "conv_q_subcolumns_%s" % hyd_type
-            frac_name = model.conv_frac_names[hyd_type]
 
     
-    frac_array = np.tile(
-        model.ds[frac_name].values, (model.num_subcolumns, 1, 1))
-    frac_array = np.where(frac_array == 0, 1, frac_array)
     if model.Rho_hyd[hyd_type] == 'variable':    
         Rho_hyd = model.ds[model.variable_density[hyd_type]].values
     else:
@@ -136,7 +129,7 @@ def calc_mu_lambda(model, hyd_type="cl",
             if not subcolumns:
                 mus = 0.0005714 * (column_ds[N_name].values * 1e-6) + 0.2714  # converting to cm-3 per Martin, 1994
             else:
-                mus = 0.0005714 * (column_ds[N_name].values * frac_array * 1e-6) + 0.2714  # converting to cm-3
+                mus = 0.0005714 * (column_ds[N_name].values * 1e-6) + 0.2714  # converting to cm-3
             mus = 1 / mus**2 - 1
             mus = np.where(mus < dispersion_mu_bounds[0], dispersion_mu_bounds[0], mus)
             mus = np.where(mus > dispersion_mu_bounds[1], dispersion_mu_bounds[1], mus)
@@ -157,7 +150,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         fit_lambda = ((c * column_ds[N_name].astype('float64') * 1e6 * gamma(column_ds["mu"] + d + 1.)) /
                       (column_ds[q_name].astype('float64') * gamma(column_ds["mu"] + 1.)))**(1 / d)
     else:
-        fit_lambda = ((c * column_ds[N_name].astype('float64') * frac_array *
+        fit_lambda = ((c * column_ds[N_name].astype('float64') *
                        1e6 * gamma(column_ds["mu"] + d + 1.)) /
                       (column_ds[q_name].astype('float64') * gamma(column_ds["mu"] + 1.))) ** (1 / d)
 

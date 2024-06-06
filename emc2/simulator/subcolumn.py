@@ -322,7 +322,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
               f"fields to 1 for {precip_type} precip based on q > 0. kg/kg")
         for hyd_type in precip_types:
-            if is_conv:
+            if not is_conv: #++MZ bug fix adding not
                 q_use = np.tile(model.ds[model.q_names_stratiform[hyd_type]], (1, 1, 1))
             else:
                 q_use = np.tile(model.ds[model.q_names_convective[hyd_type]], (1, 1, 1))

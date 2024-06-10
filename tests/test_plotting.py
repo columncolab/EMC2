@@ -203,10 +203,7 @@ def test_plot_regridded_CF_timeseries():
         atb_total_4D, atb_mol_4D, subcolum_num, time_num, z_full_km_3D, z_half_km_3D,
         Ncolumns, Npoints, Nlevels, Nglevels, col_num, newgrid_bot, newgrid_top)
     # Set input parameters.
-    try:
-        cmap = 'HomeyerRainbow'
-    except:
-        cmap = 'act_HomeyerRainbow'
+    cmap = 'Spectral_r'
     field_to_plot = ["CF"]
     vmin_max = [(0., 1.)]
     log_plot = [False]
@@ -242,10 +239,7 @@ def test_plot_subcolumn_timeseries():
     my_e3sm = emc2.simulator.main.make_simulated_data(
         my_e3sm, KAZR, N_sub,do_classify=False, convert_zeros_to_nan=True,
         unstack_dims=True, finalize_fields=True,use_rad_logic=True)
-    try:
-        cmap = 'HomeyerRainbow'
-    except:
-        cmap = 'act_HomeyerRainbow'
+    cmap = "Spectral_r"
     field_to_plot = ["sub_col_beta_p_tot", "sub_col_Ze_att_tot"]
     vmin_max = [(1e-8, 1e-3),  (-50., 10.)]
     log_plot = [True,  False]

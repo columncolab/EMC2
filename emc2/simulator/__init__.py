@@ -16,9 +16,8 @@ simulator in EMC^2.
     classification.radar_classify_phase
     classification.lidar_emulate_cosp_phase
     classification.calculate_phase_ratio
-
     psd.calc_mu_lambda
-    psd.calc_re_thompson
+    psd.calc_velocity_nssl
     radar_moments.calc_total_reflectivity
     radar_moments.accumulate_attenuation
     radar_moments.calc_radar_empirical

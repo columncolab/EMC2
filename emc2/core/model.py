@@ -609,16 +609,12 @@ class E3SM(Model):
             appended string removal and dimension stacking, which are typically part of pre-processing.
         time_dim: str
             Name of the time dimension. Typically "time" or "ncol".
-        height
         appended_str: bool
             If True, removing appended strings added to fieldnames and coordinates during
             post-processing (e.g., in cropped regions from global simualtions).
         all_appended_in_lat: bool
             If True using only the appended str portion to the lat_dim. Otherwise, combining
             the appended str from both the lat and lon dims (relevant if appended_str is True).
-        format: "native" or "dephy"
-            If the format is "dephy," then the input file must be specified in DEPHY format. Otherwise,
-            if this is "native," then EMC^2 will assume the native E3SM format.
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),

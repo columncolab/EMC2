@@ -69,7 +69,7 @@ def lidar_classify_phase(instrument, model, beta_p_phase_thresh=None,
         mask_name = mask_name_str[ii]
         Class_legend = [""] * (len(beta_p_phase_thresh))
         if convert_zeros_to_nan:
-            phase_mask = np.zeros_like(model.ds["sub_col_LDR_tot"], dtype=np.float)
+            phase_mask = np.zeros_like(model.ds["sub_col_LDR_tot"], dtype=float)
         else:
             phase_mask = np.zeros_like(model.ds["sub_col_LDR_tot"], dtype=np.uint8)
         for class_type in range(len(beta_p_phase_thresh)):
@@ -146,7 +146,7 @@ def radar_classify_phase(instrument, model, mask_height_rng=None, convert_zeros_
     for ii in range(len(mask_name_str)):
         mask_name = mask_name_str[ii]
         if convert_zeros_to_nan:
-            phase_mask = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=np.float)
+            phase_mask = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=float)
         else:
             phase_mask = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=np.uint8)
         phase_mask = np.where(model.ds[Ze_fieldnames[ii]].values >=
@@ -288,7 +288,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
         # Begin cloud detection and phase classification
         SR = ATB_tot / ATB_mol
         if convert_zeros_to_nan:
-            phase_mask = np.zeros_like(model.ds["strat_q_subcolumns_cl"], dtype=np.float)
+            phase_mask = np.zeros_like(model.ds["strat_q_subcolumns_cl"], dtype=float)
         else:
             phase_mask = np.zeros_like(model.ds["strat_q_subcolumns_cl"], dtype=np.uint8)
         phase_mask = np.where(SR > cloud_SR_thresh, 1, phase_mask)
@@ -349,7 +349,7 @@ def lidar_emulate_cosp_phase(instrument, model, eta=0.7, OD_from_sfc=True, phase
     mask_name = "COSP_phase_mask_all_hyd"
     SR_allhyd = ATB_tot_allhyd / ATB_mol
     if convert_zeros_to_nan:
-        phase_mask = np.zeros_like(model.ds["strat_q_subcolumns_cl"], dtype=np.float)
+        phase_mask = np.zeros_like(model.ds["strat_q_subcolumns_cl"], dtype=float)
     else:
         phase_mask = np.zeros_like(model.ds["strat_q_subcolumns_cl"], dtype=np.uint8)
     phase_mask = np.where(SR_allhyd > cloud_SR_thresh, 1, phase_mask)
@@ -441,8 +441,8 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
         liq_classes = [x for x in ["cl", "pl"] if x in hyd_types]
         ice_classes = [x for x in ["ci", "pi"] if x in hyd_types]
         if mpr_subcolmod is True:
-            mass_subcol_liq = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=np.float)
-            mass_subcol_ice = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=np.float)
+            mass_subcol_liq = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=float)
+            mass_subcol_ice = np.zeros_like(model.ds["strat_frac_subcolumns_cl"], dtype=float)
             for cloud_class in cld_classes:
                 for hyd_class in liq_classes:
                     mass_subcol_liq += np.where(
@@ -463,8 +463,8 @@ def calculate_phase_ratio(model, variable, mask_class, mask_allhyd=None, mass_pr
                 "mass phase ratio with q summed over all hydrometeor containing mask grid cells"
             model.ds[variable + "_mpr_sum"].attrs["units"] = ""
         else:
-            mass_liq = np.zeros_like(model.ds[model.q_names_stratiform["cl"]], dtype=np.float)
-            mass_ice = np.zeros_like(model.ds[model.q_names_stratiform["cl"]], dtype=np.float)
+            mass_liq = np.zeros_like(model.ds[model.q_names_stratiform["cl"]], dtype=float)
+            mass_ice = np.zeros_like(model.ds[model.q_names_stratiform["cl"]], dtype=float)
             for hyd_class in liq_classes:
                 mass_liq += model.ds[model.q_names_stratiform[hyd_class]].values
             for hyd_class in ice_classes:

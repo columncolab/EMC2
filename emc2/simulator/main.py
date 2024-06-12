@@ -9,7 +9,8 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, skip_subcol_gen=False, finalize_fields=False, 
+                        calc_re=False, skip_subcol_gen=False, finalize_fields=False, skip_spectral_width=False,
+                        subcol_gen_only=False,
                         **kwargs):
     """
     This procedure will make all of the subcolumns and simulated data for each model column.
@@ -46,6 +47,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     finalize_fields: bool
         True - set absolute 0 values in"sub_col"-containing fields to np.nan enabling analysis
         and visualization.
+    skip_spectral_width: bool
+        If True, skips spectral width calculations since these are not always needed for an application
+        and are the most computationally expensive.
+    subcol_gen_only: bool
+        If True, only returns mass and number distributed among subcolumns and skips moment calculations
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
     :func:`emc2.simulator.calc_radar_moments`
 
@@ -159,6 +165,11 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                         model, hyd_type, is_conv=True,
                         qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
 
+    # Skip moment calculations and return only subcolumn-distributed q and N
+    if subcol_gen_only:
+        print("User chose to return only subcolumn generation and skip moment calculations")
+        return model
+                    
     # Calcualte r_eff if requested
     if np.logical_or(calc_re, model.model_name == "WRF"):
         model_vars = [x for x in model.ds.variables.keys()]
@@ -187,13 +198,13 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
             instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
             parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
             use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, **kwargs)
+            use_empiric_calc=use_empiric_calc, skip_spectral_width=skip_spectral_width,**kwargs)
         if model.process_conv:
             model = calc_radar_moments(
                 instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
                 parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
                 use_rad_logic=use_rad_logic,
-                use_empiric_calc=use_empiric_calc, **kwargs)
+                use_empiric_calc=use_empiric_calc, skip_spectral_width=skip_spectral_width,**kwargs)
 
         model = calc_radar_Ze_min(instrument, model, ref_rng)
         model = calc_total_reflectivity(model, detect_mask=True)

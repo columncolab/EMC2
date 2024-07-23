@@ -7,7 +7,7 @@
   <title>emc2.core.model.DHARMA &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -116,7 +116,7 @@
 <h1>emc2.core.model.DHARMA<a class="headerlink" href="#emc2-core-model-dharma" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.DHARMA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA" title="Link to this definition">¶</a></dt>
 <dd><p>This loads a DHARMA simulation with all of the necessary parameters
 for EMC^2 to run.</p>
 <dl class="field-list simple">
@@ -135,13 +135,16 @@ using the same LUTs).</p>
 </dd>
 <dt><strong>load_processed: bool</strong></dt><dd><p>If True, treating the ‘file_path’ variable as an EMC2-processed dataset; thus skipping
 appended string removal and dimension stacking, which are typically part of pre-processing.</p>
+</dd>
+<dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not None, then a tuple representing the bounding box
+(x_min, y_min, x_max, y_max).</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.model.DHARMA.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>This loads a DHARMA simulation with all of the necessary parameters
 for EMC^2 to run.</p>
 <dl class="field-list simple">
@@ -160,6 +163,9 @@ using the same LUTs).</p>
 </dd>
 <dt><strong>load_processed: bool</strong></dt><dd><p>If True, treating the ‘file_path’ variable as an EMC2-processed dataset; thus skipping
 appended string removal and dimension stacking, which are typically part of pre-processing.</p>
+</dd>
+<dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not None, then a tuple representing the bounding box
+(x_min, y_min, x_max, y_max).</p>
 </dd>
 </dl>
 </dd>

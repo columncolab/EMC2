@@ -7,7 +7,7 @@
   <title>emc2.simulator (emc2.simulator) &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -68,7 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.classification.calculate_phase_ratio.html">emc2.simulator.classification.calculate_phase_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.psd.calc_re_thompson.html">emc2.simulator.psd.calc_re_thompson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.psd.calc_velocity_nssl.html">emc2.simulator.psd.calc_velocity_nssl</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_total_reflectivity.html">emc2.simulator.radar_moments.calc_total_reflectivity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.accumulate_attenuation.html">emc2.simulator.radar_moments.accumulate_attenuation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_radar_empirical.html">emc2.simulator.radar_moments.calc_radar_empirical</a></li>
@@ -150,8 +150,8 @@ simulator in EMC^2.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda" title="emc2.simulator.psd.calc_mu_lambda"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psd.calc_mu_lambda</span></code></a>(model[, hyd_type, ...])</p></td>
 <td><p>Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.simulator.psd.calc_re_thompson.html#emc2.simulator.psd.calc_re_thompson" title="emc2.simulator.psd.calc_re_thompson"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psd.calc_re_thompson</span></code></a>(model, hyd_type[, ...])</p></td>
-<td><p>Calculate the effective radius using the Thompson et al. (2004) microphysics scheme.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/emc2.simulator.psd.calc_velocity_nssl.html#emc2.simulator.psd.calc_velocity_nssl" title="emc2.simulator.psd.calc_velocity_nssl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psd.calc_velocity_nssl</span></code></a>(dmax, rhoe, hyd_type)</p></td>
+<td><p>Calculate the terminal velocity according to the NSSL 2-moment scheme.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/emc2.simulator.radar_moments.calc_total_reflectivity.html#emc2.simulator.radar_moments.calc_total_reflectivity" title="emc2.simulator.radar_moments.calc_total_reflectivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">radar_moments.calc_total_reflectivity</span></code></a>(model)</p></td>
 <td><p>This method calculates the total (convective + stratiform) reflectivity (Ze).</p></td>

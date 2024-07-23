@@ -6,7 +6,7 @@
   <title>emc2.simulator.psd &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -84,6 +84,8 @@
 <span class="kn">from</span> <span class="nn">..core.instrument</span> <span class="kn">import</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
 
 
+<div class="viewcode-block" id="calc_velocity_nssl">
+<a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_velocity_nssl.html#emc2.simulator.psd.calc_velocity_nssl">[docs]</a>
 <span class="k">def</span> <span class="nf">calc_velocity_nssl</span><span class="p">(</span><span class="n">dmax</span><span class="p">,</span> <span class="n">rhoe</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the terminal velocity according to the NSSL 2-moment scheme.</span>
@@ -119,7 +121,8 @@
     <span class="k">elif</span> <span class="n">hyd_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;cl&quot;</span><span class="p">:</span>
         <span class="n">vt</span> <span class="o">=</span> <span class="mf">131.6</span> <span class="o">*</span> <span class="n">dmax</span> <span class="o">**</span> <span class="mf">0.824</span>
         <span class="k">return</span> <span class="n">vt</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dmax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dmax</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="calc_mu_lambda">
@@ -244,90 +247,6 @@
     <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Intercept of gamma fit&quot;</span>
     <span class="n">column_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$m^{-4}$&quot;</span>
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">column_ds</span>
-    <span class="k">return</span> <span class="n">model</span></div>
-
-
-
-<div class="viewcode-block" id="calc_re_thompson">
-<a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_re_thompson.html#emc2.simulator.psd.calc_re_thompson">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
-                     <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate the effective radius using the Thompson et al. (2004)</span>
-<span class="sd">    microphysics scheme.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    model: emc2.core.Model</span>
-<span class="sd">        The input model to calculate the effective radius fields for</span>
-<span class="sd">    hyd_type: str</span>
-<span class="sd">        The hydrometeor type to calculate the effective radius for</span>
-<span class="sd">    is_conv: bool</span>
-<span class="sd">        Whether or not we are calculating the convective properties</span>
-<span class="sd">    subcolumns: bool</span>
-<span class="sd">        If true, calculate the effective radius from the generated subcolumns.</span>
-<span class="sd">        Else, generate it from the original model data.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    model: emc2.core.Model</span>
-<span class="sd">        The model structure with the calculated effective radius values.</span>
-
-<span class="sd">    Reference</span>
-<span class="sd">    ---------</span>
-<span class="sd">    Thompson, G., Rasmussen, R. M., &amp; Manning, K. (2004). Explicit forecasts</span>
-<span class="sd">    of winter precipitation using an improved bulk microphysics scheme.</span>
-<span class="sd">    Part I: Description and sensitivity analysis. Monthly Weather Review,</span>
-<span class="sd">    132(2), 519–542.</span>
-<span class="sd">    https://doi.org/10.1175/1520-0493(2004)132%3C0519:EFOWPU%3E2.0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">subcolumns</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_conv</span><span class="p">:</span>
-            <span class="n">N_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-            <span class="n">q_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-            <span class="n">re_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">N_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-            <span class="n">q_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">q_names_convective</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-            <span class="n">re_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_conv</span><span class="p">:</span>
-            <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;strat_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;strat_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">re_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># We&#39;ll have to assume that stratiform and convective have </span>
-            <span class="c1"># Same N, probably not a great assumption</span>
-            <span class="n">N_name</span> <span class="o">=</span> <span class="s2">&quot;strat_n_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">q_name</span> <span class="o">=</span> <span class="s2">&quot;conv_q_subcolumns_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span>
-            <span class="n">re_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
-
-   
-    <span class="n">q_w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">q_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">N_w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">N_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">rho_w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Rho_hyd</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span>
-
-    <span class="n">p</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span>
-        <span class="n">ureg</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">p_field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">Pa</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">T_field</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span>
-        <span class="n">ureg</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">T_field</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
-
-    <span class="n">rho_a</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="s2">&quot;R_d&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">hyd_type</span> <span class="o">==</span> <span class="s1">&#39;pl&#39;</span><span class="p">:</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="mf">2.4</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="mf">3.</span>
-    <span class="n">r_w</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="mi">6</span> <span class="o">*</span> <span class="n">rho_a</span> <span class="o">*</span> <span class="n">q_w</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rho_w</span> <span class="o">*</span> <span class="n">N_w</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span>
-    <span class="n">r_w</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">r_w</span> <span class="o">*</span> <span class="mf">1e4</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">q_name</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
-
-    <span class="n">r_w</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;microns&#39;</span>
-    <span class="n">r_w</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Particle effective radius following &#39;</span> <span class="o">+</span>
-                              <span class="s1">&#39;Thompson et al. (2004)&#39;</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">re_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_w</span>
     <span class="k">return</span> <span class="n">model</span></div>
 
 </pre></div>

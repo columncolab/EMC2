@@ -4,10 +4,10 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>emc2.simulator.psd.calc_re_thompson &mdash; EMC^2  documentation</title>
+  <title>emc2.simulator.psd.calc_velocity_nssl &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -66,8 +66,8 @@
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.calculate_phase_ratio.html">emc2.simulator.classification.calculate_phase_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_mu_lambda.html">emc2.simulator.psd.calc_mu_lambda</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_re_thompson</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#emc2.simulator.psd.calc_re_thompson"><code class="docutils literal notranslate"><span class="pre">calc_re_thompson()</span></code></a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_velocity_nssl</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#emc2.simulator.psd.calc_velocity_nssl"><code class="docutils literal notranslate"><span class="pre">calc_velocity_nssl()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_total_reflectivity.html">emc2.simulator.radar_moments.calc_total_reflectivity</a></li>
@@ -112,9 +112,9 @@
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
-      <li class="breadcrumb-item active">emc2.simulator.psd.calc_re_thompson</li>
+      <li class="breadcrumb-item active">emc2.simulator.psd.calc_velocity_nssl</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/API/generated/emc2.simulator.psd.calc_re_thompson.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/API/generated/emc2.simulator.psd.calc_velocity_nssl.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -122,30 +122,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="emc2-simulator-psd-calc-re-thompson">
-<h1>emc2.simulator.psd.calc_re_thompson<a class="headerlink" href="#emc2-simulator-psd-calc-re-thompson" title="Link to this heading">¶</a></h1>
+  <section id="emc2-simulator-psd-calc-velocity-nssl">
+<h1>emc2.simulator.psd.calc_velocity_nssl<a class="headerlink" href="#emc2-simulator-psd-calc-velocity-nssl" title="Link to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="emc2.simulator.psd.calc_re_thompson">
-<span class="sig-prename descclassname"><span class="pre">emc2.simulator.psd.</span></span><span class="sig-name descname"><span class="pre">calc_re_thompson</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcolumns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_re_thompson"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.psd.calc_re_thompson" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate the effective radius using the Thompson et al. (2004)
-microphysics scheme.</p>
+<dt class="sig sig-object py" id="emc2.simulator.psd.calc_velocity_nssl">
+<span class="sig-prename descclassname"><span class="pre">emc2.simulator.psd.</span></span><span class="sig-name descname"><span class="pre">calc_velocity_nssl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhoe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_velocity_nssl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.psd.calc_velocity_nssl" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the terminal velocity according to the NSSL 2-moment scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>model: emc2.core.Model</strong></dt><dd><p>The input model to calculate the effective radius fields for</p>
+<dt><strong>dmax: float array</strong></dt><dd><p>The particle maximum dimensions in m.</p>
 </dd>
-<dt><strong>hyd_type: str</strong></dt><dd><p>The hydrometeor type to calculate the effective radius for</p>
+<dt><strong>rhoe: float array</strong></dt><dd><p>The particle effective density.</p>
 </dd>
-<dt><strong>is_conv: bool</strong></dt><dd><p>Whether or not we are calculating the convective properties</p>
-</dd>
-<dt><strong>subcolumns: bool</strong></dt><dd><p>If true, calculate the effective radius from the generated subcolumns.
-Else, generate it from the original model data.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>model: emc2.core.Model</dt><dd><p>The model structure with the calculated effective radius values.</p>
+<dt><strong>hyd_type: str</strong></dt><dd><p>The hydrometeor type code (i.e. ‘cl’, ‘gr’).</p>
 </dd>
 </dl>
 </dd>

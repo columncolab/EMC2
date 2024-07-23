@@ -6,7 +6,7 @@
   <title>emc2.simulator.main &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -84,13 +84,12 @@
 <span class="kn">from</span> <span class="nn">.radar_moments</span> <span class="kn">import</span> <span class="n">calc_radar_moments</span><span class="p">,</span> <span class="n">calc_total_reflectivity</span>
 <span class="kn">from</span> <span class="nn">.attenuation</span> <span class="kn">import</span> <span class="n">calc_radar_Ze_min</span>
 <span class="kn">from</span> <span class="nn">.classification</span> <span class="kn">import</span> <span class="n">lidar_classify_phase</span><span class="p">,</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">,</span> <span class="n">radar_classify_phase</span>
-<span class="kn">from</span> <span class="nn">.psd</span> <span class="kn">import</span> <span class="n">calc_re_thompson</span>
 
 
 <div class="viewcode-block" id="make_simulated_data">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data">[docs]</a>
 <span class="k">def</span> <span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span> <span class="n">do_classify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unstack_dims</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                        <span class="n">calc_re</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_subcol_gen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">finalize_fields</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                        <span class="n">skip_subcol_gen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">finalize_fields</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
                         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This procedure will make all of the subcolumns and simulated data for each model column.</span>
@@ -119,9 +118,6 @@
 <span class="sd">    unstack_dims: bool</span>
 <span class="sd">        True - unstack the time, lat, and lon dimensions after processing in cases</span>
 <span class="sd">        of regional model output.</span>
-<span class="sd">    calc_re: bool</span>
-<span class="sd">        True - calculating effective radius (e.g., for when it is not provided.</span>
-<span class="sd">        Note that re is always calculated when WRF output is used.</span>
 <span class="sd">    skip_subcol_gen: bool</span>
 <span class="sd">        True - skip the subcolumn generator (e.g., in case subcolumn were already generated).</span>
 <span class="sd">    finalize_fields: bool</span>
@@ -239,20 +235,6 @@
                     <span class="n">model</span> <span class="o">=</span> <span class="n">set_q_n</span><span class="p">(</span>
                         <span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">qc_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_rad_logic</span><span class="o">=</span><span class="n">use_rad_logic</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">)</span>
-
-    <span class="c1"># Calcualte r_eff if requested</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">calc_re</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;WRF&quot;</span><span class="p">):</span>
-        <span class="n">model_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-        <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="ow">in</span> <span class="n">model_vars</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
-                                         <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">process_conv</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_re_fields</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span> <span class="ow">in</span> <span class="n">model_vars</span><span class="p">:</span>
-                        <span class="n">model</span> <span class="o">=</span> <span class="n">calc_re_thompson</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span>
-                                                 <span class="n">is_conv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
     <span class="c1"># Radar Simulator</span>

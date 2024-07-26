@@ -379,7 +379,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
 def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                      hyd_types=None, mie_for_ice=True, parallel=True, chunk=None,
-                     skip_spectral_width=False,
+                     calc_spectral_width=True,
                      **kwargs):
     """
     Calculates the first 3 radar moments (reflectivity, mean Doppler velocity and spectral
@@ -409,9 +409,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
-    skip_spectral_width: bool
-        If True, skips spectral width calculations since these are not always needed for an application
-        and are the most computationally expensive.
+    calc_spectral_width: bool
+        If False, skips spectral width calculations since these are not always needed for an application
+        and are the most computationally expensive. Default is True.
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.psd.calc_mu_lambda`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
@@ -539,7 +539,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 [x[3] for x in my_tuple], axis=1)
             model.ds["sub_col_Vd_cl_strat"][:, :, :] = np.stack(
                 [x[4] for x in my_tuple], axis=1)
-            if not skip_spectral_width:
+            if calc_spectral_width:
                 model.ds["sub_col_sigma_d_cl_strat"][:, :, :] = np.stack(
                     [x[5] for x in my_tuple], axis=1)
 
@@ -578,7 +578,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             hyd_ext = np.nan_to_num(np.stack([x[2] for x in my_tuple], axis=1))
             model.ds["sub_col_Ze_%s_strat" % hyd_type][:, :, :] = np.stack([x[3] for x in my_tuple], axis=1)
             model.ds["sub_col_Vd_%s_strat" % hyd_type][:, :, :] = np.stack([x[4] for x in my_tuple], axis=1)
-            if not skip_spectral_width:
+            if calc_spectral_width:
                 model.ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, :] = np.stack([x[5] for x in my_tuple], axis=1)
             if beta_pv is not None:
                 Zv = np.nan_to_num(np.stack([x[6] for x in my_tuple], axis=1))
@@ -599,9 +599,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         model.ds["sub_col_sigma_d_%s_strat" % hyd_type].attrs["Processing method"] = method_str
     model.ds["sub_col_Vd_tot_strat"] = xr.DataArray(V_d_numer_tot / moment_denom_tot,
                                                     dims=model.ds["sub_col_Ze_tot_strat"].dims)
-    if skip_spectral_width:
-        print("User chose to skip spectral width calculations")
-    else:
+
+    if calc_spectral_width:
         print("Now calculating total spectral width (this may take some time)")
         for hyd_type in hyd_types:
             fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
@@ -698,10 +697,12 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 else:
                     sigma_d_numer = [x for x in map(_calc_sigma, np.arange(0, Dims[1], 1))]
                 sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
-
+    else: 
+        print("User chose to skip spectral width calculations")
+        
     model.ds = model.ds.drop_vars(("N_0", "lambda", "mu"))
 
-    if not skip_spectral_width:
+    if calc_spectral_width:
         model.ds["sub_col_sigma_d_tot_strat"] = xr.DataArray(np.sqrt(sigma_d_numer_tot / moment_denom_tot),
                                                              dims=model.ds["sub_col_Vd_tot_strat"].dims)
     model = accumulate_attenuation(model, False, z_values, hyd_ext, atm_ext,
@@ -722,7 +723,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
 def calc_radar_moments(instrument, model, is_conv,
                        OD_from_sfc=True, hyd_types=None, parallel=True, chunk=None, mie_for_ice=False,
-                       use_rad_logic=True, use_empiric_calc=False,skip_spectral_width=False,**kwargs):
+                       use_rad_logic=True, use_empiric_calc=False,calc_spectral_width=True,**kwargs):
     """
     Calculates the reflectivity, doppler velocity, and spectral width
     in a given column for the given radar.
@@ -757,9 +758,9 @@ def calc_radar_moments(instrument, model, is_conv,
         If using parallel processing, only send this number of time periods to the
         parallel loop at one time. Sometimes Dask will crash if there are too many
         tasks in the queue, so setting this value will help avoid that.
-    skip_spectral_width: bool
-        If True, skips spectral width calculations since these are not always needed for an application
-        and are the most computationally expensive.
+    calc_spectral_width: bool
+        If False, skips spectral width calculations since these are not always needed for an application
+        and are the most computationally expensive. Default is True.
     mie_for_ice: bool
         If True, using full mie caculation LUTs. Otherwise, currently using the C6
         scattering LUTs for 8-column aggregate at 270 K.
@@ -846,7 +847,7 @@ def calc_radar_moments(instrument, model, is_conv,
         calc_radar_micro(instrument, model, z_values,
                          atm_ext, OD_from_sfc=OD_from_sfc,
                          hyd_types=hyd_types, mie_for_ice=mie_for_ice,
-                         parallel=parallel, chunk=chunk, skip_spectral_width=skip_spectral_width,**kwargs)
+                         parallel=parallel, chunk=chunk, calc_spectral_width=calc_spectral_width,**kwargs)
 
     for hyd_type in hyd_types:
         model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = 10 * np.log10(

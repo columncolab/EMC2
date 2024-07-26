@@ -9,7 +9,7 @@ from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, skip_subcol_gen=False, finalize_fields=False, skip_spectral_width=False,
+                        calc_re=False, skip_subcol_gen=False, finalize_fields=False, calc_spectral_width=True,
                         subcol_gen_only=False,
                         **kwargs):
     """
@@ -47,9 +47,9 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     finalize_fields: bool
         True - set absolute 0 values in"sub_col"-containing fields to np.nan enabling analysis
         and visualization.
-    skip_spectral_width: bool
-        If True, skips spectral width calculations since these are not always needed for an application
-        and are the most computationally expensive.
+    calc_spectral_width: bool
+        If False, skips spectral width calculations since these are not always needed for an application
+        and are the most computationally expensive. Default is True.
     subcol_gen_only: bool
         If True, only returns mass and number distributed among subcolumns and skips moment calculations
     Additional keyword arguments are passed into :func:`emc2.simulator.calc_lidar_moments` or
@@ -165,96 +165,100 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
                         model, hyd_type, is_conv=True,
                         qc_flag=False, use_rad_logic=use_rad_logic, parallel=parallel, chunk=chunk)
 
-    # Skip moment calculations and return only subcolumn-distributed q and N
+    # Skip moment calculations and return only subcolumn-distributed q and N, else continue to simulator
     if subcol_gen_only:
         print("User chose to return only subcolumn generation and skip moment calculations")
-        return model
-                    
-    # Calcualte r_eff if requested
-    if np.logical_or(calc_re, model.model_name == "WRF"):
-        model_vars = [x for x in model.ds.variables.keys()]
-        for hyd_type in hydrometeor_classes:
-            if not model.strat_re_fields[hyd_type] in model_vars:
-                model = calc_re_thompson(model, hyd_type,
-                                         is_conv=False, subcolumns=True,
-                                         **kwargs)
-            if model.process_conv:
-                if not model.conv_re_fields[hyd_type] in model_vars:
-                        model = calc_re_thompson(model, hyd_type,
-                                                 is_conv=True, subcolumns=True,
-                                                 **kwargs)
+    else:                    
+        # Calculate r_eff if requested
+        if np.logical_or(calc_re, model.model_name == "WRF"):
+            model_vars = [x for x in model.ds.variables.keys()]
+            for hyd_type in hydrometeor_classes:
+                if not model.strat_re_fields[hyd_type] in model_vars:
+                    model = calc_re_thompson(model, hyd_type,
+                                             is_conv=False, subcolumns=True,
+                                             **kwargs)
+                if model.process_conv:
+                    if not model.conv_re_fields[hyd_type] in model_vars:
+                            model = calc_re_thompson(model, hyd_type,
+                                                     is_conv=True, subcolumns=True,
+                                                     **kwargs)
 
 
-    # Radar Simulator
-    if instrument.instrument_class.lower() == "radar":
-        print("Generating radar moments...")
-        if 'reg_rng' in kwargs.keys():
-            ref_rng = kwargs['ref_rng']
-            del kwargs['ref_rng']
-        else:
-            ref_rng = 1000
+        # Radar Simulator
+        if instrument.instrument_class.lower() == "radar":
+            print("Generating radar moments...")
+            if 'reg_rng' in kwargs.keys():
+                ref_rng = kwargs['ref_rng']
+                del kwargs['ref_rng']
+            else:
+                ref_rng = 1000
 
-        model = calc_radar_moments(
-            instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-            parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
-            use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, skip_spectral_width=skip_spectral_width,**kwargs)
-        if model.process_conv:
             model = calc_radar_moments(
-                instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-                parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
+                instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
+                parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["strat"],
                 use_rad_logic=use_rad_logic,
-                use_empiric_calc=use_empiric_calc, skip_spectral_width=skip_spectral_width,**kwargs)
+                use_empiric_calc=use_empiric_calc, calc_spectral_width=calc_spectral_width,**kwargs)
+            if model.process_conv:
+                model = calc_radar_moments(
+                    instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
+                    parallel=parallel, chunk=chunk, mie_for_ice=mie_for_ice["conv"],
+                    use_rad_logic=use_rad_logic,
+                    use_empiric_calc=use_empiric_calc, calc_spectral_width=calc_spectral_width,**kwargs)
 
-        model = calc_radar_Ze_min(instrument, model, ref_rng)
-        model = calc_total_reflectivity(model, detect_mask=True)
+            model = calc_radar_Ze_min(instrument, model, ref_rng)
+            model = calc_total_reflectivity(model, detect_mask=True)
 
-        if do_classify is True:
-            model = radar_classify_phase(
-                instrument, model, mask_height_rng=mask_height_rng,
-                convert_zeros_to_nan=convert_zeros_to_nan)
+            if do_classify is True:
+                model = radar_classify_phase(
+                    instrument, model, mask_height_rng=mask_height_rng,
+                    convert_zeros_to_nan=convert_zeros_to_nan)
 
-    # Lidar Simulator
-    elif instrument.instrument_class.lower() == "lidar":
-        print("Generating lidar moments...")
-        if 'ext_OD' in kwargs.keys():
-            ext_OD = kwargs['ext_OD']
-            del kwargs['ext_OD']
-        else:
-            ext_OD = instrument.ext_OD
-        if 'eta' in kwargs.keys():
-            eta = kwargs['eta']
-            del kwargs['eta']
-        else:
-            eta = instrument.eta
-        model = calc_lidar_moments(
-            instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
-            parallel=parallel, eta=eta, chunk=chunk,
-            mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
-            use_empiric_calc=use_empiric_calc, **kwargs)
-        if model.process_conv:
+        # Lidar Simulator
+        elif instrument.instrument_class.lower() == "lidar":
+            print("Generating lidar moments...")
+            if 'ext_OD' in kwargs.keys():
+                ext_OD = kwargs['ext_OD']
+                del kwargs['ext_OD']
+            else:
+                ext_OD = instrument.ext_OD
+            if 'eta' in kwargs.keys():
+                eta = kwargs['eta']
+                del kwargs['eta']
+            else:
+                eta = instrument.eta
             model = calc_lidar_moments(
-                instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
+                instrument, model, False, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
                 parallel=parallel, eta=eta, chunk=chunk,
-                mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
+                mie_for_ice=mie_for_ice["strat"], use_rad_logic=use_rad_logic,
                 use_empiric_calc=use_empiric_calc, **kwargs)
-        model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
-        model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types)
+            if model.process_conv:
+                model = calc_lidar_moments(
+                    instrument, model, True, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types,
+                    parallel=parallel, eta=eta, chunk=chunk,
+                    mie_for_ice=mie_for_ice["conv"], use_rad_logic=use_rad_logic,
+                    use_empiric_calc=use_empiric_calc, **kwargs)
+            model = calc_total_alpha_beta(model, OD_from_sfc=OD_from_sfc, eta=eta)
+            model = calc_LDR_and_ext(model, ext_OD=ext_OD, OD_from_sfc=OD_from_sfc, hyd_types=hyd_types)
 
-        if do_classify is True:
-            model = lidar_classify_phase(
-                instrument, model, convert_zeros_to_nan=convert_zeros_to_nan)
-            model = lidar_emulate_cosp_phase(
-                instrument, model, eta=eta, OD_from_sfc=OD_from_sfc,
-                convert_zeros_to_nan=convert_zeros_to_nan, hyd_types=hyd_types)
-    else:
-        raise ValueError("Currently, only lidars and radars are supported as instruments.")
+            if do_classify is True:
+                model = lidar_classify_phase(
+                    instrument, model, convert_zeros_to_nan=convert_zeros_to_nan)
+                model = lidar_emulate_cosp_phase(
+                    instrument, model, eta=eta, OD_from_sfc=OD_from_sfc,
+                    convert_zeros_to_nan=convert_zeros_to_nan, hyd_types=hyd_types)
+        else:
+            raise ValueError("Currently, only lidars and radars are supported as instruments.")
 
+    
+    
+    
     if finalize_fields:
         model.finalize_subcol_fields()
-
+        
+    
     # Unstack dims in case of regional model output (typically done at the end of all EMC^2 processing)
     if np.logical_and(model.stacked_time_dim is not None, unstack_dims):
         print("Unstacking the %s dimension (time, lat, and lon dimensions)" % model.stacked_time_dim)
         model.unstack_time_lat_lon()
+        
     return model

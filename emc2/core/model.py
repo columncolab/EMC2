@@ -193,6 +193,20 @@ class Model():
         input_dict[self.lon_dim] = slice(bounding_box_ind[1], bounding_box_ind[3])
         self.ds = self.ds.isel(input_dict)
 
+    def _crop_bounding_box_x_y(self, bounding_box):
+        """
+        Crop the input region to a given bounding box for a regional model with
+        x and y coordinates.
+
+        Parameters
+        ----------
+        bounding_box: 4-tuple
+            A tuple in the format of (x min, y min, x max, y max)
+        """
+        self.ds = self.ds.sel(
+            x=slice(bounding_box[0], bounding_box[2]), y=slice(bounding_box[1], bounding_box[3]))
+        
+
     def _crop_time_range(self, time_range, alter_coord=None):
         """
         Crop model output time range (time coords must be of np.datetime64 datatype).
@@ -632,20 +646,21 @@ class E3SM(Model):
         self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
                                         'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
-                                         'pl': 'FREQR', 'pi': 'FREQS'}
+                                        'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
         self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
         self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
-        self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}  
+
         self.hyd_types = ["cl", "ci", "pi"]
         self.process_conv = False
         if load_processed:
             self.ds = xr.Dataset()
             self.load_subcolumns_from_netcdf(file_path)
         else:
-            self.ds = read_netcdf(file_path)
+            self.ds = read_netcdf(file_path) 
             if appended_str:
                 if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
                     for x in self.ds.dims:
@@ -681,7 +696,6 @@ class E3SM(Model):
 
             # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
             super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
-
             self.ds[self.p_field] = \
                 ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
                 *self.ds[self.T_field].dims)
@@ -992,7 +1006,7 @@ class WRF(Model):
 
 class DHARMA(Model):
     def __init__(self, file_path, time_range=None, time_dim="dom_col", single_pi_class=True,
-                 load_processed=False):
+                 load_processed=False, bounding_box=None):
         """
         This loads a DHARMA simulation with all of the necessary parameters
         for EMC^2 to run.
@@ -1013,6 +1027,9 @@ class DHARMA(Model):
         load_processed: bool
             If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
             appended string removal and dimension stacking, which are typically part of pre-processing.
+        bounding_box: None or 4-tuple
+            If not None, then a tuple representing the bounding box
+            (x_min, y_min, x_max, y_max).
         """
         super().__init__()
         self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
@@ -1086,6 +1103,9 @@ class DHARMA(Model):
                 my_attrs = self.ds[variable].attrs
                 self.ds[variable] = self.ds[variable].astype('float64')
                 self.ds[variable].attrs = my_attrs
+                
+        if bounding_box is not None:
+            super()._crop_bounding_box_x_y(bounding_box)
 
         # crop specific model output time range (if requested)
         if time_range is not None:

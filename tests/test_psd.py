@@ -18,11 +18,3 @@ def test_lambda_mu():
     diffs = np.diff(my_ds["N_0"])
     diffs = diffs[np.isfinite(diffs)]
     assert np.all(diffs < 0)
-
-
-def test_re():
-    my_model = emc2.core.model.TestConvection()
-    my_model = emc2.simulator.psd.calc_re_thompson(my_model, hyd_type="cl")
-    my_ds = my_model.ds
-    assert np.all(my_ds["re_cl"] < 100.)
-    print(my_ds["re_cl"])

@@ -5,11 +5,10 @@ from .lidar_moments import calc_lidar_moments, calc_LDR_and_ext, calc_total_alph
 from .radar_moments import calc_radar_moments, calc_total_reflectivity
 from .attenuation import calc_radar_Ze_min
 from .classification import lidar_classify_phase, lidar_emulate_cosp_phase, radar_classify_phase
-from .psd import calc_re_thompson
 
 
 def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack_dims=False,
-                        calc_re=False, skip_subcol_gen=False, finalize_fields=False, calc_spectral_width=True,
+                        skip_subcol_gen=False, finalize_fields=False, calc_spectral_width=True,
                         subcol_gen_only=False,
                         **kwargs):
     """
@@ -39,9 +38,6 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     unstack_dims: bool
         True - unstack the time, lat, and lon dimensions after processing in cases
         of regional model output.
-    calc_re: bool
-        True - calculating effective radius (e.g., for when it is not provided.
-        Note that re is always calculated when WRF output is used.
     skip_subcol_gen: bool
         True - skip the subcolumn generator (e.g., in case subcolumn were already generated).
     finalize_fields: bool
@@ -168,21 +164,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     # Skip moment calculations and return only subcolumn-distributed q and N, else continue to simulator
     if subcol_gen_only:
         print("User chose to return only subcolumn generation and skip moment calculations")
-    else:                    
-        # Calculate r_eff if requested
-        if np.logical_or(calc_re, model.model_name == "WRF"):
-            model_vars = [x for x in model.ds.variables.keys()]
-            for hyd_type in hydrometeor_classes:
-                if not model.strat_re_fields[hyd_type] in model_vars:
-                    model = calc_re_thompson(model, hyd_type,
-                                             is_conv=False, subcolumns=True,
-                                             **kwargs)
-                if model.process_conv:
-                    if not model.conv_re_fields[hyd_type] in model_vars:
-                            model = calc_re_thompson(model, hyd_type,
-                                                     is_conv=True, subcolumns=True,
-                                                     **kwargs)
-
+    else:
 
         # Radar Simulator
         if instrument.instrument_class.lower() == "radar":

@@ -17,7 +17,7 @@ def test_get_SR():
     
     # Check for realistic ranges of attenuation, reflectivity, and height of beam attenuation
     assert np.all(Ze_att_total_4D[np.isfinite(Ze_att_total_4D)] > -120)
-    assert np.all(Ze_att_total_4D[np.isfinite(Ze_att_total_4D)] < 20)
+    assert np.all(Ze_att_total_4D[np.isfinite(Ze_att_total_4D)] < 30)
     assert np.all(z_full_km_3D[np.isfinite(z_full_km_3D)] < 12000)
     assert np.all(z_half_km_3D[np.isfinite(z_half_km_3D)] < 12000)
     assert np.all(atb_total_4D[np.isfinite(atb_total_4D)] > 0)

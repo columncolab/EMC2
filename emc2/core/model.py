@@ -592,16 +592,16 @@ class ModelE(Model):
         self.model_name = "ModelE3"
 
 
-class E3SM(Model):
+class E3SMv1(Model):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
                  all_appended_in_lat=False):
         """
-        This loads an E3SM simulation output with all of the necessary parameters for EMC^2 to run.
+        This loads an E3SMv1 simulation output with all of the necessary parameters for EMC^2 to run.
 
         Parameters
         ----------
         file_path: str
-            Path to an E3SM simulation.
+            Path to an E3SMv1 simulation.
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
         load_processed: bool
@@ -715,10 +715,10 @@ class E3SM(Model):
 
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
-        self.model_name = "E3SM"
+        self.model_name = "E3SMv1"
 
 
-class CESM2(E3SM):
+class CESM2(E3SMv1):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False):
         """
         This loads a CESM2 simulation output with all of the necessary parameters for EMC^2 to run.
@@ -726,7 +726,7 @@ class CESM2(E3SM):
         Parameters
         ----------
         file_path: str
-            Path to an E3SM simulation.
+            Path to an E3SMv1 simulation.
         time_range: tuple, list, or array, typically in datetime64 format
             Two-element array with starting and ending of time range.
         load_processed: bool

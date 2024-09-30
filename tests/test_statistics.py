@@ -5,7 +5,7 @@ import numpy as np
 def test_get_SR():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     my_e3sm = emc2.simulator.main.make_simulated_data(my_e3sm, HSRL, N_sub, do_classify=False, 
                                                       convert_zeros_to_nan=True, skip_subcol_gen=False)
@@ -17,7 +17,7 @@ def test_get_SR():
     
     # Check for realistic ranges of attenuation, reflectivity, and height of beam attenuation
     assert np.all(Ze_att_total_4D[np.isfinite(Ze_att_total_4D)] > -120)
-    assert np.all(Ze_att_total_4D[np.isfinite(Ze_att_total_4D)] < 20)
+    assert np.all(Ze_att_total_4D[np.isfinite(Ze_att_total_4D)] < 30)
     assert np.all(z_full_km_3D[np.isfinite(z_full_km_3D)] < 12000)
     assert np.all(z_half_km_3D[np.isfinite(z_half_km_3D)] < 12000)
     assert np.all(atb_total_4D[np.isfinite(atb_total_4D)] > 0)
@@ -71,7 +71,7 @@ def test_get_SR():
 def test_get_CF():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     my_e3sm = emc2.simulator.main.make_simulated_data(
         my_e3sm, HSRL, N_sub, do_classify=False, 

@@ -73,7 +73,7 @@ def test_plot_classification():
 def test_plot_SR_subcol_timeseries():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     my_e3sm = emc2.simulator.main.make_simulated_data(my_e3sm, HSRL, N_sub, do_classify=False, 
                                                       convert_zeros_to_nan=True, skip_subcol_gen=False)
@@ -111,7 +111,7 @@ def test_plot_SR_subcol_timeseries():
 def test_plot_get_CFAD_SR():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     my_e3sm = emc2.simulator.main.make_simulated_data(my_e3sm, HSRL, N_sub, do_classify=False, 
                                                       convert_zeros_to_nan=True, skip_subcol_gen=False)
@@ -171,7 +171,7 @@ def test_plot_get_CFAD_SR():
 def test_plot_regridded_CF_timeseries():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     my_e3sm = emc2.simulator.main.make_simulated_data(my_e3sm, HSRL, N_sub, do_classify=False, 
                                                       convert_zeros_to_nan=True, skip_subcol_gen=False)
@@ -231,7 +231,7 @@ def test_plot_regridded_CF_timeseries():
 def test_plot_subcolumn_timeseries():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     my_e3sm = emc2.simulator.main.make_simulated_data(
         my_e3sm, HSRL, N_sub, do_classify=False, 
@@ -269,7 +269,7 @@ def test_plot_subcolumn_timeseries():
 def test_plotting_every_subcolumn_timeseries_radarlidarsignal():
     KAZR = emc2.core.instruments.KAZR('nsa')
     HSRL = emc2.core.instruments.HSRL()
-    my_e3sm = emc2.core.model.E3SM(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
+    my_e3sm = emc2.core.model.E3SMv1(emc2.test_files.TEST_E3SM_FILE, all_appended_in_lat=True, appended_str=True)
     N_sub = 20
     col_index = 2
     my_e3sm = emc2.simulator.main.make_simulated_data(

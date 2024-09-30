@@ -109,6 +109,14 @@ of a regional output, but can always be replaced with different coordinates usin
 Note that there is no dedicated option to plot subcolumns vs. lat or lon, since subcolumns at a given
 grid cell are independent of subcolumns attributed to other neighboring grid cells.
 Note: if older version of ACT are installed (e.g., 0.2.4), “_ds” should be replaced with “_arm”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model object containing the subcolumn data to plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <p>This example makes a four panel plot of 4 subcolumns of EMC^2 simulated reflectivity:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ model_display = emc2.plotting.SubcolumnDisplay(my_model, subplot_shape=(2, 2), figsize=(30, 20))
@@ -118,14 +126,6 @@ $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 3, subp
 $ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subplot_index=(1, 1))
 </pre></div>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model object containing the subcolumn data to plot.</p>
-</dd>
-</dl>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">

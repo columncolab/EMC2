@@ -1603,3 +1603,295 @@ class TestHalfAndHalf(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
+
+
+class E3SMv3(Model):
+    def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
+                 all_appended_in_lat=False):
+        """
+        This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Created by Meng Zhang, Yuying Zhang, and Shaocheng Xie from LLNL. (10/2024)
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an E3SMv3 simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
+        time_dim: str
+            Name of the time dimension. Typically "time" or "ncol".
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
+        all_appended_in_lat: bool
+            If True using only the appended str portion to the lat_dim. Otherwise, combining
+            the appended str from both the lat and lon dims (relevant if appended_str is True).
+        """
+        super().__init__()
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
+        self.fluffy = {'ci': 1.0 * ureg.dimensionless, 'pi': 1.0 * ureg.dimensionless}
+        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                            'ci': 24. * ureg.dimensionless,
+                            'pl': 5.5 * ureg.dimensionless,
+                            'pi': 24.0 * ureg.dimensionless}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                            'ci': 1. * ureg.dimensionless,
+                            'pl': 0.8 * ureg.dimensionless,
+                            'pi': 0.41 * ureg.dimensionless}
+        super()._add_vel_units()
+        self.q_field = "Q"
+        self.N_field = {'cl': 'NUMLIQ', 'ci': 'NUMICE', 'pl': 'NUMRAI', 'pi': 'zeros_cf'}
+        self.p_field = "p_3d"
+        self.z_field = "Z3"
+        self.T_field = "T"
+        self.height_dim = "lev"
+        self.time_dim = time_dim
+        self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names = {'cl': 'FREQL', 'ci': 'FREQI', 'pl': 'FREQR', 'pi': 'zeros_cf'}
+        self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
+                                        'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
+                                         'pl': 'FREQR', 'pi': 'zeros_cf'}
+        self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
+        self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'zeros_cf', 'pl': 'ADRAIN'}
+        self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'zeros_cf'}
+        self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.hyd_types = ["cl", "ci", "pi"]
+        self.process_conv = False
+        if load_processed:
+            self.ds = xr.Dataset()
+            self.load_subcolumns_from_netcdf(file_path)
+        else:
+            self.ds = read_netcdf(file_path)
+            if appended_str:
+                if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
+                    for x in self.ds.dims:
+                        if 'ncol' in x:  # ncol in dims but for some reason not in the coords
+                            self.ds = self.ds.assign_coords({'ncol': self.ds[x]})
+                            self.ds = self.ds.swap_dims({x: "ncol"})
+                            break
+                super().remove_appended_str(all_appended_in_lat)
+                if all_appended_in_lat:
+                    self.lat_dim = "ncol"  # here 'ncol' is the spatial dim (acknowledging cube-sphere coords)
+
+            if time_dim == "ncol":
+                time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                           dtype='datetime64')
+                self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
+
+            # crop specific model output time range (if requested)
+            if time_range is not None:
+                if np.issubdtype(time_range.dtype, np.datetime64):
+                    if time_dim == "ncol":
+                        super()._crop_time_range(time_range, alter_coord="time")
+                    else:
+                        super()._crop_time_range(time_range)
+                else:
+                    raise RuntimeError("input time range is not in the required datetime64 data type")
+
+            # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
+            self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
+            for key in self.ds.keys():
+                if self.height_dim in self.ds[key].dims:
+                    rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
+                    self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
+
+            # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+            super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
+
+            self.ds[self.p_field] = \
+                ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
+                *self.ds[self.T_field].dims)
+            self.ds[self.p_field].attrs["units"] = "hPa"
+            self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
+                                               dims=self.ds[self.p_field].dims)
+            self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
+            for hyd in ["pl", "pi"]:
+                self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
+            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            for hyd in ["cl", "ci", "pl", "pi"]:
+                self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+                self.ds[self.strat_re_fields[hyd]].values = \
+                    np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
+                             np.nan, self.ds[self.strat_re_fields[hyd]].values)
+
+            self.permute_dims_for_processing()  # Consistent dim order (time x height).
+
+        self.model_name = "E3SMv3"
+
+
+class SCREAM(Model):
+    def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
+                 all_appended_in_lat=False):
+        """
+        This loads an SCREAM simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Created by Meng Zhang, Yuying Zhang, and Shaocheng Xie from LLNL. (10/2024)
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an SCREAM simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
+        time_dim: str
+            Name of the time dimension. Typically "time" or "ncol".
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
+        all_appended_in_lat: bool
+            If True using only the appended str portion to the lat_dim. Otherwise, combining
+            the appended str from both the lat and lon dims (relevant if appended_str is True).
+        """
+        super().__init__()
+        self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3), 'ci': 500. * ureg.kg / (ureg.m**3),
+                        'pl': 1000. * ureg.kg / (ureg.m**3), 'pi': 250. * ureg.kg / (ureg.m**3)}
+        self.fluffy = {'ci': 1.0 * ureg.dimensionless, 'pi': 1.0 * ureg.dimensionless}
+        self.lidar_ratio = {'cl': 18. * ureg.dimensionless,
+                            'ci': 24. * ureg.dimensionless,
+                            'pl': 5.5 * ureg.dimensionless,
+                            'pi': 24.0 * ureg.dimensionless}
+        self.LDR_per_hyd = {'cl': 0.03 * 1 / (ureg.kg / (ureg.m**3)),
+                            'ci': 0.35 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pl': 0.1 * 1 / (ureg.kg / (ureg.m**3)),
+                            'pi': 0.40 * 1 / (ureg.kg / (ureg.m**3))}
+        self.vel_param_a = {'cl': 3e7, 'ci': 700., 'pl': 841.997, 'pi': 11.72}
+        self.vel_param_b = {'cl': 2. * ureg.dimensionless,
+                            'ci': 1. * ureg.dimensionless,
+                            'pl': 0.8 * ureg.dimensionless,
+                            'pi': 0.41 * ureg.dimensionless}
+        super()._add_vel_units()
+        self.q_field = "Q"
+        self.N_field = {'cl': 'NUMLIQ', 'ci': 'NUMICE', 'pl': 'NUMRAI', 'pi': 'zeros_ns'}
+        self.p_field = "p_3d"
+        self.z_field = "Z3"
+        self.T_field = "T"
+        self.height_dim = "lev"
+        self.time_dim = time_dim
+        self.conv_frac_names = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names = {'cl': 'LIQ_CLOUD_FRAC', 'ci': 'ICE_CLOUD_FRAC', 'pl': 'zeros_cfr', 'pi': 'zeros_cfs'}
+        self.conv_frac_names_for_rad = {'cl': 'zeros_cf', 'ci': 'zeros_cf',
+                                        'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.strat_frac_names_for_rad = {'cl': 'CLOUD', 'ci': 'CLOUD',
+                                         'pl': 'zeros_cfr', 'pi': 'zeros_cfs'}
+        self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
+        self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'zeros_res', 'pl': 'ADRAIN'}
+        self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
+        self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'zeros_qs'}
+        self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}
+        self.hyd_types = ["cl", "ci", "pl", "pi"]
+        self.process_conv = False
+        if load_processed:
+            self.ds = xr.Dataset()
+            self.load_subcolumns_from_netcdf(file_path)
+        else:
+            self.ds = read_netcdf(file_path)
+            if appended_str:
+                if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
+                    for x in self.ds.dims:
+                        if 'ncol' in x:  # ncol in dims but for some reason not in the coords
+                            self.ds = self.ds.assign_coords({'ncol': self.ds[x]})
+                            self.ds = self.ds.swap_dims({x: "ncol"})
+                            break
+                super().remove_appended_str(all_appended_in_lat)
+                if all_appended_in_lat:
+                    self.lat_dim = "ncol"  # here 'ncol' is the spatial dim (acknowledging cube-sphere coords)
+
+            if time_dim == "ncol":
+                time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],
+                                           dtype='datetime64')
+                self.ds = self.ds.assign_coords(time=('ncol', time_datetime64))  # add additional time coords
+
+            # crop specific model output time range (if requested)
+            if time_range is not None:
+                if np.issubdtype(time_range.dtype, np.datetime64):
+                    if time_dim == "ncol":
+                        super()._crop_time_range(time_range, alter_coord="time")
+                    else:
+                        super()._crop_time_range(time_range)
+                else:
+                    raise RuntimeError("input time range is not in the required datetime64 data type")
+
+            # Flip height coordinates in data arrays (to descending pressure levels / ascending height)
+            self.ds = self.ds.assign_coords({self.height_dim: np.flip(self.ds[self.height_dim].values)})
+            for key in self.ds.keys():
+                if self.height_dim in self.ds[key].dims:
+                    rel_dim = np.argwhere([self.height_dim == x for x in self.ds[key].dims]).item()
+                    self.ds[key].values = np.flip(self.ds[key].values, axis=rel_dim)
+
+            # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
+            super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
+
+            # Diagnose snow from ice based on the diagnosed precipitating ice fraction in SCREAM
+            # Assign binary cloud fraction values to hydrometoer fractions
+            self.ds[self.N_field["pi"]] = self.ds[self.N_field["ci"]].copy()
+            self.ds[self.strat_frac_names["pl"]] = self.ds[self.strat_frac_names["cl"]].copy()
+            self.ds[self.strat_frac_names["pi"]] = self.ds[self.strat_frac_names["ci"]].copy()
+            self.ds[self.strat_frac_names_for_rad["pl"]] = self.ds[self.strat_frac_names_for_rad["cl"]].copy()
+            self.ds[self.strat_frac_names_for_rad["pi"]] = self.ds[self.strat_frac_names_for_rad["ci"]].copy()
+            self.ds[self.strat_re_fields["pi"]] = self.ds[self.strat_re_fields["ci"]].copy()
+            self.ds[self.q_names_stratiform["pi"]] = self.ds[self.q_names_stratiform["ci"]].copy()
+
+            self.ds[self.strat_frac_names["ci"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.N_field["ci"]].values >= (self.ds[self.q_names_stratiform["ci"]].values * 5e7)), \
+                    1., 0.)
+            self.ds[self.strat_frac_names["pi"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), 1., 0.)
+            self.ds[self.strat_frac_names_for_rad["pi"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), 1., 0.)
+
+            self.ds[self.q_names_stratiform["pi"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), self.ds[self.q_names_stratiform["ci"]].values, 0.)
+            self.ds[self.N_field["pi"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), self.ds[self.N_field["ci"]].values, 0.)
+            self.ds[self.strat_re_fields["pi"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), self.ds[self.strat_re_fields["ci"]].values*2., 0.)
+
+            self.ds[self.N_field["ci"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), 0., self.ds[self.N_field["ci"]].values)
+            self.ds[self.strat_re_fields["ci"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), 0., self.ds[self.strat_re_fields["ci"]].values)
+            self.ds[self.q_names_stratiform["ci"]].values = np.where((self.ds[self.q_names_stratiform["ci"]].values > 1e-14) & \
+                    (self.ds[self.strat_frac_names["ci"]].values == 0.), 0., self.ds[self.q_names_stratiform["ci"]].values)
+
+            self.ds[self.strat_frac_names["cl"]].values = np.where((self.ds[self.q_names_stratiform["cl"]].values > 1e-14), 1., 0.)
+            self.ds[self.strat_frac_names["pl"]].values = np.where((self.ds[self.q_names_stratiform["pl"]].values > 1e-14), 1., 0.)
+            self.ds[self.strat_frac_names_for_rad["pl"]].values = np.where((self.ds[self.q_names_stratiform["pl"]].values > 1e-14), 1., 0.)
+
+            self.ds[self.p_field] = \
+                ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
+                *self.ds[self.T_field].dims)
+            self.ds[self.p_field].attrs["units"] = "hPa"
+            self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
+                                               dims=self.ds[self.p_field].dims)
+            self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
+            for hyd in ["pl"]:
+                self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
+            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            for hyd in ["cl", "ci", "pl", "pi"]:
+                self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+                self.ds[self.strat_re_fields[hyd]].values = \
+                    np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
+                             np.nan, self.ds[self.strat_re_fields[hyd]].values)
+
+            self.permute_dims_for_processing()  # Consistent dim order (time x height).
+
+        self.model_name = "SCREAM"

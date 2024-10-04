@@ -333,7 +333,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
 
     n_subcolumns = model.num_subcolumns
 
-    if model.model_name in ["E3SM", "CESM2"]:
+    if model.model_name in ["E3SMv1", "CESM2", "E3SMv3", "SCREAM"]:
         bulk_ice_lut = "CESM_ice"
         bulk_mie_ice_lut = "mie_ice_CESM_PSD"
         bulk_liq_lut = "CESM_liq"
@@ -386,7 +386,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
         else:
-            if model.model_name in ["E3SM", "CESM2"]:
+            if model.model_name in ["E3SMv1", "CESM2", "E3SMv3", "SCREAM"]:
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
                                (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
                 lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
@@ -395,7 +395,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
             Qback_bulk = instrument.bulk_table[bulk_liq_lut]["Q_back"].values
             Qext_bulk = instrument.bulk_table[bulk_liq_lut]["Q_ext"].values
 
-        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SM", "CESM2"]):
+        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SMv1", "CESM2", "E3SMv3", "SCREAM"]):
             print("2-D interpolation of bulk liq lidar backscattering using mu-lambda values")
             rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
             back_tmp = np.ones_like(model.ds[model.q_names_stratiform[hyd_type]].values, dtype=float) * np.nan
@@ -474,7 +474,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
 
     optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
 
-    if model.model_name in ["E3SM", "CESM2"]:
+    if model.model_name in ["E3SMv1", "CESM2", "E3SMv3", "SCREAM"]:
         ice_lut = "CESM_ice"
         ice_diam_var = "p_diam"
     else:
@@ -647,7 +647,7 @@ def calc_lidar_moments(instrument, model, is_conv,
     elif mie_for_ice:
         scat_str = "Mie"
     else:
-        if model.model_name in ["E3SM", "CESM2"]:
+        if model.model_name in ["E3SMv1", "CESM2", "E3SMv3", "SCREAM"]:
             scat_str = "m-D_A-D (D. Mitchell)"
         else:
             scat_str = "C6"

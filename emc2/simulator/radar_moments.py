@@ -233,7 +233,7 @@ def calc_radar_empirical(instrument, model, is_conv, p_values, t_values, z_value
 
 
 def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_from_sfc=True,
-                    hyd_types=None, mie_for_ice=False, **kwargs):
+                    hyd_types=None, mie_for_ice=False, cesm_rad_family=None, **kwargs):
     """
     Calculates the radar stratiform or convective reflectivity and attenuation
     in a sub-columns using bulk scattering LUTs assuming geometric scatterers
@@ -261,6 +261,8 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     mie_for_ice: bool
         If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
         scattering LUTs for 8-column severly roughned aggregate.
+    cesm_rad_family: list or None
+        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
 
@@ -269,6 +271,8 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
+    if cesm_rad_family is None:
+        cesm_rad_family = ["E3SMv1", "CESM2"]
     hyd_types = model.set_hyd_types(hyd_types)
 
     optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
@@ -281,7 +285,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         cloud_str = "strat"
         re_fields = model.strat_re_fields
 
-    if model.model_name in ["E3SM", "CESM2"]:
+    if model.model_name in cesm_rad_family:
         bulk_ice_lut = "CESM_ice"
         bulk_mie_ice_lut = "mie_ice_CESM_PSD"
         bulk_liq_lut = "CESM_liq"
@@ -334,7 +338,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
         else:
-            if model.model_name in ["E3SM", "CESM2"]:
+            if model.model_name in cesm_rad_family:
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
                                (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
                 lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
@@ -343,7 +347,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             Qback_bulk = instrument.bulk_table[bulk_liq_lut]["Q_back"].values
             Qext_bulk = instrument.bulk_table[bulk_liq_lut]["Q_ext"].values
 
-        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in ["E3SM", "CESM2"]):
+        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in cesm_rad_family):
             print("2-D interpolation of bulk liq radar backscattering using mu-lambda values")
             rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
             interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qback_bulk.flatten())
@@ -379,7 +383,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
 
 def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                      hyd_types=None, mie_for_ice=True, parallel=True, chunk=None,
-                     calc_spectral_width=True,
+                     calc_spectral_width=True, cesm_rad_family=None,
                      **kwargs):
     """
     Calculates the first 3 radar moments (reflectivity, mean Doppler velocity and spectral
@@ -412,6 +416,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     calc_spectral_width: bool
         If False, skips spectral width calculations since these are not always needed for an application
         and are the most computationally expensive. Default is True.
+    cesm_rad_family: list or None
+        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.psd.calc_mu_lambda`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
@@ -421,6 +427,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
+    if cesm_rad_family is None:
+        cesm_rad_family = ["E3SMv1", "CESM2"]
     hyd_types = model.set_hyd_types(hyd_types)
 
     optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
@@ -432,7 +440,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     if mie_for_ice:
         scat_str = "Mie"
     else:
-        if model.model_name in ["E3SM", "CESM2"]:
+        if model.model_name in cesm_rad_family:
             scat_str = "m-D_A-D (D. Mitchell)"
             ice_lut = "CESM_ice"
             ice_diam_var = "p_diam"

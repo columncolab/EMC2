@@ -293,6 +293,8 @@ class Model():
         """
         Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
         (typically required when using post-processed output data files).
+        Note: in the case of E3SM-like machinery output, the method can handle output from multiple
+        sub-domains assuming there is only a single spatial dimension (typically `ncol`).
 
         Parameters
         ----------
@@ -305,22 +307,50 @@ class Model():
             out_coords = [x for x in self.ds.keys()]  # assuming lat is not in coords since using ncol
         else:
             coordinates = [self.lat_dim, self.lon_dim]
-            out_coords = [x for x in self.ds.coords] 
-        for coordinate in coordinates:
-            coord_loc = np.argwhere([coordinate in x for x in out_coords]).item()
-            if len(out_coords[coord_loc]) > len(coordinate):
-                appended_str = out_coords[coord_loc][len(coordinate):]
-                appended_coords = np.char.find(out_coords, appended_str)
-                to_rename = {}
-                for ind in range(len(out_coords)):
-                    if appended_coords[ind] > -1:
-                        to_rename[out_coords[ind]] = out_coords[ind][:appended_coords[ind]]
-                out_fields = [x for x in self.ds.data_vars]
-                appended_fields = np.char.find(out_fields, appended_str)
-                for ind in range(len(out_fields)):
-                    if appended_fields[ind] > -1:
-                        to_rename[out_fields[ind]] = out_fields[ind][:appended_fields[ind]]
-                self.ds = self.ds.rename(to_rename)
+            out_coords = [x for x in self.ds.dims]
+        coord_locs = np.argwhere([
+            (x[: len(coordinates[0])] == coordinates[0]) & (len(x) > len(coordinates[0]))
+            for x in self.ds.dims]).flatten()
+        if all_appended_in_lat:  # more computationally expensive treatment of 1 or multiple sub-domains
+            appended_dims = [var[len(self.lat_dim):] for var in self.ds.dims
+                             if var[: len(self.lat_dim) + 1] == f"{self.lat_dim}_"]  # matching E3SM machinery
+            appended_size = np.sum([self.ds[f"{self.lat_dim}{x}"].size for x in appended_dims])
+            self.ds = self.ds.assign_coords({self.lat_dim: (self.lat_dim, np.arange(appended_size))})
+            appended_var_list = []
+            for out_coord in out_coords:  # loop over variables
+                for appended_dim in appended_dims:
+                    if appended_dim in out_coord:
+                        var = out_coord[: out_coord.find(appended_dim)]
+                        if var not in appended_var_list:
+                            appended_var_list.append(var)
+            for var in appended_var_list:
+                tmp_arr = None
+                for appended_dim in appended_dims:
+                    if tmp_arr is None:
+                        tmp_arr = self.ds[var + appended_dim].values
+                        var_dims = list(self.ds[var + appended_dim].dims)
+                        var_dims[-1] = self.lat_dim
+                        var_attrs = self.ds[var + appended_dim].attrs
+                    else:
+                        tmp_arr = np.concatenate((tmp_arr, self.ds[var + appended_dim].values), axis=-1)
+                self.ds[var] = xr.DataArray(tmp_arr, dims=tuple(var_dims), attrs=var_attrs)
+                self.ds = self.ds.drop_vars([f"{var}{appended_dim}" for appended_dim in appended_dims])
+        else:
+            for coordinate in coordinates:
+                coord_loc = np.argwhere([x[:len(coordinate)] == coordinate for x in out_coords]).item()
+                if len(out_coords[coord_loc]) > len(coordinate):
+                    appended_str = out_coords[coord_loc][len(coordinate):]
+                    appended_coords = np.char.find(out_coords, appended_str)
+                    to_rename = {}
+                    for ind in range(len(out_coords)):
+                        if appended_coords[ind] > -1:
+                            to_rename[out_coords[ind]] = out_coords[ind][:appended_coords[ind]]
+                    out_fields = [x for x in self.ds.data_vars]
+                    appended_fields = np.char.find(out_fields, appended_str)
+                    for ind in range(len(out_fields)):
+                        if appended_fields[ind] > -1:
+                            to_rename[out_fields[ind]] = out_fields[ind][:appended_fields[ind]]
+                    self.ds = self.ds.rename(to_rename)
 
     def check_and_stack_time_lat_lon(self, out_coord_name="time_lat_lon", file_path=None, order_dim=True):
         """
@@ -662,15 +692,9 @@ class E3SMv1(Model):
         else:
             self.ds = read_netcdf(file_path) 
             if appended_str:
-                if np.logical_and(not np.any(['ncol' in x for x in self.ds.coords]), all_appended_in_lat):
-                    for x in self.ds.dims:
-                        if 'ncol' in x:  # ncol in dims but for some reason not in the coords
-                            self.ds = self.ds.assign_coords({'ncol': self.ds[x]})
-                            self.ds = self.ds.swap_dims({x: "ncol"})
-                            break
-                super().remove_appended_str(all_appended_in_lat)
                 if all_appended_in_lat:
                     self.lat_dim = "ncol"  # here 'ncol' is the spatial dim (acknowledging cube-sphere coords)
+                super().remove_appended_str(all_appended_in_lat)
 
             if time_dim == "ncol":
                 time_datetime64 = np.array([x.strftime('%Y-%m-%dT%H:%M') for x in self.ds["time"].values],

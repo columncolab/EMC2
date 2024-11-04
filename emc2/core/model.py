@@ -315,6 +315,9 @@ class Model():
             appended_dims = [var[len(self.lat_dim):] for var in self.ds.dims
                              if var[: len(self.lat_dim) + 1] == f"{self.lat_dim}_"]  # matching E3SM machinery
             appended_size = np.sum([self.ds[f"{self.lat_dim}{x}"].size for x in appended_dims])
+            if appended_size == 0:
+                print("no dimension name with an appended string found")
+                return None
             self.ds = self.ds.assign_coords({self.lat_dim: (self.lat_dim, np.arange(appended_size))})
             appended_var_list = []
             for out_coord in out_coords:  # loop over variables

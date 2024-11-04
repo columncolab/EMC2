@@ -252,7 +252,7 @@ class Model():
         Gets the number of subcolumns in the model. Will
         return 0 if the number of subcolumns has not yet been set.
         """
-        if 'subcolumn' in self.ds.dims.keys():
+        if 'subcolumn' in self.ds.dims:
             return self.ds.dims['subcolumn']
         else:
             return 0
@@ -378,15 +378,15 @@ class Model():
         do_process = 0  # 0 - do nothing, 1 - stack lat+lon, 2 - stack lat dim only
         
         # Add time dimension for processing (remove later if length = 1)
-        if not self.time_dim in [x for x in self.ds.dims.keys()]:
+        if not self.time_dim in [x for x in self.ds.dims]:
             self.ds = self.ds.expand_dims(self.time_dim)
 
         # Check to make sure we are loading a single column
-        if self.lat_dim in [x for x in self.ds.dims.keys()]:
-            if self.ds.dims[self.lat_dim] != 1:
+        if self.lat_dim in [x for x in self.ds.dims]:
+            if self.ds.sizes[self.lat_dim] != 1:
                 do_process = 1
-            if self.lon_dim in [x for x in self.ds.dims.keys()]:
-                if self.ds.dims[self.lon_dim] != 1:
+            if self.lon_dim in [x for x in self.ds.dims]:
+                if self.ds.sizes[self.lon_dim] != 1:
                     do_process = 1
             elif do_process == 1:
                 do_process = 2
@@ -411,7 +411,7 @@ class Model():
                     self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.time_dim)})
                 self.stacked_time_dim, self.time_dim = self.time_dim, out_coord_name
             else:
-                if self.lon_dim in [x for x in self.ds.dims.keys()]:
+                if self.lon_dim in [x for x in self.ds.dims]:
                     # No need for lat and lon dimensions
                     self.ds = self.ds.squeeze(dim=(self.lat_dim, self.lon_dim))
                 else:

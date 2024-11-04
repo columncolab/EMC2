@@ -18,7 +18,7 @@ def load_mie_file(filename):
         descriptive metadata.
     """
 
-    my_df = pd.read_csv(filename, delim_whitespace=True,
+    my_df = pd.read_csv(filename, sep='\s+',
                         names=["wavelength", "p_diam", "size_parameter", "compre_real",
                                "compre_im", "scat_p", "alpha_p", "beta_p", "scat_eff",
                                "ext_eff", "backscat_eff"])

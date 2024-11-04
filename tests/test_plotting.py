@@ -12,7 +12,7 @@ def test_plot_timeseries():
     model_display.plot_subcolumn_timeseries('sub_col_Ze_cl_strat', 2, subplot_index=(1, 0))
     model_display.plot_subcolumn_timeseries('sub_col_Ze_cl_strat', 3, subplot_index=(0, 1))
     model_display.plot_subcolumn_timeseries('sub_col_Ze_cl_strat', 4, subplot_index=(1, 1))
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -21,7 +21,7 @@ def test_plot_single_time():
 
     model_display = emc2.plotting.SubcolumnDisplay(model, ds_name="ModelE", figsize=(10, 10))
     model_display.plot_single_profile('sub_col_Ze_cl_strat', time='2016-08-16T09:30:00')
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -30,7 +30,7 @@ def test_plot_profile():
 
     model_display = emc2.plotting.SubcolumnDisplay(model, ds_name="ModelE", figsize=(10, 10))
     model_display.plot_subcolumn_mean_profile('sub_col_Ze_cl_strat', time='2016-08-16T09:30:00')
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -44,7 +44,7 @@ def test_plot_instrument():
                                              subplot_index=(0, 0), vmin=0.0, vmax=0.5)
     model_display.plot_instrument_timeseries(HSRL, "beta_a_backscat", log_plot=True, cmap='magma',
                                              subplot_index=(0, 1), vmin=1e-8, vmax=1e-3)
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -55,7 +55,7 @@ def test_plot_instrument_profile():
 
     model_display = emc2.plotting.SubcolumnDisplay(model, ds_name="ModelE", figsize=(10, 10))
     model_display.plot_instrument_mean_profile(HSRL, 'linear_depol', pressure_coords=False)
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -66,7 +66,7 @@ def test_plot_classification():
     _, cb = model_display.plot_subcolumn_timeseries('phase_mask_KAZR_sounding_all_hyd', 1)
     model_display.change_plot_to_class_mask(cb, variable="phase_mask_KAZR_sounding_all_hyd",
                                             class_legend=["Cloud", "precip", "mixed"])
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -104,7 +104,7 @@ def test_plot_SR_subcol_timeseries():
         Ncolumns, Npoints, Nlevels, Nglevels, col_num, newgrid_bot, newgrid_top)
     emc2.statistics_LLNL.statistical_plots.plot_every_subcolumn_timeseries_SR(
         my_e3sm, atb_total_4D, atb_mol_4D, col_index, '', '', 'addpl_rad')
-    return plt.gcf()
+    assert plt.gcf()
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -164,7 +164,7 @@ def test_plot_get_CFAD_SR():
     cfadSR_cal_alltime = np.nanmean(cfadSR_cal_alltime_col, axis=2)
     emc2.statistics_LLNL.statistical_plots.plot_lidar_SR_CFAD(
         SR_EDGES, newgrid_mid, cfadSR_cal_alltime, '', '', 'addpl_rad')
-    return plt.gcf()
+    assert plt.gcf()
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -224,7 +224,7 @@ def test_plot_regridded_CF_timeseries():
             CF_3D, newgrid_mid, col_index, y_range=y_range,
             cmap=cmap, title='',
             vmin=vmin_max[ii][0], vmax=vmin_max[ii][1], cbar_label=cbar_label[ii])
-    return model_display3.fig
+    assert model_display3.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -262,7 +262,7 @@ def test_plot_subcolumn_timeseries():
             field_to_plot[ii], subcol_ind, log_plot=log_plot[ii], y_range=y_range,
             subplot_index=(0, ii),  cmap=cmap, title='',
             vmin=vmin_max[ii][0], vmax=vmin_max[ii][1], pressure_coords=False)
-    return model_display.fig
+    assert model_display.fig
 
 
 @pytest.mark.mpl_image_compare(tolerance=30)
@@ -280,4 +280,4 @@ def test_plotting_every_subcolumn_timeseries_radarlidarsignal():
         unstack_dims=True, finalize_fields=True, use_rad_logic=True)
     emc2.statistics_LLNL.statistical_plots.plot_every_subcolumn_timeseries_radarlidarsignal(
         my_e3sm, col_index, '', '', 'addpl_radiation')
-    return plt.gcf()
+    assert plt.gcf()

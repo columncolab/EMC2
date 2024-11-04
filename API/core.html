@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.core (emc2.core) &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -361,7 +361,9 @@ Note: lat/lon dims are assumed to already be stacked with the time dim.</p>
 <dt class="sig sig-object py" id="emc2.core.Model.remove_appended_str">
 <span class="sig-name descname"><span class="pre">remove_appended_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.remove_appended_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.remove_appended_str" title="Link to this definition">¶</a></dt>
 <dd><p>Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names
-(typically required when using post-processed output data files).</p>
+(typically required when using post-processed output data files).
+Note: in the case of E3SM-like machinery output, the method can handle output from multiple
+sub-domains assuming there is only a single spatial dimension (typically <cite>ncol</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">

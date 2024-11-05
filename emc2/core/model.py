@@ -1262,6 +1262,9 @@ class TestModel(Model):
                                         'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci',
                                          'pl': 'cldsspl', 'pi': 'cldsspi'}
+
+        self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
+        self.rad_scheme_family = "E3SM"  # required to prevent errors from being raised.
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
@@ -1401,6 +1404,8 @@ class TestConvection(Model):
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
+        self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
@@ -1541,6 +1546,8 @@ class TestAllStratiform(Model):
         self.strat_frac_names = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
+        self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
+        self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
@@ -1661,6 +1668,8 @@ class TestHalfAndHalf(Model):
         self.conv_frac_names_for_rad = {'cl': 'cldmccl', 'ci': 'cldmcci', 'pl': 'cldmcpl', 'pi': 'cldmcpi'}
         self.strat_frac_names_for_rad = {'cl': 'cldsscl', 'ci': 'cldssci', 'pl': 'cldsspl', 'pi': 'cldsspi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
+        self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
+        self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"

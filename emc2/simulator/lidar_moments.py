@@ -286,7 +286,7 @@ def calc_lidar_empirical(instrument, model, is_conv, p_values, t_values, z_value
 
 
 def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=True,
-                    hyd_types=None, mie_for_ice=False, cesm_rad_family=None, **kwargs):
+                    hyd_types=None, mie_for_ice=False, **kwargs):
     """
     Calculates the lidar stratiform or convective backscatter, extinction, and
     optical depth in a sub-columns using bulk scattering LUTs assuming geometric
@@ -312,8 +312,6 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     mie_for_ice: bool
         If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
         scattering LUTs for 8-column severly roughned aggregate.
-    cesm_rad_family: list or None
-        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
@@ -322,8 +320,6 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if cesm_rad_family is None:
-        cesm_rad_family = ["E3SMv1", "CESM2"]
     hyd_types = model.set_hyd_types(hyd_types)
 
     optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
@@ -337,14 +333,16 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
 
     n_subcolumns = model.num_subcolumns
 
-    if model.model_name in cesm_rad_family:
+    if model.rad_scheme_family == "CESM":
         bulk_ice_lut = "CESM_ice"
         bulk_mie_ice_lut = "mie_ice_CESM_PSD"
         bulk_liq_lut = "CESM_liq"
-    else:
+    elif model.rad_scheme_family == "ModelE":
         bulk_ice_lut = "E3_ice"
         bulk_mie_ice_lut = "mie_ice_E3_PSD"
         bulk_liq_lut = "E3_liq"
+    else:
+        raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
     Dims = model.ds["%s_q_subcolumns_cl" % cloud_str].shape
     model.ds['sub_col_beta_p_tot_%s' % cloud_str] = xr.DataArray(
@@ -390,16 +388,19 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
         else:
-            if model.model_name in cesm_rad_family:
+            if model.rad_scheme_family in ["CESM"]:  # rad families that have bulk LUTs vs. lambda and mu
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
                                (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
                 lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
-            else:
+            else:  # rad families that have bulk LUTs vs. r_eff
                 r_eff_bulk = instrument.bulk_table[bulk_liq_lut]["r_e"].values
             Qback_bulk = instrument.bulk_table[bulk_liq_lut]["Q_back"].values
             Qext_bulk = instrument.bulk_table[bulk_liq_lut]["Q_ext"].values
 
-        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.model_name in cesm_rad_family):
+        # The following if condition is to determine if the LUTs are vs. the PSD lambda and mu parameters
+        # The alternative default is to use LUTs vs. r_eff
+        # ===========================================================
+        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.rad_scheme_family in ["CESM"]):
             print("2-D interpolation of bulk liq lidar backscattering using mu-lambda values")
             rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
             back_tmp = np.ones_like(model.ds[model.q_names_stratiform[hyd_type]].values, dtype=float) * np.nan
@@ -439,7 +440,7 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
 
 def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
                      hyd_types=None, mie_for_ice=False, parallel=True, chunk=None,
-                     cesm_rad_family=None, **kwargs):
+                     **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar using the microphysics (MG2) logic.
@@ -466,8 +467,6 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
-    cesm_rad_family: list or None
-        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).
     Additonal keyword arguments are passed into
     :py:func:`emc2.psd.calc_mu_lambda`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
@@ -477,18 +476,18 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     model: :func:`emc2.core.Model`
         The model with the added simulated lidar parameters.
     """
-    if cesm_rad_family is None:
-        cesm_rad_family = ["E3SMv1", "CESM2"]
     hyd_types = model.set_hyd_types(hyd_types)
 
     optional_ice_classes = ["ci", "pi", "sn", "gr", "ha", "pir", "pid", "pif"]
 
-    if model.model_name in cesm_rad_family:
+    if model.rad_scheme_family == "CESM":
         ice_lut = "CESM_ice"
         ice_diam_var = "p_diam"
-    else:
+    elif model.rad_scheme_family == "ModelE":
         ice_lut = "E3_ice"
         ice_diam_var = "p_diam_eq_V"
+    else:
+        raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
     Dims = model.ds["strat_q_subcolumns_cl"].values.shape
     for hyd_type in hyd_types:
@@ -505,7 +504,16 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
-        fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+        if hyd_type in ["cl", "pl"]:  # liquid classes
+            if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
+                fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+            else:
+                raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")
+        else:  # ice classes
+            if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
+                fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+            else:
+                raise ValueError(f"no ice PSD calulation method implemented for scheme {model.mcphys_scheme}")
         N_columns = len(model.ds["subcolumn"])
         total_hydrometeor = np.round(model.ds[frac_names].values * N_columns).astype(int)
         N_0 = fits_ds["N_0"].values
@@ -571,7 +579,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
 
 def calc_lidar_moments(instrument, model, is_conv,
                        OD_from_sfc=True, hyd_types=None, parallel=True, eta=1, chunk=None, mie_for_ice=False,
-                       use_rad_logic=True, use_empiric_calc=False, cesm_rad_family=None, **kwargs):
+                       use_rad_logic=True, use_empiric_calc=False, **kwargs):
     """
     Calculates the lidar backscatter, extinction, and optical depth
     in a given column for the given lidar.
@@ -623,8 +631,6 @@ def calc_lidar_moments(instrument, model, is_conv,
     use_empirical_calc: bool
         When True using empirical relations from literature for the fwd calculations
         (the cloud fraction still follows the scheme logic set by use_rad_logic).
-    cesm_rad_family: list or None
-        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).
     Additonal keyword arguments are passed into
     :py:func:`emc2.psd.calc_mu_lambda`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
@@ -637,8 +643,6 @@ def calc_lidar_moments(instrument, model, is_conv,
     model: :func:`emc2.core.Model`
         The model dataset with the added simulated lidar parameters.
     """
-    if cesm_rad_family is None:
-        cesm_rad_family = ["E3SMv1", "CESM2"]
     hyd_types = model.set_hyd_types(hyd_types)
 
     if is_conv:
@@ -660,10 +664,12 @@ def calc_lidar_moments(instrument, model, is_conv,
     elif mie_for_ice:
         scat_str = "Mie"
     else:
-        if model.model_name in cesm_rad_family:
+        if model.rad_scheme_family == "CESM":
             scat_str = "m-D_A-D (D. Mitchell)"
-        else:
+        elif model.rad_scheme_family == "ModelE":
             scat_str = "C6"
+        else:
+            raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
     if not instrument.instrument_class.lower() == "lidar":
         raise ValueError("Instrument must be a lidar!")

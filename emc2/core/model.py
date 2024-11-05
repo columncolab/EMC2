@@ -97,7 +97,6 @@ class Model():
           1. "MG2", "MG", "Morrison" - essentially treated the same.
           2. "NSSL"
           3. "P3"
-
     rad_scheme_family: str
         Radiation scheme family. Many models share the same radiation scheme or bulk scattering LUT
         ancestor (inc. same PSD parameters, ice habit description, etc.). This parameters determines

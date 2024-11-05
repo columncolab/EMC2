@@ -93,8 +93,11 @@ class Model():
     lon_dim: str
         Name of the longitude dimension in the model (relevant for regional output)
     mcphys_scheme: str
-        Name of the microphysics scheme to use for models with 
-        multiple microphysics schemes.
+        Name of the microphysics scheme used by the model. Current options are:
+          1. "MG2", "MG", "Morrison" - essentially treated the same.
+          2. "NSSL"
+          3. "P3"
+
     rad_scheme_family: str
         Radiation scheme family. Many models share the same radiation scheme or bulk scattering LUT
         ancestor (inc. same PSD parameters, ice habit description, etc.). This parameters determines
@@ -664,9 +667,7 @@ class E3SMv1(Model):
             By default, set to False given that the rain class is excluded from the E3SM radiative scheme
             calculations.
         mcphys_scheme: str
-            Microphysics scheme used by the model. Current options are:
-            1. "MG2", "MG", "Morrison" - essentially treated the same.
-            2. "P3"
+            Name of the microphysics scheme used by the model. Current options are:
 
         """
         super().__init__()

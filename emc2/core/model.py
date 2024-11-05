@@ -95,6 +95,10 @@ class Model():
     mcphys_scheme: str
         Name of the microphysics scheme to use for models with 
         multiple microphysics schemes.
+    rad_scheme_family: str
+        Radiation scheme family. Many models share the same radiation scheme or bulk scattering LUT
+        ancestor (inc. same PSD parameters, ice habit description, etc.). This parameters determines
+        the single particle or bulk LUT to use given the Model class.
     stacked_time_dim: str or None
         This attribute becomes a string of the original time dimension name only if
         stacking was required to enable EMC2 to processes a domain output (time x lat x lon).
@@ -138,7 +142,8 @@ class Model():
         self.height_dim = "height"
         self.lat_dim = "lat"
         self.lon_dim = "lon"
-        self.mcphys_scheme = ""
+        self.mcphys_scheme = None
+        self.rad_scheme_family = None
         self.stacked_time_dim = None
         self.process_conv = True
         self.model_name = ""
@@ -598,6 +603,8 @@ class ModelE(Model):
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
         self.hyd_types = ["cl", "ci", "pl", "pi"]
+        self.mcphys_scheme = "MG2"  # per GM2015 (J. Clim.)
+        self.rad_scheme_family = "ModelE"
 
         if load_processed:
             self.ds = xr.Dataset()
@@ -627,7 +634,8 @@ class ModelE(Model):
 
 class E3SMv1(Model):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
-                 all_appended_in_lat=False, single_ice_class=False, include_rain_in_rt=False):
+                 all_appended_in_lat=False, single_ice_class=False, include_rain_in_rt=False,
+                 mcphys_scheme="MG2"):
         """
         This loads an E3SMv1 simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -655,6 +663,10 @@ class E3SMv1(Model):
             If True, including the rain class (`pl`) in the forward calculations.
             By default, set to False given that the rain class is excluded from the E3SM radiative scheme
             calculations.
+        mcphys_scheme: str
+            Microphysics scheme used by the model. Current options are:
+            1. "MG2", "MG", "Morrison" - essentially treated the same.
+            2. "P3"
 
         """
         super().__init__()
@@ -705,6 +717,9 @@ class E3SMv1(Model):
                 eval(f"self.{attr}")['pi'] = 'zeros_cf'
         else:
             self.hyd_types += ["pi"]
+        self.mcphys_scheme = mcphys_scheme
+        self.rad_scheme_family = "CESM"  # E3SMv1 uses the same bulk LUTs as CESM (CAM 5.0)
+
         self.process_conv = False
         if load_processed:
             self.ds = xr.Dataset()
@@ -817,7 +832,7 @@ class WRF(Model):
             raise ModuleNotFoundError("wrf-python must be installed.")
 
         super().__init__()
-        if mcphys_scheme.lower() == "morrison":
+        if mcphys_scheme.lower() in ["mg2", "mg", "morrison"]:
             self.hyd_types = ["cl", "ci", "pl", "pi"]
             self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
                             'ci': 500. * ureg.kg / (ureg.m**3),
@@ -1024,6 +1039,7 @@ class WRF(Model):
         self.lat_name = "XLAT"
         self.lon_name = "XLONG"
         self.mcphys_scheme = mcphys_scheme
+        self.rad_scheme_family = "ModelE"  # NOTE: adaptive implementation needed (as in mcphys_scheme) per WRF run
         self.process_conv = False
         wrfin.close()
         for keys in self.ds.keys():
@@ -1136,8 +1152,8 @@ class DHARMA(Model):
             self.q_names_convective.update({'pir': 'conv_dat'})
             self.q_names_stratiform.update({'pir': 'qpir'})
             self.hyd_types.append("pir")
-
-        self.process_conv = False
+        self.mcphys_scheme="MG"  # MG2008
+        self.rad_scheme_family = "ModelE"  # Similar implementation to ModelE3
 
         if load_processed:
             self.ds = xr.Dataset()

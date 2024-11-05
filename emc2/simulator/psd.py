@@ -48,6 +48,12 @@ def calc_mu_lambda(model, hyd_type="cl",
                    subcolumns=False, is_conv=False, **kwargs):
 
     """
+    This method calculated the Gamma PSD parameters following Morrison and Gettelman (2008).
+    Note that the dispersion cacluation from MG2008 is used in all models implementing this
+    parameterization except for ModelE and DHARMA, which use a fixed definition.
+    Note #2: `subcolumns` are hardwired as `True` in `radar_moments.py` and `lidar_moments.py`,
+    which means that we assume that the PSD mu and lambda definition applies to the SGS. This
+    defintion might be under future discussion (whether to apply this assumption or not).
     Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
     The gamma size distribution takes the form:
 
@@ -59,7 +65,7 @@ def calc_mu_lambda(model, hyd_type="cl",
 
     Note: this method only accepts the microphysical cloud fraction in order to maintain
     consistency because the PSD calculation is necessarily related only to the MG2 scheme
-    without assumption related to the radiation logic
+    without assumption related to the radiation logic.
 
     Parameters
     ----------
@@ -77,7 +83,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         The lower and upper bounds for the :math:`\mu` parameter.
     subcolumns: bool
         If True, the fit parameters will be generated using the generated subcolumns
-        rather than using the "raw" model output.
+        (in-cloud) q and N quantities) rather than using the "raw" (grid-cell mean) output.
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
 
@@ -98,10 +104,10 @@ def calc_mu_lambda(model, hyd_type="cl",
     """
 
     if calc_dispersion is None:
-        if model.model_name in ["E3SM", "CESM2", "WRF"]:
-            calc_dispersion = True
-        else:
+        if model.model_name in ["ModelE", "DHARMA"]:
             calc_dispersion = False
+        else:
+            calc_dispersion = True
     if not subcolumns:
         N_name = model.N_field[hyd_type]
         if not is_conv:

@@ -627,7 +627,7 @@ class ModelE(Model):
 
 class E3SMv1(Model):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
-                 all_appended_in_lat=False, include_rain_in_rt=False):
+                 all_appended_in_lat=False, single_ice_class=False, include_rain_in_rt=False):
         """
         This loads an E3SMv1 simulation output with all of the necessary parameters for EMC^2 to run.
 
@@ -648,6 +648,9 @@ class E3SMv1(Model):
         all_appended_in_lat: bool
             If True using only the appended str portion to the lat_dim. Otherwise, combining
             the appended str from both the lat and lon dims (relevant if appended_str is True).
+        single_ice_class: bool
+            If True, assuming model microphysics incorporate a single ice class (e.g., in P3 implemented
+            in E3SMv3).
         include_rain_in_rt: bool
             If True, including the rain class (`pl`) in the forward calculations.
             By default, set to False given that the rain class is excluded from the E3SM radiative scheme
@@ -693,9 +696,15 @@ class E3SMv1(Model):
         self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}  
 
         if include_rain_in_rt:
-            self.hyd_types = ["cl", "ci", "pl", "pi"]
+            self.hyd_types = ["cl", "ci", "pl"]
         else:
-            self.hyd_types = ["cl", "ci", "pi"]
+            self.hyd_types = ["cl", "ci"]
+        if single_ice_class:
+            for attr in ['N_field', 'strat_frac_names', 'strat_frac_names_for_rad', 'strat_re_fields',
+                         'q_names_stratiform']:
+                eval(f"self.{attr}")['pi'] = 'zeros_cf'
+        else:
+            self.hyd_types += ["pi"]
         self.process_conv = False
         if load_processed:
             self.ds = xr.Dataset()
@@ -738,13 +747,13 @@ class E3SMv1(Model):
             self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
                                                dims=self.ds[self.p_field].dims)
             self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
-            precip_classes = [x for x in self.hyd_types if x[0] == "p"]
-            for hyd in precip_classes:
-                self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming effective diameter in m was provided
             self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
             self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            precip_classes = [x for x in self.hyd_types if x[0] == "p"]
             for hyd in self.hyd_types:
                 self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+                if hyd in precip_classes:
+                    self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming r_eff in m was provided
                 self.ds[self.strat_re_fields[hyd]].values = \
                     np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
                              np.nan, self.ds[self.strat_re_fields[hyd]].values)

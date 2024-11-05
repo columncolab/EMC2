@@ -127,7 +127,13 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="emc2.simulator.psd.calc_mu_lambda">
 <span class="sig-prename descclassname"><span class="pre">emc2.simulator.psd.</span></span><span class="sig-name descname"><span class="pre">calc_mu_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_dispersion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_mu_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(2,</span> <span class="pre">15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcolumns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
+<dd><p>This method calculated the Gamma PSD parameters following Morrison and Gettelman (2008).
+Note that the dispersion cacluation from MG2008 is used in all models implementing this
+parameterization except for ModelE and DHARMA, which use a fixed definition.
+Note #2: <cite>subcolumns</cite> are hardwired as <cite>True</cite> in <cite>radar_moments.py</cite> and <cite>lidar_moments.py</cite>,
+which means that we assume that the PSD mu and lambda definition applies to the SGS. This
+defintion might be under future discussion (whether to apply this assumption or not).
+Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
 The gamma size distribution takes the form:</p>
 <div class="math notranslate nohighlight">
 \[N(D) = N_{0}e^{-\lambda D}D^{\mu}\]</div>
@@ -135,7 +141,7 @@ The gamma size distribution takes the form:</p>
 <span class="math notranslate nohighlight">\(\mu\)</span> is the dispersion.</p>
 <p>Note: this method only accepts the microphysical cloud fraction in order to maintain
 consistency because the PSD calculation is necessarily related only to the MG2 scheme
-without assumption related to the radiation logic</p>
+without assumption related to the radiation logic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -152,7 +158,7 @@ If None (default), setting calculation parameterization based on model logic.</p
 <dt><strong>dispersion_mu_bounds: 2-tuple</strong></dt><dd><p>The lower and upper bounds for the <span class="math notranslate nohighlight">\(\mu\)</span> parameter.</p>
 </dd>
 <dt><strong>subcolumns: bool</strong></dt><dd><p>If True, the fit parameters will be generated using the generated subcolumns
-rather than using the “raw” model output.</p>
+(in-cloud) q and N quantities) rather than using the “raw” (grid-cell mean) output.</p>
 </dd>
 <dt><strong>is_conv: bool</strong></dt><dd><p>If True, calculate from convective properties. IF false, do stratiform.</p>
 </dd>

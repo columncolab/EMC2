@@ -377,7 +377,7 @@
 <div class="viewcode-block" id="calc_lidar_bulk">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.lidar_moments.calc_lidar_bulk.html#emc2.simulator.lidar_moments.calc_lidar_bulk">[docs]</a>
 <span class="k">def</span> <span class="nf">calc_lidar_bulk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span> <span class="n">p_values</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cesm_rad_family</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                    <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the lidar stratiform or convective backscatter, extinction, and</span>
 <span class="sd">    optical depth in a sub-columns using bulk scattering LUTs assuming geometric</span>
@@ -403,8 +403,6 @@
 <span class="sd">    mie_for_ice: bool</span>
 <span class="sd">        If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6</span>
 <span class="sd">        scattering LUTs for 8-column severly roughned aggregate.</span>
-<span class="sd">    cesm_rad_family: list or None</span>
-<span class="sd">        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).</span>
 <span class="sd">    Additonal keyword arguments are passed into</span>
 <span class="sd">    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.</span>
 
@@ -413,8 +411,6 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">cesm_rad_family</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cesm_rad_family</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;E3SMv1&quot;</span><span class="p">,</span> <span class="s2">&quot;CESM2&quot;</span><span class="p">]</span>
     <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="n">optional_ice_classes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">,</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="s2">&quot;gr&quot;</span><span class="p">,</span> <span class="s2">&quot;ha&quot;</span><span class="p">,</span> <span class="s2">&quot;pir&quot;</span><span class="p">,</span> <span class="s2">&quot;pid&quot;</span><span class="p">,</span> <span class="s2">&quot;pif&quot;</span><span class="p">]</span>
@@ -428,14 +424,16 @@
 
     <span class="n">n_subcolumns</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">num_subcolumns</span>
 
-    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="n">cesm_rad_family</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">==</span> <span class="s2">&quot;CESM&quot;</span><span class="p">:</span>
         <span class="n">bulk_ice_lut</span> <span class="o">=</span> <span class="s2">&quot;CESM_ice&quot;</span>
         <span class="n">bulk_mie_ice_lut</span> <span class="o">=</span> <span class="s2">&quot;mie_ice_CESM_PSD&quot;</span>
         <span class="n">bulk_liq_lut</span> <span class="o">=</span> <span class="s2">&quot;CESM_liq&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">==</span> <span class="s2">&quot;ModelE&quot;</span><span class="p">:</span>
         <span class="n">bulk_ice_lut</span> <span class="o">=</span> <span class="s2">&quot;E3_ice&quot;</span>
         <span class="n">bulk_mie_ice_lut</span> <span class="o">=</span> <span class="s2">&quot;mie_ice_E3_PSD&quot;</span>
         <span class="n">bulk_liq_lut</span> <span class="o">=</span> <span class="s2">&quot;E3_liq&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown radiation scheme family: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">Dims</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_q_subcolumns_cl&quot;</span> <span class="o">%</span> <span class="n">cloud_str</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;sub_col_beta_p_tot_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cloud_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
@@ -481,16 +479,19 @@
                 <span class="n">Qback_bulk</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_ice_lut</span><span class="p">][</span><span class="s2">&quot;Q_back&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">Qext_bulk</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_ice_lut</span><span class="p">][</span><span class="s2">&quot;Q_ext&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="n">cesm_rad_family</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CESM&quot;</span><span class="p">]:</span>  <span class="c1"># rad families that have bulk LUTs vs. lambda and mu</span>
                 <span class="n">mu_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_liq_lut</span><span class="p">][</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                                <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_liq_lut</span><span class="p">][</span><span class="s2">&quot;lambdas&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
                 <span class="n">lambda_b</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_liq_lut</span><span class="p">][</span><span class="s2">&quot;lambda&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># rad families that have bulk LUTs vs. r_eff</span>
                 <span class="n">r_eff_bulk</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_liq_lut</span><span class="p">][</span><span class="s2">&quot;r_e&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="n">Qback_bulk</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_liq_lut</span><span class="p">][</span><span class="s2">&quot;Q_back&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="n">Qext_bulk</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">bulk_table</span><span class="p">[</span><span class="n">bulk_liq_lut</span><span class="p">][</span><span class="s2">&quot;Q_ext&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">hyd_type</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">]),</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="n">cesm_rad_family</span><span class="p">):</span>
+        <span class="c1"># The following if condition is to determine if the LUTs are vs. the PSD lambda and mu parameters</span>
+        <span class="c1"># The alternative default is to use LUTs vs. r_eff</span>
+        <span class="c1"># ===========================================================</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">hyd_type</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">]),</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CESM&quot;</span><span class="p">]):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2-D interpolation of bulk liq lidar backscattering using mu-lambda values&quot;</span><span class="p">)</span>
             <span class="n">rel_locs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mf">0.</span>
             <span class="n">back_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -533,7 +534,7 @@
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.lidar_moments.calc_lidar_micro.html#emc2.simulator.lidar_moments.calc_lidar_micro">[docs]</a>
 <span class="k">def</span> <span class="nf">calc_lidar_micro</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">z_values</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                      <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">cesm_rad_family</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the lidar backscatter, extinction, and optical depth</span>
 <span class="sd">    in a given column for the given lidar using the microphysics (MG2) logic.</span>
@@ -560,8 +561,6 @@
 <span class="sd">        the entries to the Dask worker queue at once. Sometimes, Dask will freeze if</span>
 <span class="sd">        too many tasks are sent at once due to memory issues, so adjusting this number</span>
 <span class="sd">        might be needed if that happens.</span>
-<span class="sd">    cesm_rad_family: list or None</span>
-<span class="sd">        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).</span>
 <span class="sd">    Additonal keyword arguments are passed into</span>
 <span class="sd">    :py:func:`emc2.psd.calc_mu_lambda`.</span>
 <span class="sd">    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.</span>
@@ -571,18 +570,18 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">cesm_rad_family</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cesm_rad_family</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;E3SMv1&quot;</span><span class="p">,</span> <span class="s2">&quot;CESM2&quot;</span><span class="p">]</span>
     <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="n">optional_ice_classes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">,</span> <span class="s2">&quot;pi&quot;</span><span class="p">,</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="s2">&quot;gr&quot;</span><span class="p">,</span> <span class="s2">&quot;ha&quot;</span><span class="p">,</span> <span class="s2">&quot;pir&quot;</span><span class="p">,</span> <span class="s2">&quot;pid&quot;</span><span class="p">,</span> <span class="s2">&quot;pif&quot;</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="n">cesm_rad_family</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">==</span> <span class="s2">&quot;CESM&quot;</span><span class="p">:</span>
         <span class="n">ice_lut</span> <span class="o">=</span> <span class="s2">&quot;CESM_ice&quot;</span>
         <span class="n">ice_diam_var</span> <span class="o">=</span> <span class="s2">&quot;p_diam&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">==</span> <span class="s2">&quot;ModelE&quot;</span><span class="p">:</span>
         <span class="n">ice_lut</span> <span class="o">=</span> <span class="s2">&quot;E3_ice&quot;</span>
         <span class="n">ice_diam_var</span> <span class="o">=</span> <span class="s2">&quot;p_diam_eq_V&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown radiation scheme family: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">Dims</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;strat_q_subcolumns_cl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hyd_types</span><span class="p">:</span>
@@ -599,7 +598,16 @@
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
         <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sub_col_alpha_p_</span><span class="si">%s</span><span class="s2">_strat&quot;</span> <span class="o">%</span> <span class="n">hyd_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Dims</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">strat_q_subcolumns_cl</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
-        <span class="n">fits_ds</span> <span class="o">=</span> <span class="n">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">ds</span>
+        <span class="k">if</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;pl&quot;</span><span class="p">]:</span>  <span class="c1"># liquid classes</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">mcphys_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mg2&quot;</span><span class="p">,</span> <span class="s2">&quot;mg&quot;</span><span class="p">,</span> <span class="s2">&quot;morrison&quot;</span><span class="p">,</span> <span class="s2">&quot;nssl&quot;</span><span class="p">]:</span>
+                <span class="n">fits_ds</span> <span class="o">=</span> <span class="n">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">ds</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no liquid PSD calulation method implemented for scheme </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">mcphys_scheme</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># ice classes</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">mcphys_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mg2&quot;</span><span class="p">,</span> <span class="s2">&quot;mg&quot;</span><span class="p">,</span> <span class="s2">&quot;morrison&quot;</span><span class="p">,</span> <span class="s2">&quot;nssl&quot;</span><span class="p">]:</span>  <span class="c1"># NOTE: NSSL PSD assumed like MG</span>
+                <span class="n">fits_ds</span> <span class="o">=</span> <span class="n">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">,</span> <span class="n">subcolumns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">ds</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no ice PSD calulation method implemented for scheme </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">mcphys_scheme</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">N_columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;subcolumn&quot;</span><span class="p">])</span>
         <span class="n">total_hydrometeor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">frac_names</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">N_columns</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">N_0</span> <span class="o">=</span> <span class="n">fits_ds</span><span class="p">[</span><span class="s2">&quot;N_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
@@ -668,7 +676,7 @@
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.lidar_moments.calc_lidar_moments.html#emc2.simulator.lidar_moments.calc_lidar_moments">[docs]</a>
 <span class="k">def</span> <span class="nf">calc_lidar_moments</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">is_conv</span><span class="p">,</span>
                        <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mie_for_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                       <span class="n">use_rad_logic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_empiric_calc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cesm_rad_family</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                       <span class="n">use_rad_logic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_empiric_calc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the lidar backscatter, extinction, and optical depth</span>
 <span class="sd">    in a given column for the given lidar.</span>
@@ -720,8 +728,6 @@
 <span class="sd">    use_empirical_calc: bool</span>
 <span class="sd">        When True using empirical relations from literature for the fwd calculations</span>
 <span class="sd">        (the cloud fraction still follows the scheme logic set by use_rad_logic).</span>
-<span class="sd">    cesm_rad_family: list or None</span>
-<span class="sd">        list of model classes implementing CESM-type radiation scheme (same LUT PSD assumptions, etc.).</span>
 <span class="sd">    Additonal keyword arguments are passed into</span>
 <span class="sd">    :py:func:`emc2.psd.calc_mu_lambda`.</span>
 <span class="sd">    :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.</span>
@@ -734,8 +740,6 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model dataset with the added simulated lidar parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">cesm_rad_family</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cesm_rad_family</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;E3SMv1&quot;</span><span class="p">,</span> <span class="s2">&quot;CESM2&quot;</span><span class="p">]</span>
     <span class="n">hyd_types</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">set_hyd_types</span><span class="p">(</span><span class="n">hyd_types</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_conv</span><span class="p">:</span>
@@ -757,10 +761,12 @@
     <span class="k">elif</span> <span class="n">mie_for_ice</span><span class="p">:</span>
         <span class="n">scat_str</span> <span class="o">=</span> <span class="s2">&quot;Mie&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="n">cesm_rad_family</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">==</span> <span class="s2">&quot;CESM&quot;</span><span class="p">:</span>
             <span class="n">scat_str</span> <span class="o">=</span> <span class="s2">&quot;m-D_A-D (D. Mitchell)&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">==</span> <span class="s2">&quot;ModelE&quot;</span><span class="p">:</span>
             <span class="n">scat_str</span> <span class="o">=</span> <span class="s2">&quot;C6&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown radiation scheme family: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rad_scheme_family</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">instrument</span><span class="o">.</span><span class="n">instrument_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lidar&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Instrument must be a lidar!&quot;</span><span class="p">)</span>

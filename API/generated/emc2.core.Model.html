@@ -181,8 +181,18 @@ with the model represented by the Model subclass.</p>
 </dd>
 <dt><strong>lon_dim: str</strong></dt><dd><p>Name of the longitude dimension in the model (relevant for regional output)</p>
 </dd>
-<dt><strong>mcphys_scheme: str</strong></dt><dd><p>Name of the microphysics scheme to use for models with 
-multiple microphysics schemes.</p>
+<dt><strong>mcphys_scheme: str</strong></dt><dd><dl class="simple">
+<dt>Name of the microphysics scheme used by the model. Current options are:</dt><dd><ol class="arabic simple">
+<li><p>“MG2”, “MG”, “Morrison” - essentially treated the same.</p></li>
+<li><p>“NSSL”</p></li>
+<li><p>“P3”</p></li>
+</ol>
+</dd>
+</dl>
+</dd>
+<dt><strong>rad_scheme_family: str</strong></dt><dd><p>Radiation scheme family. Many models share the same radiation scheme or bulk scattering LUT
+ancestor (inc. same PSD parameters, ice habit description, etc.). This parameters determines
+the single particle or bulk LUT to use given the Model class.</p>
 </dd>
 <dt><strong>stacked_time_dim: str or None</strong></dt><dd><p>This attribute becomes a string of the original time dimension name only if
 stacking was required to enable EMC2 to processes a domain output (time x lat x lon).</p>

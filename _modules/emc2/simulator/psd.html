@@ -130,6 +130,12 @@
                    <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method calculated the Gamma PSD parameters following Morrison and Gettelman (2008).</span>
+<span class="sd">    Note that the dispersion cacluation from MG2008 is used in all models implementing this</span>
+<span class="sd">    parameterization except for ModelE and DHARMA, which use a fixed definition.</span>
+<span class="sd">    Note #2: `subcolumns` are hardwired as `True` in `radar_moments.py` and `lidar_moments.py`,</span>
+<span class="sd">    which means that we assume that the PSD mu and lambda definition applies to the SGS. This</span>
+<span class="sd">    defintion might be under future discussion (whether to apply this assumption or not).</span>
 <span class="sd">    Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.</span>
 <span class="sd">    The gamma size distribution takes the form:</span>
 
@@ -141,7 +147,7 @@
 
 <span class="sd">    Note: this method only accepts the microphysical cloud fraction in order to maintain</span>
 <span class="sd">    consistency because the PSD calculation is necessarily related only to the MG2 scheme</span>
-<span class="sd">    without assumption related to the radiation logic</span>
+<span class="sd">    without assumption related to the radiation logic.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -159,7 +165,7 @@
 <span class="sd">        The lower and upper bounds for the :math:`\mu` parameter.</span>
 <span class="sd">    subcolumns: bool</span>
 <span class="sd">        If True, the fit parameters will be generated using the generated subcolumns</span>
-<span class="sd">        rather than using the &quot;raw&quot; model output.</span>
+<span class="sd">        (in-cloud) q and N quantities) rather than using the &quot;raw&quot; (grid-cell mean) output.</span>
 <span class="sd">    is_conv: bool</span>
 <span class="sd">        If True, calculate from convective properties. IF false, do stratiform.</span>
 
@@ -180,10 +186,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">calc_dispersion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;E3SM&quot;</span><span class="p">,</span> <span class="s2">&quot;CESM2&quot;</span><span class="p">,</span> <span class="s2">&quot;WRF&quot;</span><span class="p">]:</span>
-            <span class="n">calc_dispersion</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ModelE&quot;</span><span class="p">,</span> <span class="s2">&quot;DHARMA&quot;</span><span class="p">]:</span>
             <span class="n">calc_dispersion</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">calc_dispersion</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">subcolumns</span><span class="p">:</span>
         <span class="n">N_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd_type</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_conv</span><span class="p">:</span>

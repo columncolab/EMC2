@@ -778,6 +778,45 @@ class E3SMv1(Model):
         self.model_name = "E3SMv1"
 
 
+class E3SMv3(E3SMv1):
+    def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
+                 all_appended_in_lat=False, single_ice_class=True, include_rain_in_rt=False,
+                 mcphys_scheme="MG2"):
+        """
+        This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to an E3SMv3 simulation.
+        time_range: tuple, list, or array, typically in datetime64 format
+            Two-element array with starting and ending of time range.
+        load_processed: bool
+            If True, treating the 'file_path' variable as an EMC2-processed dataset; thus skipping
+            appended string removal and dimension stacking, which are typically part of pre-processing.
+        time_dim: str
+            Name of the time dimension. Typically "time" or "ncol".
+        appended_str: bool
+            If True, removing appended strings added to fieldnames and coordinates during
+            post-processing (e.g., in cropped regions from global simualtions).
+        all_appended_in_lat: bool
+            If True using only the appended str portion to the lat_dim. Otherwise, combining
+            the appended str from both the lat and lon dims (relevant if appended_str is True).
+        single_ice_class: bool
+            If True, assuming model microphysics incorporate a single ice class (e.g., in P3 implemented
+            in E3SMv3).
+        include_rain_in_rt: bool
+            If True, including the rain class (`pl`) in the forward calculations.
+            By default, set to False given that the rain class is excluded from the E3SM radiative scheme
+            calculations.
+        mcphys_scheme: str
+            Name of the microphysics scheme used by the model. Current options are:
+
+        """
+        super().__init__(file_path, time_range, load_processed, time_dim, appended_str, all_appended_in_lat, single_ice_class, include_rain_in_rt, mcphys_scheme="MG2")
+        self.model_name = "E3SMv3"
+
+
 class CESM2(E3SMv1):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False):
         """

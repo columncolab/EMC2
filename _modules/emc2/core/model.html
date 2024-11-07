@@ -891,6 +891,46 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;E3SMv1&quot;</span>
 
 
+<span class="k">class</span> <span class="nc">E3SMv3</span><span class="p">(</span><span class="n">E3SMv1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">appended_str</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">all_appended_in_lat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">single_ice_class</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_rain_in_rt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">mcphys_scheme</span><span class="o">=</span><span class="s2">&quot;MG2&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            Path to an E3SMv3 simulation.</span>
+<span class="sd">        time_range: tuple, list, or array, typically in datetime64 format</span>
+<span class="sd">            Two-element array with starting and ending of time range.</span>
+<span class="sd">        load_processed: bool</span>
+<span class="sd">            If True, treating the &#39;file_path&#39; variable as an EMC2-processed dataset; thus skipping</span>
+<span class="sd">            appended string removal and dimension stacking, which are typically part of pre-processing.</span>
+<span class="sd">        time_dim: str</span>
+<span class="sd">            Name of the time dimension. Typically &quot;time&quot; or &quot;ncol&quot;.</span>
+<span class="sd">        appended_str: bool</span>
+<span class="sd">            If True, removing appended strings added to fieldnames and coordinates during</span>
+<span class="sd">            post-processing (e.g., in cropped regions from global simualtions).</span>
+<span class="sd">        all_appended_in_lat: bool</span>
+<span class="sd">            If True using only the appended str portion to the lat_dim. Otherwise, combining</span>
+<span class="sd">            the appended str from both the lat and lon dims (relevant if appended_str is True).</span>
+<span class="sd">        single_ice_class: bool</span>
+<span class="sd">            If True, assuming model microphysics incorporate a single ice class (e.g., in P3 implemented</span>
+<span class="sd">            in E3SMv3).</span>
+<span class="sd">        include_rain_in_rt: bool</span>
+<span class="sd">            If True, including the rain class (`pl`) in the forward calculations.</span>
+<span class="sd">            By default, set to False given that the rain class is excluded from the E3SM radiative scheme</span>
+<span class="sd">            calculations.</span>
+<span class="sd">        mcphys_scheme: str</span>
+<span class="sd">            Name of the microphysics scheme used by the model. Current options are:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">load_processed</span><span class="p">,</span> <span class="n">time_dim</span><span class="p">,</span> <span class="n">appended_str</span><span class="p">,</span> <span class="n">all_appended_in_lat</span><span class="p">,</span>
+                         <span class="n">single_ice_class</span><span class="p">,</span> <span class="n">include_rain_in_rt</span><span class="p">,</span> <span class="n">mcphys_scheme</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;E3SMv3&quot;</span>
+
+
 <span class="k">class</span> <span class="nc">CESM2</span><span class="p">(</span><span class="n">E3SMv1</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">appended_str</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

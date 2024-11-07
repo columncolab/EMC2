@@ -15,14 +15,14 @@ def read(filename):
 
 setup(
     name="emc2",
-    version="1.3.2",
+    version="1.3.3",
     url="https://github.com/columncolab/EMC2",
     license='MIT',
 
     author="Robert Jackson",
     author_email="rjackson@anl.gov",
 
-    description="An open source framework for atmospheric model and observational column comparison.",
+    description="An open source framework for atmospheric model evaluation using observational data",
     long_description=read("README.rst"),
     include_package_data=True,
     packages=find_packages(exclude=('tests',)),
@@ -39,5 +39,6 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
 )

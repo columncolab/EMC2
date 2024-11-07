@@ -814,7 +814,7 @@ class E3SMv3(E3SMv1):
 
         """
         super().__init__(file_path, time_range, load_processed, time_dim, appended_str, all_appended_in_lat,
-                         single_ice_class, include_rain_in_rt,mcphys_scheme)
+                         single_ice_class, include_rain_in_rt, mcphys_scheme)
         self.model_name = "E3SMv3"
 
 

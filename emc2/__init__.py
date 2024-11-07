@@ -1,6 +1,6 @@
-"""emc2 - An open source framework for atmospheric model and observational column comparison."""
+"""EMC^2 - An open source framework for atmospheric model evaluation using observational data"""
 
-__version__ = '1.3.1'
+__version__ = '1.3.3'
 __author__ = 'Robert Jackson <rjackson@anl.gov>'
 __all__ = []
 

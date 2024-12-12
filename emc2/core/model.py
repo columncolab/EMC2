@@ -1022,7 +1022,7 @@ class WRF(Model):
         qn_conversion = rho.values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES, squeeze=False)
         if NUWRF:
-            cldfrac2 = ds["CLDFRA"].values
+            cldfrac = ds["CLDFRA"].values
         
         
         for hyd_type in self.hyd_types:
@@ -1038,12 +1038,12 @@ class WRF(Model):
             # We can have out of cloud precip, so don't consider cloud fraction there
             if hyd_type in ['ci', 'cl']:
                 if NUWRF is False:
-                    cldfrac2 = np.where(ds[self.q_names[hyd_type]].values > q_hyd_truncation_cutoff, 1, 0)
-                cldfrac2_pl = cldfrac2
+                    cldfrac = np.where(ds[self.q_names[hyd_type]].values > q_hyd_truncation_cutoff, 1, 0)
+                hydfrac = cldfrac
             else:
-                cldfrac2_pl = np.where(ds[self.q_names[hyd_type]].values > q_hyd_truncation_cutoff, 1, 0)
+                hydfrac = np.where(ds[self.q_names[hyd_type]].values > q_hyd_truncation_cutoff, 1, 0)
             self.ds[self.strat_frac_names[hyd_type]] = xr.DataArray(
-                cldfrac2_pl,
+                hydfrac,
                 dims=('Time', 'bottom_top',
                       'south_north', 'west_east')).astype('float64')
             self.ds[self.N_field[hyd_type]] = ds[

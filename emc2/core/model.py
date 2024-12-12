@@ -844,7 +844,8 @@ class CESM2(E3SMv1):
 
 class WRF(Model):
     def __init__(self, file_path, z_range=None, time_range=None, 
-                 mcphys_scheme="nssl", NUWRF=False, bounding_box=None):
+                 mcphys_scheme="nssl", NUWRF=False, bounding_box=None,
+                 q_hyd_truncation_cutoff=1e-10):
         """
         This load a WRF simulation and all of the necessary parameters from
         the simulation.
@@ -867,6 +868,9 @@ class WRF(Model):
         bounding_box: None or 4-tuple
             If not none, then a tuple representing the bounding box
             (lat_min, lon_min, lat_max, lon_max).
+        q_hyd_truncation_cutoff: float
+            hydrometeor mixing ratio cutoff value [kg kg-1].
+            grid cells with values smaller than the cutoff will be set as clear.
         """
         if not WRF_PYTHON_AVAILABLE:
             raise ModuleNotFoundError("wrf-python must be installed.")
@@ -1034,10 +1038,10 @@ class WRF(Model):
             # We can have out of cloud precip, so don't consider cloud fraction there
             if hyd_type in ['ci', 'cl']:
                 if NUWRF is False:
-                    cldfrac2 = np.where(ds[self.q_names[hyd_type]].values > 0, 1, 0)
+                    cldfrac2 = np.where(ds[self.q_names[hyd_type]].values > q_hyd_truncation_cutoff, 1, 0)
                 cldfrac2_pl = cldfrac2
             else:
-                cldfrac2_pl = np.where(ds[self.q_names[hyd_type]].values > 0, 1, 0)
+                cldfrac2_pl = np.where(ds[self.q_names[hyd_type]].values > q_hyd_truncation_cutoff, 1, 0)
             self.ds[self.strat_frac_names[hyd_type]] = xr.DataArray(
                 cldfrac2_pl,
                 dims=('Time', 'bottom_top',

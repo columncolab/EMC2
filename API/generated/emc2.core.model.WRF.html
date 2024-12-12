@@ -113,7 +113,7 @@
 <h1>emc2.core.model.WRF<a class="headerlink" href="#emc2-core-model-wrf" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.WRF">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">WRF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nssl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUWRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">WRF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nssl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUWRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_gr_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gr_class_is_hail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_hyd_truncation_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF" title="Link to this definition">¶</a></dt>
 <dd><p>This load a WRF simulation and all of the necessary parameters from
 the simulation.</p>
 <dl class="field-list simple">
@@ -132,15 +132,24 @@ morrison: Morrison microphysics</p>
 </dd>
 <dt><strong>NUWRF: bool</strong></dt><dd><p>If true, model is NASA Unified WRF.</p>
 </dd>
+<dt><strong>include_gr_class: bool</strong></dt><dd><p>(NUWRF is False) If True, include the <cite>gr</cite> (graupel) class in processing</p>
+</dd>
+<dt><strong>gr_class_is_hail: bool</strong></dt><dd><p>(NUWRF is False and include_gr_class is True) If True, the <cite>gr</cite> class is
+treated as hail (coefficients and density are treated accordingly).</p>
+</dd>
 <dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not none, then a tuple representing the bounding box
 (lat_min, lon_min, lat_max, lon_max).</p>
+</dd>
+<dt><strong>q_hyd_truncation_cutoff: float</strong></dt><dd><p>hydrometeor mixing ratio cutoff value [kg kg-1].
+grid cells with values smaller than the cutoff will be set as clear.
+Default (1e-14) is per the implementation of the MG scheme in WRF.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.model.WRF.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nssl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUWRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nssl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUWRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_gr_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gr_class_is_hail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_hyd_truncation_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-14</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#WRF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.WRF.__init__" title="Link to this definition">¶</a></dt>
 <dd><p>This load a WRF simulation and all of the necessary parameters from
 the simulation.</p>
 <dl class="field-list simple">
@@ -159,8 +168,17 @@ morrison: Morrison microphysics</p>
 </dd>
 <dt><strong>NUWRF: bool</strong></dt><dd><p>If true, model is NASA Unified WRF.</p>
 </dd>
+<dt><strong>include_gr_class: bool</strong></dt><dd><p>(NUWRF is False) If True, include the <cite>gr</cite> (graupel) class in processing</p>
+</dd>
+<dt><strong>gr_class_is_hail: bool</strong></dt><dd><p>(NUWRF is False and include_gr_class is True) If True, the <cite>gr</cite> class is
+treated as hail (coefficients and density are treated accordingly).</p>
+</dd>
 <dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not none, then a tuple representing the bounding box
 (lat_min, lon_min, lat_max, lon_max).</p>
+</dd>
+<dt><strong>q_hyd_truncation_cutoff: float</strong></dt><dd><p>hydrometeor mixing ratio cutoff value [kg kg-1].
+grid cells with values smaller than the cutoff will be set as clear.
+Default (1e-14) is per the implementation of the MG scheme in WRF.</p>
 </dd>
 </dl>
 </dd>

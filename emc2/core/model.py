@@ -1006,8 +1006,8 @@ class WRF(Model):
         wrfin = Dataset(file_path)
         self.ds = {} 
         self.ds["pressure"] = ds["P"] + ds["PB"]
-        self.ds["Z"] = getvar(wrfin, "z", units="m", timeidx=ALL_TIMES)
-        self.ds["T"] = getvar(wrfin, "tk", timeidx=ALL_TIMES)
+        self.ds["Z"] = getvar(wrfin, "z", units="m", timeidx=ALL_TIMES, squeeze=False)
+        self.ds["T"] = getvar(wrfin, "tk", timeidx=ALL_TIMES, squeeze=False)
         self.ds["T"] = self.ds["T"]
         self.ds["pressure"] = self.ds["pressure"] * 1e-2
         self.ds["pressure"].attrs["units"] = "hPa"
@@ -1016,9 +1016,9 @@ class WRF(Model):
         rho = (self.ds["pressure"] * 1e2) / (287.058 * self.ds["T"])
         # Qn in kg-1 --> cm-3 * rho to get m-3 * 1e-6 for cm-3
         qn_conversion = rho.values * 1e-6
-        W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES)
+        W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES, squeeze=False)
         if NUWRF is False:
-            cldfrac = getvar(wrfin, "cloudfrac", timeidx=ALL_TIMES)
+            cldfrac = getvar(wrfin, "cloudfrac", timeidx=ALL_TIMES, squeeze=False)
             cldfrac2 = np.zeros_like(W)
             for i in range(int(W.shape[1] / 3)):
                 cldfrac2[:, i, :, :] = cldfrac[0, :, :, :]

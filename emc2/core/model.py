@@ -1017,16 +1017,7 @@ class WRF(Model):
         # Qn in kg-1 --> cm-3 * rho to get m-3 * 1e-6 for cm-3
         qn_conversion = rho.values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES, squeeze=False)
-        if NUWRF is False:
-            cldfrac = getvar(wrfin, "cloudfrac", timeidx=ALL_TIMES, squeeze=False)
-            cldfrac2 = np.zeros_like(W)
-            for i in range(int(W.shape[1] / 3)):
-                cldfrac2[:, i, :, :] = cldfrac[0, :, :, :]
-            for i in range(int(W.shape[1] / 3), 2 * int(W.shape[1] / 3)):
-                cldfrac2[:, i, :, :] = cldfrac[1, :, :, :]
-            for i in range(2 * int(W.shape[1] / 3), int(W.shape[1])):
-                cldfrac2[:, i, :, :] = cldfrac[2, :, :, :]
-        else:
+        if NUWRF:
             cldfrac2 = ds["CLDFRA"].values
         
         
@@ -1042,6 +1033,8 @@ class WRF(Model):
             self.ds["q%ss" % hyd_type] = ds[self.q_names[hyd_type]]
             # We can have out of cloud precip, so don't consider cloud fraction there
             if hyd_type in ['ci', 'cl']:
+                if NUWRF is False:
+                    cldfrac2 = np.where(ds[self.q_names[hyd_type]].values > 0, 1, 0)
                 cldfrac2_pl = cldfrac2
             else:
                 cldfrac2_pl = np.where(ds[self.q_names[hyd_type]].values > 0, 1, 0)

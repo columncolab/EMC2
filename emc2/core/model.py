@@ -844,8 +844,9 @@ class CESM2(E3SMv1):
 
 class WRF(Model):
     def __init__(self, file_path, z_range=None, time_range=None, 
-                 mcphys_scheme="nssl", NUWRF=False, bounding_box=None,
-                 q_hyd_truncation_cutoff=1e-10):
+                 mcphys_scheme="nssl", NUWRF=False, include_gr_class=False,
+                 gr_class_is_hail=True,
+                 bounding_box=None, q_hyd_truncation_cutoff=1e-14):
         """
         This load a WRF simulation and all of the necessary parameters from
         the simulation.
@@ -865,12 +866,18 @@ class WRF(Model):
             morrison: Morrison microphysics
         NUWRF: bool
             If true, model is NASA Unified WRF.
+        include_gr_class: bool
+            (NUWRF is False) If True, include the `gr` (graupel) class in processing
+        gr_class_is_hail: bool
+            (NUWRF is False and include_gr_class is True) If True, the `gr` class is
+            treated as hail (coefficients and density are treated accordingly).
         bounding_box: None or 4-tuple
             If not none, then a tuple representing the bounding box
             (lat_min, lon_min, lat_max, lon_max).
         q_hyd_truncation_cutoff: float
             hydrometeor mixing ratio cutoff value [kg kg-1].
             grid cells with values smaller than the cutoff will be set as clear.
+            Default (1e-14) is per the implementation of the MG scheme in WRF.
         """
         if not WRF_PYTHON_AVAILABLE:
             raise ModuleNotFoundError("wrf-python must be installed.")
@@ -898,9 +905,6 @@ class WRF(Model):
                                 'ci': 1. * ureg.dimensionless,
                                 'pl': 0.8 * ureg.dimensionless,
                                 'pi': 0.41 * ureg.dimensionless}
-            self.fluffy = {'ci': 0.5 * ureg.dimensionless,
-                           'pi': 0.5 * ureg.dimensionless}
-            super()._add_vel_units()
             self.q_names = {'cl': 'QCLOUD', 'ci': 'QICE',
                             'pl': 'QRAIN', 'pi': 'QSNOW'}
             self.q_field = "QVAPOR"
@@ -913,27 +917,41 @@ class WRF(Model):
                                    'pl': 'conv_frac', 'pi': 'conv_frac'}
             self.strat_frac_names = {'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
                                      'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-            self.conv_frac_names_for_rad = self.conv_frac_names
-            self.strat_frac_names_for_rad = self.strat_frac_names
-            self.conv_frac_names_for_rad = {
-                'cl': 'conv_frac', 'ci': 'conv_frac',
-                'pl': 'conv_frac', 'pi': 'conv_frac'}
-            self.strat_frac_names_for_rad = {
-                'cl': 'strat_cl_frac', 'ci': 'strat_ci_frac',
-                'pl': 'strat_pl_frac', 'pi': 'strat_pi_frac'}
-            self.strat_re_fields = {'cl': 'strat_cl_re', 'ci': 'strat_ci_frac',
-                                    'pi': 'strat_pi_re', 'pl': 'strat_pl_frac'}
-            self.conv_re_fields = {'cl': 'conv_cl_re', 'ci': 'conv_ci_re',
-                                   'pi': 'conv_pi_re', 'pl': 'conv_pl_re'}
+            self.conv_frac_names_for_rad = self.conv_frac_names.copy()
+            self.strat_frac_names_for_rad = self.strat_frac_names.copy()
             self.q_names_convective = {'cl': 'qclc', 'ci': 'qcic',
                                        'pl': 'qplc', 'pi': 'qpic'}
             self.q_names_stratiform = {'cl': 'qcls', 'ci': 'qcis',
                                        'pl': 'qpls', 'pi': 'qpis'}
-
-            self.conv_re_fields = {'cl': 're_clc', 'ci': 're_cis',
-                                   'pl': 're_plc', 'pi': 're_pis'}
+            self.conv_re_fields = {'cl': 're_clc', 'ci': 're_cic',
+                                   'pl': 're_plc', 'pi': 're_pic'}
             self.strat_re_fields = {'cl': 're_cls', 'ci': 're_cis',
                                     'pl': 're_pls', 'pi': 're_pis'}
+            if include_gr_class:
+                self.hyd_types += ['gr']
+                if gr_class_is_hail:
+                    self.Rho_hyd.update({'gr': 900.0 * ureg.kg / (ureg.m**3)})
+                    self.vel_param_a.update({'gr': 114.5})  # MATSUN AND HUGGINS 1980
+                    self.vel_param_b.update({'gr': 0.5 * ureg.dimensionless})
+                else:
+                    self.Rho_hyd.update({'gr': 400.0 * ureg.kg / (ureg.m**3)})
+                    self.vel_param_a.update({'gr': 19.3})
+                    self.vel_param_b.update({'gr': 0.37 * ureg.dimensionless})
+                self.fluffy.update({'gr': 1.0 * ureg.dimensionless})
+                self.lidar_ratio.update({'gr': 24.0 * ureg.dimensionless})
+                self.LDR_per_hyd.update({'gr': 0.40 * 1 / (ureg.kg / (ureg.m**3))})
+                self.q_names.update({'gr': 'QGRAUP'})
+                self.N_field.update({'gr': 'QNGRAUPEL'})
+                self.conv_frac_names.update({'gr': 'conv_frac'})
+                self.strat_frac_names.update({'gr': 'strat_gr_frac'})
+                self.conv_frac_names_for_rad.update({'gr': self.conv_frac_names['gr']})
+                self.strat_frac_names_for_rad.update({'gr': self.strat_frac_names['gr']})
+                self.q_names_convective.update({'gr': 'qgrc'})
+                self.q_names_stratiform.update({'gr': 'qgrs'})
+                self.conv_re_fields.update({'gr': 're_grc'})
+                self.strat_re_fields.update({'gr': 're_grs'})
+                self.ice_hyd_types += ["gr"]
+            super()._add_vel_units()
         elif mcphys_scheme.lower() == "nssl":
             self.hyd_types = ["cl", "ci", "pl", "sn", "gr", "ha"]
             self.Rho_hyd = {'cl': 1000. * ureg.kg / (ureg.m**3),
@@ -942,7 +960,6 @@ class WRF(Model):
                             'sn': 100. * ureg.kg / (ureg.m**3),
                             'gr': 'variable',
                             'ha': 'variable'}
-
             self.fluffy = {'ci': 0.5 * ureg.dimensionless,
                            'sn': 0.5 * ureg.dimensionless,
                            'gr': 0.5 * ureg.dimensionless,

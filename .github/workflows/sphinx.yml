@@ -24,13 +24,13 @@ jobs:
 
       # Install dependencies
       - name: Setup Conda Environment
-        uses: conda-incubator/setup-miniconda@v2
+        uses: mamba-org/setup-micromamba@v2.0.4
         with:
           environment-file: continuous_integration/environment_docs.yml
-          activate-environment: testenv
-          auto-activate-base: false
-          use-mamba: true
-          miniforge-variant: Miniconda
+          init-shell: >-
+            bash
+          cache-downloads: true
+          post-cleanup: "all"
 
       - name: Install EMC2
         run: |

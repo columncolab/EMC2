@@ -22,7 +22,6 @@ dependencies:
   - nbsphinx
   - numpydoc
   - pip:
-    - pymiescatt
     - sphinx_gallery
     - sphinx-copybutton
     - sphinx_rtd_theme

@@ -177,6 +177,14 @@ class WACR(Instrument):
         self.load_instrument_scat_files(supercooled, *args)  # load scattering files for this instrument
 
 
+class MWACR(WACR):
+    pass
+
+
+class BASTA(WACR):
+    pass
+
+
 class RL(Instrument):
     def __init__(self, *args):
         """
@@ -202,15 +210,6 @@ class RL(Instrument):
         self.eta = 1
         self.K_w = np.nan
         self.eps_liq = (1.357247 + 2.4198595e-9j) ** 2
-        self.pt = np.nan
-        self.theta = np.nan
-        self.gain = np.nan
-        self.Z_min_1km = np.nan
-        self.lr = np.nan
-        self.pr_noise_ge = np.nan
-        self.pr_noise_md = np.nan
-        self.tau_ge = np.nan
-        self.tau_md = np.nan
     
         # Load mie tables
         self.load_instrument_scat_files(*args)  # load scattering files for this instrument
@@ -242,18 +241,13 @@ class HSRL(Instrument):
         self.eta = 1
         self.K_w = np.nan
         self.eps_liq = (1.337273 + 1.7570744e-9j) ** 2
-        self.pt = np.nan
-        self.theta = np.nan
-        self.gain = np.nan
-        self.Z_min_1km = np.nan
-        self.lr = np.nan
-        self.pr_noise_ge = np.nan
-        self.pr_noise_md = np.nan
-        self.tau_ge = np.nan
-        self.tau_md = np.nan
 
         # Load mie tables
         self.load_instrument_scat_files(*args)  # load scattering files for this instrument
+
+
+class MPL(HSRL):
+    pass
 
 
 class CEIL(Instrument):
@@ -272,15 +266,6 @@ class CEIL(Instrument):
             self.eps_liq = (1.3251203 + 5.1409006e-7j) ** 2
         else:
             self.eps_liq = (1.323434 + 5.6988883e-7j) ** 2
-        self.pt = np.nan
-        self.theta = np.nan
-        self.gain = np.nan
-        self.Z_min_1km = np.nan
-        self.lr = np.nan
-        self.pr_noise_ge = np.nan
-        self.pr_noise_md = np.nan
-        self.tau_ge = np.nan
-        self.tau_md = np.nan
 
         # Load mie tables
         self.load_instrument_scat_files(supercooled, *args)  # load scattering files for this instrument
@@ -302,18 +287,13 @@ class Ten64nm(Instrument):
             self.eps_liq = (1.3235222 + 1.2181699e-6j) ** 2
         else:
             self.eps_liq = (1.320416 + 1.2588968e-6j) ** 2
-        self.pt = np.nan
-        self.theta = np.nan
-        self.gain = np.nan
-        self.Z_min_1km = np.nan
-        self.lr = np.nan
-        self.pr_noise_ge = np.nan
-        self.pr_noise_md = np.nan
-        self.tau_ge = np.nan
-        self.tau_md = np.nan
         
         # Load mie tables
         self.load_instrument_scat_files(supercooled, *args)  # load scattering files for this instrument
+
+
+class HSRL1064(Ten64nm):
+    pass
 
 
 class NEXRAD(Instrument):
@@ -371,15 +351,6 @@ class CALIOP(Instrument):
         self.eta = 0.7
         self.K_w = np.nan
         self.eps_liq = (1.337273 + 1.7570744e-9j) ** 2
-        self.pt = np.nan
-        self.theta = np.nan
-        self.gain = np.nan
-        self.Z_min_1km = np.nan
-        self.lr = np.nan
-        self.pr_noise_ge = np.nan
-        self.pr_noise_md = np.nan
-        self.tau_ge = np.nan
-        self.tau_md = np.nan
 
         # Load mie tables
         self.load_instrument_scat_files(*args)  # load scattering files for this instrument

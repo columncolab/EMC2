@@ -151,7 +151,7 @@ class Instrument(object):
 
         # Load mie tables
         data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
-        if (supercooled & (self.instrument_str in ["RL", "HSRL"])):  # negligible T effect at UV-VIS wavelengths
+        if supercooled & (self.instrument_str in ["RL", "HSRL"]):  # negligible T effect at UV-VIS wavelengths
             self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")  # Rowe et al. (2020) -10 C
             self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")
         else:

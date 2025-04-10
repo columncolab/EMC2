@@ -6,9 +6,13 @@ emc2.core.instrument
 This module stores the Instrument class.
 """
 import numpy as np
+import os
+import xarray as xr
 
 from pint import UnitRegistry
 from ..io import load_arm_file
+
+from ..io import load_mie_file, load_scat_file, load_bulk_scat_file
 
 ureg = UnitRegistry()
 quantity = ureg.Quantity
@@ -123,3 +127,63 @@ class Instrument(object):
 
         """
         self.ds = load_arm_file(filename, **kwargs)
+
+    def load_instrument_scat_files(self, supercooled=True, *args, **kwargs):
+        """
+        Load scattering and bulk scattering tables for the specified instrument.
+        This function loads Mie scattering tables, bulk scattering tables, and other
+        related data files based on the instrument type (radar or lidar) and specific
+        configurations. It supports different datasets for various instruments and
+        conditions, such as supercooled liquid water.
+
+        Parameters
+        ==========
+        supercooled: bool
+            If True, loading LUTs for Temperature of -10 C. Otherwise 25 c.
+        *args: dict
+            Additional arguments for specific configurations.
+        **kwargs: dict
+            Additional keyword arguments for specific configurations.
+
+        """
+        inst = self.instrument_str
+        is_radar = self.instrument_class == "radar"  # if False, assuming lidar
+
+        # Load mie tables
+        data_path = os.path.join(os.path.dirname(__file__), 'mie_tables')
+        if (supercooled & (self.instrument_str in ["RL", "HSRL"])):  # negligible T effect at UV-VIS wavelengths
+            self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")  # Rowe et al. (2020) -10 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq_c.dat")
+        else:
+            self.mie_table["cl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")  # Segelstein (1981) 25 C
+            self.mie_table["pl"] = load_mie_file(data_path + "/Mie1064nm_liq.dat")
+        self.mie_table["ci"] = load_mie_file(data_path + "/Mie1064nm_ci.dat")
+        if 'DHARMA' in args:
+            self.mie_table["pi"] = load_mie_file(
+                data_path + "/Mie1064nm_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
+        else:
+            self.mie_table["pi"] = load_mie_file(data_path + "/Mie1064nm_pi.dat")
+        # ModelE3 bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
+        self.scat_table["E3_ice"] = load_scat_file(data_path + "/C6_1064nm_8col_agg_rough_270K.dat", is_radar)
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_c6_tables')
+        self.bulk_table["E3_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_1064nm_C6PSD_c6_8col_ice_agg_rough_270K.dat")
+        if supercooled & (self.instrument_str in ["RL", "HSRL"]):  # negligible T effect at UV-VIS wavelengths
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq_c.dat")
+        else:
+            self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_liq.dat")
+        self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + "/bulk_1064nm_C6PSD_mie_ice.dat")
+        # CESM/E3SM bulk
+        data_path = os.path.join(os.path.dirname(__file__), 'mDAD_tables')
+        self.scat_table["CESM_ice"] = load_scat_file(data_path + "/mDAD_1064nm_ice.dat", is_radar, param_type="mDAD")
+        data_path = os.path.join(os.path.dirname(__file__), 'bulk_mDAD_tables')
+        self.bulk_table["CESM_ice"] = load_bulk_scat_file(
+            data_path + "/bulk_1064nm_mDAD_mDAD_ice_263K.dat", param_type="mDAD")
+        if supercooled & (self.instrument_str in ["RL", "HSRL"]):  # negligible T effect at UV-VIS wavelengths
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_1064nm_mDAD_mie_liq_c.nc")
+        else:
+            self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + "/bulk_1064nm_mDAD_mie_liq.nc")
+        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + "/bulk_1064nm_mDAD_mie_ice.dat",
+                                                                  param_type="mDAD")
+

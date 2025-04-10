@@ -781,7 +781,7 @@ class E3SMv1(Model):
 class E3SMv3(E3SMv1):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
                  all_appended_in_lat=False, single_ice_class=True, include_rain_in_rt=False,
-                 mcphys_scheme="MG2"):
+                 mcphys_scheme="P3"):
         """
         This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
 

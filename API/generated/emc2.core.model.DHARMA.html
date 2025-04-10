@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emc2.core.model.DHARMA &mdash; EMC^2  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="emc2.core.model.TestConvection" href="emc2.core.model.TestConvection.html" />
+    <link rel="prev" title="emc2.core.model.WRF" href="emc2.core.model.WRF.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EMC^2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">EMC^2 Usage guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.CSAPR.html">emc2.core.instruments.CSAPR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.XSACR.html">emc2.core.instruments.XSACR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.KAZR.html">emc2.core.instruments.KAZR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.WACR.html">emc2.core.instruments.WACR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.MWACR.html">emc2.core.instruments.MWACR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.BASTA.html">emc2.core.instruments.BASTA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.RL.html">emc2.core.instruments.RL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL.html">emc2.core.instruments.HSRL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.MPL.html">emc2.core.instruments.MPL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.CEIL.html">emc2.core.instruments.CEIL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.Ten64nm.html">emc2.core.instruments.Ten64nm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.HSRL1064.html">emc2.core.instruments.HSRL1064</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.NEXRAD.html">emc2.core.instruments.NEXRAD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.instruments.CALIOP.html">emc2.core.instruments.CALIOP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.E3SMv1.html">emc2.core.model.E3SMv1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.E3SMv3.html">emc2.core.model.E3SMv3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.CESM2.html">emc2.core.model.CESM2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.ModelE.html">emc2.core.model.ModelE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.WRF.html">emc2.core.model.WRF</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.core.model.DHARMA</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#emc2.core.model.DHARMA"><code class="docutils literal notranslate"><span class="pre">DHARMA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestConvection.html">emc2.core.model.TestConvection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestAllStratiform.html">emc2.core.model.TestAllStratiform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestHalfAndHalf.html">emc2.core.model.TestHalfAndHalf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.model.TestModel.html">emc2.core.model.TestModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.Instrument.html">emc2.core.Instrument</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.core.Model.html">emc2.core.Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../core.html#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core.html#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../io.html">emc2.io (emc2.io)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html">emc2.plotting (emc2.plotting)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EMC^2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../core.html">emc2.core (emc2.core)</a></li>
+      <li class="breadcrumb-item active">emc2.core.model.DHARMA</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/API/generated/emc2.core.model.DHARMA.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="emc2-core-model-dharma">
+<h1>emc2.core.model.DHARMA<a class="headerlink" href="#emc2-core-model-dharma" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="emc2.core.model.DHARMA">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA" title="Link to this definition">¶</a></dt>
+<dd><p>This loads a DHARMA simulation with all of the necessary parameters
+for EMC^2 to run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_path: str</strong></dt><dd><p>Path to a ModelE simulation.</p>
+</dd>
+<dt><strong>time_range: tuple or None</strong></dt><dd><p>Start and end time to include. If this is None, the entire
+simulation will be included.</p>
+</dd>
+<dt><strong>time_dim: str</strong></dt><dd><p>name of time dimension.</p>
+</dd>
+<dt><strong>single_pi_class: bool</strong></dt><dd><p>If True, using a single precipitating ice class (pi).
+If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
+using the same LUTs).</p>
+</dd>
+<dt><strong>load_processed: bool</strong></dt><dd><p>If True, treating the ‘file_path’ variable as an EMC2-processed dataset; thus skipping
+appended string removal and dimension stacking, which are typically part of pre-processing.</p>
+</dd>
+<dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not None, then a tuple representing the bounding box
+(x_min, y_min, x_max, y_max).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.core.model.DHARMA.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dom_col'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_pi_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#DHARMA.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.DHARMA.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>This loads a DHARMA simulation with all of the necessary parameters
+for EMC^2 to run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_path: str</strong></dt><dd><p>Path to a ModelE simulation.</p>
+</dd>
+<dt><strong>time_range: tuple or None</strong></dt><dd><p>Start and end time to include. If this is None, the entire
+simulation will be included.</p>
+</dd>
+<dt><strong>time_dim: str</strong></dt><dd><p>name of time dimension.</p>
+</dd>
+<dt><strong>single_pi_class: bool</strong></dt><dd><p>If True, using a single precipitating ice class (pi).
+If False, using two precipitation ice classes (pi - snow and pir - rimed ice - both
+using the same LUTs).</p>
+</dd>
+<dt><strong>load_processed: bool</strong></dt><dd><p>If True, treating the ‘file_path’ variable as an EMC2-processed dataset; thus skipping
+appended string removal and dimension stacking, which are typically part of pre-processing.</p>
+</dd>
+<dt><strong>bounding_box: None or 4-tuple</strong></dt><dd><p>If not None, then a tuple representing the bounding box
+(x_min, y_min, x_max, y_max).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.DHARMA.__init__" title="emc2.core.model.DHARMA.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, time_range, time_dim, ...])</p></td>
+<td><p>This loads a DHARMA simulation with all of the necessary parameters for EMC^2 to run.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>
+<td><p>Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1) to enable EMC^2 processing of regional model output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_subcol_fields</span></code>([more_fieldnames])</p></td>
+<td><p>Remove all zero values from subcolumn output fields enabling better visualization.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_subcolumns_from_netcdf</span></code>(file_name)</p></td>
+<td><p>Load all of the subcolumn data from a previously saved netCDF file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute_dims_for_processing</span></code>([base_order, ...])</p></td>
+<td><p>Reorder dims for consistent processing such that the order is: subcolumn x time x height.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_appended_str</span></code>([all_appended_in_lat])</p></td>
+<td><p>Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names (typically required when using post-processed output data files).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_subcol_fields</span></code>([cloud_class])</p></td>
+<td><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant for CESM and E3SM).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(file_name)</p></td>
+<td><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code>([order_dim, ...])</p></td>
+<td><p>Unstack the time, lat, and lon dims if they were previously stacked together (self.stacked_time_dim is not None).</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrometeor_classes</span></code></p></td>
+<td><p>The list of hydrometeor classes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_hydrometeor_classes</span></code></p></td>
+<td><p>The number of hydrometeor classes used</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_subcolumns</span></code></p></td>
+<td><p>Gets the number of subcolumns in the model.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="emc2.core.model.WRF.html" class="btn btn-neutral float-left" title="emc2.core.model.WRF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="emc2.core.model.TestConvection.html" class="btn btn-neutral float-right" title="emc2.core.model.TestConvection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

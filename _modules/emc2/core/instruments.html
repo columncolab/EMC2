@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emc2.core.instruments &mdash; EMC^2  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EMC^2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">EMC^2 Usage guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EMC^2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">emc2.core.instruments</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for emc2.core.instruments</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">=====================</span>
+<span class="sd">emc2.core.instruments</span>
+<span class="sd">=====================</span>
+
+<span class="sd">This module stores example instruments.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.instrument</span><span class="w"> </span><span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_mie_file</span><span class="p">,</span> <span class="n">load_scat_file</span><span class="p">,</span> <span class="n">load_bulk_scat_file</span>
+
+
+
+<div class="viewcode-block" id="CSAPR">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CSAPR.html#emc2.core.instruments.CSAPR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CSAPR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="CSAPR.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CSAPR.html#emc2.core.instruments.CSAPR.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">elevation_angle</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the ARM CSAPR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">6.25</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;CSAPR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elevation_angle</span> <span class="o">=</span> <span class="n">elevation_angle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.93</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">7.434422</span> <span class="o">+</span> <span class="mf">2.854179</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.474673</span> <span class="o">+</span> <span class="mf">1.2560015</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">125000.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">4.51</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mi">35</span>  <span class="c1"># Based on Oue et al., GMD, 2020</span>
+        
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="XSACR">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.XSACR.html#emc2.core.instruments.XSACR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">XSACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="XSACR.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.XSACR.html#emc2.core.instruments.XSACR.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the AMF XSACR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">9.71</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;XSACR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.93</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.257395</span> <span class="o">+</span> <span class="mf">3.018481</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.112180</span> <span class="o">+</span> <span class="mf">1.7811075</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">20000.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">1.40</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">4.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mi">30</span>
+        
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="KAZR">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KAZR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="KAZR.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the KAZR (Ka-band radar).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">34.860</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sgp&quot;</span><span class="p">,</span> <span class="s2">&quot;nsa&quot;</span><span class="p">,</span> <span class="s2">&quot;awr&quot;</span><span class="p">,</span> <span class="s2">&quot;ena&quot;</span><span class="p">,</span> <span class="s2">&quot;mos&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site must be one of &#39;sgp&#39;, &#39;ena&#39;, &#39;nsa&#39;, &#39;awr&#39;, or &#39;mos&#39;!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;KAZR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.88</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.658396</span> <span class="o">+</span> <span class="mf">1.987225</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.489262</span> <span class="o">+</span> <span class="mf">2.8267679</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ena&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">2200.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">2000.</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.20</span>  <span class="c1"># Widener et al. (2012)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.31</span>  <span class="c1"># Valid for all other KAZR and KAZR2</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.748</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">51.5</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ena&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">56.5</span>  <span class="c1"># KAZR2</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nsa&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.337</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">48.5</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;awr&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.273</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">45.5</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;mos&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">5.273</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">41.6</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">56.5</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;nsa&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">0.4</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**-</span><span class="mf">6.85</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**-</span><span class="mf">7.23</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="mf">4.0</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ena&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="mf">4.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="WACR">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.WACR.html#emc2.core.instruments.WACR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="WACR.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.WACR.html#emc2.core.instruments.WACR.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the WACR, M-WACR, and BASTA (W-band radars).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">95.04</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sgp&quot;</span><span class="p">,</span> <span class="s2">&quot;awr&quot;</span><span class="p">,</span> <span class="s2">&quot;mos&quot;</span><span class="p">,</span> <span class="s2">&quot;micre&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Site must be one of &#39;sgp&#39; &#39;awr&#39;, &#39;mos&#39;, or &#39;micre&#39;!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;WACR&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.84</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.820550</span> <span class="o">+</span> <span class="mf">1.123154</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.468221</span> <span class="o">+</span> <span class="mf">2.1423486</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">1513.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">1500.</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.19</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.38</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">3.94</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">46.0</span>
+        <span class="k">elif</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;micre&quot;</span><span class="p">:</span>  <span class="c1"># BASTA 95 GHz radar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># not determined (see Delanoë et al., 2016)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">36.0</span>  <span class="c1"># effective sensitivity during MICRE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">3.78</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">40.0</span>  <span class="c1"># 0.2 s increments</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sgp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">0.3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MWACR">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.MWACR.html#emc2.core.instruments.MWACR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MWACR</span><span class="p">(</span><span class="n">WACR</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="BASTA">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.BASTA.html#emc2.core.instruments.BASTA">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BASTA</span><span class="p">(</span><span class="n">WACR</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="RL">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.RL.html#emc2.core.instruments.RL">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="RL.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.RL.html#emc2.core.instruments.RL.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for 355 nm lidars ,e.g., ARM Raman lidar (elastic channel).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.355</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;RL&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta_p_phase_thresh</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;ice&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;undef2&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="mf">9e-6</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;undef1&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">1.41421e-4</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]}]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.357247</span> <span class="o">+</span> <span class="mf">2.4198595e-9</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HSRL">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HSRL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="HSRL.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for 532 nm lidars ,e.g., the High</span>
+<span class="sd">        Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.532</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;HSRL&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta_p_phase_thresh</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;ice&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;undef2&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="mf">9e-6</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;undef1&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">1.41421e-4</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]}]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.337273</span> <span class="o">+</span> <span class="mf">1.7570744e-9</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MPL">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.MPL.html#emc2.core.instruments.MPL">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MPL</span><span class="p">(</span><span class="n">HSRL</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="CEIL">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CEIL.html#emc2.core.instruments.CEIL">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CEIL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="CEIL.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CEIL.html#emc2.core.instruments.CEIL.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for 910 nm lidars ,e.g., the CL31 ceilometer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.910</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;CEIL&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.3251203</span> <span class="o">+</span> <span class="mf">5.1409006e-7</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.323434</span> <span class="o">+</span> <span class="mf">5.6988883e-7</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Ten64nm">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Ten64nm</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="Ten64nm.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">1.064</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;1064nm&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.3235222</span> <span class="o">+</span> <span class="mf">1.2181699e-6</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.320416</span> <span class="o">+</span> <span class="mf">1.2588968e-6</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HSRL1064">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL1064.html#emc2.core.instruments.HSRL1064">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HSRL1064</span><span class="p">(</span><span class="n">Ten64nm</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="NEXRAD">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.NEXRAD.html#emc2.core.instruments.NEXRAD">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NEXRAD</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="NEXRAD.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.NEXRAD.html#emc2.core.instruments.NEXRAD.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for the NOAA NEXRAD radar</span>
+<span class="sd">        Based on  https://www.roc.noaa.gov/WSR88D/Engineering/NEXRADTechInfo.aspx.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">GHz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;NEXRAD&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="mf">0.92</span>
+        <span class="k">if</span> <span class="n">supercooled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.851160</span> <span class="o">+</span> <span class="mf">1.940795</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.743107</span> <span class="o">+</span> <span class="mf">0.64089981</span><span class="n">j</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.925</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt</span> <span class="o">=</span> <span class="mf">700000.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mf">4.58</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km</span> <span class="o">=</span> <span class="o">-</span><span class="mf">50.96</span>  <span class="c1"># long pulse at 1 km range (-23.0 dBZ at 25 km)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Z_min_1km_short</span> <span class="o">=</span> <span class="o">-</span><span class="mf">41.48</span>  <span class="c1"># short pulse at 1 km range (-7.5 dBZ at 50 km)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pr_noise_ge</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_ge</span> <span class="o">=</span> <span class="mf">1.57</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau_md</span> <span class="o">=</span> <span class="mf">4.71</span>
+        
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="n">supercooled</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CALIOP">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CALIOP.html#emc2.core.instruments.CALIOP">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CALIOP</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<div class="viewcode-block" id="CALIOP.__init__">
+<a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CALIOP.html#emc2.core.instruments.CALIOP.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This stores the information for 532 nm spaceborne lidars ,e.g.,</span>
+<span class="sd">        the CALIOP on-board the CALIPSO satellite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">wavelength</span><span class="o">=</span><span class="mf">0.532</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">micrometer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_class</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instrument_str</span> <span class="o">=</span> <span class="s2">&quot;HSRL&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta_p_phase_thresh</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;ice&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">,</span> <span class="mf">5e-7</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;undef2&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-6</span><span class="p">,</span> <span class="mf">9e-6</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;undef1&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.100001</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="mf">1.41421e-4</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]},</span>
+                                    <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;liquid&#39;</span><span class="p">,</span> <span class="s1">&#39;class_ind&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                     <span class="s1">&#39;LDR&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.200001</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="s1">&#39;beta_p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]}]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_OD</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OD_from_sfc</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="mf">0.7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_liq</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.337273</span> <span class="o">+</span> <span class="mf">1.7570744e-9</span><span class="n">j</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1"># Load mie tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_instrument_scat_files</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># load scattering files for this instrument</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+﻿emc2.core.model.ModelE
+======================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: ModelE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ModelE.__init__
+      ~ModelE.check_and_stack_time_lat_lon
+      ~ModelE.finalize_subcol_fields
+      ~ModelE.load_subcolumns_from_netcdf
+      ~ModelE.permute_dims_for_processing
+      ~ModelE.remove_appended_str
+      ~ModelE.remove_subcol_fields
+      ~ModelE.set_hyd_types
+      ~ModelE.subcolumns_to_netcdf
+      ~ModelE.unstack_time_lat_lon
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ModelE.hydrometeor_classes
+      ~ModelE.num_hydrometeor_classes
+      ~ModelE.num_subcolumns
+   
+   

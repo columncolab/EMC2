@@ -1,0 +1,39 @@
+﻿emc2.core.model.TestConvection
+==============================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: TestConvection
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TestConvection.__init__
+      ~TestConvection.check_and_stack_time_lat_lon
+      ~TestConvection.finalize_subcol_fields
+      ~TestConvection.load_subcolumns_from_netcdf
+      ~TestConvection.permute_dims_for_processing
+      ~TestConvection.remove_appended_str
+      ~TestConvection.remove_subcol_fields
+      ~TestConvection.set_hyd_types
+      ~TestConvection.subcolumns_to_netcdf
+      ~TestConvection.unstack_time_lat_lon
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TestConvection.hydrometeor_classes
+      ~TestConvection.num_hydrometeor_classes
+      ~TestConvection.num_subcolumns
+   
+   

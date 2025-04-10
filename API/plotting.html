@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; EMC^2  documentation</title>
+  <title>emc2.plotting (emc2.plotting) &mdash; EMC^2  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
@@ -22,7 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="simulator.html" /> 
+    <link rel="next" title="emc2.plotting.SubcolumnDisplay" href="generated/emc2.plotting.SubcolumnDisplay.html" />
+    <link rel="prev" title="emc2.simulator.subcolumn.set_q_n" href="generated/emc2.simulator.subcolumn.set_q_n.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,11 +46,38 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">EMC^2 Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">EMC^2 Usage guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="core.html">emc2.core (emc2.core)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">emc2.io (emc2.io)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulator.html">emc2.simulator (emc2.simulator)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">emc2.plotting (emc2.plotting)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/emc2.plotting.SubcolumnDisplay.html">emc2.plotting.SubcolumnDisplay</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.calc_mean_and_sd"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.calc_mean_and_sd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.change_plot_to_class_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_column_input_q_timeseries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_instrument_mean_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_instrument_timeseries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_regridded_CF_timeseries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_regridded_SR_timeseries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_single_profile"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_single_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_subcolumn_mean_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.plot_subcolumn_timeseries()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.set_axis_label"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.set_axis_label()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.set_xrng"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.set_xrng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay.set_yrng"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay.set_yrng()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -67,7 +95,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="breadcrumb-item active">emc2.plotting (emc2.plotting)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/API/plotting.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -77,14 +105,589 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="toctree-wrapper compound">
+  <section id="emc2-plotting-emc2-plotting">
+<span id="module-emc2.plotting"></span><h1>emc2.plotting (emc2.plotting)<a class="headerlink" href="#emc2-plotting-emc2-plotting" title="Link to this heading">¶</a></h1>
+<p>This module contains routines for visualizing simulated radar data from EMC^2.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#emc2.plotting.SubcolumnDisplay" title="emc2.plotting.SubcolumnDisplay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a>(model[, lat_sel, lon_sel])</p></td>
+<td><p>This class contains modules for displaying the generated subcolumn parameters as quicklook plots.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.plotting.</span></span><span class="sig-name descname"><span class="pre">SubcolumnDisplay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay" title="Link to this definition">¶</a></dt>
+<dd><p>This class contains modules for displaying the generated subcolumn parameters as quicklook
+plots. It is inherited from <a class="reference external" href="https://arm-doe.github.io/ACT">ACT</a>’s Display object. For more
+information on the Display object and its attributes and parameters, click <a class="reference external" href="https://arm-doe.github.io/ACT/API/generated/act.plotting.plot.Display.html">here</a>. In addition to the
+methods in <code class="code docutils literal notranslate"><span class="pre">Display</span></code>, <code class="code docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code> has the following attributes and methods:
+The plotting dataset is automatically cropped to include only single lat and lon coordinates in case
+of a regional output, but can always be replaced with different coordinates using the internal methods.
+Note that there is no dedicated option to plot subcolumns vs. lat or lon, since subcolumns at a given
+grid cell are independent of subcolumns attributed to other neighboring grid cells.
+Note: if older version of ACT are installed (e.g., 0.2.4), “_ds” should be replaced with “_arm”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model object containing the subcolumn data to plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>This example makes a four panel plot of 4 subcolumns of EMC^2 simulated reflectivity:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ model_display = emc2.plotting.SubcolumnDisplay(my_model, subplot_shape=(2, 2), figsize=(30, 20))
+$ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 1, subplot_index=(0, 0))
+$ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 2, subplot_index=(1, 0))
+$ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 3, subplot_index=(0, 1))
+$ model_display.plot_subcolumn_timeseries(&#39;sub_col_Ze_cl_strat&#39;, 4, subplot_index=(1, 1))
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: emc2.core.Model</strong></dt><dd><p>The model containing the subcolumn data to plot.</p>
+</dd>
+<dt><strong>lat_sel: float, int, or None</strong></dt><dd><p>Relevant only if a latitude dimension exists in dataset (model output file).
+if float, then specifying the latitude value for which to crop the model xr.Dataset for
+plotting (using the nearest value).
+if int, then specifying the index to crop.
+if None, then using index 0 to prevent issues.</p>
+</dd>
+<dt><strong>lon_sel: float, int, or None</strong></dt><dd><p>Relevant only if a lonitude dimension exists in dataset (model output file).
+if float, then specifying the lonitude value for which to crop the model xr.Dataset for
+plotting (using the nearest value).
+if int, then specifying the index to crop.
+if None, then using index 0 to prevent issues.</p>
+</dd>
+<dt><strong>Additional keyword arguments are passed into act.plotting.plot.Display’s constructor.</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.calc_mean_and_sd">
+<span class="sig-name descname"><span class="pre">calc_mean_and_sd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_geom_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.calc_mean_and_sd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.calc_mean_and_sd" title="Link to this definition">¶</a></dt>
+<dd><p>This function calculates geometric or arithmetic mean and SD of arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>variable: np.ndarray</strong></dt><dd><p>array to use for calculation.</p>
+</dd>
+<dt><strong>axis: int, tuple, or None</strong></dt><dd><p>axis along which to calculate the mean and SD. None for calcualtion over the
+full array (single output value).</p>
+</dd>
+<dt><strong>use_geom_mean: str or bool</strong></dt><dd><p>if True, then using geometric mean and SD, If False, using arithmetic mean and SD.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Mean: np.ndarray</dt><dd><p>array of calculated mean.</p>
+</dd>
+<dt>SD: np.ndarray</dt><dd><p>array of calculated SD.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask">
+<span class="sig-name descname"><span class="pre">change_plot_to_class_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_zeros_to_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.change_plot_to_class_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Updates the colorbar to show phase classification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cbar: Matplotlib axes handle</strong></dt><dd><p>colorbar handle.</p>
+</dd>
+<dt><strong>class_legend: list</strong></dt><dd><p>Class type strings in order corresponding to mask integer values.
+If None, using the “legend” attributes from the mask variable.</p>
+</dd>
+<dt><strong>variable: str</strong></dt><dd><p>The classification mask variable to use assuming it has a “legend” attribute
+Raises an error when both variable and class_legend are both None.</p>
+</dd>
+<dt><strong>cbar_label: str</strong></dt><dd><p>The colorbar label. Empty string by default.</p>
+</dd>
+<dt><strong>cmap: ListedColormap object</strong></dt><dd><p>colormap to use in the colorbar. If None, using tab20c(N), where N is the number of
+classes.</p>
+</dd>
+<dt><strong>convert_zeros_to_nan: bool</strong></dt><dd><p>If True, assuming that the plotted classification mask has all the zeros converted
+to nans, i.e., ‘convert_zeros_to_nan’ was True when the classification method was called.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries">
+<span class="sig-name descname"><span class="pre">plot_column_input_q_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hatched_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_dateformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%b%d-%H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_no</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_column_input_q_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries" title="Link to this definition">¶</a></dt>
+<dd><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+In the case of a 2D (time x height) field, plotting a time-height curtain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>variable: str</strong></dt><dd><p>The subcolumn variable to plot.</p>
+</dd>
+<dt><strong>pressure_coords: bool</strong></dt><dd><p>Set to true to plot in pressure coordinates, false to height coordinates.</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>The title of the plot. Set to None to have EMC^2 generate a title for you.</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>colorbar: bool</strong></dt><dd><p>If true, plot the colorbar.</p>
+</dd>
+<dt><strong>cbar_label: None or str</strong></dt><dd><p>The colorbar label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>log_plot: bool</strong></dt><dd><p>Set to true to plot variable in logarithmic space.</p>
+</dd>
+<dt><strong>Mask_array: bool, int, or float (same dims as “variable”)</strong></dt><dd><p>Set to true or to other values greater than 0 in grid cells to make them transparent.</p>
+</dd>
+<dt><strong>hatched_mask: bool or str</strong></dt><dd><p>True - masked areas show masked ‘/’ pattern, False - Masked area is transparent,
+str - use the str as the hatch pattern (see:
+<a class="reference external" href="https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html">https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html</a>).</p>
+</dd>
+<dt><strong>x_range: tuple, list, or None</strong></dt><dd><p>The x range of the plot (also accepts datetime64 format).</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>x_dateformat: str</strong></dt><dd><p>Date format for the x-axis.</p>
+</dd>
+<dt><strong>x_rotation: float</strong></dt><dd><p>x-axis label rotation for a date axis.</p>
+</dd>
+<dt><strong>column_no: int</strong></dt><dd><p>The column number to plot.</p>
+</dd>
+<dt><strong>Additional keyword arguments are passed into matplotlib’s matplotlib.pyplot.pcolormesh.</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile">
+<span class="sig-name descname"><span class="pre">plot_instrument_mean_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_SD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_geom_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_instrument_mean_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile" title="Link to this definition">¶</a></dt>
+<dd><p>This function will plot a mean vertical profile of an instrument variable averaged over a given
+time period. The thick line will represent the mean profile along the given period, and the
+shading represents one standard deviation about the mean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>instrument: :py:mod:`emc2.core.Instrument`</strong></dt><dd><p>The Instrument class that you wish to plot.</p>
+</dd>
+<dt><strong>variable: str</strong></dt><dd><p>The name of the variable to plot.</p>
+</dd>
+<dt><strong>time_range: datetime64 or None</strong></dt><dd><p>Two-element array with starting and ending of time range; use the full data range when None.</p>
+</dd>
+<dt><strong>pressure_coords: bool</strong></dt><dd><p>Set to true to plot in pressure coordinates.</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>Set the title of the plot to this string. Set to None to provide a default title</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>log_plot: bool</strong></dt><dd><p>Set to true to plot variable in logarithmic space.</p>
+</dd>
+<dt><strong>plot_SD: bool</strong></dt><dd><p>Set to  True (default) in order to plot a shaded patch for mean +- SD.</p>
+</dd>
+<dt><strong>Xlabel: None or str</strong></dt><dd><p>X-axis label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>Mask_array: bool, int, or float (same dims as “variable”)</strong></dt><dd><p>Set to true or to other values greater than 0 in grid cells to exclude them from
+mean and SD calculations.</p>
+</dd>
+<dt><strong>x_range: tuple, list, or Non</strong></dt><dd><p>The x range of the plot.</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>use_geom_mean: str or bool</strong></dt><dd><p>if True, then using geometric mean and SD, If False, using arithmetic mean and SD, if “auto”
+then choosing based on typical variable scales (e.g., geometric for reflectivity and backscatter,
+and arithmetic for V_D.</p>
+</dd>
+<dt><strong>kwargs</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries">
+<span class="sig-name descname"><span class="pre">plot_instrument_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hatched_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_dateformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%b%d-%H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_instrument_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries" title="Link to this definition">¶</a></dt>
+<dd><p>Plots timeseries of a given instrument variable.</p>
+<section id="parameters">
+<h1>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h1>
+<dl class="simple">
+<dt>instrument: <a class="reference internal" href="generated/emc2.core.Instrument.html#emc2.core.Instrument" title="emc2.core.Instrument"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Instrument</span></code></a></dt><dd><p>The Instrument class that you wish to plot.</p>
+</dd>
+<dt>variable: str</dt><dd><p>The variable to plot.</p>
+</dd>
+<dt>title: str or None</dt><dd><p>The title of the plot. Set to None to have EMC^2 generate a title for you.</p>
+</dd>
+<dt>subplot_index: tuple</dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt>colorbar: bool</dt><dd><p>If true, plot the colorbar.</p>
+</dd>
+<dt>cbar_label: None or str</dt><dd><p>The colorbar label. Set to None to provide a default label.</p>
+</dd>
+<dt>log_plot: bool</dt><dd><p>Set to true to plot variable in logarithmic space.</p>
+</dd>
+<dt>Mask_array: bool, int, or float (same dims as “variable”)</dt><dd><p>Set to true or to other values greater than 0 in grid cells to make them transparent.</p>
+</dd>
+<dt>hatched_mask: bool or str</dt><dd><p>True - masked areas show masked ‘/’ pattern, False - Masked area is transparent,
+str - use the str as the hatch pattern (see:
+<a class="reference external" href="https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html">https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html</a>).</p>
+</dd>
+<dt>x_range: tuple, list, or None</dt><dd><p>The x range of the plot (also accepts datetime64 format).</p>
+</dd>
+<dt>y_range: tuple, list, or None</dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt>x_dateformat: str</dt><dd><p>Date format for the x-axis.</p>
+</dd>
+<dt>x_rotation: float</dt><dd><p>x-axis label rotation for a date axis.</p>
+</dd>
+</dl>
+<p>Additional keyword arguments are passed into matplotlib’s matplotlib.pyplot.pcolormesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries">
+<span class="sig-name descname"><span class="pre">plot_regridded_CF_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_array_3D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newgrid_mid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_dateformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%b%d-%H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_regridded_CF_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries" title="Link to this definition">¶</a></dt>
+<dd><p>Plots timeseries of cloud fraction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>var_array_3D: float</strong></dt><dd><p>input variable, cloud fraction</p>
+</dd>
+<dt><strong>newgrid_mid: float</strong></dt><dd><p>vertical heights, unit: km</p>
+</dd>
+<dt><strong>col_index: int</strong></dt><dd><p>column index</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>The title of the plot. Set to None to have EMC^2 generate a title for you.</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>colorbar: bool</strong></dt><dd><p>If true, plot the colorbar.</p>
+</dd>
+<dt><strong>cbar_label: None or str</strong></dt><dd><p>The colorbar label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>x_range: tuple, list, or None</strong></dt><dd><p>The x range of the plot (also accepts datetime64 format).</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>x_dateformat: str</strong></dt><dd><p>Date format for the x-axis.</p>
+</dd>
+<dt><strong>x_rotation: float</strong></dt><dd><p>x-axis label rotation for a date axis.</p>
+</dd>
+<dt><strong>Additional keyword arguments are passed into matplotlib’s matplotlib.pyplot.pcolormesh.</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries">
+<span class="sig-name descname"><span class="pre">plot_regridded_SR_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_array_4D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newgrid_mid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcol_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_dateformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%b%d-%H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_regridded_SR_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries" title="Link to this definition">¶</a></dt>
+<dd><p>Plots timeseries of cloud fraction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>var_array_4D: float</strong></dt><dd><p>input variable, lidar scattering ratio</p>
+</dd>
+<dt><strong>newgrid_mid: float</strong></dt><dd><p>vertical heights, unit: km</p>
+</dd>
+<dt><strong>col_index: int</strong></dt><dd><p>column index</p>
+</dd>
+<dt><strong>subcol_index: int</strong></dt><dd><p>subcolumn index</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>The title of the plot. Set to None to have EMC^2 generate a title for you.</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>colorbar: bool</strong></dt><dd><p>If true, plot the colorbar.</p>
+</dd>
+<dt><strong>cbar_label: None or str</strong></dt><dd><p>The colorbar label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>x_range: tuple, list, or None</strong></dt><dd><p>The x range of the plot (also accepts datetime64 format).</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>x_dateformat: str</strong></dt><dd><p>Date format for the x-axis.</p>
+</dd>
+<dt><strong>x_rotation: float</strong></dt><dd><p>x-axis label rotation for a date axis.</p>
+</dd>
+<dt><strong>Additional keyword arguments are passed into matplotlib’s matplotlib.pyplot.pcolormesh.</strong></dt><dd></dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>axes: Matplotlib axes handle</strong></dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+<dt><strong>cbar: Matplotlib axes handle</strong></dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_single_profile">
+<span class="sig-name descname"><span class="pre">plot_single_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hatched_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_single_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_single_profile" title="Link to this definition">¶</a></dt>
+<dd><p>Plots the single profile of subcolumns for a given time period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>variable: str</strong></dt><dd><p>The subcolumn variable to plot.</p>
+</dd>
+<dt><strong>time: tuple of Datetime or str</strong></dt><dd><p>The time step to plot. If a string, specify in the format ‘%Y-%m-%dT%H:%M:%S’</p>
+</dd>
+<dt><strong>pressure_coords: bool</strong></dt><dd><p>Set to true to plot in pressure coordinates, false to height coordinates.</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>The title of the plot. Set to None to have EMC^2 generate a title for you.</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>colorbar: bool</strong></dt><dd><p>If true, then plot the colorbar.</p>
+</dd>
+<dt><strong>cbar_label: None or str</strong></dt><dd><p>The colorbar label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>log_plot: bool</strong></dt><dd><p>Set to true to plot variable in logarithmic space.</p>
+</dd>
+<dt><strong>Mask_array: bool, int, or float (same dims as “variable”)</strong></dt><dd><p>Set to true or to other values greater than 0 in grid cells to make them transparent
+or hatched.</p>
+</dd>
+<dt><strong>hatched_mask: bool or str</strong></dt><dd><p>True - masked areas show masked ‘/’ pattern, False - Masked area is transparent,
+str - use the str as the hatch pattern (see:
+<a class="reference external" href="https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html">https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html</a>).</p>
+</dd>
+<dt><strong>x_range: tuple, list, or None</strong></dt><dd><p>The x range of the plot (also accepts datetime64 format).</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>Additional keyword arguments are passed into matplotlib’s matplotlib.pyplot.pcolormesh.</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile">
+<span class="sig-name descname"><span class="pre">plot_subcolumn_mean_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_SD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_geom_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_subcolumn_mean_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile" title="Link to this definition">¶</a></dt>
+<dd><p>This function will plot a mean vertical profile of a subcolumn variable for a given time period. The
+thick line will represent the mean profile along the subcolumns, and the shading represents one
+standard deviation about the mean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>variable: str</strong></dt><dd><p>The name of the variable to plot.</p>
+</dd>
+<dt><strong>time: tuple of Datetime or str</strong></dt><dd><p>The time period to plot. If a string, specify in the format ‘%Y-%m-%dT%H:%M:%S’
+If a 2-element array using the values within range.</p>
+</dd>
+<dt><strong>pressure_coords: bool</strong></dt><dd><p>Set to true to plot in pressure coordinates.</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>Set the title of the plot to this string. Set to None to provide a default title</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>log_plot: bool</strong></dt><dd><p>Set to true to plot variable in logarithmic space.</p>
+</dd>
+<dt><strong>plot_SD: bool</strong></dt><dd><p>Set to  True (default) in order to plot a shaded patch for mean +- SD.</p>
+</dd>
+<dt><strong>Xlabel: None or str</strong></dt><dd><p>X-axis label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>Mask_array: bool, int, or float (same dims as “variable”)</strong></dt><dd><p>Set to true or to other values greater than 0 in grid cells to exclude them from
+mean and SD calculations.</p>
+</dd>
+<dt><strong>x_range: tuple, list, or None</strong></dt><dd><p>The x range of the plot.</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>use_geom_mean: str or bool</strong></dt><dd><p>if True, then using geometric mean and SD, If False, using arithmetic mean and SD, if “auto”
+then choosing based on typical variable scales (e.g., geometric for reflectivity and backscatter,
+and arithmetic for V_D.</p>
+</dd>
+<dt><strong>kwargs</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">
+<span class="sig-name descname"><span class="pre">plot_subcolumn_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_no</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mask_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hatched_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_dateformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%b%d-%H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.plot_subcolumn_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries" title="Link to this definition">¶</a></dt>
+<dd><p>Plots timeseries of subcolumn parameters for a given variable and subcolumn.
+In the case of a 2D (time x height) field, plotting a time-height curtain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>variable: str</strong></dt><dd><p>The subcolumn variable to plot.</p>
+</dd>
+<dt><strong>column_no: int</strong></dt><dd><p>The subcolumn number to plot. By default, using the first subcolumn.</p>
+</dd>
+<dt><strong>pressure_coords: bool</strong></dt><dd><p>Set to true to plot in pressure coordinates, false to height coordinates.</p>
+</dd>
+<dt><strong>title: str or None</strong></dt><dd><p>The title of the plot. Set to None to have EMC^2 generate a title for you.</p>
+</dd>
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to make the plot in.</p>
+</dd>
+<dt><strong>colorbar: bool</strong></dt><dd><p>If true, plot the colorbar.</p>
+</dd>
+<dt><strong>cbar_label: None or str</strong></dt><dd><p>The colorbar label. Set to None to provide a default label.</p>
+</dd>
+<dt><strong>log_plot: bool</strong></dt><dd><p>Set to true to plot variable in logarithmic space.</p>
+</dd>
+<dt><strong>Mask_array: bool, int, or float (same dims as “variable”)</strong></dt><dd><p>Set to true or to other values greater than 0 in grid cells to make them transparent.</p>
+</dd>
+<dt><strong>hatched_mask: bool or str</strong></dt><dd><p>True - masked areas show masked ‘/’ pattern, False - Masked area is transparent,
+str - use the str as the hatch pattern (see:
+<a class="reference external" href="https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html">https://matplotlib.org/stable/gallery/shapes_and_collections/hatch_demo.html</a>).</p>
+</dd>
+<dt><strong>x_range: tuple, list, or None</strong></dt><dd><p>The x range of the plot (also accepts datetime64 format).</p>
+</dd>
+<dt><strong>y_range: tuple, list, or None</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+<dt><strong>x_dateformat: str</strong></dt><dd><p>Date format for the x-axis.</p>
+</dd>
+<dt><strong>x_rotation: float</strong></dt><dd><p>x-axis label rotation for a date axis.</p>
+</dd>
+<dt><strong>Additional keyword arguments are passed into matplotlib’s matplotlib.pyplot.pcolormesh.</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axes: Matplotlib axes handle</dt><dd><p>The matplotlib axes handle of the plot.</p>
+</dd>
+<dt>cbar: Matplotlib axes handle</dt><dd><p>The matplotlib colorbar handle of the plot.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.set_axis_label">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_axis_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_long_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_prespec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.set_axis_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.set_axis_label" title="Link to this definition">¶</a></dt>
+<dd><p>Setting the axis label based on whether a field name is one of prespecified fields,
+its attributes exist, and whether these attributes are not “too long”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ds: xr.Dataset</strong></dt><dd><p>dataset containing the field for which to generate the label.</p>
+</dd>
+<dt><strong>variable: str</strong></dt><dd><p>Name of variable for which to generate axis title.</p>
+</dd>
+<dt><strong>max_long_name: int</strong></dt><dd><p>maximum length of the “long_name” attribute to include in plot</p>
+</dd>
+<dt><strong>use_prespec: bool</strong></dt><dd><p>If True, then setting axis label based on pre-specified variable names (if exist in variable name).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>axis_title: str</dt><dd><p>axis title</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.set_xrng">
+<span class="sig-name descname"><span class="pre">set_xrng</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_range</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.set_xrng"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.set_xrng" title="Link to this definition">¶</a></dt>
+<dd><p>Set the Y axes limits of the subplot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to set the y axes limits to.</p>
+</dd>
+<dt><strong>x_range: tuple</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.plotting.SubcolumnDisplay.set_yrng">
+<span class="sig-name descname"><span class="pre">set_yrng</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplot_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_range</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/plotting/subcol_display.html#SubcolumnDisplay.set_yrng"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.plotting.SubcolumnDisplay.set_yrng" title="Link to this definition">¶</a></dt>
+<dd><p>Set the Y axes limits of the subplot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>subplot_index: tuple</strong></dt><dd><p>The index of the subplot to set the y axes limits to.</p>
+</dd>
+<dt><strong>y_range: tuple</strong></dt><dd><p>The y range of the plot.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
 </div>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="simulator.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/emc2.simulator.subcolumn.set_q_n.html" class="btn btn-neutral float-left" title="emc2.simulator.subcolumn.set_q_n" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/emc2.plotting.SubcolumnDisplay.html" class="btn btn-neutral float-right" title="emc2.plotting.SubcolumnDisplay" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

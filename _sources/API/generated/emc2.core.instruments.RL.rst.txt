@@ -1,0 +1,24 @@
+﻿emc2.core.instruments.RL
+========================
+
+.. currentmodule:: emc2.core.instruments
+
+.. autoclass:: RL
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RL.__init__
+      ~RL.load_instrument_scat_files
+      ~RL.read_arm_netcdf_file
+   
+   
+
+   
+   
+   

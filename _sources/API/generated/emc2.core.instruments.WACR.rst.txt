@@ -1,0 +1,24 @@
+﻿emc2.core.instruments.WACR
+==========================
+
+.. currentmodule:: emc2.core.instruments
+
+.. autoclass:: WACR
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WACR.__init__
+      ~WACR.load_instrument_scat_files
+      ~WACR.read_arm_netcdf_file
+   
+   
+
+   
+   
+   

@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emc2.simulator.psd.calc_mu_lambda &mdash; EMC^2  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="emc2.simulator.psd.calc_velocity_nssl" href="emc2.simulator.psd.calc_velocity_nssl.html" />
+    <link rel="prev" title="emc2.simulator.classification.calculate_phase_ratio" href="emc2.simulator.classification.calculate_phase_ratio.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            EMC^2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">EMC^2 Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">EMC^2 Usage guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../EMC2example.html"><em>EMC²</em> Demo Notebook</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../core.html">emc2.core (emc2.core)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core.html#emc2.core.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../core.html#emc2.core.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../io.html">emc2.io (emc2.io)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../simulator.html">emc2.simulator (emc2.simulator)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_atm_attenuation.html">emc2.simulator.attenuation.calc_radar_atm_attenuation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_theory_beta_m.html">emc2.simulator.attenuation.calc_theory_beta_m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.attenuation.calc_radar_Ze_min.html">emc2.simulator.attenuation.calc_radar_Ze_min</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_classify_phase.html">emc2.simulator.classification.lidar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.radar_classify_phase.html">emc2.simulator.classification.radar_classify_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.lidar_emulate_cosp_phase.html">emc2.simulator.classification.lidar_emulate_cosp_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.classification.calculate_phase_ratio.html">emc2.simulator.classification.calculate_phase_ratio</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">emc2.simulator.psd.calc_mu_lambda</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#emc2.simulator.psd.calc_mu_lambda"><code class="docutils literal notranslate"><span class="pre">calc_mu_lambda()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.psd.calc_velocity_nssl.html">emc2.simulator.psd.calc_velocity_nssl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_total_reflectivity.html">emc2.simulator.radar_moments.calc_total_reflectivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.accumulate_attenuation.html">emc2.simulator.radar_moments.accumulate_attenuation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_empirical.html">emc2.simulator.radar_moments.calc_radar_empirical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_bulk.html">emc2.simulator.radar_moments.calc_radar_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_micro.html">emc2.simulator.radar_moments.calc_radar_micro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.radar_moments.calc_radar_moments.html">emc2.simulator.radar_moments.calc_radar_moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_total_alpha_beta.html">emc2.simulator.lidar_moments.calc_total_alpha_beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_LDR_and_ext.html">emc2.simulator.lidar_moments.calc_LDR_and_ext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.accumulate_OD.html">emc2.simulator.lidar_moments.accumulate_OD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_empirical.html">emc2.simulator.lidar_moments.calc_lidar_empirical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_bulk.html">emc2.simulator.lidar_moments.calc_lidar_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_micro.html">emc2.simulator.lidar_moments.calc_lidar_micro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.lidar_moments.calc_lidar_moments.html">emc2.simulator.lidar_moments.calc_lidar_moments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.main.make_simulated_data.html">emc2.simulator.main.make_simulated_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_convective_sub_col_frac.html">emc2.simulator.subcolumn.set_convective_sub_col_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_stratiform_sub_col_frac.html">emc2.simulator.subcolumn.set_stratiform_sub_col_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_precip_sub_col_frac.html">emc2.simulator.subcolumn.set_precip_sub_col_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="emc2.simulator.subcolumn.set_q_n.html">emc2.simulator.subcolumn.set_q_n</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html">emc2.plotting (emc2.plotting)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html#emc2.plotting.SubcolumnDisplay"><code class="docutils literal notranslate"><span class="pre">SubcolumnDisplay</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EMC^2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../simulator.html">emc2.simulator (emc2.simulator)</a></li>
+      <li class="breadcrumb-item active">emc2.simulator.psd.calc_mu_lambda</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/API/generated/emc2.simulator.psd.calc_mu_lambda.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="emc2-simulator-psd-calc-mu-lambda">
+<h1>emc2.simulator.psd.calc_mu_lambda<a class="headerlink" href="#emc2-simulator-psd-calc-mu-lambda" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="emc2.simulator.psd.calc_mu_lambda">
+<span class="sig-prename descclassname"><span class="pre">emc2.simulator.psd.</span></span><span class="sig-name descname"><span class="pre">calc_mu_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_dispersion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_mu_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(2,</span> <span class="pre">15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcolumns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/psd.html#calc_mu_lambda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.psd.calc_mu_lambda" title="Link to this definition">¶</a></dt>
+<dd><p>This method calculated the Gamma PSD parameters following Morrison and Gettelman (2008).
+Note that the dispersion cacluation from MG2008 is used in all models implementing this
+parameterization except for ModelE and DHARMA, which use a fixed definition.
+Note #2: <cite>subcolumns</cite> are hardwired as <cite>True</cite> in <cite>radar_moments.py</cite> and <cite>lidar_moments.py</cite>,
+which means that we assume that the PSD mu and lambda definition applies to the SGS. This
+defintion might be under future discussion (whether to apply this assumption or not).
+Calculates the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of the gamma PSD given <span class="math notranslate nohighlight">\(N_{0}\)</span>.
+The gamma size distribution takes the form:</p>
+<div class="math notranslate nohighlight">
+\[N(D) = N_{0}e^{-\lambda D}D^{\mu}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(N_{0}\)</span> is the intercept, <span class="math notranslate nohighlight">\(\lambda\)</span> is the slope, and
+<span class="math notranslate nohighlight">\(\mu\)</span> is the dispersion.</p>
+<p>Note: this method only accepts the microphysical cloud fraction in order to maintain
+consistency because the PSD calculation is necessarily related only to the MG2 scheme
+without assumption related to the radiation logic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model: :py:mod:`emc2.core.Model`</strong></dt><dd><p>The model to generate the parameters for.</p>
+</dd>
+<dt><strong>hyd_type: str</strong></dt><dd><p>The assumed hydrometeor type. Must be a hydrometeor type in Model.</p>
+</dd>
+<dt><strong>calc_dispersion: bool or None</strong></dt><dd><p>If False, the <span class="math notranslate nohighlight">\(\mu\)</span> parameter will be fixed at 1/0.09 per
+Geoffroy et al. (2010). If True and the hydrometeor type is “cl”,
+then the Martin et al. (1994) method will be used to calculate
+<span class="math notranslate nohighlight">\(\mu\)</span>. Otherwise, <span class="math notranslate nohighlight">\(\mu\)</span> is set to  0.
+If None (default), setting calculation parameterization based on model logic.</p>
+</dd>
+<dt><strong>dispersion_mu_bounds: 2-tuple</strong></dt><dd><p>The lower and upper bounds for the <span class="math notranslate nohighlight">\(\mu\)</span> parameter.</p>
+</dd>
+<dt><strong>subcolumns: bool</strong></dt><dd><p>If True, the fit parameters will be generated using the generated subcolumns
+(in-cloud) q and N quantities) rather than using the “raw” (grid-cell mean) output.</p>
+</dd>
+<dt><strong>is_conv: bool</strong></dt><dd><p>If True, calculate from convective properties. IF false, do stratiform.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>model: <a class="reference internal" href="emc2.core.Model.html#emc2.core.Model" title="emc2.core.Model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">emc2.core.Model</span></code></a></dt><dd><p>The Model with the <span class="math notranslate nohighlight">\(\lambda\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span> parameters added.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Ulbrich, C. W., 1983: Natural variations in the analytical form of the raindrop size
+distribution: J. Climate Appl. Meteor., 22, 1764-1775</p>
+<p>Martin, G.M., D.W. Johnson, and A. Spice, 1994: The Measurement and Parameterization
+of Effective Radius of Droplets in Warm Stratocumulus Clouds.
+J. Atmos. Sci., 51, 1823–1842, <a class="reference external" href="https://doi.org/10.1175/1520-0469(1994">https://doi.org/10.1175/1520-0469(1994</a>)051&lt;1823:TMAPOE&gt;2.0.CO;2</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="emc2.simulator.classification.calculate_phase_ratio.html" class="btn btn-neutral float-left" title="emc2.simulator.classification.calculate_phase_ratio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="emc2.simulator.psd.calc_velocity_nssl.html" class="btn btn-neutral float-right" title="emc2.simulator.psd.calc_velocity_nssl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Bobby Jackson, Israel Silber.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

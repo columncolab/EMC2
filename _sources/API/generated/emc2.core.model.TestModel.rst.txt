@@ -1,0 +1,39 @@
+﻿emc2.core.model.TestModel
+=========================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: TestModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TestModel.__init__
+      ~TestModel.check_and_stack_time_lat_lon
+      ~TestModel.finalize_subcol_fields
+      ~TestModel.load_subcolumns_from_netcdf
+      ~TestModel.permute_dims_for_processing
+      ~TestModel.remove_appended_str
+      ~TestModel.remove_subcol_fields
+      ~TestModel.set_hyd_types
+      ~TestModel.subcolumns_to_netcdf
+      ~TestModel.unstack_time_lat_lon
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TestModel.hydrometeor_classes
+      ~TestModel.num_hydrometeor_classes
+      ~TestModel.num_subcolumns
+   
+   

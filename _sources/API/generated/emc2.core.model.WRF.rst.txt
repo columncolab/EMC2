@@ -1,0 +1,39 @@
+﻿emc2.core.model.WRF
+===================
+
+.. currentmodule:: emc2.core.model
+
+.. autoclass:: WRF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WRF.__init__
+      ~WRF.check_and_stack_time_lat_lon
+      ~WRF.finalize_subcol_fields
+      ~WRF.load_subcolumns_from_netcdf
+      ~WRF.permute_dims_for_processing
+      ~WRF.remove_appended_str
+      ~WRF.remove_subcol_fields
+      ~WRF.set_hyd_types
+      ~WRF.subcolumns_to_netcdf
+      ~WRF.unstack_time_lat_lon
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WRF.hydrometeor_classes
+      ~WRF.num_hydrometeor_classes
+      ~WRF.num_subcolumns
+   
+   

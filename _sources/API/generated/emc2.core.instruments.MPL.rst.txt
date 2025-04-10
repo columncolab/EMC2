@@ -1,0 +1,24 @@
+﻿emc2.core.instruments.MPL
+=========================
+
+.. currentmodule:: emc2.core.instruments
+
+.. autoclass:: MPL
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MPL.__init__
+      ~MPL.load_instrument_scat_files
+      ~MPL.read_arm_netcdf_file
+   
+   
+
+   
+   
+   

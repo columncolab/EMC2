@@ -29,9 +29,8 @@ jobs:
           environment-file: continuous_integration/environment_docs.yml
           activate-environment: testenv
           auto-activate-base: false
-          mamba-version: '24.11.3-2'
           use-mamba: true
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniconda
 
       - name: Install EMC2
         run: |

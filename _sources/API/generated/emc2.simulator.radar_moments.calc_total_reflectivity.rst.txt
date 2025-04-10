@@ -1,6 +1,0 @@
-﻿emc2.simulator.radar\_moments.calc\_total\_reflectivity
-=======================================================
-
-.. currentmodule:: emc2.simulator.radar_moments
-
-.. autofunction:: calc_total_reflectivity

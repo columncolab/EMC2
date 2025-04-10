@@ -1,6 +1,0 @@
-﻿emc2.simulator.radar\_moments.calc\_radar\_bulk
-===============================================
-
-.. currentmodule:: emc2.simulator.radar_moments
-
-.. autofunction:: calc_radar_bulk

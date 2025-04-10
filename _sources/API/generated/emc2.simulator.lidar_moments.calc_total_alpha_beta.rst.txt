@@ -1,6 +1,0 @@
-﻿emc2.simulator.lidar\_moments.calc\_total\_alpha\_beta
-======================================================
-
-.. currentmodule:: emc2.simulator.lidar_moments
-
-.. autofunction:: calc_total_alpha_beta

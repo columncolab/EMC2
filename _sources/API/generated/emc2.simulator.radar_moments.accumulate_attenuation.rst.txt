@@ -1,6 +1,0 @@
-﻿emc2.simulator.radar\_moments.accumulate\_attenuation
-=====================================================
-
-.. currentmodule:: emc2.simulator.radar_moments
-
-.. autofunction:: accumulate_attenuation

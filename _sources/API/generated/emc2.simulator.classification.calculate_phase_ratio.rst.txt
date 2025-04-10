@@ -1,6 +1,0 @@
-﻿emc2.simulator.classification.calculate\_phase\_ratio
-=====================================================
-
-.. currentmodule:: emc2.simulator.classification
-
-.. autofunction:: calculate_phase_ratio

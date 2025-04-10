@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.simulator.main &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -75,18 +75,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for emc2.simulator.main</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_convective_sub_col_frac</span><span class="p">,</span> <span class="n">set_precip_sub_col_frac</span>
-<span class="kn">from</span> <span class="nn">.subcolumn</span> <span class="kn">import</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">,</span> <span class="n">set_q_n</span>
-<span class="kn">from</span> <span class="nn">.lidar_moments</span> <span class="kn">import</span> <span class="n">calc_lidar_moments</span><span class="p">,</span> <span class="n">calc_LDR_and_ext</span><span class="p">,</span> <span class="n">calc_total_alpha_beta</span>
-<span class="kn">from</span> <span class="nn">.radar_moments</span> <span class="kn">import</span> <span class="n">calc_radar_moments</span><span class="p">,</span> <span class="n">calc_total_reflectivity</span>
-<span class="kn">from</span> <span class="nn">.attenuation</span> <span class="kn">import</span> <span class="n">calc_radar_Ze_min</span>
-<span class="kn">from</span> <span class="nn">.classification</span> <span class="kn">import</span> <span class="n">lidar_classify_phase</span><span class="p">,</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">,</span> <span class="n">radar_classify_phase</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.subcolumn</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_convective_sub_col_frac</span><span class="p">,</span> <span class="n">set_precip_sub_col_frac</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.subcolumn</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_stratiform_sub_col_frac</span><span class="p">,</span> <span class="n">set_q_n</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.lidar_moments</span><span class="w"> </span><span class="kn">import</span> <span class="n">calc_lidar_moments</span><span class="p">,</span> <span class="n">calc_LDR_and_ext</span><span class="p">,</span> <span class="n">calc_total_alpha_beta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.radar_moments</span><span class="w"> </span><span class="kn">import</span> <span class="n">calc_radar_moments</span><span class="p">,</span> <span class="n">calc_total_reflectivity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.attenuation</span><span class="w"> </span><span class="kn">import</span> <span class="n">calc_radar_Ze_min</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">lidar_classify_phase</span><span class="p">,</span> <span class="n">lidar_emulate_cosp_phase</span><span class="p">,</span> <span class="n">radar_classify_phase</span>
 
 
 <div class="viewcode-block" id="make_simulated_data">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.main.make_simulated_data.html#emc2.simulator.main.make_simulated_data">[docs]</a>
-<span class="k">def</span> <span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span> <span class="n">do_classify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unstack_dims</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_simulated_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">N_columns</span><span class="p">,</span> <span class="n">do_classify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unstack_dims</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">skip_subcol_gen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">finalize_fields</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">calc_spectral_width</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">subcol_gen_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.simulator.psd &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -75,16 +75,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for emc2.simulator.psd</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gamma</span>
-<span class="kn">from</span> <span class="nn">..core.instrument</span> <span class="kn">import</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.instrument</span><span class="w"> </span><span class="kn">import</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
 
 
 <div class="viewcode-block" id="calc_velocity_nssl">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_velocity_nssl.html#emc2.simulator.psd.calc_velocity_nssl">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_velocity_nssl</span><span class="p">(</span><span class="n">dmax</span><span class="p">,</span> <span class="n">rhoe</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_velocity_nssl</span><span class="p">(</span><span class="n">dmax</span><span class="p">,</span> <span class="n">rhoe</span><span class="p">,</span> <span class="n">hyd_type</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the terminal velocity according to the NSSL 2-moment scheme.</span>
 
@@ -125,7 +125,7 @@
 
 <div class="viewcode-block" id="calc_mu_lambda">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.psd.calc_mu_lambda.html#emc2.simulator.psd.calc_mu_lambda">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_mu_lambda</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">hyd_type</span><span class="o">=</span><span class="s2">&quot;cl&quot;</span><span class="p">,</span>
                    <span class="n">calc_dispersion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dispersion_mu_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
                    <span class="n">subcolumns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_conv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.plotting.subcol_display &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -75,17 +75,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for emc2.plotting.subcol_display</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gmean</span><span class="p">,</span> <span class="n">gstd</span>
-<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">colors</span>
-<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
-<span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">gmean</span><span class="p">,</span> <span class="n">gstd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">colors</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.cm</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">act.plotting</span> <span class="kn">import</span> <span class="n">Display</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">act.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Display</span>
 
 
 <span class="c1"># Treat pcolor shading deprecation warning (since matplotlib v.3.3)</span>
@@ -97,7 +97,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay">[docs]</a>
-<span class="k">class</span> <span class="nc">SubcolumnDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubcolumnDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class contains modules for displaying the generated subcolumn parameters as quicklook</span>
 <span class="sd">    plots. It is inherited from `ACT &lt;https://arm-doe.github.io/ACT&gt;`_&#39;s Display object. For more</span>
@@ -128,7 +128,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="SubcolumnDisplay.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.plotting.SubcolumnDisplay.html#emc2.plotting.SubcolumnDisplay.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -163,7 +163,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_c</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_name</span><span class="o">=</span><span class="n">ds_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_crop_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_crop_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        cropping lat and/or lon coordinates enabling robust use of plotting routines.</span>
 
@@ -192,7 +192,7 @@
             <span class="n">lon_sel</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_switch_lat_lon</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="p">,</span> <span class="n">lon_sel</span><span class="p">,</span> <span class="n">deep</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_switch_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_switch_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">lat_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lon_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        switching cropped lat and/or lon coordinates assuming a fully processed dataset exists.</span>
 
@@ -237,7 +237,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no alternative lat and lon coords provided - keeping processed dataset as is.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_switch_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_switch_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replace the processed model data in the SubcolumnDisplay object with a deep copy of</span>
 <span class="sd">        processed model data allowing full compitability with Display object (e.g., plotting</span>
@@ -255,7 +255,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.calc_mean_and_sd">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.calc_mean_and_sd">[docs]</a>
-    <span class="k">def</span> <span class="nf">calc_mean_and_sd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_mean_and_sd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function calculates geometric or arithmetic mean and SD of arrays.</span>
 
@@ -293,7 +293,7 @@
 <div class="viewcode-block" id="SubcolumnDisplay.set_axis_label">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_axis_label">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">max_long_name</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">use_prespec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">max_long_name</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">use_prespec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setting the axis label based on whether a field name is one of prespecified fields,</span>
 <span class="sd">        its attributes exist, and whether these attributes are not &quot;too long&quot;.</span>
@@ -356,7 +356,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.set_yrng">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_yrng">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_yrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_yrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Y axes limits of the subplot</span>
 
@@ -376,7 +376,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.set_xrng">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.set_xrng">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_xrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">x_range</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_xrng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subplot_index</span><span class="p">,</span> <span class="n">x_range</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Y axes limits of the subplot</span>
 
@@ -396,7 +396,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.change_plot_to_class_mask">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.change_plot_to_class_mask">[docs]</a>
-    <span class="k">def</span> <span class="nf">change_plot_to_class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">class_legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_plot_to_class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">class_legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                                   <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates the colorbar to show phase classification.</span>
@@ -456,7 +456,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_timeseries">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_timeseries">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_subcolumn_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">column_no</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_subcolumn_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">column_no</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                   <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
@@ -602,7 +602,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.plot_instrument_timeseries">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_timeseries">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_instrument_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_instrument_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                    <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
@@ -731,7 +731,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.plot_single_profile">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_single_profile">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_single_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_single_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -863,7 +863,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.plot_subcolumn_mean_profile">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_subcolumn_mean_profile">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_subcolumn_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_subcolumn_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_SD</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1027,7 +1027,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.plot_instrument_mean_profile">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_instrument_mean_profile">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_instrument_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_instrument_mean_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                      <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_SD</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                      <span class="n">Xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                      <span class="n">use_geom_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1165,7 +1165,7 @@
     
 <div class="viewcode-block" id="SubcolumnDisplay.plot_column_input_q_timeseries">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_column_input_q_timeseries">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_column_input_q_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_column_input_q_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">pressure_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">log_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Mask_array</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hatched_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                     <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
@@ -1313,7 +1313,7 @@
     <span class="c1"># Height is in km rather than in pressure</span>
 <div class="viewcode-block" id="SubcolumnDisplay.plot_regridded_CF_timeseries">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_CF_timeseries">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_regridded_CF_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_3D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span><span class="n">col_index</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_regridded_CF_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_3D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span><span class="n">col_index</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
                                     <span class="n">x_rotation</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1409,7 +1409,7 @@
 
 <div class="viewcode-block" id="SubcolumnDisplay.plot_regridded_SR_timeseries">
 <a class="viewcode-back" href="../../../API/plotting.html#emc2.plotting.SubcolumnDisplay.plot_regridded_SR_timeseries">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_regridded_SR_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_4D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span> <span class="n">col_index</span><span class="p">,</span> <span class="n">subcol_index</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_regridded_SR_timeseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_array_4D</span><span class="p">,</span> <span class="n">newgrid_mid</span><span class="p">,</span> <span class="n">col_index</span><span class="p">,</span> <span class="n">subcol_index</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">subplot_index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">),</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">x_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_dateformat</span><span class="o">=</span><span class="s2">&quot;%b</span><span class="si">%d</span><span class="s2">-%H&quot;</span><span class="p">,</span>
                                     <span class="n">x_rotation</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

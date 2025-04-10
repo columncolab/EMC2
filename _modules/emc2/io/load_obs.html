@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.io.load_obs &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -76,15 +76,15 @@
              
   <h1>Source code for emc2.io.load_obs</h1><div class="highlight"><pre>
 <span></span><span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">act.io.arm</span> <span class="kn">import</span> <span class="n">read_arm_netcdf</span> <span class="k">as</span> <span class="n">read_netcdf</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">act.io.arm</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_arm_netcdf</span> <span class="k">as</span> <span class="n">read_netcdf</span>
 <span class="k">except</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using act-atmos v1.5.3 or earlier. Please update to v2.0.0 or newer&#39;</span><span class="p">)</span>
-    <span class="kn">from</span> <span class="nn">act.io.armfiles</span> <span class="kn">import</span> <span class="n">read_netcdf</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">act.io.armfiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_netcdf</span>
 
 
 <div class="viewcode-block" id="load_arm_file">
 <a class="viewcode-back" href="../../../API/generated/emc2.io.load_arm_file.html#emc2.io.load_arm_file">[docs]</a>
-<span class="k">def</span> <span class="nf">load_arm_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_arm_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads an ARM-compliant netCDF file.</span>
 

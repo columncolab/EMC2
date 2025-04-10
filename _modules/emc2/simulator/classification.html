@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.simulator.classification &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -75,15 +75,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for emc2.simulator.classification</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">Model</span>
 
 
 <div class="viewcode-block" id="lidar_classify_phase">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.lidar_classify_phase.html#emc2.simulator.classification.lidar_classify_phase">[docs]</a>
-<span class="k">def</span> <span class="nf">lidar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta_p_phase_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lidar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta_p_phase_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">remove_sub_detect</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Phase classification based on fixed thresholds of a lidar&#39;s LDR and</span>
@@ -176,7 +176,7 @@
 
 <div class="viewcode-block" id="radar_classify_phase">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.radar_classify_phase.html#emc2.simulator.classification.radar_classify_phase">[docs]</a>
-<span class="k">def</span> <span class="nf">radar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_height_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">radar_classify_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mask_height_rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Phase classification based on cloud occurrence and Ze_min threshold (equivalent</span>
 <span class="sd">        to the KAZR-sounding dataset used in Silber et al., ACP, 2020).</span>
@@ -255,7 +255,7 @@
 
 <div class="viewcode-block" id="lidar_emulate_cosp_phase">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.lidar_emulate_cosp_phase.html#emc2.simulator.classification.lidar_emulate_cosp_phase">[docs]</a>
-<span class="k">def</span> <span class="nf">lidar_emulate_cosp_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">phase_disc_curve</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lidar_emulate_cosp_phase</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">OD_from_sfc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">phase_disc_curve</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="n">atb_cross_coeff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cloud_SR_thresh</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">undef_SR_thresh</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                              <span class="n">inc_precip_hyd_atb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_zeros_to_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_ATB</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                              <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -486,7 +486,7 @@
 
 <div class="viewcode-block" id="calculate_phase_ratio">
 <a class="viewcode-back" href="../../../API/generated/emc2.simulator.classification.calculate_phase_ratio.html#emc2.simulator.classification.calculate_phase_ratio">[docs]</a>
-<span class="k">def</span> <span class="nf">calculate_phase_ratio</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">mask_class</span><span class="p">,</span> <span class="n">mask_allhyd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mass_pr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_phase_ratio</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">mask_class</span><span class="p">,</span> <span class="n">mask_allhyd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mass_pr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                           <span class="n">mpr_subcolmod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hyd_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate time-height phase ratio field of subcolumn hydrometeor mask for a given class(es).</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emc2.core.instruments &mdash; EMC^2  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -82,21 +82,21 @@
 
 <span class="sd">This module stores example instruments.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">.instrument</span> <span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
-<span class="kn">from</span> <span class="nn">..io</span> <span class="kn">import</span> <span class="n">load_mie_file</span><span class="p">,</span> <span class="n">load_scat_file</span><span class="p">,</span> <span class="n">load_bulk_scat_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.instrument</span><span class="w"> </span><span class="kn">import</span> <span class="n">Instrument</span><span class="p">,</span> <span class="n">ureg</span><span class="p">,</span> <span class="n">quantity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_mie_file</span><span class="p">,</span> <span class="n">load_scat_file</span><span class="p">,</span> <span class="n">load_bulk_scat_file</span>
 
 
 
 <div class="viewcode-block" id="CSAPR">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CSAPR.html#emc2.core.instruments.CSAPR">[docs]</a>
-<span class="k">class</span> <span class="nc">CSAPR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CSAPR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="CSAPR.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.CSAPR.html#emc2.core.instruments.CSAPR.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">elevation_angle</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">elevation_angle</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the ARM CSAPR.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -159,10 +159,10 @@
 
 <div class="viewcode-block" id="XSACR">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.XSACR.html#emc2.core.instruments.XSACR">[docs]</a>
-<span class="k">class</span> <span class="nc">XSACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">XSACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="XSACR.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.XSACR.html#emc2.core.instruments.XSACR.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the AMF XSACR.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -222,10 +222,10 @@
 
 <div class="viewcode-block" id="KAZR">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR">[docs]</a>
-<span class="k">class</span> <span class="nc">KAZR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KAZR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="KAZR.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.KAZR.html#emc2.core.instruments.KAZR.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the KAZR (Ka-band radar).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -324,8 +324,8 @@
 
 
 
-<span class="k">class</span> <span class="nc">WACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WACR</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the WACR, M-WACR, and BASTA (W-band radars).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -409,8 +409,8 @@
                                                                   <span class="n">param_type</span><span class="o">=</span><span class="s2">&quot;mDAD&quot;</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">RL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for 355 nm lidars ,e.g., ARM Raman lidar (elastic channel).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -475,10 +475,10 @@
 
 <div class="viewcode-block" id="HSRL">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL">[docs]</a>
-<span class="k">class</span> <span class="nc">HSRL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HSRL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="HSRL.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.HSRL.html#emc2.core.instruments.HSRL.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for 532 nm lidars ,e.g., the High</span>
 <span class="sd">        Spectral Resolution Lidar (HSRL), micropulse lidar (MPL).</span>
@@ -544,8 +544,8 @@
 
 
 
-<span class="k">class</span> <span class="nc">CEIL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CEIL</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for 910 nm lidars ,e.g., the CL31 ceilometer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -611,10 +611,10 @@
 
 <div class="viewcode-block" id="Ten64nm">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm">[docs]</a>
-<span class="k">class</span> <span class="nc">Ten64nm</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Ten64nm</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="Ten64nm.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.Ten64nm.html#emc2.core.instruments.Ten64nm.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the 1064 nm lidars, e.g., the 2-ch HSRL.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -682,10 +682,10 @@
 
 <div class="viewcode-block" id="NEXRAD">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.NEXRAD.html#emc2.core.instruments.NEXRAD">[docs]</a>
-<span class="k">class</span> <span class="nc">NEXRAD</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NEXRAD</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
 <div class="viewcode-block" id="NEXRAD.__init__">
 <a class="viewcode-back" href="../../../API/generated/emc2.core.instruments.NEXRAD.html#emc2.core.instruments.NEXRAD.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercooled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for the NOAA NEXRAD radar</span>
 <span class="sd">        Based on  https://www.roc.noaa.gov/WSR88D/Engineering/NEXRADTechInfo.aspx.</span>
@@ -750,8 +750,8 @@
 
 
 
-<span class="k">class</span> <span class="nc">CALIOP</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CALIOP</span><span class="p">(</span><span class="n">Instrument</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This stores the information for 532 nm spaceborne lidars ,e.g.,</span>
 <span class="sd">        the CALIOP on-board the CALIPSO satellite.</span>

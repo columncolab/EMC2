@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.9
+  - python=3.12
   - pip
   - numpy
   - scipy
@@ -22,7 +22,6 @@ dependencies:
   - nbsphinx
   - numpydoc
   - pip:
-    - pymiescatt
     - sphinx_gallery
     - sphinx-copybutton
     - sphinx_rtd_theme

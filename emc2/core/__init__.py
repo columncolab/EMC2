@@ -13,17 +13,26 @@ constants used by EMC^2 are also stored in this module.
 .. autosummary::
     :toctree: generated/
 
-    instruments.KAZR
-    instruments.HSRL
     instruments.CSAPR
-    instruments.NEXRAD
     instruments.XSACR
+    instruments.KAZR
+    instruments.WACR
+    instruments.MWACR
+    instruments.BASTA
+    instruments.RL
+    instruments.HSRL
+    instruments.MPL
+    instruments.CEIL
     instruments.Ten64nm
+    instruments.HSRL1064
+    instruments.NEXRAD
+    instruments.CALIOP
+    model.E3SMv1
+    model.E3SMv3
+    model.CESM2
     model.ModelE
-    model.TestModel
-    model.E3SM
-    model.DHARMA
     model.WRF
+    model.DHARMA
     model.TestConvection
     model.TestAllStratiform
     model.TestHalfAndHalf

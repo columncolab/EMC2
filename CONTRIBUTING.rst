@@ -77,10 +77,9 @@ Code Style
 
 2. **Use Linters**: Employ linters such as `flake8`, `black`, or `pylint` to check your code style. Each linter has its
 unique features. For example, while `black` only focuses on code formatting, `pylint` also checks for errors and provide
-refactoring suggestions. Installation of those linters is straightforward. For example, to install `pylint` use::
+refactoring suggestions. Installation of those linters is straightforward. For example, to install `pylint`, one could use::
 
     conda install pylint
-or::
     pip install pylint
 
 

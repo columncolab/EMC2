@@ -24,11 +24,12 @@ Detailed description of EMC² is provided in Silber et al. (GMD, 2022;
 https://doi.org/10.5194/gmd-15-901-2022).
 
 
-Links
-=====
+Useful links
+============
 
 source code repository: https://github.com/columncolab/EMC2
 EMC² Documentation: https://columncolab.github.io/EMC2
+EMC² tutorial (from the 2022 ARM Open-Science Workshop: https://github.com/isilber/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb
 
 
 Citing

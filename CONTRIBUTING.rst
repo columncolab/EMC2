@@ -33,7 +33,8 @@ Implementing New Features
 Writing and Editing Documentation
 ==================================
 
-1. **Documentation Contribution**: Enhance our project documentation by updating docstrings, guides, and README files.
+1. **Documentation Contribution**: Enhance our project documentation by updating docstrings (see the **Python File Setup**
+section below), guides, and README files.
 
 2. **Clarity and Grammar**: Ensure your documentation is clear and free from grammatical errors.
 
@@ -72,14 +73,111 @@ Git Branches and Setting Origin/Upstream
 Code Style
 ===========
 
-1. **Follow PEP 8**: Ensure your code adheres to PEP 8 style guidelines.
+1. **Follow PEP 8**: Ensure your code adheres to PEP8 style guidelines (see https://www.python.org/dev/peps/pep-0008/).
 
-2. **Use Linters**: Employ linters such as `flake8`, `black`, or `pylint` to check your code style.
+2. **Use Linters**: Employ linters such as `flake8`, `black`, or `pylint` to check your code style. Each linter has its
+unique features. For example, while `black` only focuses on code formatting, `pylint` also checks for errors and provide
+refactoring suggestions. Installation of those linters is straightforward. For example, to install `pylint` use::
+
+    conda install pylint
+or::
+    pip install pylint
+
+
+Python File Setup
+=================
+
+1. **File description**: In case you create a new module under a new `.py` file, the top of that Python script should include a brief description.
+For example:
+
+.. code-block:: python
+
+        """
+        This module contains the Model class and example Models for your use.
+
+        """
+
+2. **Module import order**: Following this short description, imports should be specified in an order that follows PEP8 standards:
+
+        1. Standard library imports.
+        2. Related third party imports.
+        3. Local application/library specific imports.
+
+3. **Function documentation**: Following a function's def line, but before the function code, a doc
+string is required to describe input parameters and returned objects, provide references or
+other helpful information. These documentation standards follow the NumPy documentation style.
+
+For more on the NumPy documentation style:
+
+- https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
+
+For example:
+
+.. code-block:: python
+
+
+        def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_from_sfc=True,
+                            hyd_types=None, mie_for_ice=False, **kwargs):
+            """
+            Calculates the radar stratiform or convective reflectivity and attenuation
+            in a sub-columns using bulk scattering LUTs assuming geometric scatterers
+            (radiation scheme logic).
+            Effective radii for each hydrometeor class must be provided (in model.ds).
+
+            Parameters
+            ----------
+            instrument: Instrument
+                The instrument to simulate. The instrument must be a lidar.
+            model: Model
+                The model to generate the parameters for.
+            is_conv: bool
+                True if the cell is convective
+            p_values: ndarray
+                model output pressure array in Pa.
+            z_values: ndarray
+                model output height array in m.
+            atm_ext: ndarray
+                atmospheric attenuation per layer (dB/km).
+            OD_from_sfc: bool
+                If True, then calculate optical depth from the surface.
+            hyd_types: list or None
+                list of hydrometeor names to include in calcuation. using default Model subclass types if None.
+            mie_for_ice: bool
+                If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
+                scattering LUTs for 8-column severly roughned aggregate.
+            Additonal keyword arguments are passed into
+            :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
+
+            Returns
+            -------
+            model: :func:`emc2.core.Model`
+                The model with the added simulated lidar parameters.
+
+            """
 
 Unit Testing
 =============
 
 1. **Write Tests**: Ensure all new features and bug fixes come with unit tests that demonstrate the expected behavior.
+The test functions should include assertion statements that check calculated vs. expected value(s), for example.
+
+.. code-block:: python
+
+        def test_lambda_mu():
+            # We have a cloud with a constant N, increasing LWC
+            # Therefore, if dispersion is fixed, slope should decrease with LWC
+            # N_0 will also increases since it is directly proportional to lambda
+
+            my_model = emc2.core.model.TestConvection()
+            my_model = emc2.simulator.psd.calc_mu_lambda(my_model, hyd_type="cl", calc_dispersion=False)
+            my_ds = my_model.ds
+            assert np.all(my_ds["mu"] == 1 / 0.09)
+            diffs = np.diff(my_ds["lambda"])
+            diffs = diffs[np.isfinite(diffs)]
+            assert np.all(diffs < 0)
+            diffs = np.diff(my_ds["N_0"])
+            diffs = diffs[np.isfinite(diffs)]
+            assert np.all(diffs < 0)
 
 2. **Testing Framework**: Use `pytest` to verify functionality.
 

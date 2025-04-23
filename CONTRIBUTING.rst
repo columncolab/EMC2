@@ -51,23 +51,23 @@ Forking and Cloning EMC²
 
 2. **Clone the Repository**: Clone your fork to your local machine using::
 
-   git clone https://github.com/columncolab/EMC2.git
+    git clone https://github.com/columncolab/EMC2.git
 
 Git Branches and Setting Origin/Upstream
 =========================================
 
 1. **Create a New Branch**: Always create a new branch to work on::
 
-   git checkout -b new-branch-name
+    git checkout -b new-branch-name
 
 2. **Set Upstream**: Configure the upstream repository::
 
-   git remote add upstream https://github.com/columncolab/EMC2.git
+    git remote add upstream https://github.com/columncolab/EMC2.git
 
 3. **Syncing Your Fork**: Regularly sync your fork with the upstream repository::
 
-   git fetch upstream
-   git merge upstream/main
+    git fetch upstream
+    git merge upstream/main
 
 Code Style
 ===========
@@ -85,7 +85,7 @@ Unit Testing
 
 3. **Run Your Tests**: Validate your changes before submitting by running::
 
-   pytest tests/
+    pytest tests/
 
 Summary: Adding Changes to GitHub
 =================================

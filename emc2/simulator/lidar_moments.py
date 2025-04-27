@@ -310,8 +310,14 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
     hyd_types: list or None
         list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     mie_for_ice: bool
-        If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
-        scattering LUTs for 8-column severly roughned aggregate.
+        If True, using bulk LUTs generated using solid ice spheres (Mie) calculations (e.g., consistent
+        with the ice treatment in MG1 through MG2).
+        Otherwise, using bulk LUTs that consider ice properties, e.g., the C6 8-column severly roughned
+        aggregate for E3 or the m-D A-D for CESM and E3SMv1, consistent with the radiation schemes of
+        these models.
+        This parameter is set to `False` if `mcphys_scheme == P3` since ice shape is integrated into P3,
+        which also affects mu, etc. and therefore the bulk LUT behavior in a similar manner to how the P3
+        LUTs are integrated into EMC².
     Additonal keyword arguments are passed into
     :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
@@ -458,8 +464,14 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     hyd_types: list or None
         list of hydrometeor names to include in calcuation. using default Model subclass types if None.
     mie_for_ice: bool
-        If True, using full mie caculation LUTs. Otherwise, currently using the C6
-        scattering LUTs for 8-column severly roughned aggregate.
+        If True, using bulk LUTs generated using solid ice spheres (Mie) calculations (e.g., consistent
+        with the ice treatment in MG1 through MG2).
+        Otherwise, using bulk LUTs that consider ice properties, e.g., the C6 8-column severly roughned
+        aggregate for E3 or the m-D A-D for CESM and E3SMv1, consistent with the radiation schemes of
+        these models.
+        This parameter is set to `False` if `mcphys_scheme == P3` since ice shape is integrated into P3,
+        which also affects mu, etc. and therefore the bulk LUT behavior in a similar manner to how the P3
+        LUTs are integrated into EMC².
     parallel: bool
         If True, use parallelism in calculating lidar parameters.
     chunk: int or None
@@ -616,8 +628,14 @@ def calc_lidar_moments(instrument, model, is_conv,
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
     mie_for_ice: bool
-        If True, using full mie caculation LUTs. Otherwise, currently using the C6
-        scattering LUTs for 8-column severly roughned aggregate.
+        If True, using bulk LUTs generated using solid ice spheres (Mie) calculations (e.g., consistent
+        with the ice treatment in MG1 through MG2).
+        Otherwise, using bulk LUTs that consider ice properties, e.g., the C6 8-column severly roughned
+        aggregate for E3 or the m-D A-D for CESM and E3SMv1, consistent with the radiation schemes of
+        these models.
+        This parameter is set to `False` if `mcphys_scheme == P3` since ice shape is integrated into P3,
+        which also affects mu, etc. and therefore the bulk LUT behavior in a similar manner to how the P3
+        LUTs are integrated into EMC².
     use_rad_logic: bool
         When True using radiation scheme logic in calculations, which includes using
         the cloud fraction fields utilized in a model radiative scheme, as well as bulk

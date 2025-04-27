@@ -289,7 +289,7 @@ def calc_mu_n0_from_lambda(lambda_in):
     mu_i = 0.076 * (lambda_in / 100.) ** 0.8 - 2  # Calculate shape parameter (convert m-1 to cm-1)
     mu_i = np.maximum(mu_i, 0.)
     mu_i = np.minimum(mu_i, 6.)  # final Gamma PSD shape parameter
-    no = lambda_in ** (mu_i + 1.) / (gamma(mu_i + 1.))  # Normalized n0
+    n0 = lambda_in ** (mu_i + 1.) / (gamma(mu_i + 1.))  # Normalized n0
 
     return mu_i, n0
 

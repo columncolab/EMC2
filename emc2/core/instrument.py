@@ -189,7 +189,15 @@ class Instrument(object):
         # P3 (E3SMv3) single particle and bulk
         data_path = os.path.join(os.path.dirname(__file__), "p3_tables")
         self.scat_table["p3_ice"] = xr.open_dataset(data_path + f"/emc2_p3_ice_lut_abrv_full_{inst}.nc")
+        for key in ["beta_p", "alpha_p", "A", "A_tot"]:
+            self.scat_table["p3_ice"][key] *= 1e-12
+            self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(
+                "um^2", "m^2")
+        self.scat_table["p3_ice"]["V"] *= 1e-18
+        self.scat_table["p3_ice"]["V"].attrs["units"] = self.scat_table["p3_ice"]["V"].attrs["units"].replace(
+                        "um^3", "m^3")
+        self.scat_table["p3_ice"]["p_diam"] = self.scat_table["p3_ice"]["d"] * 1e-6  # adding p_diam for consistency
         self.bulk_table["p3_ice"] = self.scat_table["p3_ice"]  # point at the same file (all stored together)
         self.bulk_table["p3_liq"] = self.bulk_table["CESM_liq"]  # liq LUTs were not changed since MG2
-        self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + f"/bulk_{inst}_mDAD_mie_ice.dat",
+        self.bulk_table["mie_ice_P3_PSD"] = self.bulk_table["p3_ice"]
 

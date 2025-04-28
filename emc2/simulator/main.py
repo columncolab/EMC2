@@ -108,7 +108,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     else:
         if use_rad_logic:
             mie_for_ice = {"conv": False, "strat": False}
-        elif model.mcphys_scheme == "P3":
+        elif model.mcphys_scheme.lower() == "p3":
             mie_for_ice = {"conv": False, "strat": False}  # ice shape integrated into microphysics
         else:
             mie_for_ice = {"conv": False, "strat": True}  # use True for strat (micro), False for conv (rad)

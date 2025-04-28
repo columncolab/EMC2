@@ -816,6 +816,7 @@ class E3SMv3(E3SMv1):
         super().__init__(file_path, time_range, load_processed, time_dim, appended_str, all_appended_in_lat,
                          single_ice_class, include_rain_in_rt, mcphys_scheme)
         self.model_name = "E3SMv3"
+        self.rad_scheme_family = "P3"  # E3SMv3 generally uses the CESM bulk LUTs but with the P3 twist (crp and Fr dependence), so need a dedicated family.
 
 
 class CESM2(E3SMv1):

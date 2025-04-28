@@ -295,6 +295,10 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         bulk_ice_lut = "E3_ice"
         bulk_mie_ice_lut = "mie_ice_E3_PSD"
         bulk_liq_lut = "E3_liq"
+    elif model.rad_scheme_family == "P3":
+        bulk_ice_lut = "p3_ice"
+        bulk_mie_ice_lut = "mie_ice_P3_PSD"
+        bulk_liq_lut = "p3_liq"
     else:
         raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
@@ -483,7 +487,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         model.ds["sub_col_sigma_d_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         if hyd_type in ["cl", "pl"]:  # liquid classes
-            if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
+            if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl", "p3"]:
                 fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             else:
                 raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")
@@ -632,7 +636,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         print("Now calculating total spectral width (this may take some time)")
         for hyd_type in hyd_types:
             if hyd_type in ["cl", "pl"]:  # liquid classes
-                if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
+                if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl", "p3"]:
                     fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             else:  # ice classes
                 if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
@@ -961,7 +965,7 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
             instrument.mie_table[hyd_type]["beta_p"].values,
             (num_subcolumns, 1)) * N_D.T
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
-        if mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # power-law velocity schemes for liquid
+        if mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl", "p3"]:  # power-law velocity schemes for liquid
             v_tmp = vel_param_a[hyd_type] * p_diam ** vel_param_b[hyd_type]
         v_tmp = -v_tmp.magnitude.astype('float64')
         Calc_tmp2 = (v_tmp - np.tile(Vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')

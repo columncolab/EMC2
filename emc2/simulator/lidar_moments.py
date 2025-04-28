@@ -347,6 +347,10 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
         bulk_ice_lut = "E3_ice"
         bulk_mie_ice_lut = "mie_ice_E3_PSD"
         bulk_liq_lut = "E3_liq"
+    elif model.rad_scheme_family == "P3":
+        bulk_ice_lut = "p3_ice"
+        bulk_mie_ice_lut = "mie_ice_P3_PSD"
+        bulk_liq_lut = "p3_liq"
     else:
         raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
@@ -498,6 +502,9 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     elif model.rad_scheme_family == "ModelE":
         ice_lut = "E3_ice"
         ice_diam_var = "p_diam_eq_V"
+    elif model.rad_scheme_family == "P3":
+        ice_lut = "p3_ice"
+        ice_diam_var = "p_diam"
     else:
         raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
@@ -517,7 +524,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
         model.ds["sub_col_alpha_p_%s_strat" % hyd_type] = xr.DataArray(
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         if hyd_type in ["cl", "pl"]:  # liquid classes
-            if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
+            if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl", "p3"]:
                 fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
             else:
                 raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")

@@ -44,5 +44,4 @@ from . import radar_moments
 from . import lidar_moments
 from . import psd
 from . import subcolumn
-from . import p3_utils
 from . import main

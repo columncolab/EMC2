@@ -189,7 +189,7 @@ class Instrument(object):
         # P3 (E3SMv3) single particle and bulk
         data_path = os.path.join(os.path.dirname(__file__), "p3_tables")
         self.scat_table["p3_ice"] = xr.open_dataset(data_path + f"/emc2_p3_ice_lut_abrv_full_{inst}.nc")
-        for key in ["beta_p", "alpha_p", "A", "A_tot"]:
+        for key in ["beta_p", "alpha_p", "A", "A_tot_norm"]:
             self.scat_table["p3_ice"][key] *= 1e-12
             self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(
                 "um^2", "m^2")

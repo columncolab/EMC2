@@ -1,8 +1,15 @@
+"""
+===============
+emc2.simulator.p3_utils
+===============
+
+This module contains utility methods for incoporating P3 ice physics
+
+"""
+
+
 import xarray as xr
 import numpy as np
-
-from scipy.special import gamma
-
 
 
 def set_vt_consts():
@@ -266,32 +273,6 @@ def set_ice_params_from_indices(i_Fr=None, i_rhor=None, Fr=None, crp=None):
     })
 
     return params
-
-
-def calc_mu_n0_from_lambda(lambda_in):
-    """
-    Calculate the Gamma PSD shape parameter (mu) and normalized n0 from the given lambda
-    following E3SMv3 processing (see:
-    /E3SM/components/eam/tools/create_p3_lookupTable/create_p3_lookupTable_1.f90-v4.1).
-
-    Parameters
-    ==========
-    lambda_in: float
-        Input slope parameter
-
-    Returns
-    =======
-    mu_i: float
-        Final Gamma PSD shape parameter per Fig. 3B in Heymsfield (2003, Part II)
-    n0: float
-        Normalized N0.
-    """
-    mu_i = 0.076 * (lambda_in / 100.) ** 0.8 - 2  # Calculate shape parameter (convert m-1 to cm-1)
-    mu_i = np.maximum(mu_i, 0.)
-    mu_i = np.minimum(mu_i, 6.)  # final Gamma PSD shape parameter
-    n0 = lambda_in ** (mu_i + 1.) / (gamma(mu_i + 1.))  # Normalized n0
-
-    return mu_i, n0
 
 
 def calculate_fall_speed(d1, **args):

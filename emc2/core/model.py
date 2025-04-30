@@ -894,13 +894,26 @@ class E3SMv3(E3SMv1):
         # if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params
         # (instrument type (HSRL, etc.) has no effect on PSD params)
         if instrument is not None:
-            Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(
-                self.ds, instrument.scat_table['p3_ice'])
+            Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(instrument.scat_table['p3_ice'])
             self.ds["Fr"].values = Fr_in
             self.ds["rho_r"].values = rho_r_in
             self.ds["qi_norm"].values = qi_norm_in
-            self.ds = self.set_p3_ice_psd_params(
-                self.ds, instrument.scat_table['p3_ice'], limit_input_data_to_lut_rng=True)
+            self.set_p3_ice_psd_params(instrument.scat_table['p3_ice'], limit_input_data_to_lut_rng=True)
+            self.interpobj = {"single": {}, "bulk": {}}
+
+            # set interpolator objects for essential bulk and single-particle quantities
+            for key in ["A_tot_norm", "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
+                self.interpobj["bulk"][key] = RegularGridInterpolator(
+                    (instrument.scat_table['p3_ice']["Fr"].values,
+                     instrument.scat_table['p3_ice']["rho_r"].values,
+                     instrument.scat_table['p3_ice']["q_norm"].values),
+                    instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+            for key in ["vt", "A", "V"]:
+                self.interpobj["single"][key] = RegularGridInterpolator(
+                    (instrument.scat_table['p3_ice']["Fr"].values,
+                     instrument.scat_table['p3_ice']["rho_r"].values,
+                     instrument.scat_table['p3_ice']["p_diam"].values),
+                    instrument.scat_table['p3_ice'][key].values, bounds_error=False)
 
     @staticmethod
     def calc_mu_n0_from_lambda(lambda_in):
@@ -928,15 +941,13 @@ class E3SMv3(E3SMv1):
 
         return mu_i, n0
 
-    def limit_input_data_to_p3_lut_range(self, p3_ds, scat_file):
+    def limit_input_data_to_p3_lut_range(self, scat_file):
         """
         Adjusts the input data to ensure it falls within the valid range defined by the provided (P3)
         lookup table (LUT).
 
         Parameters
         ==========
-        p3_ds: xarray.Dataset
-            Model output
         scat_file: xarray.Dataset
             Loaded P3 LUT file.
 
@@ -950,46 +961,37 @@ class E3SMv3(E3SMv1):
             Adjusted values of "qi_norm" within the valid range.
 
         """
-        Fr_in = self.set_array_to_valid_range(p3_ds["Fr"].values, scat_file["Fr"].values)
-        rho_r_in = self.set_array_to_valid_range(p3_ds["rho_r"].values, scat_file["rho_r"].values)
-        qi_norm_in = self.set_array_to_valid_range(p3_ds["qi_norm"].values, scat_file["q_norm"].values)
+        Fr_in = self.set_array_to_valid_range(self.ds["Fr"].values, scat_file["Fr"].values)
+        rho_r_in = self.set_array_to_valid_range(self.ds["rho_r"].values, scat_file["rho_r"].values)
+        qi_norm_in = self.set_array_to_valid_range(self.ds["qi_norm"].values, scat_file["q_norm"].values)
         return Fr_in, rho_r_in, qi_norm_in
 
-    def set_p3_ice_psd_params(self, p3_ds, scat_file, limit_input_data_to_lut_rng=True):
+    def set_p3_ice_psd_params(self, scat_file, limit_input_data_to_lut_rng=True):
         """
-        Sets the ice particle size distribution (PSD) parameters in the given dataset
+        Sets the ice particle size distribution (PSD) parameters
         using scattering file data and optional input data range limitation.
 
         Parameters
         ==========
-        p3_ds: xarray.Dataset
-            Model output
         scat_file: xarray.Dataset
             Loaded P3 LUT file.
         limit_input_data_to_lut_rng: bool, optional
             A flag to determine whether to limit the input data to the lookup table
             range. Defaults to True.
 
-        Returns
-        =======
-        p3_ds: xarray.Dataset
-            The updated dataset with added "lambda_ice", "mu_ice", and other PSD
-            parameters.
-
         """
         x = scat_file["Fr"].values
         y = scat_file["rho_r"].values
         z = scat_file["q_norm"].values
         if limit_input_data_to_lut_rng:
-            Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(p3_ds, scat_file)
+            Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(scat_file)
         else:
-            Fr_in, rho_r_in, qi_norm_in = p3_ds["Fr"].values, p3_ds["rho_r"].values, p3_ds["qi_norm"].values
+            Fr_in, rho_r_in, qi_norm_in = self.ds["Fr"].values, self.ds["rho_r"].values, self.ds["qi_norm"].values
         interp = RegularGridInterpolator((x, y, z), scat_file["lambda"].values, bounds_error=False)
-        p3_ds["lambda_ice"] = xr.DataArray(interp((Fr_in, rho_r_in, qi_norm_in)), dims=p3_ds["Fr"].dims)
-        mu_i, n0 = self.calc_mu_n0_from_lambda(p3_ds["lambda_ice"].values)
-        p3_ds["mu_ice"] = xr.DataArray(mu_i, dims=p3_ds["Fr"].dims)
-        p3_ds["N0_norm_ice"] = xr.DataArray(mu_i, dims=p3_ds["Fr"].dims)  # normalized N0
-        return p3_ds
+        self.ds["lambda_ice"] = xr.DataArray(interp((Fr_in, rho_r_in, qi_norm_in)), dims=self.ds["Fr"].dims)
+        mu_i, n0 = self.calc_mu_n0_from_lambda(self.ds["lambda_ice"].values)
+        self.ds["mu_ice"] = xr.DataArray(mu_i, dims=self.ds["Fr"].dims)
+        self.ds["N0_norm_ice"] = xr.DataArray(mu_i, dims=self.ds["Fr"].dims)  # normalized N0
 
 
 class CESM2(E3SMv1):

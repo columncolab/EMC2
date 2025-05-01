@@ -29,7 +29,7 @@ Useful links
 
 - source code repository: https://github.com/ARM-DOE/EMC2
 - EMC² Documentation: https://arm-doe.github.io/EMC2
-- EMC² tutorial (from the 2022 ARM Open-Science Workshop: https://github.com/ARM-Development/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb
+- EMC² tutorial (from the 2022 ARM Open-Science Workshop): https://github.com/ARM-Development/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb
 
 
 Citing

@@ -15,7 +15,7 @@ def read(filename):
 
 setup(
     name="emc2",
-    version="1.3.3",
+    version="1.3.4",
     url="https://github.com/ARM-DOE/EMC2",
     license='MIT',
 

@@ -1,6 +1,6 @@
 """EMC^2 - An open source framework for atmospheric model evaluation using observational data"""
 
-__version__ = '1.3.3'
+__version__ = '1.3.4'
 __author__ = 'Robert Jackson <rjackson@anl.gov>'
 __all__ = []
 

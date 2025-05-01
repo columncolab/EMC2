@@ -5,8 +5,8 @@ EMC²: the Earth Model Column Collaboratory
     :target: https://pypi.python.org/pypi/emc2
     :alt: Latest PyPI version
 
-.. image:: https://travis-ci.org/columncolab/EMC2.png
-   :target: https://travis-ci.org/columncolab/EMC2
+.. image:: https://travis-ci.org/ARM-DOE/EMC2.png
+   :target: https://travis-ci.org/ARM-DOE/EMC2
    :alt: Latest Travis CI build status
 
 The Earth Model Column Collaboratory (EMC²) is an open-source framework for
@@ -27,9 +27,9 @@ https://doi.org/10.5194/gmd-15-901-2022).
 Useful links
 ============
 
-- source code repository: https://github.com/columncolab/EMC2
-- EMC² Documentation: https://columncolab.github.io/EMC2
-- EMC² tutorial (from the 2022 ARM Open-Science Workshop: https://github.com/isilber/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb
+- source code repository: https://github.com/ARM-DOE/EMC2
+- EMC² Documentation: https://arm-doe.github.io/EMC2
+- EMC² tutorial (from the 2022 ARM Open-Science Workshop): https://github.com/ARM-Development/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb
 
 
 Citing
@@ -57,7 +57,7 @@ $ conda install -c conda-forge emc2
 
 In addition, if you want to build EMC² from source and install, type in the following commands::
 
-$ git clone https://github.com/columncolab/EMC2
+$ git clone https://github.com/ARM-DOE/EMC2
 $ cd EMC2
 $ pip install .
 
@@ -82,4 +82,4 @@ Contributions
 As its acronym suggests, EMC² is a collaboratory...
 Contributions are welcome and encouraged, provided that the code can be
 distributed under the BSD 3-clause license (see the LICENSE.txt file).
-See the  `contributor's guide. <https://github.com/columncolab/EMC2/blob/master/CONTRIBUTING.rst>`_ for more information.
+See the  `contributor's guide. <https://github.com/ARM-DOE/EMC2/blob/master/CONTRIBUTING.rst>`_ for more information.

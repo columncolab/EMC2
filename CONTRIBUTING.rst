@@ -52,7 +52,7 @@ Forking and Cloning EMC²
 
 2. **Clone the Repository**: Clone your fork to your local machine using::
 
-    git clone https://github.com/columncolab/EMC2.git
+    git clone https://github.com/ARM-DOE/EMC2.git
 
 Git Branches and Setting Origin/Upstream
 =========================================
@@ -63,7 +63,7 @@ Git Branches and Setting Origin/Upstream
 
 2. **Set Upstream**: Configure the upstream repository::
 
-    git remote add upstream https://github.com/columncolab/EMC2.git
+    git remote add upstream https://github.com/ARM-DOE/EMC2.git
 
 3. **Syncing Your Fork**: Regularly sync your fork with the upstream repository::
 

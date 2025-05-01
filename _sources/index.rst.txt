@@ -52,4 +52,4 @@ EMC² Tutorial
 =============
 
 A tutorial for EMC² processing (in this case using E3SM model output) can
-be found on the `ARM-Notebooks GitHub repository <https://github.com/isilber/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb>`_
+be found on the `ARM-Notebooks GitHub repository <https://github.com/ARM-Development/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb>`_

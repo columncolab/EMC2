@@ -889,31 +889,36 @@ class E3SMv3(E3SMv1):
         super().__init__(file_path, time_range, load_processed, time_dim, appended_str, all_appended_in_lat,
                          single_ice_class, include_rain_in_rt, mcphys_scheme)
         self.model_name = "E3SMv3"
-        self.rad_scheme_family = "P3"  # E3SMv3 uses CESM bulk LUTs but with the P3 twist (crp and Fr dependence)
 
         # if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params
-        # (instrument type (HSRL, etc.) has no effect on PSD params)
-        if instrument is not None:
-            Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(instrument.scat_table['p3_ice'])
-            self.ds["Fr"].values = Fr_in
-            self.ds["rho_r"].values = rho_r_in
-            self.ds["qi_norm"].values = qi_norm_in
-            self.set_p3_ice_psd_params(instrument.scat_table['p3_ice'], limit_input_data_to_lut_rng=True)
-            self.interpobj = {"single": {}, "bulk": {}}
+        # (instrument type (HSRL, etc.) has no effect on PSD params).
+        if mcphys_scheme == "P3":
+            self.rad_scheme_family = "P3"  # E3SMv3 uses CESM bulk LUTs but with a P3 twist (crp and Fr dependence)
+            
+            # if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params
+            # (instrument type (HSRL, etc.) has no effect on PSD params).
+            if (instrument is not None):
+                Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(instrument.scat_table['p3_ice'])
+                self.ds["Fr"].values = Fr_in
+                self.ds["rho_r"].values = rho_r_in
+                self.ds["qi_norm"].values = qi_norm_in
+                self.interp_p3_ice_psd_params_to_grid(
+                    instrument.scat_table['p3_ice'], limit_input_data_to_lut_rng=True)
+                self.interpobj = {"single": {}, "bulk": {}}
 
-            # set interpolator objects for essential bulk and single-particle quantities
-            for key in ["A_tot_norm", "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
-                self.interpobj["bulk"][key] = RegularGridInterpolator(
-                    (instrument.scat_table['p3_ice']["Fr"].values,
-                     instrument.scat_table['p3_ice']["rho_r"].values,
-                     instrument.scat_table['p3_ice']["q_norm"].values),
-                    instrument.scat_table['p3_ice'][key].values, bounds_error=False)
-            for key in ["vt", "A", "V"]:
-                self.interpobj["single"][key] = RegularGridInterpolator(
-                    (instrument.scat_table['p3_ice']["Fr"].values,
-                     instrument.scat_table['p3_ice']["rho_r"].values,
-                     instrument.scat_table['p3_ice']["p_diam"].values),
-                    instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+                # set interpolator objects for essential bulk and single-particle quantities
+                for key in ["A_tot_norm", "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
+                    self.interpobj["bulk"][key] = RegularGridInterpolator(
+                        (instrument.scat_table['p3_ice']["Fr"].values,
+                         instrument.scat_table['p3_ice']["rho_r"].values,
+                         instrument.scat_table['p3_ice']["q_norm"].values),
+                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+                for key in ["vt", "A", "V"]:
+                    self.interpobj["single"][key] = RegularGridInterpolator(
+                        (instrument.scat_table['p3_ice']["Fr"].values,
+                         instrument.scat_table['p3_ice']["rho_r"].values,
+                         instrument.scat_table['p3_ice']["p_diam"].values),
+                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
 
     @staticmethod
     def calc_mu_n0_from_lambda(lambda_in):
@@ -966,9 +971,9 @@ class E3SMv3(E3SMv1):
         qi_norm_in = self.set_array_to_valid_range(self.ds["qi_norm"].values, scat_file["q_norm"].values)
         return Fr_in, rho_r_in, qi_norm_in
 
-    def set_p3_ice_psd_params(self, scat_file, limit_input_data_to_lut_rng=True):
+    def interp_p3_ice_psd_params_to_grid(self, scat_file, limit_input_data_to_lut_rng=True):
         """
-        Sets the ice particle size distribution (PSD) parameters
+        Sets the ice particle size distribution (PSD) parameters via interpolation
         using scattering file data and optional input data range limitation.
 
         Parameters
@@ -991,7 +996,7 @@ class E3SMv3(E3SMv1):
         self.ds["lambda_ice"] = xr.DataArray(interp((Fr_in, rho_r_in, qi_norm_in)), dims=self.ds["Fr"].dims)
         mu_i, n0 = self.calc_mu_n0_from_lambda(self.ds["lambda_ice"].values)
         self.ds["mu_ice"] = xr.DataArray(mu_i, dims=self.ds["Fr"].dims)
-        self.ds["N0_norm_ice"] = xr.DataArray(mu_i, dims=self.ds["Fr"].dims)  # normalized N0
+        self.ds["N0_norm_ice"] = xr.DataArray(n0, dims=self.ds["Fr"].dims)  # normalized N0
 
 
 class CESM2(E3SMv1):

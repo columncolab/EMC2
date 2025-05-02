@@ -5,7 +5,7 @@ from time import time
 from scipy.interpolate import LinearNDInterpolator
 
 from .attenuation import calc_theory_beta_m
-from .psd import calc_mu_lambda
+from .psd import calc_mu_lambda, calc_and_set_psd_params
 from ..core.instrument import ureg, quantity
 
 

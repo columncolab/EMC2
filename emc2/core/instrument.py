@@ -189,6 +189,9 @@ class Instrument(object):
         # P3 (E3SMv3) single particle and bulk
         data_path = os.path.join(os.path.dirname(__file__), "p3_tables")
         self.scat_table["p3_ice"] = xr.open_dataset(data_path + f"/emc2_p3_ice_lut_abrv_full_{inst}.nc")
+        self.scat_table['p3_ice']["vt"] = self.scat_table['p3_ice']["vt"].where(
+            lambda x: np.isfinite(x), np.nanmin(self.scat_table['p3_ice']["vt"].values)
+        )  # The MH2005 implementation cannot resolve diameters < 23 um. Filling those values with the min resolved
         for key in ["beta_p", "alpha_p", "A", "A_tot_norm"]:
             self.scat_table["p3_ice"][key] *= 1e-12
             self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(

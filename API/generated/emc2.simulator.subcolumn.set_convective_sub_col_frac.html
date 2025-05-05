@@ -124,7 +124,7 @@
 <h1>emc2.simulator.subcolumn.set_convective_sub_col_frac<a class="headerlink" href="#emc2-simulator-subcolumn-set-convective-sub-col-frac" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="emc2.simulator.subcolumn.set_convective_sub_col_frac">
-<span class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></span><span class="sig-name descname"><span class="pre">set_convective_sub_col_frac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_convective_sub_col_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_convective_sub_col_frac" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">emc2.simulator.subcolumn.</span></span><span class="sig-name descname"><span class="pre">set_convective_sub_col_frac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyd_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rad_logic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_trunc_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-18</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/simulator/subcolumn.html#set_convective_sub_col_frac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.simulator.subcolumn.set_convective_sub_col_frac" title="Link to this definition">¶</a></dt>
 <dd><p>Sets the hydrometeor fraction due to convection in each subcolumn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -142,6 +142,8 @@ use the number of subcolumns in the model parameter.</p>
 <dt><strong>use_rad_logic: bool</strong></dt><dd><p>When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
 using the microphysics scheme (note that these schemes do not necessarily
 use exactly the same cloud fraction logic).</p>
+</dd>
+<dt><strong>q_trunc_thresh: float</strong></dt><dd><p>truncation value for q. Smaller values will be treated as 0.</p>
 </dd>
 </dl>
 </dd>

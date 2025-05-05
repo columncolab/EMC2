@@ -8,7 +8,7 @@ from scipy.interpolate import LinearNDInterpolator
 from scipy.interpolate import RegularGridInterpolator
 
 from .attenuation import calc_radar_atm_attenuation
-from .psd import calc_mu_lambda, calc_velocity_nssl, calc_and_set_psd_params
+from .psd import calc_velocity_nssl, calc_and_set_psd_params
 from ..core.instrument import ureg, quantity
 
 
@@ -473,6 +473,12 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     V_d_numer_tot = np.zeros(Dims)
     sigma_d_numer_tot = np.zeros(Dims)
 
+    num_subcolumns = model.num_subcolumns
+    if num_subcolumns > 1:
+        subcolumns = True
+    else:
+        subcolumns = False
+
     for hyd_type in hyd_types:
         print("Calculating moments for hydrometeor %s" % hyd_type)
         frac_names = "strat_frac_subcolumns_%s" % hyd_type
@@ -493,7 +499,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
 
         # set PSD parameters based on microphysics scheme and hydrometeor class
-        fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=True, **kwargs)
+        fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=subcolumns, **kwargs)
         N_0 = fits_ds["N_0"].values
         lambdas = fits_ds["lambda"].values
         mu = fits_ds["mu"].values
@@ -655,7 +661,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         for hyd_type in hyd_types:
 
             # set PSD parameters based on microphysics scheme and hydrometeor class
-            fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=True, **kwargs)
+            fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=subcolumns, **kwargs)
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             mu = fits_ds["mu"].values
@@ -981,8 +987,8 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
         N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
         lambda_tmp = lambdas[:, tt, k].astype('float64')
         lambda_tmp, d_diam_tmp = np.meshgrid(lambda_tmp, p_diam)
-        mu_temp = mu[:, tt, k] * np.ones_like(lambda_tmp)
-        N_D = N_0_tmp * d_diam_tmp ** mu_temp * np.exp(-lambda_tmp * d_diam_tmp)
+        mu_tmp = mu[:, tt, k] * np.ones_like(lambda_tmp)
+        N_D = N_0_tmp * d_diam_tmp ** mu_tmp * np.exp(-lambda_tmp * d_diam_tmp)
         Calc_tmp = np.tile(
             instrument.mie_table[hyd_type]["beta_p"].values,
             (num_subcolumns, 1)) * N_D.T
@@ -1011,7 +1017,7 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
-        if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter applies below)
+        if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter below & psd.py)
             v_tmp = tiled_arr["vt"][k, :]
             beta_p = tiled_arr["beta_p"][k, :]
             N_0_tmp = np.full(Dims[0], N_0[tt, k])
@@ -1066,17 +1072,17 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         if num_subcolumns > 1:
             N_0_tmp = np.squeeze(N_0[:, tt, k])
             lambda_tmp = np.squeeze(lambdas[:, tt, k])
-            mu_temp = np.squeeze(mu[:, tt, k])
+            mu_tmp = np.squeeze(mu[:, tt, k])
         else:
             N_0_tmp = N_0[:, tt, k]
             lambda_tmp = lambdas[:, tt, k]
-            mu_temp = mu[:, tt, k]
+            mu_tmp = mu[:, tt, k]
         if np.all([np.all(np.isnan(x)) for x in N_0_tmp]):
             continue
 
         N_D = []
         for i in range(N_0_tmp.shape[0]):
-            N_D.append(N_0_tmp[i] * p_diam ** mu_temp[i] * np.exp(-lambda_tmp[i] * p_diam))
+            N_D.append(N_0_tmp[i] * p_diam ** mu_tmp[i] * np.exp(-lambda_tmp[i] * p_diam))
 
         N_D = np.stack(N_D, axis=0)
         Calc_tmp = beta_p * N_D
@@ -1118,7 +1124,7 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
             continue
         num_diam = len(p_diam)
         N_D = []
-        if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter applies below)
+        if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter below & psd.py)
             v_tmp = tiled_arr["vt"][k, :]
             beta_p = tiled_arr["beta_p"][k, :]
             alpha_p = tiled_arr["alpha_p"][k, :]
@@ -1177,6 +1183,7 @@ def _set_p3_tiled_arrays(tt, calc_kws, Dims, include_vt=True):
         interp_list.append("vt")
     for key in interp_list:  # vertical variability (we need to interpolate)
         tiled_arr[key] = calc_kws[key]((Fr_in, rho_r_in, tiled_arr["p_diam"]))
-    tiled_arr["vt"] *= (-1.0)
+    if include_vt:
+        tiled_arr["vt"] *= (-1.0)
     return tiled_arr
 

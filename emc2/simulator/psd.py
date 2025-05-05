@@ -45,7 +45,7 @@ def calc_velocity_nssl(dmax, rhoe, hyd_type):
 
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=None, dispersion_mu_bounds=(2, 15),
-                   subcolumns=False, is_conv=False, **kwargs):
+                   subcolumns=True, is_conv=False, **kwargs):
 
     """
     This method calculated the Gamma PSD parameters following Morrison and Gettelman (2008).
@@ -147,7 +147,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         column_ds["mu"] = xr.DataArray(
             np.zeros_like(column_ds[q_name].values), dims=column_ds[q_name].dims).astype('float64')
 
-    column_ds["mu"].attrs["long_name"] = "Gamma fit dispersion"
+    column_ds["mu"].attrs["long_name"] = "Gamma fit shape parameter"
     column_ds["mu"].attrs["units"] = "1"
 
     d = 3.0
@@ -201,7 +201,7 @@ def calc_and_set_psd_params(model, hyd_type, subcolumns=True, **kwargs):
             raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")
     else:  # ice classes
         if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
-            fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+            fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=subcolumns, **kwargs).ds
         elif model.mcphys_scheme.lower() in ["p3"]:
             fits_ds = {"N_0": model.ds[model.p3_kws["N0_ice_name"]] * model.ds[model.p3_kws["in_cld_Ni_name"]],
                        "lambda": model.ds[model.lambda_field["ci"]],

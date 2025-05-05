@@ -118,7 +118,7 @@ def calc_mu_lambda(model, hyd_type="cl",
     else:
         Rho_hyd = model.Rho_hyd[hyd_type].magnitude
 
-    if hyd_type == "cl":
+    if (hyd_type == "cl") & (not is_conv):
         if calc_dispersion is True:
             mus = 0.0005714 * (N_use * 1e-6) + 0.2714  # converting to cm-3 per Martin, 1994
             mus = 1 / mus**2 - 1

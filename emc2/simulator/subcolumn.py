@@ -4,7 +4,8 @@ import dask.bag as db
 from time import time
 
 
-def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=True):
+def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=True,
+                                q_trunc_thresh=1e-18):
     """
     Sets the hydrometeor fraction due to convection in each subcolumn.
 
@@ -24,6 +25,8 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
         When True using the cloud fraction utilized in a model radiative scheme. Otherwise,
         using the microphysics scheme (note that these schemes do not necessarily
         use exactly the same cloud fraction logic).
+    q_trunc_thresh: float
+        truncation value for q. Smaller values will be treated as 0.
 
     Returns
     -------
@@ -49,15 +52,16 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
 
     if N_columns == 1:
        print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
-              f"fields for convective {hyd_type} based on q > 0. kg/kg")
+              f"fields for convective {hyd_type} based on q > {q_trunc_thresh} kg/kg")
        model.ds[("conv_frac_subcolumns_" + hyd_type)] = xr.DataArray(
-           np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, 1., 0.),
+           np.where(model.ds[model.q_names_convective[hyd_type]].values > q_trunc_thresh, 1., 0.),
            dims=('subcolumn', my_dims[0], my_dims[1]))
     else:  # num_subcolumns > 1
         if use_rad_logic:
             data_frac = np.round(
                 model.ds[model.conv_frac_names_for_rad[hyd_type]].values * model.num_subcolumns).astype(int)
-            data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
+            data_frac = np.where(
+                model.ds[model.q_names_convective[hyd_type]].values > q_trunc_thresh, data_frac, 0)
         else:
             data_frac = np.round(
                 model.ds[model.conv_frac_names[hyd_type]].values * model.num_subcolumns).astype(int)
@@ -82,7 +86,8 @@ def set_convective_sub_col_frac(model, hyd_type, N_columns=None, use_rad_logic=T
     return model
 
 
-def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, parallel=True, chunk=None):
+def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, parallel=True, chunk=None,
+                                q_trunc_thresh=1e-18):
     """
     Sets the hydrometeor fraction due to stratiform cloud particles in each subcolumn.
 
@@ -107,6 +112,8 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
+    q_trunc_thresh: float
+        truncation value for q. Smaller values will be treated as 0.
 
     Returns
     -------
@@ -140,20 +147,24 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
     subcolumn_dims = ("subcolumn", *model.ds[model.strat_frac_names_for_rad["cl"]].dims)
     if N_columns == 1:
         print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
-              f"fields to 1 for startiform cl and ci based on q > 0. kg/kg")
+              f"fields to 1 for startiform cl and ci based on q > {q_trunc_thresh} kg/kg")
         model.ds['strat_frac_subcolumns_cl'] = xr.DataArray(
-            np.where(np.tile(model.ds[model.q_names_stratiform["cl"]], (1, 1, 1)) > 0, 1., 0.),
+            np.where(np.tile(model.ds[model.q_names_stratiform["cl"]],
+                             (1, 1, 1)) > q_trunc_thresh, 1., 0.),
             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
         model.ds['strat_frac_subcolumns_ci'] = xr.DataArray(
-            np.where(np.tile(model.ds[model.q_names_stratiform["ci"]], (1, 1, 1)) > 0, 1., 0.),
+            np.where(np.tile(model.ds[model.q_names_stratiform["ci"]],
+                             (1, 1, 1)) > q_trunc_thresh, 1., 0.),
             dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     else:  # num_subcolumns > 1
         N_columns = len(model.ds["subcolumn"])
         if use_rad_logic:
             data_frac1 = model.ds[model.strat_frac_names_for_rad["cl"]]
-            data_frac1 = data_frac1.where(model.ds[model.q_names_stratiform["cl"]] > 0, 0)
+            data_frac1 = data_frac1.where(
+                model.ds[model.q_names_stratiform["cl"]] > q_trunc_thresh, 0)
             data_frac2 = model.ds[model.strat_frac_names_for_rad["ci"]]
-            data_frac2 = data_frac2.where(model.ds[model.q_names_stratiform["ci"]] > 0, 0)
+            data_frac2 = data_frac2.where(
+                model.ds[model.q_names_stratiform["ci"]] > q_trunc_thresh, 0)
         else:
             data_frac1 = model.ds[model.strat_frac_names["cl"]]
             data_frac2 = model.ds[model.strat_frac_names["ci"]]
@@ -205,12 +216,12 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
         model.ds['strat_frac_subcolumns_ci'] = xr.DataArray(strat_profs2,
                                                             dims=(subcolumn_dims[0],
                                                                   subcolumn_dims[1], subcolumn_dims[2]))
-    model.ds['strat_frac_subcolumns_cl'].attrs["long_name"] = \
-        "Liquid cloud particles present? [stratiform]"
+    model.ds['strat_frac_subcolumns_cl'].attrs["long_name"] = (
+        "Liquid cloud particles present? [stratiform]")
     model.ds['strat_frac_subcolumns_cl'].attrs["units"] = "0 = no, 1 = yes"
     model.ds['strat_frac_subcolumns_cl'].attrs["Processing method"] = method_str
-    model.ds['strat_frac_subcolumns_ci'].attrs["long_name"] = \
-        "Liquid cloud particles present? [stratiform]"
+    model.ds['strat_frac_subcolumns_ci'].attrs["long_name"] = (
+        "Liquid cloud particles present? [stratiform]")
     model.ds['strat_frac_subcolumns_ci'].attrs["units"] = "0 = no, 1 = yes"
     model.ds['strat_frac_subcolumns_ci'].attrs["Processing method"] = method_str
 
@@ -221,7 +232,7 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
 
 def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                             parallel=True, chunk=None, 
-                            precip_types=["pl", "pi"]):
+                            precip_types=["pl", "pi"], q_trunc_thresh=1e-18):
     """
     Sets the hydrometeor fraction due to precipitation in each subcolumn. This
     module works for both stratiform and convective precipitation.
@@ -250,6 +261,8 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
         might be needed if that happens.
     ice_hyd_type: str
         The ice hydrometeor type to include in the subcolumn distribution for precipitation
+    q_trunc_thresh: float
+        truncation value for q. Smaller values will be treated as 0.
 
     Returns
     -------
@@ -283,7 +296,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                 data_frac.append(
                     model.ds[model.conv_frac_names_for_rad[hyd_type]])
                 data_frac[-1] = data_frac[-1].where(
-                    model.ds[model.q_names_convective[hyd_type]] > 0, 0).values
+                    model.ds[model.q_names_convective[hyd_type]] > q_trunc_thresh, 0).values
         else:
             method_str = "Microphysics logic"
             for hyd_type in precip_types:
@@ -298,7 +311,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
                 data_frac.append(
                     model.ds[model.strat_frac_names_for_rad[hyd_type]])
                 data_frac[-1] = data_frac[-1].where(
-                    model.ds[model.q_names_stratiform[hyd_type]] > 0, 0).values
+                    model.ds[model.q_names_stratiform[hyd_type]] > q_trunc_thresh, 0).values
         else:
             method_str = "Microphysics logic"
             for hyd_type in precip_types:
@@ -320,14 +333,15 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
 
     if N_columns == 1:
         print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns frac "
-              f"fields to 1 for {precip_type} precip based on q > 0. kg/kg")
+              f"fields to 1 for {precip_type} precip based on q > {q_trunc_thresh} kg/kg")
         for hyd_type in precip_types:
             if is_conv:
                 q_use = np.tile(model.ds[model.q_names_convective[hyd_type]], (1, 1, 1))
             else:
                 q_use = np.tile(model.ds[model.q_names_stratiform[hyd_type]], (1, 1, 1))
             model.ds[precip_type + '_frac_subcolumns_%s' % hyd_type] = xr.DataArray(
-                np.where(q_use > 0, 1., 0.), dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
+                np.where(q_use > q_trunc_thresh, 1., 0.),
+                dims=(subcolumn_dims[0], subcolumn_dims[1], subcolumn_dims[2]))
     else:
         full_overcast_pl_pi = 0
         if in_prof_cloud_name_liq not in model.ds.variables.keys():
@@ -403,7 +417,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
 
 
 def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad_logic=True,
-            parallel=True, chunk=None):
+            parallel=True, chunk=None, q_trunc_thresh=1e-18):
     """
 
     This function distributes the mixing ratio and number concentration into the subcolumns.
@@ -435,6 +449,8 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         the entries to the Dask worker queue at once. Sometimes, Dask will freeze if
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
+    q_trunc_thresh: float
+        truncation value for q. Smaller values will be treated as 0.
 
     Returns
     -------
@@ -459,7 +475,8 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac = model.ds[model.strat_frac_names_for_rad[hyd_type]].astype('float64').values
-            data_frac = np.where(model.ds[model.q_names_stratiform[hyd_type]].values > 0, data_frac, 0)
+            data_frac = np.where(
+                model.ds[model.q_names_stratiform[hyd_type]].values > q_trunc_thresh, data_frac, 0)
         else:
             method_str = "Microphysics logic"
             data_frac = model.ds[model.strat_frac_names[hyd_type]].astype('float64').values
@@ -476,7 +493,8 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         if use_rad_logic:
             method_str = "Radiation logic"
             data_frac = model.ds[model.conv_frac_names_for_rad[hyd_type]].astype('float64').values
-            data_frac = np.where(model.ds[model.q_names_convective[hyd_type]].values > 0, data_frac, 0)
+            data_frac = np.where(
+                model.ds[model.q_names_convective[hyd_type]].values > q_trunc_thresh, data_frac, 0)
         else:
             method_str = "Microphysics logic"
             data_frac = model.ds[model.conv_frac_names[hyd_type]].astype('float64').values
@@ -486,15 +504,17 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
 
     if model.num_subcolumns == 1:
         print(f"num_subcolumns == 1 (subcolumn generator turned off); setting subcolumns q (and N micro logic) "
-              f"fields for {hyd_type} equal to grid-cell mean")
-        model.ds[q_name] = xr.DataArray(np.tile(q_array, (1, 1, 1)), dims=model.ds[frac_fieldname].dims)
+              f"fields for {hyd_type} equal to grid-cell in-cloud mean")
+        model.ds[q_name] = xr.DataArray(
+            np.tile(np.where(q_array > q_trunc_thresh, q_array / data_frac, 0), (1, 1, 1)),
+            dims=model.ds[frac_fieldname].dims)
         if not is_conv:
             model.ds[n_name] = xr.DataArray(
-                np.tile(model.ds[model.N_field[hyd_type]].astype('float64').values, (1, 1, 1)),
+                np.tile(model.ds[model.N_field[hyd_type]].astype('float64').values / data_frac, (1, 1, 1)),
                                             dims=model.ds[frac_fieldname].dims)
     else:
         if qc_flag:
-            q_ic_mean = np.where(q_array > 0, q_array / data_frac, 0)
+            q_ic_mean = np.where(q_array > q_trunc_thresh, q_array / data_frac, 0)
             q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
             tot_hyd_in_sub = sub_data_frac.sum(axis=0)
 
@@ -525,7 +545,7 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
             q_profs = np.stack([x for x in my_tuple], axis=1)
 
         else:
-            q_profs = np.where(q_array > 0, q_array / data_frac, 0)
+            q_profs = np.where(q_array > q_trunc_thresh, q_array / data_frac, 0)
             q_profs = np.tile(q_profs, (model.num_subcolumns, 1, 1))
             q_profs = np.where(sub_data_frac, q_profs, 0)
         q_profs = np.where(np.isnan(q_profs), 0, q_profs)
@@ -734,8 +754,8 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
                 counter_4_valid += 1
                 valid_vals = (q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
                               rand_gamma_vals[:-counter_4_valid].sum()) > 0
-            q_profs[hyd_in_sub_loc[randlocs[:-counter_4_valid]], j] = \
-                rand_gamma_vals[:-counter_4_valid]
+            q_profs[hyd_in_sub_loc[randlocs[:-counter_4_valid]], j] = (
+                rand_gamma_vals[:-counter_4_valid])
             q_profs[hyd_in_sub_loc[randlocs[-counter_4_valid:]], j] = (
                 q_ic_mean[tt, j] * tot_hyd_in_sub[tt, j] -
                 np.sum(rand_gamma_vals[:-counter_4_valid])) / float(counter_4_valid)

@@ -472,12 +472,12 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         if hyd_type in ["cl", "pl"]:  # liquid classes
             if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
-                fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+                fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
             else:
                 raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")
         else:  # ice classes
             if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
-                fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+                fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
             else:
                 raise ValueError(f"no ice PSD calulation method implemented for scheme {model.mcphys_scheme}")
         N_0 = fits_ds["N_0"].values
@@ -621,10 +621,10 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         for hyd_type in hyd_types:
             if hyd_type in ["cl", "pl"]:  # liquid classes
                 if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
-                    fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+                    fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
             else:  # ice classes
                 if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
-                    fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+                    fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             mu = fits_ds["mu"].values

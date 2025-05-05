@@ -506,12 +506,12 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
         if hyd_type in ["cl", "pl"]:  # liquid classes
             if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:
-                fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+                fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
             else:
                 raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")
         else:  # ice classes
             if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
-                fits_ds = calc_mu_lambda(model, hyd_type, subcolumns=True, **kwargs).ds
+                fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
             else:
                 raise ValueError(f"no ice PSD calulation method implemented for scheme {model.mcphys_scheme}")
         N_columns = len(model.ds["subcolumn"])

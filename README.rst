@@ -5,39 +5,50 @@ EMC²: the Earth Model Column Collaboratory
     :target: https://pypi.python.org/pypi/emc2
     :alt: Latest PyPI version
 
-.. image:: https://travis-ci.org/columncolab/EMC2.png
-   :target: https://travis-ci.org/columncolab/EMC2
+.. image:: https://travis-ci.org/ARM-DOE/EMC2.png
+   :target: https://travis-ci.org/ARM-DOE/EMC2
    :alt: Latest Travis CI build status
 
-An open source framework for atmospheric model and observational column comparison.
-Supported by the Atmospheric Systems Research (ASR) program of the United States Department of Energy.
+The Earth Model Column Collaboratory (EMC²) is an open-source framework for
+atmospheric model evaluation against observational data and model
+intercomparisons. It consisting of an instrument simulator and a sub-column
+generator, which enables statistically emulating a higher spatial resolution.
+This framework is specifically designed to simulate the `Atmospheric
+Radiation Measurement (ARM) User Facility <http://www.arm.gov>`_ remote-
+sensing measurements while being faithful to the representation of physical
+processes and sub-grid scale assumptions in various state-of-the-art models,
+thereby serving as a practical bridge between observations and models.
 
-The Earth Model Column Collaboratory (EMC²) is inspired from past work comparing remotely sensed zenith-pointing
-measurements to climate models and their single-column model modes (SCMs)
-(e.g., Bodas-Salcedo et al., 2008; Lamer et al. 2018; Swales et al. 2018).
-
-EMC² provides an open source software framework to:
-
-1. Represent both ARM measurements and GCM columns in the Python programming
-   language building on the Atmospheric Community Toolkit (ACT, Theisen et. al. 2019)
-   and leveraging the EMC² team’s success with Py-ART (Helmus and Collis 2016).
-2. Scale GCM outputs (using the cloud fraction) to compare with sub-grid-scale column measurements
-   using a modular sub column generator designed to run off-line on time series extracted from
-   existing GCM/SCM output.
-3. Enable a suite of comparisons between ARM (and other) column measurements and
-   the GCM model subcolumns.
 
 Detailed description of EMC² is provided in Silber et al. (GMD, 2022;
 https://doi.org/10.5194/gmd-15-901-2022).
 
 
-Usage
------
+Useful links
+============
 
-For details on how to use EMC², please see the Documentation (https://columncolab.github.io/EMC2).
+- source code repository: https://github.com/ARM-DOE/EMC2
+- EMC² Documentation: https://arm-doe.github.io/EMC2
+- EMC² tutorial (from the 2022 ARM Open-Science Workshop): https://github.com/ARM-Development/ARM-Notebooks/blob/main/Tutorials/Open-Science-Workshop-2022/tutorials/EMC2_demo_w_E3SM.ipynb
+
+
+Citing
+======
+
+If the Earth Model Column Collaboratory (EMC²) is used in your manuscript,
+please cite:
+
+    Silber, I., Jackson, R. C., Fridlind, A. M., Ackerman, A. S., Collis, S.,
+    Verlinde, J., and Ding, J.: The Earth Model Column Collaboratory (EMC2)
+    v1.1: an open-source ground-based lidar and radar instrument simulator and
+    subcolumn generator for large-scale models, Geosci. Model Dev., 15,
+    901–927, https://doi.org/10.5194/gmd-15-901-2022, 2022.
+
+and references therein.
+
 
 Installation
-------------
+============
 
 In order to install EMC², you can use either pip or anaconda. In a terminal, simply type either of::
 
@@ -46,58 +57,29 @@ $ conda install -c conda-forge emc2
 
 In addition, if you want to build EMC² from source and install, type in the following commands::
 
-$ git clone https://github.com/columncolab/EMC2
+$ git clone https://github.com/ARM-DOE/EMC2
 $ cd EMC2
 $ pip install .
 
-Requirements
-^^^^^^^^^^^^
 
-EMC² requires Python 3.6+ as well as: 
-   * Atmoshperic Community Toolkit (https://arm-doe.github.io/ACT). 
+Dependencies
+============
+
+EMC² requires Python 3.10+ as well as: 
+   * Atmoshperic Community Toolkit (https://arm-doe.github.io/ACT) 
    * Numpy (https://numpy.org)
    * Scipy (https://scipy.org)
    * Matplotlib (https://matplotlib.org)
    * Xarray (http://xarray.pydata.org)
    * Pandas (https://pandas.pydata.org/)
-   
-Licence
--------
+   * matplotlib (https://matplotlib.org/)
+   * netCDF4 (https://github.com/Unidata/netcdf4-python)
 
-Copyright 2021 Authors
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Contributions
+=============
 
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Authors
--------
-
-`EMC²` was written by `Robert Jackson <rjackson@anl.gov>`_ and `Israel Silber <ixs34@psu.edu>`_.
-Collaborators and Contributors include `Scott Collis <scollis@anl.gov>`_, and Ann Fridlind (NASA GISS). 
-Please don't hesitate to reach out to contributors `Jingjing Tian <tian5@llnl.gov>`_ and `Yuying Zhang <zhang24@llnl.gov>`_ if you have any questions regarding the statistics_LLNL module.
-
-References
-----------
-
-Bodas-Salcedo, A., Webb, M. J., Brooks, M. E., Ringer, M. A., Williams, K. D., Milton, S. F., and Wilson, D. R. (2008), Evaluating cloud systems inthe Met Office global forecast model using simulated CloudSat radar reflectivities, Journal of Geophysical Research: Atmospheres, 113,5https://doi.org/https://doi.org/10.1029/2007JD009620, https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2007JD009620.
-
-Eynard-Bontemps, G., R Abernathey, J. Hamman, A. Ponte, W. Rath, (2019), The Pangeo Big Data Ecosystem and its use at CNES. In P. Soille, S. Loekken, and S. Albani, Proc. of the 2019 conference on Big Data from Space (BiDS’2019), 49-52. EUR 29660 EN, Publications Office of the European Union, Luxembourg. ISBN: 978-92-76-00034-1, doi:10.2760/848593.
-
-Helmus, J., Collis, S. (2016), The Python ARM Radar Toolkit (Py-ART), a Library for Working with Weather Radar Data in the Python Programming Language. Journal of Open Research Software 4. https://doi.org/10.5334/jors.119
-
-Jupyter et al. (2018), "Binder 2.0 - Reproducible, Interactive, Sharable Environments for Science at Scale," Proceedings of the 17th Python in Science Conference, 10.25080/Majora-4af1f417-011
-
-Lamer, K. (2018), Relative Occurrence of Liquid Water, Ice and Mixed-Phase Conditions within Various Cloud and Precipitation Regimes: Long Term Ground-Based Observations for GCM Model Evaluation, The Pennsylvania State University, PhD dissertation.
-
-Silber, I. and Jackson, R. C. and Fridlind, A. M. and Ackerman, A. S. and Collis, S. Verlinde, J. and Ding, J (2022), The Earth Model Column Collaboratory (EMC$^2$) v1.1: An Open-Source Ground-Based Lidar and Radar Instrument Simulator and Subcolumn Generator for Large-Scale Models, Geoscientific Model Development, https://doi.org/10.5194/gmd-11-77-2018.
-
-Swales, D.J., Pincus, R., Bodas-Salcedo, A. (2018), The Cloud Feedback Model Intercomparison Project Observational Simulator Package: Version 2. Geosci. Model Dev. 11, 77–81. https://doi.org/10.5194/gmd-11-77-2018
-
-Theisen et. al. (2019), Atmospheric Community Toolkit: https://github.com/ANL-DIGR/ACT.
+As its acronym suggests, EMC² is a collaboratory...
+Contributions are welcome and encouraged, provided that the code can be
+distributed under the BSD 3-clause license (see the LICENSE.txt file).
+See the  `contributor's guide. <https://github.com/ARM-DOE/EMC2/blob/master/CONTRIBUTING.rst>`_ for more information.

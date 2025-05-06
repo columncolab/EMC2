@@ -13,7 +13,7 @@ Or, if you use pip, simply type in a terminal::
 If you wish to do development on EMC^2, the best way to install it is to install it from source.
 To do this, we first clone the repository and then install::
 
-   $ git clone https://github.com/columncolab/EMC2
+   $ git clone https://github.com/ARM-DOE/EMC2
    $ cd EMC2
    $ python setup.py install
 

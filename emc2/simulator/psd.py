@@ -45,16 +45,12 @@ def calc_velocity_nssl(dmax, rhoe, hyd_type):
 
 def calc_mu_lambda(model, hyd_type="cl",
                    calc_dispersion=None, dispersion_mu_bounds=(2, 15),
-                   subcolumns=True, is_conv=False, **kwargs):
-
+                   is_conv=False, **kwargs):
     """
     This method calculated the Gamma PSD parameters following Morrison and Gettelman (2008).
     Note that the dispersion cacluation from MG2008 is used in all models implementing this
     parameterization except for ModelE and DHARMA, which use a fixed definition.
-    Note #2: `subcolumns` are hardwired as `True` in `radar_moments.py` and `lidar_moments.py`,
-    which means that we assume that the PSD mu and lambda definition applies to the SGS. This
-    defintion might be under future discussion (whether to apply this assumption or not).
-    Calculates the :math:`\mu` and :math:`\lambda` of the gamma PSD given :math:`N_{0}`.
+    Calculates the :math:`\mu` and :math:`\lambda` of the gammauPSD given :math:`N_{0}`.
     The gamma size distribution takes the form:
 
     .. math::
@@ -81,9 +77,6 @@ def calc_mu_lambda(model, hyd_type="cl",
         If None (default), setting calculation parameterization based on model logic.
     dispersion_mu_bounds: 2-tuple
         The lower and upper bounds for the :math:`\mu` parameter.
-    subcolumns: bool
-        If True, the fit parameters will be generated using the generated subcolumns
-        (in-cloud) q and N quantities) rather than using the "raw" (grid-cell mean) output.
     is_conv: bool
         If True, calculate from convective properties. IF false, do stratiform.
 
@@ -101,70 +94,56 @@ def calc_mu_lambda(model, hyd_type="cl",
     Martin, G.M., D.W. Johnson, and A. Spice, 1994: The Measurement and Parameterization
     of Effective Radius of Droplets in Warm Stratocumulus Clouds.
     J. Atmos. Sci., 51, 1823–1842, https://doi.org/10.1175/1520-0469(1994)051<1823:TMAPOE>2.0.CO;2
+
     """
+    column_ds = model.ds
 
     if calc_dispersion is None:
         if model.model_name in ["ModelE", "DHARMA"]:
             calc_dispersion = False
         else:
             calc_dispersion = True
-    if not subcolumns:
-        N_name = model.N_field[hyd_type]
-        if not is_conv:
-            q_name = model.q_names_stratiform[hyd_type]
-        else:
-            q_name = model.q_names_convective[hyd_type]
-    else:
-        if not is_conv:
-            N_name = "strat_n_subcolumns_%s" % hyd_type
-            q_name = "strat_q_subcolumns_%s" % hyd_type
-        else:
-            N_name = "conv_n_subcolumns_%s" % hyd_type
-            q_name = "conv_q_subcolumns_%s" % hyd_type
 
+    if not is_conv:
+        N_name = "strat_n_subcolumns_%s" % hyd_type
+        q_name = "strat_q_subcolumns_%s" % hyd_type
+    else:
+        N_name = "conv_n_subcolumns_%s" % hyd_type
+        q_name = "conv_q_subcolumns_%s" % hyd_type
+    q_use = column_ds[q_name].values
+    N_use = column_ds[N_name].values
     
     if model.Rho_hyd[hyd_type] == 'variable':    
         Rho_hyd = model.ds[model.variable_density[hyd_type]].values
     else:
         Rho_hyd = model.Rho_hyd[hyd_type].magnitude
 
-    column_ds = model.ds
-
-    if hyd_type == "cl":
+    if (hyd_type == "cl") & (not is_conv):
         if calc_dispersion is True:
-            if not subcolumns:
-                mus = 0.0005714 * (column_ds[N_name].values * 1e-6) + 0.2714  # converting to cm-3 per Martin, 1994
-            else:
-                mus = 0.0005714 * (column_ds[N_name].values * 1e-6) + 0.2714  # converting to cm-3
+            mus = 0.0005714 * (N_use * 1e-6) + 0.2714  # converting to cm-3 per Martin, 1994
             mus = 1 / mus**2 - 1
             mus = np.where(mus < dispersion_mu_bounds[0], dispersion_mu_bounds[0], mus)
             mus = np.where(mus > dispersion_mu_bounds[1], dispersion_mu_bounds[1], mus)
-            column_ds["mu"] = xr.DataArray(mus, dims=column_ds[q_name].dims).astype('float64')
         else:
-            mus = 1 / 0.09 * np.ones_like(column_ds[N_name].values)
-            column_ds["mu"] = xr.DataArray(mus, dims=column_ds[q_name].dims).astype('float64')
+            mus = 1 / 0.09 * np.ones_like(N_use)
+        column_ds["mu"] = xr.DataArray(mus, dims=column_ds[q_name].dims).astype('float')
     else:
         column_ds["mu"] = xr.DataArray(
-            np.zeros_like(column_ds[q_name].values), dims=column_ds[q_name].dims).astype('float64')
+            np.zeros_like(q_use), dims=column_ds[q_name].dims).astype('float')
 
     column_ds["mu"].attrs["long_name"] = "Gamma fit shape parameter"
     column_ds["mu"].attrs["units"] = "1"
 
     d = 3.0
     c = np.pi * Rho_hyd / 6.0
-    if not subcolumns:
-        fit_lambda = ((c * column_ds[N_name].astype('float64') * 1e6 * gamma(column_ds["mu"] + d + 1.)) /
-                      (column_ds[q_name].astype('float64') * gamma(column_ds["mu"] + 1.)))**(1 / d)
-    else:
-        fit_lambda = ((c * column_ds[N_name].astype('float64') *
-                       1e6 * gamma(column_ds["mu"] + d + 1.)) /
-                      (column_ds[q_name].astype('float64') * gamma(column_ds["mu"] + 1.))) ** (1 / d)
+    fit_lambda = ((c * N_use.astype('float') * 1e6 * gamma(column_ds["mu"] + d + 1.)) /
+                  (q_use.astype('float') * gamma(column_ds["mu"] + 1.)))**(1 / d)
 
     # Eventually need to make this unit aware, pint as a dependency?
-    column_ds["lambda"] = fit_lambda.where(column_ds[q_name] > 0).astype(float)
+    column_ds["lambda"] = xr.DataArray(np.where(q_use > 0, fit_lambda, np.nan), dims=column_ds[q_name].dims)
     column_ds["lambda"].attrs["long_name"] = "Slope of gamma distribution fit"
     column_ds["lambda"].attrs["units"] = r"$m^{-1}$"
-    column_ds["N_0"] = column_ds[N_name].astype(float) * 1e6 * \
+    column_ds["N_0"] = N_use.astype(float) * 1e6 * \
         column_ds["lambda"]**(column_ds["mu"] + 1.) / gamma(column_ds["mu"] + 1.)
     column_ds["N_0"].attrs["long_name"] = "Intercept of gamma fit"
     column_ds["N_0"].attrs["units"] = r"$m^{-4}$"

@@ -7,7 +7,7 @@ on:
 jobs:
   build-artifacts:
     runs-on: ubuntu-latest
-    if: github.repository == 'columncolab/EMC2'
+    if: github.repository == 'ARM-DOE/EMC2'
     steps:
       - uses: actions/checkout@v4
         with:

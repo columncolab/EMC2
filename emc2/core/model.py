@@ -115,6 +115,7 @@ class Model():
     variable_density: dict
         If the model allows for particle density for vary (e.g. 2-moment NSSL), then
         this is a dict pointing to the variable with the density for each hydrometeor class
+
     """
 
     def __init__(self):
@@ -237,8 +238,8 @@ class Model():
                                   self.ds[t_coords] < time_range[1])
         if np.sum(time_ind) == 0:
             self.ds.close()
-            print("The requested time range: {0} to {1} is out of the \
-            model output range; Ignoring crop request.".format(time_range[0], time_range[1]))
+            print("The requested time range: {0} to {1} is out of the "
+                  "model output range; Ignoring crop request.".format(time_range[0], time_range[1]))
         else:
             self.ds = self.ds.isel({self.time_dim: time_ind})
 
@@ -405,16 +406,16 @@ class Model():
                     file_path = "The input filename"
                 print("%s is a regional output dataset; Stacking the time, lat, "
                       "and lon dims for processing with EMC^2." % file_path)
-                self.ds[self.lat_dim + "_tmp"] = \
+                self.ds[self.lat_dim + "_tmp"] = (
                     xr.DataArray(self.ds[self.lat_dim].values,
-                                 coords={self.lat_dim + "_tmp": self.ds[self.lat_dim].values})
+                                 coords={self.lat_dim + "_tmp": self.ds[self.lat_dim].values}))
                 if do_process == 1:
-                    self.ds[self.lon_dim + "_tmp"] = \
+                    self.ds[self.lon_dim + "_tmp"] = (
                         xr.DataArray(self.ds[self.lon_dim].values,
-                                     coords={self.lon_dim + "_tmp": self.ds[self.lon_dim].values})
-                self.ds[self.time_dim + "_tmp"] = \
+                                     coords={self.lon_dim + "_tmp": self.ds[self.lon_dim].values}))
+                self.ds[self.time_dim + "_tmp"] = (
                     xr.DataArray(self.ds[self.time_dim].values,
-                                 coords={self.time_dim + "_tmp": self.ds[self.time_dim].values})
+                                 coords={self.time_dim + "_tmp": self.ds[self.time_dim].values}))
                 if do_process == 1:
                     self.ds = self.ds.stack({out_coord_name: (self.lat_dim, self.lon_dim, self.time_dim)})
                 else:
@@ -802,9 +803,9 @@ class E3SMv1(Model):
 
             # stack dimensions in the case of a regional output or squeeze lat/lon dims if exist and len==1
             super().check_and_stack_time_lat_lon(file_path=file_path, order_dim=False)
-            self.ds[self.p_field] = \
+            self.ds[self.p_field] = (
                 ((self.ds["P0"] * self.ds["hyam"] + self.ds["PS"] * self.ds["hybm"]).T / 1e2).transpose(  # hPa
-                *self.ds[self.T_field].dims)
+                *self.ds[self.T_field].dims))
             self.ds[self.p_field].attrs["units"] = "hPa"
             self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
                                                dims=self.ds[self.p_field].dims)
@@ -838,9 +839,9 @@ class E3SMv1(Model):
                 self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6
                 if hyd in precip_classes:
                     self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming r_eff in m was provided
-                self.ds[self.strat_re_fields[hyd]].values = \
+                self.ds[self.strat_re_fields[hyd]].values = (
                     np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
-                             np.nan, self.ds[self.strat_re_fields[hyd]].values)
+                             np.nan, self.ds[self.strat_re_fields[hyd]].values))
 
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 

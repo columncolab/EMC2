@@ -192,13 +192,19 @@ class Instrument(object):
         self.scat_table['p3_ice']["vt"] = self.scat_table['p3_ice']["vt"].where(
             lambda x: np.isfinite(x), np.nanmin(self.scat_table['p3_ice']["vt"].values)
         )  # The MH2005 implementation cannot resolve diameters < 23 um. Filling those values with the min resolved
-        for key in ["beta_p", "alpha_p", "A", "A_tot_norm"]:
+        for key in ["beta_p", "alpha_p", "A", "A_tot_norm",
+                    "beta_p_eq_VdivA", "alpha_p_eq_VdivA", "A_tot_eq_VdivA_norm",
+                    "beta_p_eq_V", "alpha_p_eq_V", "A_tot_eq_V_norm"]:
             self.scat_table["p3_ice"][key] *= 1e-12
             self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(
                 "um^2", "m^2")
         self.scat_table["p3_ice"]["V"] *= 1e-18
         self.scat_table["p3_ice"]["V"].attrs["units"] = self.scat_table["p3_ice"]["V"].attrs["units"].replace(
                         "um^3", "m^3")
+        for key in ["D_eq_VdivA_sphere", "D_eq_vol_sphere"]:
+            self.scat_table["p3_ice"][key] *= 1e-6
+            self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(
+                "um", "m")
         self.scat_table["p3_ice"]["p_diam"] = self.scat_table["p3_ice"]["d"] * 1e-6  # adding p_diam for consistency
         self.bulk_table["p3_ice"] = self.scat_table["p3_ice"]  # point at the same file (all stored together)
         self.bulk_table["p3_liq"] = self.bulk_table["CESM_liq"]  # liq LUTs were not changed since MG2

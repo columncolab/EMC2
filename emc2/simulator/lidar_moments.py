@@ -486,7 +486,7 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
         too many tasks are sent at once due to memory issues, so adjusting this number
         might be needed if that happens.
     Additonal keyword arguments are passed into
-    :py:func:`emc2.psd.calc_mu_lambda`.
+    :py:func:`emc2.psd.calc_and_set_psd_params`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_OD`.
 
     Returns
@@ -510,16 +510,12 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
     else:
         raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
 
-    num_subcolumns = model.num_subcolumns
-    if num_subcolumns > 1:
-        subcolumns = True
-    else:
-        subcolumns = False
-
     Dims = model.ds["strat_q_subcolumns_cl"].values.shape
     for hyd_type in hyd_types:
         frac_names = "strat_frac_subcolumns_%s" % hyd_type
-        print("Generating stratiform lidar variables for hydrometeor class %s" % hyd_type)
+        n_names = "strat_n_subcolumns_%s" % hyd_type
+        print(f"Generating strat lidar variables for hyd class {hyd_type} "
+              f"({model.rad_scheme_family} rad; {model.mcphys_scheme} mcphys; Mie={int(mie_for_ice)})")
         if not np.isin("sub_col_beta_p_tot_strat", [x for x in model.ds.keys()]):
             model.ds["sub_col_beta_p_tot_strat"] = xr.DataArray(
                 np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
@@ -533,11 +529,13 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
 
         # set PSD parameters based on microphysics scheme and hydrometeor class
-        fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=subcolumns, **kwargs)
+        fits_ds = calc_and_set_psd_params(model, hyd_type, **kwargs)
         N_columns = len(model.ds["subcolumn"])
         N_0 = fits_ds["N_0"].values
         mu = fits_ds["mu"].values
+        lambdas = fits_ds["lambda"].values
         num_subcolumns = model.num_subcolumns
+        total_hydrometeor = model.ds[frac_names] * model.ds[n_names]
         if np.isin(hyd_type, optional_ice_classes):
             if mie_for_ice:
                 if hyd_type == "ci":
@@ -558,25 +556,29 @@ def calc_lidar_micro(instrument, model, z_values, OD_from_sfc=True,
         if (model.mcphys_scheme == "P3") & (hyd_type == "ci"):
             if instrument.instrument_str not in model.interpobj["single"].keys():
                 model.interpobj["single"][instrument.instrument_str] = {}  # gen scattering interp objects
-                for key in ["beta_p", "alpha_p"]:
+                scat_vars = ["beta_p", "alpha_p"]
+                if model.p3_kws["use_hybrid_scat"]:
+                    scat_lut_vars = ["beta_p_eq_V", "alpha_p_eq_V"]
+                else:
+                    scat_lut_vars = ["beta_p", "alpha_p"]
+                for lut_key, key in zip(scat_lut_vars, scat_vars):
                     model.interpobj["single"][instrument.instrument_str][key] = RegularGridInterpolator(
                         (instrument.scat_table['p3_ice']["Fr"].values,
                          instrument.scat_table['p3_ice']["rho_r"].values,
                          instrument.scat_table['p3_ice']["p_diam"].values),
-                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+                        instrument.scat_table['p3_ice'][lut_key].values, bounds_error=False)
                 i_calc_kws = {"beta_p": model.interpobj["single"][instrument.instrument_str]["beta_p"],
                               "alpha_p": model.interpobj["single"][instrument.instrument_str]["alpha_p"],
-                              "p_diam": instrument.scat_table['p3_ice']["p_diam"].values,
                               "Fr_in": model.ds["Fr"].values,
                               "rho_r_in": model.ds["rho_r"].values,
+                              "mie_for_ice": mie_for_ice,
                              }  # allocate only once
             calc_kws = i_calc_kws
         else:
             calc_kws = None
-        lambdas = fits_ds["lambda"].values
-        sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
+        sub_frac_arr = model.ds["strat_frac_subcolumns_%s" % hyd_type].values
         _calc_lidar = lambda x: _calc_strat_lidar_properties(
-            x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, sub_q_array, num_subcolumns,
+            x, N_0, lambdas, mu, p_diam, total_hydrometeor, hyd_type, sub_frac_arr, num_subcolumns,
             p_diam, beta_p, alpha_p, model.mcphys_scheme, calc_kws)
         if parallel:
             print("Doing parallel lidar calculations for %s" % hyd_type)
@@ -805,13 +807,14 @@ def calc_lidar_moments(instrument, model, is_conv,
 
 
 def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor,
-                                 hyd_type, sub_q_array, num_subcolumns, D, beta_p, alpha_p,
+                                 hyd_type, sub_frac_arr, num_subcolumns, D, beta_p, alpha_p,
                                  mcphys_scheme, calc_kws=None):
     Dims = total_hydrometeor.shape
     beta_p_strat = np.zeros((num_subcolumns, Dims[2]))
     alpha_p_strat = np.zeros((num_subcolumns, Dims[2]))
     if (hyd_type == 'ci') & (mcphys_scheme == "P3"):
-        tiled_arr = _set_p3_tiled_arrays(tt, calc_kws, Dims, include_vt=False)
+        if not calc_kws["mie_for_ice"]:
+            tiled_arr = _set_p3_tiled_arrays(tt, calc_kws, Dims, p_diam, include_vt=False)
         zero_arr = np.zeros(p_diam.size)
 
     if tt % 50 == 0:
@@ -821,15 +824,16 @@ def _calc_strat_lidar_properties(tt, N_0, lambdas, mu, p_diam, total_hydrometeor
             continue
         N_D = []
         if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter applies below)
-            beta_p = tiled_arr["beta_p"][k, :]
-            alpha_p = tiled_arr["alpha_p"][k, :]
+            if not calc_kws["mie_for_ice"]:
+                beta_p = tiled_arr["beta_p"][k, :]
+                alpha_p = tiled_arr["alpha_p"][k, :]
             N_0_tmp = N_0[tt, k]
             lambda_tmp = lambdas[tt, k]
             mu_tmp = mu[tt, k]
             N_D_tmp = N_0_tmp * p_diam ** mu_tmp * np.exp(-lambda_tmp * p_diam)
         for i in range(num_subcolumns):
             if (hyd_type == 'ci') & (mcphys_scheme == "P3"):
-                if sub_q_array[i, tt, k] > 0:
+                if sub_frac_arr[i, tt, k] == 1:
                     N_D.append(N_D_tmp)   # use subcol q to decide N_D population
                 else:
                     N_D.append(zero_arr)  # no hydrometeors in subcolumn

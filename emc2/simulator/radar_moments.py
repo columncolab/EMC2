@@ -435,7 +435,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         If False, skips spectral width calculations since these are not always needed for an application
         and are the most computationally expensive. Default is True.
     Additonal keyword arguments are passed into
-    :py:func:`emc2.simulator.psd.calc_mu_lambda`.
+    :py:func:`emc2.simulator.psd.calc_and_set_psd_params`.
     :py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.
 
     Returns
@@ -473,14 +473,9 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
     V_d_numer_tot = np.zeros(Dims)
     sigma_d_numer_tot = np.zeros(Dims)
 
-    num_subcolumns = model.num_subcolumns
-    if num_subcolumns > 1:
-        subcolumns = True
-    else:
-        subcolumns = False
-
     for hyd_type in hyd_types:
-        print("Calculating moments for hydrometeor %s" % hyd_type)
+        print(f"Generating strat radar moemnts for hyd class {hyd_type} "
+              f"({model.rad_scheme_family} rad; {model.mcphys_scheme} mcphys; Mie={int(mie_for_ice)})")
         frac_names = "strat_frac_subcolumns_%s" % hyd_type
         n_names = "strat_n_subcolumns_%s" % hyd_type
         if not np.isin("sub_col_Ze_tot_strat", [x for x in model.ds.keys()]):
@@ -499,7 +494,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             np.zeros(Dims), dims=model.ds.strat_q_subcolumns_cl.dims)
 
         # set PSD parameters based on microphysics scheme and hydrometeor class
-        fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=subcolumns, **kwargs)
+        fits_ds = calc_and_set_psd_params(model, hyd_type, **kwargs)
         N_0 = fits_ds["N_0"].values
         lambdas = fits_ds["lambda"].values
         mu = fits_ds["mu"].values
@@ -538,18 +533,23 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         elif (model.mcphys_scheme == "P3") & (hyd_type == "ci"):
             if instrument.instrument_str not in model.interpobj["single"].keys():
                 model.interpobj["single"][instrument.instrument_str] = {}  # gen scattering interp objects
-                for key in ["beta_p", "alpha_p"]:
+                scat_vars = ["beta_p", "alpha_p"]
+                if model.p3_kws["use_hybrid_scat"]:
+                    scat_lut_vars = ["beta_p_eq_V", "alpha_p_eq_V"]
+                else:
+                    scat_lut_vars = ["beta_p", "alpha_p"]
+                for lut_key, key in zip(scat_lut_vars, scat_vars):
                     model.interpobj["single"][instrument.instrument_str][key] = RegularGridInterpolator(
                         (instrument.scat_table['p3_ice']["Fr"].values,
                          instrument.scat_table['p3_ice']["rho_r"].values,
                          instrument.scat_table['p3_ice']["p_diam"].values),
-                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+                        instrument.scat_table['p3_ice'][lut_key].values, bounds_error=False)
                 i_calc_kws = {"vt": model.interpobj["single"]["vt"],
                               "beta_p": model.interpobj["single"][instrument.instrument_str]["beta_p"],
                               "alpha_p": model.interpobj["single"][instrument.instrument_str]["alpha_p"],
-                              "p_diam": instrument.scat_table['p3_ice']["p_diam"].values,
                               "Fr_in": model.ds["Fr"].values,
                               "rho_r_in": model.ds["rho_r"].values,
+                              "mie_for_ice": mie_for_ice,
                              }  # allocate only once
             v_tmp = None
             calc_kws = i_calc_kws
@@ -600,12 +600,12 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
             del my_tuple
         else:
-            sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
+            sub_frac_arr = model.ds["strat_frac_subcolumns_%s" % hyd_type].values
             _calc_other = lambda x: _calculate_other_observables(
                 x, total_hydrometeor, N_0, lambdas, mu, model.num_subcolumns,
                 beta_p, alpha_p, v_tmp,
                 instrument.wavelength, instrument.K_w,
-                sub_q_array, hyd_type, p_diam, beta_pv, rhoe, model.mcphys_scheme,
+                sub_frac_arr, hyd_type, p_diam, beta_pv, rhoe, model.mcphys_scheme,
                 calc_kws)
 
             if parallel:
@@ -661,7 +661,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
         for hyd_type in hyd_types:
 
             # set PSD parameters based on microphysics scheme and hydrometeor class
-            fits_ds = calc_and_set_psd_params(model, hyd_type, subcolumns=subcolumns, **kwargs)
+            fits_ds = calc_and_set_psd_params(model, hyd_type, **kwargs)
             N_0 = fits_ds["N_0"].values
             lambdas = fits_ds["lambda"].values
             mu = fits_ds["mu"].values
@@ -732,10 +732,10 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
 
                 sigma_d_numer_tot = np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
             else:
-                sub_q_array = model.ds["strat_q_subcolumns_%s" % hyd_type].values
+                sub_frac_arr = model.ds["strat_frac_subcolumns_%s" % hyd_type].values
                 _calc_sigma = lambda x: _calc_sigma_d_tot(
                     x, num_subcolumns, v_tmp, N_0, lambdas, mu,
-                    total_hydrometeor, Vd_tot, sub_q_array, p_diam, beta_p,
+                    total_hydrometeor, Vd_tot, sub_frac_arr, p_diam, beta_p,
                     rhoe, hyd_type, model.mcphys_scheme, calc_kws)
 
                 if parallel:
@@ -1003,7 +1003,7 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
 
 
 def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
-                      total_hydrometeor, vd_tot, sub_q_array, p_diam, beta_p, rhoe,
+                      total_hydrometeor, vd_tot, sub_frac_arr, p_diam, beta_p, rhoe,
                       hyd_type, mcphys_scheme, calc_kws):
     Dims = vd_tot.shape
     sigma_d_numer = np.zeros((Dims[0], Dims[2]), dtype='float64')
@@ -1012,14 +1012,15 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
     if tt % 100 == 0:
         print('Processing non-`cl` sigma_D tot in column: %d/%d' % (tt, Dims[1]))
     if (hyd_type == 'ci') & (mcphys_scheme == "P3"):
-        tiled_arr = _set_p3_tiled_arrays(tt, calc_kws, Dims)
+        tiled_arr = _set_p3_tiled_arrays(tt, calc_kws, Dims, p_diam)
     num_diam = len(p_diam)
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
         if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter below & psd.py)
             v_tmp = tiled_arr["vt"][k, :]
-            beta_p = tiled_arr["beta_p"][k, :]
+            if not calc_kws["mie_for_ice"]:
+                beta_p = tiled_arr["beta_p"][k, :]
             N_0_tmp = np.full(Dims[0], N_0[tt, k])
             lambda_tmp = np.full(Dims[0], lambdas[tt, k])
             mu_tmp = np.full(Dims[0], mu[tt, k])
@@ -1047,7 +1048,7 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
             v_tmp2 = v_tmp
         Calc_tmp2 = (v_tmp2 - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
         Calc_tmp2 = np.trapz(Calc_tmp2, x=p_diam, axis=1)
-        sigma_d_numer[:, k] = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
+        sigma_d_numer[:, k] = np.where(sub_frac_arr[:, tt, k] == 0, 0, Calc_tmp2)
 
     return sigma_d_numer, moment_denom
 
@@ -1105,9 +1106,9 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 
 def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
                                  num_subcolumns, beta_p, alpha_p, v_tmp, wavelength,
-                                 K_w, sub_q_array, hyd_type, p_diam, beta_pv,
+                                 K_w, sub_frac_arr, hyd_type, p_diam, beta_pv,
                                  rhoe, mcphys_scheme, calc_kws=None):
-    Dims = sub_q_array.shape
+    Dims = sub_frac_arr.shape
     if tt % 100 == 0:
         print("Processing non-`cl` in column %d/%d" % (tt, Dims[1]))
     Ze = np.zeros((num_subcolumns, Dims[2]))
@@ -1118,7 +1119,7 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
     moment_denom_tot = np.zeros_like(Ze)
     hyd_ext = np.zeros_like(Ze)
     if (hyd_type == 'ci') & (mcphys_scheme == "P3"):
-        tiled_arr = _set_p3_tiled_arrays(tt, calc_kws, Dims)
+        tiled_arr = _set_p3_tiled_arrays(tt, calc_kws, Dims, p_diam)
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
@@ -1126,8 +1127,9 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
         N_D = []
         if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter below & psd.py)
             v_tmp = tiled_arr["vt"][k, :]
-            beta_p = tiled_arr["beta_p"][k, :]
-            alpha_p = tiled_arr["alpha_p"][k, :]
+            if not calc_kws["mie_for_ice"]:
+                beta_p = tiled_arr["beta_p"][k, :]
+                alpha_p = tiled_arr["alpha_p"][k, :]
             N_0_tmp = N_0[tt, k]
             lambda_tmp = lambdas[tt, k]
             mu_tmp = mu[tt, k]
@@ -1142,9 +1144,9 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D
         tmp_od = np.tile(alpha_p, (num_subcolumns, 1)) * N_D
         tmp_od = np.trapz(tmp_od, x=p_diam, axis=1)
-        tmp_od = np.where(sub_q_array[:, tt, k] == 0, 0, tmp_od)
+        tmp_od = np.where(sub_frac_arr[:, tt, k] == 0, 0, tmp_od)
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1)
-        moment_denom = np.where(sub_q_array[:, tt, k] == 0, 0, moment_denom)
+        moment_denom = np.where(sub_frac_arr[:, tt, k] == 0, 0, moment_denom)
         Ze[:, k] = \
             (moment_denom * wavelength ** 4) / (K_w * np.pi ** 5) * 1e-6
         if beta_pv is not None:
@@ -1159,11 +1161,11 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
                 v_tmp = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
         Calc_tmp2 = Calc_tmp * v_tmp
         V_d_numer = np.trapz(Calc_tmp2, axis=1, x=p_diam)
-        V_d_numer = np.where(sub_q_array[:, tt, k] == 0, 0, V_d_numer)
+        V_d_numer = np.where(sub_frac_arr[:, tt, k] == 0, 0, V_d_numer)
         V_d[:, k] = V_d_numer / moment_denom
         Calc_tmp2 = (v_tmp - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         Calc_tmp2 = np.trapz(Calc_tmp2, axis=1, x=p_diam)
-        sigma_d_numer = np.where(sub_q_array[:, tt, k] == 0, 0, Calc_tmp2)
+        sigma_d_numer = np.where(sub_frac_arr[:, tt, k] == 0, 0, Calc_tmp2)
         sigma_d[:, k] = np.sqrt(sigma_d_numer / moment_denom)
         V_d_numer_tot[:, k] += V_d_numer
         moment_denom_tot[:, k] += moment_denom
@@ -1172,17 +1174,18 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
     return V_d_numer_tot, moment_denom_tot, hyd_ext, Ze, V_d, sigma_d, Zv
 
 
-def _set_p3_tiled_arrays(tt, calc_kws, Dims, include_vt=True):
-    Fr_in = np.tile(calc_kws["Fr_in"][tt, :, np.newaxis], (1, calc_kws["p_diam"].size))
-    rho_r_in = np.tile(calc_kws["rho_r_in"][tt, :, np.newaxis], (1, calc_kws["p_diam"].size))
+def _set_p3_tiled_arrays(tt, calc_kws, Dims, p_max_dim, include_vt=True):
+    Fr_in = np.tile(calc_kws["Fr_in"][tt, :, np.newaxis], (1, p_max_dim.shape[-1]))
+    rho_r_in = np.tile(calc_kws["rho_r_in"][tt, :, np.newaxis], (1, p_max_dim.shape[-1]))
     tiled_arr = {}
-    for key in ["p_diam"]:  # no variability in the vertical
-        tiled_arr[key] = np.tile(calc_kws[key][np.newaxis, :], (Dims[2], 1))
-    interp_list = ["beta_p", "alpha_p"]
+    tiled_arr["p_max_dim"] = np.tile(p_max_dim[np.newaxis, :], (Dims[2], 1))  # max dimension
+    interp_list = []
+    if not calc_kws["mie_for_ice"]:
+        interp_list += ["beta_p", "alpha_p"]
     if include_vt:
         interp_list.append("vt")
     for key in interp_list:  # vertical variability (we need to interpolate)
-        tiled_arr[key] = calc_kws[key]((Fr_in, rho_r_in, tiled_arr["p_diam"]))
+        tiled_arr[key] = calc_kws[key]((Fr_in, rho_r_in, tiled_arr["p_max_dim"]))
     if include_vt:
         tiled_arr["vt"] *= (-1.0)
     return tiled_arr

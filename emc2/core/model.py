@@ -765,7 +765,7 @@ class E3SMv1(Model):
             self.p3_kws = {
                 "q_rim_name": "CLDRIM",  # Rime mass (mixing ratio) [kg kg-1]
                 "rim_vol_name": "BVRIM",  # riming volume [m3 kg-1]
-                "in_cld_Ni_name": "in_cld_Ni",  # in-cloud ice mass number [kg-1]
+                "in_cld_Ni_name": "in_cld_Ni",  # in-cloud ice number number concentration [m-3]
                 "N0_ice_name": "N0_norm_ice",  # Normalized ice PSD intercept parameter
                 }
 
@@ -814,26 +814,6 @@ class E3SMv1(Model):
             self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
             precip_classes = [x for x in self.hyd_types if x[0] == "p"]
             for hyd in self.hyd_types:
-                if (self.mcphys_scheme == "P3") & (hyd == "ci"):  # P3 preprocessing
-
-                    for var in [self.q_names_stratiform[hyd], self.p3_kws["q_rim_name"]]:
-                        self.ds[var].where(
-                            lambda x: x > ice_valid_mass_thresh)  # remove truncated water content samples to prevent issues
-
-                    dims = self.ds[self.N_field[hyd]].dims
-                    self.ds[self.p3_kws["in_cld_Ni_name"]] = xr.DataArray(
-                        self.ds[self.N_field[hyd]].values / self.ds[self.strat_frac_names[hyd]].values, dims=dims,
-                        attrs={"units": "kg-1", "long_name": "in-cloud ice mass concentration"})
-                    self.ds["Fr"] = xr.DataArray(
-                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.q_names_stratiform[hyd]].values,
-                        dims=dims, attrs={"units": "1", "long_name": "Rime fraction"})
-                    self.ds["rho_r"] = xr.DataArray(
-                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.p3_kws["rim_vol_name"]].values,
-                        dims=dims, attrs={"units": "kg/m^3", "long_name": "Rime density"})
-                    self.ds["qi_norm"] = xr.DataArray(
-                        (self.ds[self.q_names_stratiform[hyd]].values /
-                        self.ds[self.strat_frac_names[hyd]].values) / self.ds[self.p3_kws["in_cld_Ni_name"]].values,
-                        dims=dims, attrs={"units": "kg", "long_name": "Normalized in-cloud ice water content"})
 
                 # convert mass number to number concentration [cm-3]
                 self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6
@@ -843,6 +823,29 @@ class E3SMv1(Model):
                     np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
                              np.nan, self.ds[self.strat_re_fields[hyd]].values))
 
+                # use the number concentration to retrieve in-cloud; calculate other essential P3 fields
+                if (self.mcphys_scheme == "P3") & (hyd == "ci"):  # P3 preprocessing
+
+                    for var in [self.q_names_stratiform[hyd], self.p3_kws["q_rim_name"]]:
+                        self.ds[var].where(
+                            lambda x: x > ice_valid_mass_thresh)  # remove truncated water content samples to prevent issues
+
+                    dims = self.ds[self.N_field[hyd]].dims
+                    self.ds[self.p3_kws["in_cld_Ni_name"]] = xr.DataArray(
+                        self.ds[self.N_field[hyd]].values / self.ds[self.strat_frac_names[hyd]].values * 1e6, dims=dims,
+                        attrs={"units": "m-3", "long_name": "in-cloud ice number concentration"})
+                    self.ds["Fr"] = xr.DataArray(
+                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.q_names_stratiform[hyd]].values,
+                        dims=dims, attrs={"units": "1", "long_name": "Rime fraction"})
+                    self.ds["rho_r"] = xr.DataArray(
+                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.p3_kws["rim_vol_name"]].values,
+                        dims=dims, attrs={"units": "kg/m^3", "long_name": "Rime density"})
+                    self.ds["qi_norm"] = xr.DataArray(
+                        (self.ds[self.q_names_stratiform[hyd]].values /
+                        self.ds[self.strat_frac_names[hyd]].values) / self.ds[self.p3_kws["in_cld_Ni_name"]].values,
+                        dims=dims, attrs={"units": "m^3", "long_name": "Ni-normalized in-cloud ice water content"})
+
+
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
         self.model_name = "E3SMv1"
@@ -851,7 +854,7 @@ class E3SMv1(Model):
 class E3SMv3(E3SMv1):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
                  all_appended_in_lat=False, single_ice_class=True, include_rain_in_rt=False,
-                 mcphys_scheme="P3", instrument=None):
+                 mcphys_scheme="P3", instrument=None, use_hybrid_scat=False):
         """
         This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
         Note that a `p3_kws` attribute is added to this `Model` sub-class to host the p3-specific namelist.
@@ -885,6 +888,18 @@ class E3SMv3(E3SMv1):
         instrument: :func:`emc2.core.Instrument` class
             An `Instrument` object, the LUTs of which are  used here to calculate ice PSD parameters, to
             save computation time in subsequent processing.
+        use_hybrid_scat: bool
+            If True taking a hybrid approach, i.e., using beta_p and alpha_p of equivalent volume spheres (with D
+            still being the max dimensions per P3 approach). We do not use here equivalent volume to surface area
+            approach per D. Mitchell because the diameters and hence surface areas are non-monotonic, which
+            introduces some weird behavior. The effect of this approach is to reduce potentially overestimated
+            lidar variables (think about the implications for E3SM optics...) and radar variables, though to a
+            lesser extent.
+            Note: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D
+            information. This, together with the non-equivalent V/A renders this approach "hybrid" and increases
+            the gap between microphysics and radiation.
+            If False (default), using full P3 approach, i.e., consistent treatment of ice microphysics and
+            radiation, to a large extent at the very least.
 
         """
         super().__init__(file_path, time_range, load_processed, time_dim, appended_str, all_appended_in_lat,
@@ -914,12 +929,17 @@ class E3SMv3(E3SMv1):
                          instrument.scat_table['p3_ice']["rho_r"].values,
                          instrument.scat_table['p3_ice']["q_norm"].values),
                         instrument.scat_table['p3_ice'][key].values, bounds_error=False)
-                for key in ["vt", "A", "V"]:
+                d_dependent_list = ["vt", "A", "V"]
+                if use_hybrid_scat:
+                    d_dependent_list += ["D_eq_vol_sphere"]  # eq. vol sphere D is rime-dependent
+                for key in d_dependent_list:
+                    var_in = instrument.scat_table['p3_ice'][key].values
                     self.interpobj["single"][key] = RegularGridInterpolator(
                         (instrument.scat_table['p3_ice']["Fr"].values,
                          instrument.scat_table['p3_ice']["rho_r"].values,
                          instrument.scat_table['p3_ice']["p_diam"].values),
-                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+                         var_in, bounds_error=False)
+            self.p3_kws["use_hybrid_scat"] = use_hybrid_scat
 
     @staticmethod
     def calc_mu_n0_from_lambda(lambda_in):

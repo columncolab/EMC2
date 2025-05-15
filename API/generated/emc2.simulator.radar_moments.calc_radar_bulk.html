@@ -148,8 +148,14 @@ Effective radii for each hydrometeor class must be provided (in model.ds).</p>
 </dd>
 <dt><strong>hyd_types: list or None</strong></dt><dd><p>list of hydrometeor names to include in calcuation. using default Model subclass types if None.</p>
 </dd>
-<dt><strong>mie_for_ice: bool</strong></dt><dd><p>If True, using bulk mie caculation LUTs. Otherwise, currently using the bulk C6
-scattering LUTs for 8-column severly roughned aggregate.</p>
+<dt><strong>mie_for_ice: bool</strong></dt><dd><p>If True, using bulk LUTs generated using solid ice spheres (Mie) calculations (e.g., consistent
+with the ice treatment in MG1 through MG2).
+Otherwise, using bulk LUTs that consider ice properties, e.g., the C6 8-column severly roughned
+aggregate for E3 or the m-D A-D for CESM and E3SMv1, consistent with the radiation schemes of
+these models.
+This parameter is set to <cite>False</cite> if <cite>mcphys_scheme == P3</cite> since ice shape is integrated into P3,
+which also affects mu, etc. and therefore the bulk LUT behavior in a similar manner to how the P3
+LUTs are integrated into EMC².</p>
 </dd>
 <dt><strong>Additonal keyword arguments are passed into</strong></dt><dd></dd>
 <dt><strong>:py:func:`emc2.simulator.lidar_moments.accumulate_attenuation`.</strong></dt><dd></dd>

@@ -20,6 +20,7 @@
       ~TestModel.permute_dims_for_processing
       ~TestModel.remove_appended_str
       ~TestModel.remove_subcol_fields
+      ~TestModel.set_array_to_valid_range
       ~TestModel.set_hyd_types
       ~TestModel.subcolumns_to_netcdf
       ~TestModel.unstack_time_lat_lon

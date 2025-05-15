@@ -20,6 +20,7 @@
       ~TestHalfAndHalf.permute_dims_for_processing
       ~TestHalfAndHalf.remove_appended_str
       ~TestHalfAndHalf.remove_subcol_fields
+      ~TestHalfAndHalf.set_array_to_valid_range
       ~TestHalfAndHalf.set_hyd_types
       ~TestHalfAndHalf.subcolumns_to_netcdf
       ~TestHalfAndHalf.unstack_time_lat_lon

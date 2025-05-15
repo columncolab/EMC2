@@ -123,11 +123,12 @@
 <h1>emc2.core.model.E3SMv3<a class="headerlink" href="#emc2-core-model-e3smv3" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="emc2.core.model.E3SMv3">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">E3SMv3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appended_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_ice_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_rain_in_rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#E3SMv3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.E3SMv3" title="Link to this definition">¶</a></dt>
-<dd><p>This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.</p>
-<dl class="field-list simple">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">emc2.core.model.</span></span><span class="sig-name descname"><span class="pre">E3SMv3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appended_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_ice_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_rain_in_rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hybrid_scat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#E3SMv3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.E3SMv3" title="Link to this definition">¶</a></dt>
+<dd><p>This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
+Note that a <cite>p3_kws</cite> attribute is added to this <cite>Model</cite> sub-class to host the p3-specific namelist.</p>
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>file_path: str</strong></dt><dd><p>Path to an E3SMv3 simulation.</p>
 </dd>
 <dt><strong>time_range: tuple, list, or array, typically in datetime64 format</strong></dt><dd><p>Two-element array with starting and ending of time range.</p>
@@ -151,17 +152,40 @@ By default, set to False given that the rain class is excluded from the E3SM rad
 calculations.</p>
 </dd>
 <dt><strong>mcphys_scheme: str</strong></dt><dd><p>Name of the microphysics scheme used by the model. Current options are:</p>
+</dd>
+<dt><strong>instrument: :func:`emc2.core.Instrument` class</strong></dt><dd><p>An <cite>Instrument</cite> object, the LUTs of which are  used here to calculate ice PSD parameters, to
+save computation time in subsequent processing.</p>
+</dd>
+<dt><strong>use_hybrid_scat: bool or int</strong></dt><dd><p>If True or &gt; 0 taking a hybrid approach, i.e., using beta_p and alpha_p of (per calculation approach):
+(1) microphysics: equivalent volume spheres (with D still being the max dimensions per P3 approach).
+(2) radiation: (== 1) pure radiation approach, i.e., derive A_hyd from r_eff and subcolumn q_i</p>
+<blockquote>
+<div><dl class="simple">
+<dt>(== 2) equivalent volume spheres (as in the microphysics approach) or (Mie) sphere</dt><dd><p>assumptions while still being faithful to the PSD information from model output</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Note that we do not use here equivalent volume to surface area approach per D. Mitchell because the
+diameters and hence surface areas are non-monotonic, which introduces some weird behavior.
+The effect of this approach is to reduce potentially overestimated lidar variables (think about the
+implications for E3SM optics…) and radar variables, though to a lesser extent.
+Note #2: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D
+information. This, together with the non-equivalent V/A renders this approach “hybrid” and increases
+the gap between microphysics and radiation.
+If False or == 0 (default), using full P3 approach, i.e., consistent treatment of ice microphysics and
+radiation, to a large extent at the very least.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="emc2.core.model.E3SMv3.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appended_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_ice_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_rain_in_rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#E3SMv3.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.E3SMv3.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.</p>
-<dl class="field-list simple">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">appended_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_appended_in_lat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_ice_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_rain_in_rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcphys_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hybrid_scat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/emc2/core/model.html#E3SMv3.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.model.E3SMv3.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
+Note that a <cite>p3_kws</cite> attribute is added to this <cite>Model</cite> sub-class to host the p3-specific namelist.</p>
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>file_path: str</strong></dt><dd><p>Path to an E3SMv3 simulation.</p>
 </dd>
 <dt><strong>time_range: tuple, list, or array, typically in datetime64 format</strong></dt><dd><p>Two-element array with starting and ending of time range.</p>
@@ -185,6 +209,28 @@ By default, set to False given that the rain class is excluded from the E3SM rad
 calculations.</p>
 </dd>
 <dt><strong>mcphys_scheme: str</strong></dt><dd><p>Name of the microphysics scheme used by the model. Current options are:</p>
+</dd>
+<dt><strong>instrument: :func:`emc2.core.Instrument` class</strong></dt><dd><p>An <cite>Instrument</cite> object, the LUTs of which are  used here to calculate ice PSD parameters, to
+save computation time in subsequent processing.</p>
+</dd>
+<dt><strong>use_hybrid_scat: bool or int</strong></dt><dd><p>If True or &gt; 0 taking a hybrid approach, i.e., using beta_p and alpha_p of (per calculation approach):
+(1) microphysics: equivalent volume spheres (with D still being the max dimensions per P3 approach).
+(2) radiation: (== 1) pure radiation approach, i.e., derive A_hyd from r_eff and subcolumn q_i</p>
+<blockquote>
+<div><dl class="simple">
+<dt>(== 2) equivalent volume spheres (as in the microphysics approach) or (Mie) sphere</dt><dd><p>assumptions while still being faithful to the PSD information from model output</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Note that we do not use here equivalent volume to surface area approach per D. Mitchell because the
+diameters and hence surface areas are non-monotonic, which introduces some weird behavior.
+The effect of this approach is to reduce potentially overestimated lidar variables (think about the
+implications for E3SM optics…) and radar variables, though to a lesser extent.
+Note #2: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D
+information. This, together with the non-equivalent V/A renders this approach “hybrid” and increases
+the gap between microphysics and radiation.
+If False or == 0 (default), using full P3 approach, i.e., consistent treatment of ice microphysics and
+radiation, to a large extent at the very least.</p>
 </dd>
 </dl>
 </dd>
@@ -197,23 +243,35 @@ calculations.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#emc2.core.model.E3SMv3.__init__" title="emc2.core.model.E3SMv3.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(file_path[, time_range, ...])</p></td>
 <td><p>This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_mu_n0_from_lambda</span></code>(lambda_in)</p></td>
+<td><p>Calculate the Gamma PSD shape parameter (mu) and normalized n0 from the given lambda following E3SMv3 processing (see: /E3SM/components/eam/tools/create_p3_lookupTable/create_p3_lookupTable_1.f90-v4.1).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_stack_time_lat_lon</span></code>([...])</p></td>
 <td><p>Stack the time dim together with the lat and lon dims (if the lat and/or lon dims are longer than 1) to enable EMC^2 processing of regional model output.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_subcol_fields</span></code>([more_fieldnames])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_subcol_fields</span></code>([more_fieldnames])</p></td>
 <td><p>Remove all zero values from subcolumn output fields enabling better visualization.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_subcolumns_from_netcdf</span></code>(file_name)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">interp_p3_ice_psd_params_to_grid</span></code>(scat_file)</p></td>
+<td><p>Sets the ice particle size distribution (PSD) parameters via interpolation using scattering file data and optional input data range limitation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">limit_input_data_to_p3_lut_range</span></code>(scat_file)</p></td>
+<td><p>Adjusts the input data to ensure it falls within the valid range defined by the provided (P3) lookup table (LUT).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_subcolumns_from_netcdf</span></code>(file_name)</p></td>
 <td><p>Load all of the subcolumn data from a previously saved netCDF file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute_dims_for_processing</span></code>([base_order, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute_dims_for_processing</span></code>([base_order, ...])</p></td>
 <td><p>Reorder dims for consistent processing such that the order is: subcolumn x time x height.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_appended_str</span></code>([all_appended_in_lat])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_appended_str</span></code>([all_appended_in_lat])</p></td>
 <td><p>Remove appended strings from xr.Dataset coords and fieldnames based on lat/lon coord names (typically required when using post-processed output data files).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_subcol_fields</span></code>([cloud_class])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_subcol_fields</span></code>([cloud_class])</p></td>
 <td><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant for CESM and E3SM).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_array_to_valid_range</span></code>(arr_in, grid_in)</p></td>
+<td><p>Adjusts the values in the input array to ensure they fall within the valid range defined by the minimum and maximum values of the grid array.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
 <td><p></p></td>

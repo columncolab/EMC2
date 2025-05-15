@@ -20,6 +20,7 @@
       ~DHARMA.permute_dims_for_processing
       ~DHARMA.remove_appended_str
       ~DHARMA.remove_subcol_fields
+      ~DHARMA.set_array_to_valid_range
       ~DHARMA.set_hyd_types
       ~DHARMA.subcolumns_to_netcdf
       ~DHARMA.unstack_time_lat_lon

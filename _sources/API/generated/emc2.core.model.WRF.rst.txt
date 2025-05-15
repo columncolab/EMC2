@@ -20,6 +20,7 @@
       ~WRF.permute_dims_for_processing
       ~WRF.remove_appended_str
       ~WRF.remove_subcol_fields
+      ~WRF.set_array_to_valid_range
       ~WRF.set_hyd_types
       ~WRF.subcolumns_to_netcdf
       ~WRF.unstack_time_lat_lon

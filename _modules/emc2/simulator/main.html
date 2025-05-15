@@ -135,7 +135,6 @@
 <span class="sd">    model: :func:`emc2.core.Model`</span>
 <span class="sd">        The model with all of the simulated parameters generated.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;## Creating subcolumns...&quot;</span><span class="p">)</span>
     <span class="n">hydrometeor_classes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">conv_frac_names</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="s1">&#39;use_rad_logic&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -187,6 +186,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">use_rad_logic</span><span class="p">:</span>
             <span class="n">mie_for_ice</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;conv&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;strat&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="n">model</span><span class="o">.</span><span class="n">mcphys_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;p3&quot;</span><span class="p">:</span>
+            <span class="n">mie_for_ice</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;conv&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;strat&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>  <span class="c1"># ice shape integrated into microphysics</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mie_for_ice</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;conv&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;strat&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>  <span class="c1"># use True for strat (micro), False for conv (rad)</span>
     <span class="k">if</span> <span class="s1">&#39;use_empiric_calc&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -198,6 +199,7 @@
     <span class="k">if</span> <span class="n">skip_subcol_gen</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skipping subcolumn generator (make sure subcolumns were already generated).&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;## Creating subcolumns...&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">process_conv</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">hyd_type</span> <span class="ow">in</span> <span class="n">hydrometeor_classes</span><span class="p">:</span>
                 <span class="n">model</span> <span class="o">=</span> <span class="n">set_convective_sub_col_frac</span><span class="p">(</span>

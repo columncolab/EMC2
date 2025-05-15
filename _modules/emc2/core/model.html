@@ -86,6 +86,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegularGridInterpolator</span>
+
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">act.io.arm</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_arm_netcdf</span> <span class="k">as</span> <span class="n">read_netcdf</span>
 <span class="k">except</span><span class="p">:</span>
@@ -658,6 +661,38 @@
         <span class="n">my_file</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="n">my_file</span><span class="p">])</span>
         <span class="n">my_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Model.set_array_to_valid_range">
+<a class="viewcode-back" href="../../../API/core.html#emc2.core.Model.set_array_to_valid_range">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_array_to_valid_range</span><span class="p">(</span><span class="n">arr_in</span><span class="p">,</span> <span class="n">grid_in</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjusts the values in the input array to ensure they fall within the valid range</span>
+<span class="sd">        defined by the minimum and maximum values of the grid array. Values below the</span>
+<span class="sd">        grid&#39;s minimum are set to the minimum, and values above the grid&#39;s maximum are</span>
+<span class="sd">        set to the maximum.</span>
+<span class="sd">        In practice, this method can be used to set &quot;nearest&quot; extrapolation (considering model</span>
+<span class="sd">        output with slight truncated values, e.g., rho_r of 900.00006 kg m-3 in some E3SMv3 output).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        arr_in: numpy.ndarray</span>
+<span class="sd">            The input array whose values need to be adjusted.</span>
+
+<span class="sd">        grid_in: numpy.ndarray</span>
+<span class="sd">            The grid array used to determine the valid range (minimum and maximum values).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        numpy.ndarray</span>
+<span class="sd">            A new array with values adjusted to fall within the valid range of the grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grid_min</span><span class="p">,</span> <span class="n">grid_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">grid_in</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">grid_in</span><span class="p">)</span>
+        <span class="n">arr_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">arr_in</span> <span class="o">&lt;</span> <span class="n">grid_min</span><span class="p">,</span> <span class="n">grid_min</span><span class="p">,</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">arr_in</span> <span class="o">&gt;</span> <span class="n">grid_max</span><span class="p">,</span> <span class="n">grid_max</span><span class="p">,</span>
+                                   <span class="n">arr_in</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">arr_in</span></div>
 </div>
 
 
@@ -839,6 +874,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">=</span> <span class="s2">&quot;CESM&quot;</span>  <span class="c1"># E3SMv1 uses the same bulk LUTs as CESM (CAM 5.0)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">process_conv</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Set essential P3 attributes (if relevant)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mcphys_scheme</span> <span class="o">==</span> <span class="s2">&quot;P3&quot;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using P3 microphysics option; verify that model output includes the following fields required &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;for EMC² to operate properly:</span><span class="se">\n</span><span class="s2">1. Rime mass (CLDRIM)</span><span class="se">\n</span><span class="s2">2. Rime volume (BVRIM)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ice_valid_mass_thresh</span> <span class="o">=</span> <span class="mf">1e-18</span>  <span class="c1"># samples &lt; are considered truncated samples (supported by data analysis)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mu_field</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mu_ice&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lambda_field</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;lambda_ice&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_a</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_a</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># setting as None to prevent user confusion</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_b</span><span class="p">[</span><span class="s2">&quot;ci&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vel_param_b</span><span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># setting as None to prevent user confusion</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;q_rim_name&quot;</span><span class="p">:</span> <span class="s2">&quot;CLDRIM&quot;</span><span class="p">,</span>  <span class="c1"># Rime mass (mixing ratio) [kg kg-1]</span>
+                <span class="s2">&quot;rim_vol_name&quot;</span><span class="p">:</span> <span class="s2">&quot;BVRIM&quot;</span><span class="p">,</span>  <span class="c1"># riming volume [m3 kg-1]</span>
+                <span class="s2">&quot;in_cld_Ni_name&quot;</span><span class="p">:</span> <span class="s2">&quot;in_cld_Ni&quot;</span><span class="p">,</span>  <span class="c1"># in-cloud ice number number concentration [m-3]</span>
+                <span class="s2">&quot;N0_ice_name&quot;</span><span class="p">:</span> <span class="s2">&quot;N0_norm_ice&quot;</span><span class="p">,</span>  <span class="c1"># Normalized ice PSD intercept parameter</span>
+                <span class="p">}</span>
+
         <span class="k">if</span> <span class="n">load_processed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_subcolumns_from_netcdf</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
@@ -884,12 +936,37 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_a&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;kg / m ** 3&quot;</span>
             <span class="n">precip_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyd_types</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;p&quot;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">hyd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyd_types</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_a&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="mf">1e6</span>  <span class="c1"># mass number to number [cm^-3]</span>
+
+                <span class="c1"># convert mass number to number concentration [cm-3]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_a&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="mf">1e6</span>
                 <span class="k">if</span> <span class="n">hyd</span> <span class="ow">in</span> <span class="n">precip_classes</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">*=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="mf">1e6</span>  <span class="c1"># Assuming r_eff in m was provided</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">,</span>
                              <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_re_fields</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+
+                <span class="c1"># use the number concentration to retrieve in-cloud; calculate other essential P3 fields</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mcphys_scheme</span> <span class="o">==</span> <span class="s2">&quot;P3&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">hyd</span> <span class="o">==</span> <span class="s2">&quot;ci&quot;</span><span class="p">):</span>  <span class="c1"># P3 preprocessing</span>
+
+                    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;q_rim_name&quot;</span><span class="p">]]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">ice_valid_mass_thresh</span><span class="p">)</span>  <span class="c1"># remove truncated water content samples to prevent issues</span>
+
+                    <span class="n">dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">dims</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;in_cld_Ni_name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N_field</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m-3&quot;</span><span class="p">,</span> <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;in-cloud ice number concentration&quot;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;q_rim_name&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Rime fraction&quot;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;q_rim_name&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;rim_vol_name&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;kg/m^3&quot;</span><span class="p">,</span> <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Rime density&quot;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;qi_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">q_names_stratiform</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_frac_names</span><span class="p">[</span><span class="n">hyd</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;in_cld_Ni_name&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m^3&quot;</span><span class="p">,</span> <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Ni-normalized in-cloud ice water content&quot;</span><span class="p">})</span>
+
 
             <span class="bp">self</span><span class="o">.</span><span class="n">permute_dims_for_processing</span><span class="p">()</span>  <span class="c1"># Consistent dim order (time x height).</span>
 
@@ -905,9 +982,10 @@
 <a class="viewcode-back" href="../../../API/generated/emc2.core.model.E3SMv3.html#emc2.core.E3SMv3.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_processed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">appended_str</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">all_appended_in_lat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">single_ice_class</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_rain_in_rt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">mcphys_scheme</span><span class="o">=</span><span class="s2">&quot;P3&quot;</span><span class="p">):</span>
+                 <span class="n">mcphys_scheme</span><span class="o">=</span><span class="s2">&quot;P3&quot;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_hybrid_scat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.</span>
+<span class="sd">        Note that a `p3_kws` attribute is added to this `Model` sub-class to host the p3-specific namelist.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -935,12 +1013,144 @@
 <span class="sd">            calculations.</span>
 <span class="sd">        mcphys_scheme: str</span>
 <span class="sd">            Name of the microphysics scheme used by the model. Current options are:</span>
+<span class="sd">        instrument: :func:`emc2.core.Instrument` class</span>
+<span class="sd">            An `Instrument` object, the LUTs of which are  used here to calculate ice PSD parameters, to</span>
+<span class="sd">            save computation time in subsequent processing.</span>
+<span class="sd">        use_hybrid_scat: bool or int</span>
+<span class="sd">            If True or &gt; 0 taking a hybrid approach, i.e., using beta_p and alpha_p of (per calculation approach):</span>
+<span class="sd">            (1) microphysics: equivalent volume spheres (with D still being the max dimensions per P3 approach).</span>
+<span class="sd">            (2) radiation: (== 1) pure radiation approach, i.e., derive A_hyd from r_eff and subcolumn q_i</span>
+<span class="sd">                           (== 2) equivalent volume spheres (as in the microphysics approach) or (Mie) sphere</span>
+<span class="sd">                                  assumptions while still being faithful to the PSD information from model output</span>
+<span class="sd">            Note that we do not use here equivalent volume to surface area approach per D. Mitchell because the</span>
+<span class="sd">            diameters and hence surface areas are non-monotonic, which introduces some weird behavior.</span>
+<span class="sd">            The effect of this approach is to reduce potentially overestimated lidar variables (think about the</span>
+<span class="sd">            implications for E3SM optics...) and radar variables, though to a lesser extent.</span>
+<span class="sd">            Note #2: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D</span>
+<span class="sd">            information. This, together with the non-equivalent V/A renders this approach &quot;hybrid&quot; and increases</span>
+<span class="sd">            the gap between microphysics and radiation.</span>
+<span class="sd">            If False or == 0 (default), using full P3 approach, i.e., consistent treatment of ice microphysics and</span>
+<span class="sd">            radiation, to a large extent at the very least.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">load_processed</span><span class="p">,</span> <span class="n">time_dim</span><span class="p">,</span> <span class="n">appended_str</span><span class="p">,</span> <span class="n">all_appended_in_lat</span><span class="p">,</span>
                          <span class="n">single_ice_class</span><span class="p">,</span> <span class="n">include_rain_in_rt</span><span class="p">,</span> <span class="n">mcphys_scheme</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;E3SMv3&quot;</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;E3SMv3&quot;</span>
+
+        <span class="c1"># if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params</span>
+        <span class="c1"># (instrument type (HSRL, etc.) has no effect on PSD params).</span>
+        <span class="k">if</span> <span class="n">mcphys_scheme</span> <span class="o">==</span> <span class="s2">&quot;P3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rad_scheme_family</span> <span class="o">=</span> <span class="s2">&quot;P3&quot;</span>  <span class="c1"># E3SMv3 uses CESM bulk LUTs but with a P3 twist (crp and Fr dependence)</span>
+            
+            <span class="c1"># if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params</span>
+            <span class="c1"># (instrument type (HSRL, etc.) has no effect on PSD params).</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">instrument</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">Fr_in</span><span class="p">,</span> <span class="n">rho_r_in</span><span class="p">,</span> <span class="n">qi_norm_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit_input_data_to_p3_lut_range</span><span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">Fr_in</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">rho_r_in</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;qi_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">qi_norm_in</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interp_p3_ice_psd_params_to_grid</span><span class="p">(</span>
+                    <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">],</span> <span class="n">limit_input_data_to_lut_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interpobj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;single&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;bulk&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+                <span class="c1"># set interpolator objects for essential bulk and single-particle quantities</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;A_tot_norm&quot;</span><span class="p">,</span> <span class="s2">&quot;A_tot_eq_V_norm&quot;</span><span class="p">,</span> <span class="s2">&quot;A_tot_Mie_norm&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;vt_m_weight&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;ri_eff&quot;</span><span class="p">,</span> <span class="s2">&quot;Dm_m_weight&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">interpobj</span><span class="p">[</span><span class="s2">&quot;bulk&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">RegularGridInterpolator</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                         <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                         <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="s2">&quot;q_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+                        <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">d_dependent_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;vt&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">use_hybrid_scat</span><span class="p">:</span>
+                    <span class="n">d_dependent_list</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;D_eq_vol_sphere&quot;</span><span class="p">]</span>  <span class="c1"># eq. vol sphere D is rime-dependent</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d_dependent_list</span><span class="p">:</span>
+                    <span class="n">var_in</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">interpobj</span><span class="p">[</span><span class="s2">&quot;single&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">RegularGridInterpolator</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                         <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                         <span class="n">instrument</span><span class="o">.</span><span class="n">scat_table</span><span class="p">[</span><span class="s1">&#39;p3_ice&#39;</span><span class="p">][</span><span class="s2">&quot;p_diam&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+                         <span class="n">var_in</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p3_kws</span><span class="p">[</span><span class="s2">&quot;use_hybrid_scat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">use_hybrid_scat</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_mu_n0_from_lambda</span><span class="p">(</span><span class="n">lambda_in</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Gamma PSD shape parameter (mu) and normalized n0 from the given lambda</span>
+<span class="sd">        following E3SMv3 processing (see:</span>
+<span class="sd">        /E3SM/components/eam/tools/create_p3_lookupTable/create_p3_lookupTable_1.f90-v4.1).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        lambda_in: float</span>
+<span class="sd">            Input slope parameter</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        mu_i: float</span>
+<span class="sd">            Final Gamma PSD shape parameter per Fig. 3B in Heymsfield (2003, Part II)</span>
+<span class="sd">        n0: float</span>
+<span class="sd">            Normalized N0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mu_i</span> <span class="o">=</span> <span class="mf">0.076</span> <span class="o">*</span> <span class="p">(</span><span class="n">lambda_in</span> <span class="o">/</span> <span class="mf">100.</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.8</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c1"># Calculate shape parameter (convert m-1 to cm-1)</span>
+        <span class="n">mu_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">mu_i</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        <span class="n">mu_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">mu_i</span><span class="p">,</span> <span class="mf">6.</span><span class="p">)</span>  <span class="c1"># final Gamma PSD shape parameter</span>
+        <span class="n">n0</span> <span class="o">=</span> <span class="n">lambda_in</span> <span class="o">**</span> <span class="p">(</span><span class="n">mu_i</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">gamma</span><span class="p">(</span><span class="n">mu_i</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">))</span>  <span class="c1"># Normalized n0</span>
+
+        <span class="k">return</span> <span class="n">mu_i</span><span class="p">,</span> <span class="n">n0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">limit_input_data_to_p3_lut_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scat_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjusts the input data to ensure it falls within the valid range defined by the provided (P3)</span>
+<span class="sd">        lookup table (LUT).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        scat_file: xarray.Dataset</span>
+<span class="sd">            Loaded P3 LUT file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        =======</span>
+<span class="sd">        Fr_in: numpy.ndarray</span>
+<span class="sd">            Adjusted values of &quot;Fr&quot; within the valid range.</span>
+<span class="sd">        rho_r_in: numpy.ndarray</span>
+<span class="sd">            Adjusted values of &quot;rho_r&quot; within the valid range.</span>
+<span class="sd">        qi_norm_in: numpy.ndarray</span>
+<span class="sd">            Adjusted values of &quot;qi_norm&quot; within the valid range.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Fr_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_array_to_valid_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">rho_r_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_array_to_valid_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">qi_norm_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_array_to_valid_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;qi_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;q_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Fr_in</span><span class="p">,</span> <span class="n">rho_r_in</span><span class="p">,</span> <span class="n">qi_norm_in</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">interp_p3_ice_psd_params_to_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scat_file</span><span class="p">,</span> <span class="n">limit_input_data_to_lut_rng</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the ice particle size distribution (PSD) parameters via interpolation</span>
+<span class="sd">        using scattering file data and optional input data range limitation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ==========</span>
+<span class="sd">        scat_file: xarray.Dataset</span>
+<span class="sd">            Loaded P3 LUT file.</span>
+<span class="sd">        limit_input_data_to_lut_rng: bool, optional</span>
+<span class="sd">            A flag to determine whether to limit the input data to the lookup table</span>
+<span class="sd">            range. Defaults to True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;q_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">limit_input_data_to_lut_rng</span><span class="p">:</span>
+            <span class="n">Fr_in</span><span class="p">,</span> <span class="n">rho_r_in</span><span class="p">,</span> <span class="n">qi_norm_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit_input_data_to_p3_lut_range</span><span class="p">(</span><span class="n">scat_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Fr_in</span><span class="p">,</span> <span class="n">rho_r_in</span><span class="p">,</span> <span class="n">qi_norm_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;qi_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">interp</span> <span class="o">=</span> <span class="n">RegularGridInterpolator</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span> <span class="n">scat_file</span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lambda_ice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">interp</span><span class="p">((</span><span class="n">Fr_in</span><span class="p">,</span> <span class="n">rho_r_in</span><span class="p">,</span> <span class="n">qi_norm_in</span><span class="p">)),</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">mu_i</span><span class="p">,</span> <span class="n">n0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_mu_n0_from_lambda</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lambda_ice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mu_ice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;N0_norm_ice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Fr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>  <span class="c1"># normalized N0</span></div>
 
 
 

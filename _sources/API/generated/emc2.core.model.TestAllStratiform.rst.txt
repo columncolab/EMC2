@@ -20,6 +20,7 @@
       ~TestAllStratiform.permute_dims_for_processing
       ~TestAllStratiform.remove_appended_str
       ~TestAllStratiform.remove_subcol_fields
+      ~TestAllStratiform.set_array_to_valid_range
       ~TestAllStratiform.set_hyd_types
       ~TestAllStratiform.subcolumns_to_netcdf
       ~TestAllStratiform.unstack_time_lat_lon

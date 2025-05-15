@@ -20,6 +20,7 @@
       ~TestConvection.permute_dims_for_processing
       ~TestConvection.remove_appended_str
       ~TestConvection.remove_subcol_fields
+      ~TestConvection.set_array_to_valid_range
       ~TestConvection.set_hyd_types
       ~TestConvection.subcolumns_to_netcdf
       ~TestConvection.unstack_time_lat_lon

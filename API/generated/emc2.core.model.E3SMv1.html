@@ -215,13 +215,16 @@ calculations.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_subcol_fields</span></code>([cloud_class])</p></td>
 <td><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant for CESM and E3SM).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_array_to_valid_range</span></code>(arr_in, grid_in)</p></td>
+<td><p>Adjusts the values in the input array to ensure they fall within the valid range defined by the minimum and maximum values of the grid array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(file_name)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code>(file_name)</p></td>
 <td><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code>([order_dim, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code>([order_dim, ...])</p></td>
 <td><p>Unstack the time, lat, and lon dims if they were previously stacked together (self.stacked_time_dim is not None).</p></td>
 </tr>
 </tbody>

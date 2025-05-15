@@ -92,6 +92,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.permute_dims_for_processing"><code class="docutils literal notranslate"><span class="pre">Model.permute_dims_for_processing()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.remove_appended_str"><code class="docutils literal notranslate"><span class="pre">Model.remove_appended_str()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.remove_subcol_fields"><code class="docutils literal notranslate"><span class="pre">Model.remove_subcol_fields()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.set_array_to_valid_range"><code class="docutils literal notranslate"><span class="pre">Model.set_array_to_valid_range()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.subcolumns_to_netcdf"><code class="docutils literal notranslate"><span class="pre">Model.subcolumns_to_netcdf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#emc2.core.Model.unstack_time_lat_lon"><code class="docutils literal notranslate"><span class="pre">Model.unstack_time_lat_lon()</span></code></a></li>
 </ul>
@@ -431,6 +432,33 @@ the appended str from both the lat and lon dims (relevant if appended_str is Tru
 <span class="sig-name descname"><span class="pre">remove_subcol_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloud_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.remove_subcol_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.remove_subcol_fields" title="Link to this definition">¶</a></dt>
 <dd><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant
 for CESM and E3SM).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="emc2.core.Model.set_array_to_valid_range">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_array_to_valid_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/emc2/core/model.html#Model.set_array_to_valid_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#emc2.core.Model.set_array_to_valid_range" title="Link to this definition">¶</a></dt>
+<dd><p>Adjusts the values in the input array to ensure they fall within the valid range
+defined by the minimum and maximum values of the grid array. Values below the
+grid’s minimum are set to the minimum, and values above the grid’s maximum are
+set to the maximum.
+In practice, this method can be used to set “nearest” extrapolation (considering model
+output with slight truncated values, e.g., rho_r of 900.00006 kg m-3 in some E3SMv3 output).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>arr_in: numpy.ndarray</strong></dt><dd><p>The input array whose values need to be adjusted.</p>
+</dd>
+<dt><strong>grid_in: numpy.ndarray</strong></dt><dd><p>The grid array used to determine the valid range (minimum and maximum values).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>A new array with values adjusted to fall within the valid range of the grid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

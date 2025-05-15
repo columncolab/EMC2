@@ -20,6 +20,7 @@
       ~E3SMv1.permute_dims_for_processing
       ~E3SMv1.remove_appended_str
       ~E3SMv1.remove_subcol_fields
+      ~E3SMv1.set_array_to_valid_range
       ~E3SMv1.set_hyd_types
       ~E3SMv1.subcolumns_to_netcdf
       ~E3SMv1.unstack_time_lat_lon

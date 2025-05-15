@@ -20,6 +20,7 @@
       ~Model.permute_dims_for_processing
       ~Model.remove_appended_str
       ~Model.remove_subcol_fields
+      ~Model.set_array_to_valid_range
       ~Model.set_hyd_types
       ~Model.subcolumns_to_netcdf
       ~Model.unstack_time_lat_lon

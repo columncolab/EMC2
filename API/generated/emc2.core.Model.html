@@ -247,13 +247,16 @@ this is a dict pointing to the variable with the density for each hydrometeor cl
 <tr class="row-odd"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.remove_subcol_fields" title="emc2.core.Model.remove_subcol_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_subcol_fields</span></code></a>([cloud_class])</p></td>
 <td><p>Remove all subcolumn output fields for the given cloud class to save memory (mainly releveant for CESM and E3SM).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.set_array_to_valid_range" title="emc2.core.Model.set_array_to_valid_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_array_to_valid_range</span></code></a>(arr_in, grid_in)</p></td>
+<td><p>Adjusts the values in the input array to ensure they fall within the valid range defined by the minimum and maximum values of the grid array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_hyd_types</span></code>(hyd_types)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.subcolumns_to_netcdf" title="emc2.core.Model.subcolumns_to_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code></a>(file_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.subcolumns_to_netcdf" title="emc2.core.Model.subcolumns_to_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subcolumns_to_netcdf</span></code></a>(file_name)</p></td>
 <td><p>Saves all of the simulated subcolumn parameters to a netCDF file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.unstack_time_lat_lon" title="emc2.core.Model.unstack_time_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code></a>([order_dim, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../core.html#emc2.core.Model.unstack_time_lat_lon" title="emc2.core.Model.unstack_time_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unstack_time_lat_lon</span></code></a>([order_dim, ...])</p></td>
 <td><p>Unstack the time, lat, and lon dims if they were previously stacked together (self.stacked_time_dim is not None).</p></td>
 </tr>
 </tbody>

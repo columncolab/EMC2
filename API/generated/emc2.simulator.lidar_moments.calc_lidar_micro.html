@@ -140,8 +140,14 @@ in a given column for the given lidar using the microphysics (MG2) logic.</p>
 </dd>
 <dt><strong>hyd_types: list or None</strong></dt><dd><p>list of hydrometeor names to include in calcuation. using default Model subclass types if None.</p>
 </dd>
-<dt><strong>mie_for_ice: bool</strong></dt><dd><p>If True, using full mie caculation LUTs. Otherwise, currently using the C6
-scattering LUTs for 8-column severly roughned aggregate.</p>
+<dt><strong>mie_for_ice: bool</strong></dt><dd><p>If True, using bulk LUTs generated using solid ice spheres (Mie) calculations (e.g., consistent
+with the ice treatment in MG1 through MG2).
+Otherwise, using bulk LUTs that consider ice properties, e.g., the C6 8-column severly roughned
+aggregate for E3 or the m-D A-D for CESM and E3SMv1, consistent with the radiation schemes of
+these models.
+This parameter is set to <cite>False</cite> if <cite>mcphys_scheme == P3</cite> since ice shape is integrated into P3,
+which also affects mu, etc. and therefore the bulk LUT behavior in a similar manner to how the P3
+LUTs are integrated into EMC².</p>
 </dd>
 <dt><strong>parallel: bool</strong></dt><dd><p>If True, use parallelism in calculating lidar parameters.</p>
 </dd>
@@ -151,7 +157,7 @@ too many tasks are sent at once due to memory issues, so adjusting this number
 might be needed if that happens.</p>
 </dd>
 <dt><strong>Additonal keyword arguments are passed into</strong></dt><dd></dd>
-<dt><strong>:py:func:`emc2.psd.calc_mu_lambda`.</strong></dt><dd></dd>
+<dt><strong>:py:func:`emc2.psd.calc_and_set_psd_params`.</strong></dt><dd></dd>
 <dt><strong>:py:func:`emc2.simulator.lidar_moments.accumulate_OD`.</strong></dt><dd></dd>
 </dl>
 </dd>

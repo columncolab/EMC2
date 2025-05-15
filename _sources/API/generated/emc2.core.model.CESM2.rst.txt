@@ -20,6 +20,7 @@
       ~CESM2.permute_dims_for_processing
       ~CESM2.remove_appended_str
       ~CESM2.remove_subcol_fields
+      ~CESM2.set_array_to_valid_range
       ~CESM2.set_hyd_types
       ~CESM2.subcolumns_to_netcdf
       ~CESM2.unstack_time_lat_lon

@@ -929,7 +929,7 @@ class E3SMv3(E3SMv1):
 
                 # set interpolator objects for essential bulk and single-particle quantities
                 for key in ["A_tot_norm", "A_tot_eq_V_norm", "A_tot_Mie_norm",
-                            "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
+                            "vt_m_weight", "Z", "ri_eff", "Dm_m_weight", "rho_m_weight"]:
                     self.interpobj["bulk"][key] = RegularGridInterpolator(
                         (instrument.scat_table['p3_ice']["Fr"].values,
                          instrument.scat_table['p3_ice']["rho_r"].values,

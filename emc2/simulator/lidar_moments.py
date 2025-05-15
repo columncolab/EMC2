@@ -406,11 +406,13 @@ def calc_lidar_bulk(instrument, model, is_conv, p_values, z_values, OD_from_sfc=
                 A_interped =  i_calc_kws["A_tot"]((
                     i_calc_kws["Fr_in"], i_calc_kws["rho_r_in"], i_calc_kws["q_norm_in"]))
                 A_hyd = np.tile(A_interped * i_calc_kws["Ni_ice"], (model.num_subcolumns, 1, 1))
-            else:  # using bulk r_eff, in which the eff. density is already implicitly incorporated
+            else:  # using bulk r_eff and applying fluffiness
                 rho_b = instrument.rho_i  # bulk ice
                 re_interped =  model.interpobj["bulk"]["ri_eff"]((
                     i_calc_kws["Fr_in"], i_calc_kws["rho_r_in"], i_calc_kws["q_norm_in"])) * 1e6  # um for now
-                re_array = np.tile(re_interped, (model.num_subcolumns, 1, 1))
+                rhoi_eff_interped =  model.interpobj["bulk"]["rho_m_weight"]((
+                    i_calc_kws["Fr_in"], i_calc_kws["rho_r_in"], i_calc_kws["q_norm_in"]))
+                re_array = np.tile(re_interped * rhoi_eff_interped / rho_b, (model.num_subcolumns, 1, 1))
         else:
             rho_b = instrument.rho_i  # bulk ice
             rho_hyd = model.Rho_hyd[hyd_type]

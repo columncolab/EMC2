@@ -297,8 +297,6 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         bulk_mie_ice_lut = "mie_ice_E3_PSD"
         bulk_liq_lut = "E3_liq"
     elif model.rad_scheme_family == "P3":
-        bulk_ice_lut = "p3_ice"
-        bulk_mie_ice_lut = "mie_ice_P3_PSD"
         bulk_liq_lut = "p3_liq"
     else:
         raise ValueError(f"Unknown radiation scheme family: {model.rad_scheme_family}")
@@ -314,13 +312,51 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         np.diff(z_values, axis=1, append=0.), (n_subcolumns, 1, 1))
 
     for hyd_type in hyd_types:
+        rad_A = True  # calculate total surface area using classic derivation from r_eff and q_i
         if hyd_type[-1] == 'l':
             rho_b = model.Rho_hyd[hyd_type]  # bulk water
             re_array = np.tile(model.ds[re_fields[hyd_type]].values, (n_subcolumns, 1, 1))
             if model.lambda_field is not None:  # assuming my and lambda can be provided only for liq hydrometeors
                 if not model.lambda_field[hyd_type] is None:
-                    lambda_array = model.ds[model.lambda_field[hyd_type]].values
-                    mu_array = model.ds[model.mu_field[hyd_type]].values
+                    lambda_array = np.tile(
+                        model.ds[model.lambda_field[hyd_type]].values, (model.num_subcolumns, 1, 1))
+                    mu_array = np.tile(model.ds[model.mu_field[hyd_type]].values, (model.num_subcolumns, 1, 1))
+        elif np.all([np.isin(hyd_type, ["ci"]), model.rad_scheme_family in ["P3"]]):  # P3 ice
+            if instrument.instrument_str not in model.interpobj["bulk"].keys():
+                model.interpobj["bulk"][instrument.instrument_str] = {}  # gen scattering interp objects
+                scat_vars = ["Q_back_bulk", "Q_ext_bulk", "Q_back_Mie_bulk", "Q_ext_Mie_bulk"]
+                for key in scat_vars:
+                    model.interpobj["bulk"][instrument.instrument_str][key] = RegularGridInterpolator(
+                        (instrument.scat_table['p3_ice']["Fr"].values,
+                         instrument.scat_table['p3_ice']["rho_r"].values,
+                         instrument.scat_table['p3_ice']["q_norm"].values),
+                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+            i_calc_kws = {"Q_back_bulk": model.interpobj["bulk"][instrument.instrument_str]["Q_back_bulk"],
+                          "Q_ext_bulk": model.interpobj["bulk"][instrument.instrument_str]["Q_ext_bulk"],
+                          "Q_back_Mie_bulk": model.interpobj["bulk"][instrument.instrument_str]["Q_back_Mie_bulk"],
+                          "Q_ext_Mie_bulk": model.interpobj["bulk"][instrument.instrument_str]["Q_ext_Mie_bulk"],
+                          "Fr_in": model.ds["Fr"].values,
+                          "rho_r_in": model.ds["rho_r"].values,
+                          "q_norm_in": model.ds["qi_norm"].values,
+                          "Ni_ice": model.ds[model.p3_kws["in_cld_Ni_name"]].values,
+                         }  # allocate only once
+            if model.p3_kws["use_hybrid_scat"] != 1:  # Considering PSD-informed surface area
+                if model.p3_kws["use_hybrid_scat"] == 0:  # Full P3
+                    A_var = "A_tot_norm"
+                elif mie_for_ice:  # using A assuming solid spheres
+                    A_var = "A_tot_Mie_norm"
+                elif model.p3_kws["use_hybrid_scat"] == 2:  # A tot of eq. vol sphere
+                    A_var = "A_tot_eq_V_norm"
+                i_calc_kws["A_tot"] = model.interpobj["bulk"][A_var]
+                rad_A = False
+                A_interped =  i_calc_kws["A_tot"]((
+                    i_calc_kws["Fr_in"], i_calc_kws["rho_r_in"], i_calc_kws["q_norm_in"]))
+                A_hyd = np.tile(A_interped * i_calc_kws["Ni_ice"], (model.num_subcolumns, 1, 1))
+            else:  # using bulk r_eff, in which the eff. density is already implicitly incorporated
+                rho_b = instrument.rho_i  # bulk ice
+                re_interped =  model.interpobj["bulk"]["ri_eff"]((
+                    i_calc_kws["Fr_in"], i_calc_kws["rho_r_in"], i_calc_kws["q_norm_in"])) * 1e6  # um for now
+                re_array = np.tile(re_interped, (model.num_subcolumns, 1, 1))
         else:
             rho_b = instrument.rho_i.magnitude  # bulk ice
             if model.Rho_hyd[hyd_type] == 'variable':
@@ -332,13 +368,26 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             re_array = np.tile(model.ds[re_fields[hyd_type]].values * fi_factor,
                                (n_subcolumns, 1, 1))
 
-        tau_hyd = np.where(model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] > 0,
-                           3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz /
-                           (2 * rho_b * re_array * 1e-6), 0)
-        A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
+        sub_frac_arr = model.ds["strat_frac_subcolumns_%s" % hyd_type].values
+        if rad_A:
+            tau_hyd = np.where(sub_frac_arr == 1,
+                               3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz /
+                               (2 * rho_b * re_array * 1e-6), 0)
+            A_hyd = tau_hyd / (2 * dz)  # model assumes geometric scatterers
 
         if np.isin(hyd_type, optional_ice_classes):
-            if mie_for_ice:
+            if model.rad_scheme_family in ["P3"]:  # P3 LUTs
+                scat_vars = ["Q_back_bulk", "Q_ext_bulk"]
+                if mie_for_ice:
+                    scat_lut_vars = ["Q_back_Mie_bulk", "Q_ext_Mie_bulk"]
+                else:
+                    scat_lut_vars = ["Q_back_bulk", "Q_ext_bulk"]
+                scat_dict = {}
+                for lut_key, key in zip(scat_lut_vars, scat_vars):
+                    scat_tmp = i_calc_kws[lut_key]((
+                        i_calc_kws["Fr_in"], i_calc_kws["rho_r_in"], i_calc_kws["q_norm_in"]))
+                    scat_dict[key] = np.tile(scat_tmp, (model.num_subcolumns, 1, 1))
+            elif mie_for_ice:
                 r_eff_bulk = instrument.bulk_table[bulk_mie_ice_lut]["r_e"].values.copy()
                 Qback_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_mie_ice_lut]["Q_ext"].values
@@ -347,7 +396,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
                 Qback_bulk = instrument.bulk_table[bulk_ice_lut]["Q_back"].values
                 Qext_bulk = instrument.bulk_table[bulk_ice_lut]["Q_ext"].values
         else:
-            if model.rad_scheme_family in ["CESM"]:  # rad families that have bulk LUTs vs. lambda and mu
+            if model.rad_scheme_family in ["CESM", "P3"]:  # rad families that have bulk LUTs vs. lambda and mu
                 mu_b = np.tile(instrument.bulk_table[bulk_liq_lut]["mu"].values,
                                (instrument.bulk_table[bulk_liq_lut]["lambdas"].size)).flatten()
                 lambda_b = instrument.bulk_table[bulk_liq_lut]["lambda"].values.flatten()
@@ -359,29 +408,39 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
         # The following if condition is to determine if the LUTs are vs. the PSD lambda and mu parameters
         # The alternative default is to use LUTs vs. r_eff
         # ===========================================================
-        if np.logical_and(np.isin(hyd_type, ["cl", "pl"]), model.rad_scheme_family in ["CESM"]):
+        if np.all([np.isin(hyd_type, ["cl", "pl"]), model.rad_scheme_family in ["CESM", "P3"]]):
             print("2-D interpolation of bulk liq radar backscattering using mu-lambda values")
-            rel_locs = model.ds[model.q_names_stratiform[hyd_type]].values > 0.
+            rel_locs = sub_frac_arr == 1
             interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qback_bulk.flatten())
             interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])
-            back_tmp = np.ones_like(model.ds[model.q_names_stratiform[hyd_type]].values, dtype=float) * np.nan
+            back_tmp = np.full(mu_array.shape, np.nan, dtype=float)
             ext_tmp = np.copy(back_tmp)
             np.place(back_tmp, rel_locs,
                      (interp_vals * instrument.wavelength ** 4) /
                      (instrument.K_w * np.pi ** 5) * 1e-6)
             model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
-                np.tile(back_tmp, (n_subcolumns, 1, 1)) * A_hyd,
+                back_tmp * A_hyd,
                 dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
             print("2-D interpolation of bulk liq radar extinction using mu-lambda values")
             interpolator = LinearNDInterpolator(np.stack((mu_b, lambda_b), axis=1), Qext_bulk.flatten())
             interp_vals = interpolator(mu_array[rel_locs], lambda_array[rel_locs])
             np.place(ext_tmp, rel_locs, interp_vals)
-            hyd_ext += np.tile(ext_tmp, (n_subcolumns, 1, 1)) * A_hyd
+            hyd_ext += ext_tmp * A_hyd
+        elif np.all([np.isin(hyd_type, ["ci"]), model.rad_scheme_family in ["P3"]]):  # P3 ice
+            print("3-D interpolation of bulk ice radar backscattering using Fr-rho_r-q_norm values")
+            back_tmp = np.where(sub_frac_arr, (scat_dict["Q_back_bulk"] * instrument.wavelength ** 4) /
+                                (instrument.K_w * np.pi ** 5) * 1e-6, np.nan)
+            print("3-D interpolation of bulk ice radar extinction using Fr-rho_r-q_norm values")
+            ext_tmp = np.where(sub_frac_arr, scat_dict["Q_ext_bulk"], np.nan)
+            model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
+                back_tmp * A_hyd,
+                dims=model.ds["%s_q_subcolumns_ci" % cloud_str].dims)
+            hyd_ext += ext_tmp * A_hyd
         else:
             model.ds["sub_col_Ze_%s_%s" % (hyd_type, cloud_str)] = xr.DataArray(
                 (np.interp(re_array, r_eff_bulk, Qback_bulk) * A_hyd * instrument.wavelength ** 4) /
                 (instrument.K_w * np.pi ** 5) * 1e-6,
-                dims=model.ds["%s_q_subcolumns_cl" % cloud_str].dims)
+                dims=model.ds["%s_q_subcolumns_ci" % cloud_str].dims)
             hyd_ext += np.interp(re_array, r_eff_bulk, Qext_bulk) * A_hyd
 
         model.ds["sub_col_Ze_tot_%s" % cloud_str] += model.ds["sub_col_Ze_%s_%s" % (
@@ -534,7 +593,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             if instrument.instrument_str not in model.interpobj["single"].keys():
                 model.interpobj["single"][instrument.instrument_str] = {}  # gen scattering interp objects
                 scat_vars = ["beta_p", "alpha_p"]
-                if model.p3_kws["use_hybrid_scat"]:
+                if model.p3_kws["use_hybrid_scat"] > 0:
                     scat_lut_vars = ["beta_p_eq_V", "alpha_p_eq_V"]
                 else:
                     scat_lut_vars = ["beta_p", "alpha_p"]

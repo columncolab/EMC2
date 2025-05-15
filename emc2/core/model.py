@@ -888,17 +888,20 @@ class E3SMv3(E3SMv1):
         instrument: :func:`emc2.core.Instrument` class
             An `Instrument` object, the LUTs of which are  used here to calculate ice PSD parameters, to
             save computation time in subsequent processing.
-        use_hybrid_scat: bool
-            If True taking a hybrid approach, i.e., using beta_p and alpha_p of equivalent volume spheres (with D
-            still being the max dimensions per P3 approach). We do not use here equivalent volume to surface area
-            approach per D. Mitchell because the diameters and hence surface areas are non-monotonic, which
-            introduces some weird behavior. The effect of this approach is to reduce potentially overestimated
-            lidar variables (think about the implications for E3SM optics...) and radar variables, though to a
-            lesser extent.
-            Note: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D
+        use_hybrid_scat: bool or int
+            If True or > 0 taking a hybrid approach, i.e., using beta_p and alpha_p of (per calculation approach):
+            (1) microphysics: equivalent volume spheres (with D still being the max dimensions per P3 approach).
+            (2) radiation: (== 1) pure radiation approach, i.e., derive A_hyd from r_eff and subcolumn q_i
+                           (== 2) equivalent volume spheres (as in the microphysics approach) or (Mie) sphere
+                                  assumptions while still being faithful to the PSD information from model output
+            Note that we do not use here equivalent volume to surface area approach per D. Mitchell because the
+            diameters and hence surface areas are non-monotonic, which introduces some weird behavior.
+            The effect of this approach is to reduce potentially overestimated lidar variables (think about the
+            implications for E3SM optics...) and radar variables, though to a lesser extent.
+            Note #2: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D
             information. This, together with the non-equivalent V/A renders this approach "hybrid" and increases
             the gap between microphysics and radiation.
-            If False (default), using full P3 approach, i.e., consistent treatment of ice microphysics and
+            If False or == 0 (default), using full P3 approach, i.e., consistent treatment of ice microphysics and
             radiation, to a large extent at the very least.
 
         """
@@ -923,7 +926,8 @@ class E3SMv3(E3SMv1):
                 self.interpobj = {"single": {}, "bulk": {}}
 
                 # set interpolator objects for essential bulk and single-particle quantities
-                for key in ["A_tot_norm", "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
+                for key in ["A_tot_norm", "A_tot_eq_V_norm", "A_tot_Mie_norm",
+                            "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
                     self.interpobj["bulk"][key] = RegularGridInterpolator(
                         (instrument.scat_table['p3_ice']["Fr"].values,
                          instrument.scat_table['p3_ice']["rho_r"].values,

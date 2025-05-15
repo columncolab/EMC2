@@ -56,7 +56,6 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     model: :func:`emc2.core.Model`
         The model with all of the simulated parameters generated.
     """
-    print("## Creating subcolumns...")
     hydrometeor_classes = model.conv_frac_names.keys()
 
     if 'use_rad_logic' in kwargs.keys():
@@ -108,6 +107,8 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     else:
         if use_rad_logic:
             mie_for_ice = {"conv": False, "strat": False}
+        elif model.mcphys_scheme.lower() == "p3":
+            mie_for_ice = {"conv": False, "strat": False}  # ice shape integrated into microphysics
         else:
             mie_for_ice = {"conv": False, "strat": True}  # use True for strat (micro), False for conv (rad)
     if 'use_empiric_calc' in kwargs.keys():
@@ -119,6 +120,7 @@ def make_simulated_data(model, instrument, N_columns, do_classify=False, unstack
     if skip_subcol_gen:
         print('Skipping subcolumn generator (make sure subcolumns were already generated).')
     else:
+        print("## Creating subcolumns...")
         if model.process_conv:
             for hyd_type in hydrometeor_classes:
                 model = set_convective_sub_col_frac(

@@ -9,6 +9,9 @@ This module contains the Model class and example Models for your use.
 import xarray as xr
 import numpy as np
 
+from scipy.special import gamma
+from scipy.interpolate import RegularGridInterpolator
+
 try:
     from act.io.arm import read_arm_netcdf as read_netcdf
 except:
@@ -554,6 +557,35 @@ class Model():
         self.ds = xr.merge([self.ds, my_file])
         my_file.close()
 
+    @staticmethod
+    def set_array_to_valid_range(arr_in, grid_in):
+        """
+        Adjusts the values in the input array to ensure they fall within the valid range
+        defined by the minimum and maximum values of the grid array. Values below the
+        grid's minimum are set to the minimum, and values above the grid's maximum are
+        set to the maximum.
+        In practice, this method can be used to set "nearest" extrapolation (considering model
+        output with slight truncated values, e.g., rho_r of 900.00006 kg m-3 in some E3SMv3 output).
+
+        Parameters
+        ==========
+        arr_in: numpy.ndarray
+            The input array whose values need to be adjusted.
+
+        grid_in: numpy.ndarray
+            The grid array used to determine the valid range (minimum and maximum values).
+
+        Returns
+        =======
+        numpy.ndarray
+            A new array with values adjusted to fall within the valid range of the grid.
+        """
+        grid_min, grid_max = np.nanmin(grid_in), np.nanmax(grid_in)
+        arr_in = np.where(arr_in < grid_min, grid_min,
+                          np.where(arr_in > grid_max, grid_max,
+                                   arr_in))
+        return arr_in
+
 
 class ModelE(Model):
     def __init__(self, file_path, time_range=None, load_processed=False):
@@ -722,6 +754,23 @@ class E3SMv1(Model):
         self.rad_scheme_family = "CESM"  # E3SMv1 uses the same bulk LUTs as CESM (CAM 5.0)
 
         self.process_conv = False
+
+        # Set essential P3 attributes (if relevant)
+        if (self.mcphys_scheme == "P3"):
+            print(f"Using P3 microphysics option; verify that model output includes the following fields required "
+                  f"for EMC² to operate properly:\n1. Rime mass (CLDRIM)\n2. Rime volume (BVRIM)\n")
+            ice_valid_mass_thresh = 1e-18  # samples < are considered truncated samples (supported by data analysis)
+            self.mu_field["ci"] = "mu_ice"
+            self.lambda_field["ci"] = "lambda_ice"
+            self.vel_param_a["ci"], self.vel_param_a["pi"] = None, None  # setting as None to prevent user confusion
+            self.vel_param_b["ci"], self.vel_param_b["pi"] = None, None  # setting as None to prevent user confusion
+            self.p3_kws = {
+                "q_rim_name": "CLDRIM",  # Rime mass (mixing ratio) [kg kg-1]
+                "rim_vol_name": "BVRIM",  # riming volume [m3 kg-1]
+                "in_cld_Ni_name": "in_cld_Ni",  # in-cloud ice number number concentration [m-3]
+                "N0_ice_name": "N0_norm_ice",  # Normalized ice PSD intercept parameter
+                }
+
         if load_processed:
             self.ds = xr.Dataset()
             self.load_subcolumns_from_netcdf(file_path)
@@ -767,12 +816,37 @@ class E3SMv1(Model):
             self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
             precip_classes = [x for x in self.hyd_types if x[0] == "p"]
             for hyd in self.hyd_types:
-                self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6  # mass number to number [cm^-3]
+
+                # convert mass number to number concentration [cm-3]
+                self.ds[self.N_field[hyd]].values *= self.ds["rho_a"].values / 1e6
                 if hyd in precip_classes:
                     self.ds[self.strat_re_fields[hyd]].values *= 0.5 * 1e6  # Assuming r_eff in m was provided
                 self.ds[self.strat_re_fields[hyd]].values = (
                     np.where(self.ds[self.strat_re_fields[hyd]].values == 0.,
                              np.nan, self.ds[self.strat_re_fields[hyd]].values))
+
+                # use the number concentration to retrieve in-cloud; calculate other essential P3 fields
+                if (self.mcphys_scheme == "P3") & (hyd == "ci"):  # P3 preprocessing
+
+                    for var in [self.q_names_stratiform[hyd], self.p3_kws["q_rim_name"]]:
+                        self.ds[var].where(
+                            lambda x: x > ice_valid_mass_thresh)  # remove truncated water content samples to prevent issues
+
+                    dims = self.ds[self.N_field[hyd]].dims
+                    self.ds[self.p3_kws["in_cld_Ni_name"]] = xr.DataArray(
+                        self.ds[self.N_field[hyd]].values / self.ds[self.strat_frac_names[hyd]].values * 1e6, dims=dims,
+                        attrs={"units": "m-3", "long_name": "in-cloud ice number concentration"})
+                    self.ds["Fr"] = xr.DataArray(
+                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.q_names_stratiform[hyd]].values,
+                        dims=dims, attrs={"units": "1", "long_name": "Rime fraction"})
+                    self.ds["rho_r"] = xr.DataArray(
+                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.p3_kws["rim_vol_name"]].values,
+                        dims=dims, attrs={"units": "kg/m^3", "long_name": "Rime density"})
+                    self.ds["qi_norm"] = xr.DataArray(
+                        (self.ds[self.q_names_stratiform[hyd]].values /
+                        self.ds[self.strat_frac_names[hyd]].values) / self.ds[self.p3_kws["in_cld_Ni_name"]].values,
+                        dims=dims, attrs={"units": "m^3", "long_name": "Ni-normalized in-cloud ice water content"})
+
 
             self.permute_dims_for_processing()  # Consistent dim order (time x height).
 
@@ -782,9 +856,10 @@ class E3SMv1(Model):
 class E3SMv3(E3SMv1):
     def __init__(self, file_path, time_range=None, load_processed=False, time_dim="time", appended_str=False,
                  all_appended_in_lat=False, single_ice_class=True, include_rain_in_rt=False,
-                 mcphys_scheme="P3"):
+                 mcphys_scheme="P3", instrument=None, use_hybrid_scat=False):
         """
         This loads an E3SMv3 simulation output with all of the necessary parameters for EMC^2 to run.
+        Note that a `p3_kws` attribute is added to this `Model` sub-class to host the p3-specific namelist.
 
         Parameters
         ----------
@@ -812,11 +887,143 @@ class E3SMv3(E3SMv1):
             calculations.
         mcphys_scheme: str
             Name of the microphysics scheme used by the model. Current options are:
+        instrument: :func:`emc2.core.Instrument` class
+            An `Instrument` object, the LUTs of which are  used here to calculate ice PSD parameters, to
+            save computation time in subsequent processing.
+        use_hybrid_scat: bool or int
+            If True or > 0 taking a hybrid approach, i.e., using beta_p and alpha_p of (per calculation approach):
+            (1) microphysics: equivalent volume spheres (with D still being the max dimensions per P3 approach).
+            (2) radiation: (== 1) pure radiation approach, i.e., derive A_hyd from r_eff and subcolumn q_i
+                           (== 2) equivalent volume spheres (as in the microphysics approach) or (Mie) sphere
+                                  assumptions while still being faithful to the PSD information from model output
+            Note that we do not use here equivalent volume to surface area approach per D. Mitchell because the
+            diameters and hence surface areas are non-monotonic, which introduces some weird behavior.
+            The effect of this approach is to reduce potentially overestimated lidar variables (think about the
+            implications for E3SM optics...) and radar variables, though to a lesser extent.
+            Note #2: This boolean does not affect the terminal velocity calculations, which are based on the m-D,A-D
+            information. This, together with the non-equivalent V/A renders this approach "hybrid" and increases
+            the gap between microphysics and radiation.
+            If False or == 0 (default), using full P3 approach, i.e., consistent treatment of ice microphysics and
+            radiation, to a large extent at the very least.
 
         """
         super().__init__(file_path, time_range, load_processed, time_dim, appended_str, all_appended_in_lat,
                          single_ice_class, include_rain_in_rt, mcphys_scheme)
         self.model_name = "E3SMv3"
+
+        # if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params
+        # (instrument type (HSRL, etc.) has no effect on PSD params).
+        if mcphys_scheme == "P3":
+            self.rad_scheme_family = "P3"  # E3SMv3 uses CESM bulk LUTs but with a P3 twist (crp and Fr dependence)
+            
+            # if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params
+            # (instrument type (HSRL, etc.) has no effect on PSD params).
+            if (instrument is not None):
+                Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(instrument.scat_table['p3_ice'])
+                self.ds["Fr"].values = Fr_in
+                self.ds["rho_r"].values = rho_r_in
+                self.ds["qi_norm"].values = qi_norm_in
+                self.interp_p3_ice_psd_params_to_grid(
+                    instrument.scat_table['p3_ice'], limit_input_data_to_lut_rng=True)
+                self.interpobj = {"single": {}, "bulk": {}}
+
+                # set interpolator objects for essential bulk and single-particle quantities
+                for key in ["A_tot_norm", "A_tot_eq_V_norm", "A_tot_Mie_norm",
+                            "vt_m_weight", "Z", "ri_eff", "Dm_m_weight"]:
+                    self.interpobj["bulk"][key] = RegularGridInterpolator(
+                        (instrument.scat_table['p3_ice']["Fr"].values,
+                         instrument.scat_table['p3_ice']["rho_r"].values,
+                         instrument.scat_table['p3_ice']["q_norm"].values),
+                        instrument.scat_table['p3_ice'][key].values, bounds_error=False)
+                d_dependent_list = ["vt", "A", "V"]
+                if use_hybrid_scat:
+                    d_dependent_list += ["D_eq_vol_sphere"]  # eq. vol sphere D is rime-dependent
+                for key in d_dependent_list:
+                    var_in = instrument.scat_table['p3_ice'][key].values
+                    self.interpobj["single"][key] = RegularGridInterpolator(
+                        (instrument.scat_table['p3_ice']["Fr"].values,
+                         instrument.scat_table['p3_ice']["rho_r"].values,
+                         instrument.scat_table['p3_ice']["p_diam"].values),
+                         var_in, bounds_error=False)
+            self.p3_kws["use_hybrid_scat"] = use_hybrid_scat
+
+    @staticmethod
+    def calc_mu_n0_from_lambda(lambda_in):
+        """
+        Calculate the Gamma PSD shape parameter (mu) and normalized n0 from the given lambda
+        following E3SMv3 processing (see:
+        /E3SM/components/eam/tools/create_p3_lookupTable/create_p3_lookupTable_1.f90-v4.1).
+
+        Parameters
+        ==========
+        lambda_in: float
+            Input slope parameter
+
+        Returns
+        =======
+        mu_i: float
+            Final Gamma PSD shape parameter per Fig. 3B in Heymsfield (2003, Part II)
+        n0: float
+            Normalized N0.
+        """
+        mu_i = 0.076 * (lambda_in / 100.) ** 0.8 - 2  # Calculate shape parameter (convert m-1 to cm-1)
+        mu_i = np.maximum(mu_i, 0.)
+        mu_i = np.minimum(mu_i, 6.)  # final Gamma PSD shape parameter
+        n0 = lambda_in ** (mu_i + 1.) / (gamma(mu_i + 1.))  # Normalized n0
+
+        return mu_i, n0
+
+    def limit_input_data_to_p3_lut_range(self, scat_file):
+        """
+        Adjusts the input data to ensure it falls within the valid range defined by the provided (P3)
+        lookup table (LUT).
+
+        Parameters
+        ==========
+        scat_file: xarray.Dataset
+            Loaded P3 LUT file.
+
+        Returns
+        =======
+        Fr_in: numpy.ndarray
+            Adjusted values of "Fr" within the valid range.
+        rho_r_in: numpy.ndarray
+            Adjusted values of "rho_r" within the valid range.
+        qi_norm_in: numpy.ndarray
+            Adjusted values of "qi_norm" within the valid range.
+
+        """
+        Fr_in = self.set_array_to_valid_range(self.ds["Fr"].values, scat_file["Fr"].values)
+        rho_r_in = self.set_array_to_valid_range(self.ds["rho_r"].values, scat_file["rho_r"].values)
+        qi_norm_in = self.set_array_to_valid_range(self.ds["qi_norm"].values, scat_file["q_norm"].values)
+        return Fr_in, rho_r_in, qi_norm_in
+
+    def interp_p3_ice_psd_params_to_grid(self, scat_file, limit_input_data_to_lut_rng=True):
+        """
+        Sets the ice particle size distribution (PSD) parameters via interpolation
+        using scattering file data and optional input data range limitation.
+
+        Parameters
+        ==========
+        scat_file: xarray.Dataset
+            Loaded P3 LUT file.
+        limit_input_data_to_lut_rng: bool, optional
+            A flag to determine whether to limit the input data to the lookup table
+            range. Defaults to True.
+
+        """
+        x = scat_file["Fr"].values
+        y = scat_file["rho_r"].values
+        z = scat_file["q_norm"].values
+        if limit_input_data_to_lut_rng:
+            Fr_in, rho_r_in, qi_norm_in = self.limit_input_data_to_p3_lut_range(scat_file)
+        else:
+            Fr_in, rho_r_in, qi_norm_in = self.ds["Fr"].values, self.ds["rho_r"].values, self.ds["qi_norm"].values
+        interp = RegularGridInterpolator((x, y, z), scat_file["lambda"].values, bounds_error=False)
+        self.ds["lambda_ice"] = xr.DataArray(interp((Fr_in, rho_r_in, qi_norm_in)), dims=self.ds["Fr"].dims)
+        mu_i, n0 = self.calc_mu_n0_from_lambda(self.ds["lambda_ice"].values)
+        self.ds["mu_ice"] = xr.DataArray(mu_i, dims=self.ds["Fr"].dims)
+        self.ds["N0_norm_ice"] = xr.DataArray(n0, dims=self.ds["Fr"].dims)  # normalized N0
 
 
 class CESM2(E3SMv1):

@@ -163,7 +163,7 @@ class Instrument(object):
                 data_path + f"/Mie{inst}_pi1.dat")  # pi1 for 100 kg/m^2 (DHARMA)
         else:
             self.mie_table["pi"] = load_mie_file(data_path + f"/Mie{inst}_pi.dat")
-        # ModelE3 bulk
+        # ModelE3 single particle and bulk
         data_path = os.path.join(os.path.dirname(__file__), 'c6_tables')
         self.scat_table["E3_ice"] = load_scat_file(data_path + f"/C6_{inst}_8col_agg_rough_270K.dat", is_radar)
         data_path = os.path.join(os.path.dirname(__file__), "bulk_c6_tables")
@@ -174,7 +174,7 @@ class Instrument(object):
         else:
             self.bulk_table["E3_liq"] = load_bulk_scat_file(data_path + f"/bulk_{inst}_C6PSD_mie_liq.dat")
         self.bulk_table["mie_ice_E3_PSD"] = load_bulk_scat_file(data_path + f"/bulk_{inst}_C6PSD_mie_ice.dat")
-        # CESM/E3SM bulk
+        # CESM/E3SM single particle and bulk
         data_path = os.path.join(os.path.dirname(__file__), "mDAD_tables")
         self.scat_table["CESM_ice"] = load_scat_file(data_path + f"/mDAD_{inst}_ice.dat", is_radar, param_type="mDAD")
         data_path = os.path.join(os.path.dirname(__file__), "bulk_mDAD_tables")
@@ -186,4 +186,27 @@ class Instrument(object):
             self.bulk_table["CESM_liq"] = xr.open_dataset(data_path + f"/bulk_{inst}_mDAD_mie_liq.nc")
         self.bulk_table["mie_ice_CESM_PSD"] = load_bulk_scat_file(data_path + f"/bulk_{inst}_mDAD_mie_ice.dat",
                                                                   param_type="mDAD")
+        # P3 (E3SMv3) single particle and bulk
+        data_path = os.path.join(os.path.dirname(__file__), "p3_tables")
+        self.scat_table["p3_ice"] = xr.open_dataset(data_path + f"/emc2_p3_ice_lut_abrv_full_{inst}.nc")
+        self.scat_table['p3_ice']["vt"] = self.scat_table['p3_ice']["vt"].where(
+            lambda x: np.isfinite(x), np.nanmin(self.scat_table['p3_ice']["vt"].values)
+        )  # The MH2005 implementation cannot resolve diameters < 23 um. Filling those values with the min resolved
+        for key in ["beta_p", "alpha_p", "A", "A_tot_norm", "A_tot_Mie_norm",
+                    "beta_p_eq_VdivA", "alpha_p_eq_VdivA", "A_tot_eq_VdivA_norm",
+                    "beta_p_eq_V", "alpha_p_eq_V", "A_tot_eq_V_norm"]:
+            self.scat_table["p3_ice"][key] *= 1e-12
+            self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(
+                "um^2", "m^2")
+        self.scat_table["p3_ice"]["V"] *= 1e-18
+        self.scat_table["p3_ice"]["V"].attrs["units"] = self.scat_table["p3_ice"]["V"].attrs["units"].replace(
+                        "um^3", "m^3")
+        for key in ["D_eq_VdivA_sphere", "D_eq_vol_sphere"]:
+            self.scat_table["p3_ice"][key] *= 1e-6
+            self.scat_table["p3_ice"][key].attrs["units"] = self.scat_table["p3_ice"][key].attrs["units"].replace(
+                "um", "m")
+        self.scat_table["p3_ice"]["p_diam"] = self.scat_table["p3_ice"]["d"] * 1e-6  # adding p_diam for consistency
+        self.bulk_table["p3_ice"] = self.scat_table["p3_ice"]  # point at the same file (all stored together)
+        self.bulk_table["p3_liq"] = self.bulk_table["CESM_liq"]  # liq LUTs were not changed since MG2
+        self.bulk_table["mie_ice_P3_PSD"] = self.bulk_table["p3_ice"]
 

@@ -221,7 +221,7 @@ def set_stratiform_sub_col_frac(model, N_columns=None, use_rad_logic=True, paral
     model.ds['strat_frac_subcolumns_cl'].attrs["units"] = "0 = no, 1 = yes"
     model.ds['strat_frac_subcolumns_cl'].attrs["Processing method"] = method_str
     model.ds['strat_frac_subcolumns_ci'].attrs["long_name"] = (
-        "Liquid cloud particles present? [stratiform]")
+        "Cloud ice particles present? [stratiform]")
     model.ds['strat_frac_subcolumns_ci'].attrs["units"] = "0 = no, 1 = yes"
     model.ds['strat_frac_subcolumns_ci'].attrs["Processing method"] = method_str
 

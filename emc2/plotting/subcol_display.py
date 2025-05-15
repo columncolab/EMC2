@@ -509,7 +509,7 @@ class SubcolumnDisplay(Display):
         Plots timeseries of a given instrument variable.
 
         Parameters
-        ---------
+        ----------
         instrument: :py:mod:`emc2.core.Instrument`
             The Instrument class that you wish to plot.
         variable: str
@@ -546,6 +546,7 @@ class SubcolumnDisplay(Display):
             The matplotlib axes handle of the plot.
         cbar: Matplotlib axes handle
             The matplotlib colorbar handle of the plot.
+
         """
         my_ds = instrument.ds
         x_variable = "time"

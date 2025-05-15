@@ -131,7 +131,7 @@ def calc_mu_lambda(model, hyd_type="cl",
         column_ds["mu"] = xr.DataArray(
             np.zeros_like(q_use), dims=column_ds[q_name].dims).astype('float')
 
-    column_ds["mu"].attrs["long_name"] = "Gamma fit dispersion"
+    column_ds["mu"].attrs["long_name"] = "Gamma fit shape parameter"
     column_ds["mu"].attrs["units"] = "1"
 
     d = 3.0
@@ -146,6 +146,44 @@ def calc_mu_lambda(model, hyd_type="cl",
     column_ds["N_0"] = N_use.astype(float) * 1e6 * \
         column_ds["lambda"]**(column_ds["mu"] + 1.) / gamma(column_ds["mu"] + 1.)
     column_ds["N_0"].attrs["long_name"] = "Intercept of gamma fit"
-    column_ds["N_0"].attrs["units"] = r"$m^{-4}$"
+    column_ds["N_0"].attrs["units"] = r"$m^{-(4+mu)}$"
     model.ds = column_ds
     return model
+
+
+def calc_and_set_psd_params(model, hyd_type, **kwargs):
+    """
+    Calculate and set particle size distribution (PSD) parameters for a given hydrometeor type,
+    microphysics scheme, and model ouput dataset. Supports both liquid and ice hydrometeor classes.
+
+    Parameters
+    ==========
+    model: object
+        The model object containing microphysics scheme information and dataset attributes.
+    hyd_type: str
+        The hydrometeor type, e.g., "cl" or "pl" for liquid classes, and other values for ice classes.
+    **kwargs: dict
+        Additional keyword arguments passed to the PSD calculation functions.
+
+    Returns
+    =======
+    fits_ds: xarray.Dataset or dict
+        Containing the calculated PSD parameter fields such as "N_0", "lambda", and "mu".
+
+    """
+    if hyd_type in ["cl", "pl"]:  # liquid classes
+        if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl", "p3"]:
+            fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
+        else:
+            raise ValueError(f"no liquid PSD calulation method implemented for scheme {model.mcphys_scheme}")
+    else:  # ice classes
+        if model.mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl"]:  # NOTE: NSSL PSD assumed like MG
+            fits_ds = calc_mu_lambda(model, hyd_type, **kwargs).ds
+        elif model.mcphys_scheme.lower() in ["p3"]:  # no SGS for Ni so we can use the grid-mean for N0 calc
+            fits_ds = {"N_0": model.ds[model.p3_kws["in_cld_Ni_name"]] * model.ds[model.p3_kws["N0_ice_name"]],
+                       "lambda": model.ds[model.lambda_field["ci"]],
+                       "mu": model.ds[model.mu_field["ci"]],
+            }
+        else:
+            raise ValueError(f"no ice PSD calulation method implemented for scheme {model.mcphys_scheme}")
+    return fits_ds

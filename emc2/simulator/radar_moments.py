@@ -368,7 +368,7 @@ def calc_radar_bulk(instrument, model, is_conv, p_values, z_values, atm_ext, OD_
             re_array = np.tile(model.ds[re_fields[hyd_type]].values * fi_factor,
                                (n_subcolumns, 1, 1))
 
-        sub_frac_arr = model.ds["strat_frac_subcolumns_%s" % hyd_type].values
+        sub_frac_arr = model.ds["%s_frac_subcolumns_%s" % (cloud_str, hyd_type)].values
         if rad_A:
             tau_hyd = np.where(sub_frac_arr == 1,
                                3 * model.ds["%s_q_subcolumns_%s" % (cloud_str, hyd_type)] * rhoa_dz /

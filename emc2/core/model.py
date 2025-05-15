@@ -37,10 +37,11 @@ class Model():
     Rho_hyd: dict
        A dictionary whose keys are the names of the model's hydrometeor classes and
        whose values are the density of said hydrometeors in :math:`kg\ m^{-3}`
-    fluffy: dict
+    fluffy: dict or None
        A dictionary whose keys are the names of the model's ice hydrometeor classes and
        whose values are the ice fluffiness factor for the fwd calculations using r_e,
        where values of 0 - equal volume sphere, 1 - fluffy sphere i.e., diameter = maximum dimension.
+       If None, then not applying this correction factor
     lidar_ratio: dict
        A dictionary whose keys are the names of the model's hydrometeor classes and
        whose values are the lidar_ratio of said hydrometeors.

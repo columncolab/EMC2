@@ -239,9 +239,10 @@ with units, making EMC^2 unit aware.</p>
 <dt><strong>Rho_hyd: dict</strong></dt><dd><p>A dictionary whose keys are the names of the model’s hydrometeor classes and
 whose values are the density of said hydrometeors in <span class="math notranslate nohighlight">\(kg\ m^{-3}\)</span></p>
 </dd>
-<dt><strong>fluffy: dict</strong></dt><dd><p>A dictionary whose keys are the names of the model’s ice hydrometeor classes and
+<dt><strong>fluffy: dict or None</strong></dt><dd><p>A dictionary whose keys are the names of the model’s ice hydrometeor classes and
 whose values are the ice fluffiness factor for the fwd calculations using r_e,
-where values of 0 - equal volume sphere, 1 - fluffy sphere i.e., diameter = maximum dimension.</p>
+where values of 0 - equal volume sphere, 1 - fluffy sphere i.e., diameter = maximum dimension.
+If None, then not applying this correction factor</p>
 </dd>
 <dt><strong>lidar_ratio: dict</strong></dt><dd><p>A dictionary whose keys are the names of the model’s hydrometeor classes and
 whose values are the lidar_ratio of said hydrometeors.</p>

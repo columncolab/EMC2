@@ -757,6 +757,8 @@ class E3SMv1(Model):
 
         # Set essential P3 attributes (if relevant)
         if (self.mcphys_scheme == "P3"):
+            print(f"Using P3 microphysics option; verify that model output includes the following fields required "
+                  f"for EMC² to operate properly:\n1. Rime mass (CLDRIM)\n2. Rime volume (BVRIM)\n")
             ice_valid_mass_thresh = 1e-18  # samples < are considered truncated samples (supported by data analysis)
             self.mu_field["ci"] = "mu_ice"
             self.lambda_field["ci"] = "lambda_ice"

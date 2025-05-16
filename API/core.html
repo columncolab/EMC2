@@ -287,6 +287,13 @@ hydrometeor class</p>
 </dd>
 <dt><strong>asp_ratio_func: dict</strong></dt><dd><p>A dictionary that returns hydrometeor aspect ratios as a function of maximum dimension in mm.</p>
 </dd>
+<dt><strong>Vd_rhoa_scaling_ref: dict</strong></dt><dd><p>dict keys are hydrometeor classes with dict values being the reference air density [kg m-3] used
+for the scaling of reflectivity-weighted fall velocity (Mean Doppler velocity minus air motion)
+by the ratio (rhoa_0 / rhoa) ** 0.54, where rho_a_0 is the reference air density and rhoa is
+the air density. This correction, implemented in many microphysics schemes
+(e.g., MG2, P3), followes Heymsfield et al. (JAS, 2007).
+Set key values to None (or exclude hydrometeor class from keys) to skip this correction.</p>
+</dd>
 <dt><strong>hyd_types: list</strong></dt><dd><p>list of hydrometeor classes to include in calcuations. By default set to be consistent
 with the model represented by the Model subclass.</p>
 </dd>

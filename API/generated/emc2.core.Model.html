@@ -179,6 +179,12 @@ hydrometeor class</p>
 <dt><strong>strat_re_fields: dict</strong></dt><dd><p>A dictionary containing the names of the effective radii of each stratiform
 hydrometeor class</p>
 </dd>
+<dt><strong>strat_relvar_name: str or None</strong></dt><dd><p>name of the (strat) relative variance field in the model output, which is used for cloud water
+SGS variability. A higher relative variance translates to a smaller inverse relative variance,
+which serves as the shape parameter of the SGS q_c; hence, higher relative variance –&gt; higher
+SGS q_c variance.
+Using default value (1) if None.</p>
+</dd>
 <dt><strong>asp_ratio_func: dict</strong></dt><dd><p>A dictionary that returns hydrometeor aspect ratios as a function of maximum dimension in mm.</p>
 </dd>
 <dt><strong>Vd_rhoa_scaling_ref: dict</strong></dt><dd><p>dict keys are hydrometeor classes with dict values being the reference air density [kg m-3] used

@@ -625,10 +625,17 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             v_tmp = model.vel_param_a[hyd_type] * p_diam ** model.vel_param_b[hyd_type]
             v_tmp = -v_tmp.magnitude
 
+        # Microphysics scheme-specific air density correction of terminal velocity
+        rhoa_corr = np.ones(model.ds["rho_a"].shape)  # by default, no correction is applied
+        if hyd_type in model.Vd_rhoa_scaling_ref.keys():
+            if model.Vd_rhoa_scaling_ref[hyd_type] is not None:
+                rhoa_corr = (model.Vd_rhoa_scaling_ref[hyd_type] / model.ds["rho_a"].values) ** 0.54
+
         if hyd_type == "cl":
             _calc_liquid = lambda x: _calculate_observables_liquid(
                 x, total_hydrometeor, N_0, lambdas, mu,
-                alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam)
+                alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam,
+                rhoa_corr)
             if parallel:
                 print("Performing parallel radar calculations for %s" % hyd_type)
                 if chunk is None:
@@ -649,7 +656,6 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             else:
                 my_tuple = [x for x in map(
                     _calc_liquid, np.arange(0, Dims[1], 1))]
-
             
             V_d_numer_tot = np.nan_to_num(
                 np.stack([x[0] for x in my_tuple], axis=1))
@@ -673,7 +679,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 beta_p, alpha_p, v_tmp,
                 instrument.wavelength, instrument.K_w,
                 sub_frac_arr, hyd_type, p_diam, beta_pv, rhoe, model.mcphys_scheme,
-                calc_kws)
+                rhoa_corr, calc_kws)
 
             if parallel:
                 print("Doing parallel radar calculation for %s" % hyd_type)
@@ -702,7 +708,8 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
             model.ds["sub_col_Ze_%s_strat" % hyd_type][:, :, :] = np.stack([x[3] for x in my_tuple], axis=1)
             model.ds["sub_col_Vd_%s_strat" % hyd_type][:, :, :] = np.stack([x[4] for x in my_tuple], axis=1)
             if calc_spectral_width:
-                model.ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, :] = np.stack([x[5] for x in my_tuple], axis=1)
+                model.ds["sub_col_sigma_d_%s_strat" % hyd_type][:, :, :] = np.stack(
+                    [x[5] for x in my_tuple], axis=1)
             if beta_pv is not None:
                 Zv = np.nan_to_num(np.stack([x[6] for x in my_tuple], axis=1))
                 model.ds["sub_col_Zdr_%s_strat" % hyd_type] = model.ds["sub_col_Ze_%s_strat" % hyd_type] / Zv
@@ -776,7 +783,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 _calc_sigma_d_liq = lambda x: _calc_sigma_d_tot_cl(
                     x, N_0, lambdas, mu, instrument,
                     model.vel_param_a, model.vel_param_b, total_hydrometeor,
-                    p_diam, Vd_tot, num_subcolumns, model.mcphys_scheme)
+                    p_diam, Vd_tot, num_subcolumns, model.mcphys_scheme, rhoa_corr)
 
                 if parallel:
                     if chunk is None:
@@ -803,7 +810,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 _calc_sigma = lambda x: _calc_sigma_d_tot(
                     x, num_subcolumns, v_tmp, N_0, lambdas, mu,
                     total_hydrometeor, Vd_tot, sub_frac_arr, p_diam, beta_p,
-                    rhoe, hyd_type, model.mcphys_scheme, calc_kws)
+                    rhoe, hyd_type, model.mcphys_scheme, rhoa_corr, calc_kws)
 
                 if parallel:
                     if chunk is None:
@@ -826,7 +833,7 @@ def calc_radar_micro(instrument, model, z_values, atm_ext, OD_from_sfc=True,
                 sigma_d_numer_tot += np.nan_to_num(np.stack([x[0] for x in sigma_d_numer], axis=1))
     else: 
         print("User chose to skip spectral width calculations")
-        
+ 
     model.ds = model.ds.drop_vars(("N_0", "lambda", "mu"))
 
     if calc_spectral_width:
@@ -1037,7 +1044,7 @@ def calc_radar_moments(instrument, model, is_conv,
 
 def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
                          vel_param_a, vel_param_b, total_hydrometeor,
-                         p_diam, Vd_tot, num_subcolumns, mcphys_scheme):
+                         p_diam, Vd_tot, num_subcolumns, mcphys_scheme, rhoa_corr):
     hyd_type = "cl"
     Dims = Vd_tot.shape
 
@@ -1050,6 +1057,7 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
+        rhoa_corr_single = rhoa_corr[tt, k]
         N_0_tmp = N_0[:, tt, k].astype('float64')
         N_0_tmp, d_diam_tmp = np.meshgrid(N_0_tmp, p_diam)
         lambda_tmp = lambdas[:, tt, k].astype('float64')
@@ -1063,7 +1071,8 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
         if mcphys_scheme.lower() in ["mg2", "mg", "morrison", "nssl", "p3"]:  # power-law velocity schemes for liquid
             v_tmp = vel_param_a[hyd_type] * p_diam ** vel_param_b[hyd_type]
         v_tmp = -v_tmp.magnitude.astype('float64')
-        Calc_tmp2 = (v_tmp - np.tile(Vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
+        v_use = v_tmp * rhoa_corr_single
+        Calc_tmp2 = (v_use - np.tile(Vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
         sigma_d_numer[:, k] = np.trapz(Calc_tmp2, x=p_diam, axis=1)
 
     return sigma_d_numer, moment_denom
@@ -1071,7 +1080,7 @@ def _calc_sigma_d_tot_cl(tt, N_0, lambdas, mu, instrument,
 
 def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
                       total_hydrometeor, vd_tot, sub_frac_arr, p_diam, beta_p, rhoe,
-                      hyd_type, mcphys_scheme, calc_kws):
+                      hyd_type, mcphys_scheme, rhoa_corr, calc_kws):
     Dims = vd_tot.shape
     sigma_d_numer = np.zeros((Dims[0], Dims[2]), dtype='float64')
     moment_denom = np.zeros((Dims[0], Dims[2]), dtype='float64')
@@ -1084,6 +1093,7 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
     for k in range(Dims[2]):
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
+        rhoa_corr_single = rhoa_corr[tt, k]
         if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter below & psd.py)
             v_tmp = tiled_arr["vt"][k, :]
             if not calc_kws["mie_for_ice"]:
@@ -1106,14 +1116,12 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
         N_D = np.stack(N_D, axis=1).astype('float64')
         Calc_tmp = np.tile(beta_p, (num_subcolumns, 1)) * N_D.T
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
+        v_use = v_tmp
         if rhoe is not None:
             if mcphys_scheme.lower() in ["nssl"]:  # NSSL parameterization for fall velocity
-                v_tmp2 = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
-            else:
-                v_tmp2 = v_tmp
-        else:
-            v_tmp2 = v_tmp
-        Calc_tmp2 = (v_tmp2 - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
+                v_use = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
+        v_use = v_use * rhoa_corr_single
+        Calc_tmp2 = (v_use - np.tile(vd_tot[:, tt, k], (num_diam, 1)).T) ** 2 * Calc_tmp.astype('float64')
         Calc_tmp2 = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         sigma_d_numer[:, k] = np.where(sub_frac_arr[:, tt, k] == 0, 0, Calc_tmp2)
 
@@ -1121,7 +1129,8 @@ def _calc_sigma_d_tot(tt, num_subcolumns, v_tmp, N_0, lambdas, mu,
 
 
 def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
-                                  alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam):
+                                  alpha_p, beta_p, v_tmp, num_subcolumns, instrument, p_diam,
+                                  rhoa_corr):
     height_dims = N_0.shape[2]
     V_d_numer_tot = np.zeros((N_0.shape[0], height_dims))
     V_d = np.zeros((N_0.shape[0], height_dims))
@@ -1137,6 +1146,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
     for k in range(height_dims):
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
+        rhoa_corr_single = rhoa_corr[tt, k]
         if num_subcolumns > 1:
             N_0_tmp = np.squeeze(N_0[:, tt, k])
             lambda_tmp = np.squeeze(lambdas[:, tt, k])
@@ -1158,10 +1168,11 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
         moment_denom = np.trapz(Calc_tmp, x=p_diam, axis=1).astype('float64')
         Ze[:, k] = \
             (moment_denom * instrument.wavelength ** 4) / (instrument.K_w * np.pi ** 5) * 1e-6
-        Calc_tmp2 = v_tmp * Calc_tmp.astype('float64')
+        v_use = v_tmp * rhoa_corr_single
+        Calc_tmp2 = v_use * Calc_tmp.astype('float64')
         V_d_numer = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         V_d[:, k] = V_d_numer / moment_denom
-        Calc_tmp2 = (v_tmp - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
+        Calc_tmp2 = (v_use - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         sigma_d_numer = np.trapz(Calc_tmp2, x=p_diam, axis=1)
         sigma_d[:, k] = np.sqrt(sigma_d_numer / moment_denom)
         V_d_numer_tot[:, k] += V_d_numer
@@ -1174,7 +1185,7 @@ def _calculate_observables_liquid(tt, total_hydrometeor, N_0, lambdas, mu,
 def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
                                  num_subcolumns, beta_p, alpha_p, v_tmp, wavelength,
                                  K_w, sub_frac_arr, hyd_type, p_diam, beta_pv,
-                                 rhoe, mcphys_scheme, calc_kws=None):
+                                 rhoe, mcphys_scheme, rhoa_corr, calc_kws=None):
     Dims = sub_frac_arr.shape
     if tt % 100 == 0:
         print("Processing non-`cl` in column %d/%d" % (tt, Dims[1]))
@@ -1191,6 +1202,7 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
         if np.all(total_hydrometeor[:, tt, k] == 0):
             continue
         num_diam = len(p_diam)
+        rhoa_corr_single = rhoa_corr[tt, k]
         N_D = []
         if (hyd_type == 'ci') & (mcphys_scheme == "P3"):  # no N0 etc subcol dim (subcol q filter below & psd.py)
             v_tmp = tiled_arr["vt"][k, :]
@@ -1226,11 +1238,12 @@ def _calculate_other_observables(tt, total_hydrometeor, N_0, lambdas, mu,
         if rhoe is not None:
             if mcphys_scheme.lower() in ["nssl"]:  # NSSL parameterization for fall velocity
                 v_tmp = calc_velocity_nssl(rhoe[tt, k], p_diam, hyd_type)
-        Calc_tmp2 = Calc_tmp * v_tmp
+        v_use = v_tmp * rhoa_corr_single
+        Calc_tmp2 = Calc_tmp * v_use
         V_d_numer = np.trapz(Calc_tmp2, axis=1, x=p_diam)
         V_d_numer = np.where(sub_frac_arr[:, tt, k] == 0, 0, V_d_numer)
         V_d[:, k] = V_d_numer / moment_denom
-        Calc_tmp2 = (v_tmp - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
+        Calc_tmp2 = (v_use - np.tile(V_d[:, k], (num_diam, 1)).T) ** 2 * Calc_tmp
         Calc_tmp2 = np.trapz(Calc_tmp2, axis=1, x=p_diam)
         sigma_d_numer = np.where(sub_frac_arr[:, tt, k] == 0, 0, Calc_tmp2)
         sigma_d[:, k] = np.sqrt(sigma_d_numer / moment_denom)

@@ -85,6 +85,13 @@ class Model():
        hydrometeor class
     asp_ratio_func: dict
        A dictionary that returns hydrometeor aspect ratios as a function of maximum dimension in mm.
+    Vd_rhoa_scaling_ref: dict
+        dict keys are hydrometeor classes with dict values being the reference air density [kg m-3] used
+        for the scaling of reflectivity-weighted fall velocity (Mean Doppler velocity minus air motion)
+        by the ratio (rhoa_0 / rhoa) ** 0.54, where rho_a_0 is the reference air density and rhoa is
+        the air density. This correction, implemented in many microphysics schemes
+        (e.g., MG2, P3), followes Heymsfield et al. (JAS, 2007).
+        Set key values to None (or exclude hydrometeor class from keys) to skip this correction.
     hyd_types: list
        list of hydrometeor classes to include in calcuations. By default set to be consistent
        with the model represented by the Model subclass.
@@ -160,6 +167,7 @@ class Model():
                        "Avogadro_c": 6.022140857e23,
                        "R": 8.3144598}  # J K^-1 mol^-1
         self.asp_ratio_func = {}
+        self.Vd_rhoa_scaling_ref = {}
         self.ice_hyd_types = ["ci", "pi"]
 
     def _add_vel_units(self):
@@ -638,6 +646,10 @@ class ModelE(Model):
         self.strat_re_fields = {'cl': 're_sscl', 'ci': 're_ssci', 'pi': 're_sspi', 'pl': 're_sspl'}
         self.q_names_convective = {'cl': 'QCLmc', 'ci': 'QCImc', 'pl': 'QPLmc', 'pi': 'QPImc'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.Vd_rhoa_scaling_ref = {"cl": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                    "ci": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                    "pl": 1.1,  # Liu and Orville (1969, p. 1269),
+                                    "pi": 1.15}  # Localleti and Hobbs (1974) - est. from 750-1500 alt + T < 273.15
         self.hyd_types = ["cl", "ci", "pl", "pi"]
         self.mcphys_scheme = "MG2"  # per GM2015 (J. Clim.)
         self.rad_scheme_family = "ModelE"
@@ -664,6 +676,8 @@ class ModelE(Model):
 
             # ModelE has pressure units in mb, but pint only supports hPa
             self.ds["p_3d"].attrs["units"] = "hPa"
+            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
 
         self.model_name = "ModelE3"
 
@@ -740,6 +754,11 @@ class E3SMv1(Model):
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
         self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}
         self.lambda_field = {'cl': 'lambda_cloud', 'ci': None, 'pl': None, 'pi': None}  
+
+        self.Vd_rhoa_scaling_ref = {"cl": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                    "ci": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                    "pl": 1.1,  # Liu and Orville (1969, p. 1269),
+                                    "pi": 1.15}  # Localleti and Hobbs (1974) - est. from 750-1500 alt + T < 273.15
 
         if include_rain_in_rt:
             self.hyd_types = ["cl", "ci", "pl"]
@@ -917,6 +936,10 @@ class E3SMv3(E3SMv1):
         if mcphys_scheme == "P3":
             self.rad_scheme_family = "P3"  # E3SMv3 uses CESM bulk LUTs but with a P3 twist (crp and Fr dependence)
             
+            self.Vd_rhoa_scaling_ref = {"cl": None,  # N/A (see Morrison and Milbrandt (2015, p. 294)
+                                        "ci": 0.8254,  # p=600 hPa, T=253.15 K (used in P3 LUT generator code)
+                                        "pl": 1.1}  # Liu and Orville (1969, p. 1269)
+
             # if Instrument object was input, we use the automatically-loaded scattering LUT to process PSD params
             # (instrument type (HSRL, etc.) has no effect on PSD params).
             if (instrument is not None):
@@ -1136,12 +1159,17 @@ class WRF(Model):
                                    'pl': 're_plc', 'pi': 're_pic'}
             self.strat_re_fields = {'cl': 're_cls', 'ci': 're_cis',
                                     'pl': 're_pls', 'pi': 're_pis'}
+            self.Vd_rhoa_scaling_ref = {"cl": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                        "ci": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                        "pl": 1.1,  # Liu and Orville (1969, p. 1269),
+                                        "pi": 1.15}  # Localleti and Hobbs (1974) - est. based on paper info
             if include_gr_class:
                 self.hyd_types += ['gr']
                 if gr_class_is_hail:
                     self.Rho_hyd.update({'gr': 900.0 * ureg.kg / (ureg.m**3)})
                     self.vel_param_a.update({'gr': 114.5})  # MATSUN AND HUGGINS 1980
                     self.vel_param_b.update({'gr': 0.5 * ureg.dimensionless})
+                    self.Vd_rhoa_scaling_ref["gr"] = 1.23  # Matsun and Huggins (1980, p. 1116)
                 else:
                     self.Rho_hyd.update({'gr': 400.0 * ureg.kg / (ureg.m**3)})
                     self.vel_param_a.update({'gr': 19.3})
@@ -1243,9 +1271,10 @@ class WRF(Model):
         self.ds["pressure"].attrs["units"] = "hPa"
         self.ds["T"].attrs["units"] = "K"
         self.ds["Z"].attrs["units"] = "m"
-        rho = (self.ds["pressure"] * 1e2) / (287.058 * self.ds["T"])
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         # Qn in kg-1 --> cm-3 * rho to get m-3 * 1e-6 for cm-3
-        qn_conversion = rho.values * 1e-6
+        qn_conversion = self.ds["rho_a"].values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES, squeeze=False)
         if NUWRF:
             cldfrac = ds["CLDFRA"].values
@@ -1403,6 +1432,10 @@ class DHARMA(Model):
                                 'pi': 're_strat_pi', 'pl': 're_strat_pl'}
         self.q_names_convective = {'cl': 'conv_dat', 'ci': 'conv_dat', 'pl': 'conv_dat', 'pi': 'conv_dat'}
         self.q_names_stratiform = {'cl': 'qcl', 'ci': 'qci', 'pl': 'qpl', 'pi': 'qpi'}
+        self.Vd_rhoa_scaling_ref = {"cl": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                    "ci": 1.0,  # Ikawa and Saito (1990, p. 85)
+                                    "pl": 1.1,  # Liu and Orville (1969, p. 1269),
+                                    "pi": 1.15}  # Localleti and Hobbs (1974) - est. from 750-1500 alt + T < 273.15
         self.hyd_types = ["cl", "ci", "pl", "pi"]
         if not single_pi_class:
             self.N_field.update({'pir': 'npir'})
@@ -1414,6 +1447,7 @@ class DHARMA(Model):
             self.strat_re_fields.update({'pir': 'strat_pir_frac'})
             self.q_names_convective.update({'pir': 'conv_dat'})
             self.q_names_stratiform.update({'pir': 'qpir'})
+            self.Vd_rhoa_scaling_ref['pir'] = 1.15  # Localleti and Hobbs (1974) - est. based on paper info
             self.hyd_types.append("pir")
         self.mcphys_scheme="MG"  # MG2008
         self.rad_scheme_family = "ModelE"  # Similar implementation to ModelE3
@@ -1427,7 +1461,9 @@ class DHARMA(Model):
                 my_attrs = self.ds[variable].attrs
                 self.ds[variable] = self.ds[variable].astype('float64')
                 self.ds[variable].attrs = my_attrs
-                
+            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+ 
         if bounding_box is not None:
             super()._crop_bounding_box_x_y(bounding_box)
 
@@ -1531,6 +1567,8 @@ class TestModel(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         self.hyd_types = ["cl", "ci", "pl", "pi"]
 
 
@@ -1670,6 +1708,8 @@ class TestConvection(Model):
         self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
         self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         self.height_dim = "height"
         self.time_dim = "time"
 
@@ -1812,6 +1852,8 @@ class TestAllStratiform(Model):
         self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
         self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         self.height_dim = "height"
         self.time_dim = "time"
 
@@ -1934,5 +1976,7 @@ class TestHalfAndHalf(Model):
         self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
         self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
+        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
         self.height_dim = "height"
         self.time_dim = "time"

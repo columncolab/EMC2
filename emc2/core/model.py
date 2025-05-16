@@ -872,9 +872,11 @@ class E3SMv1(Model):
                     self.ds["Fr"] = xr.DataArray(
                         self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.q_names_stratiform[hyd]].values,
                         dims=dims, attrs={"units": "1", "long_name": "Rime fraction"})
+                    rho_r = np.where(
+                        self.ds["Fr"].values == 0, 0.0,  # filled 0 vals (set to 50 below) do not impact if Fr = 0
+                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.p3_kws["rim_vol_name"]].values)
                     self.ds["rho_r"] = xr.DataArray(
-                        self.ds[self.p3_kws["q_rim_name"]].values / self.ds[self.p3_kws["rim_vol_name"]].values,
-                        dims=dims, attrs={"units": "kg/m^3", "long_name": "Rime density"})
+                        rho_r, dims=dims, attrs={"units": "kg/m^3", "long_name": "Rime density"})
                     self.ds["qi_norm"] = xr.DataArray(
                         (self.ds[self.q_names_stratiform[hyd]].values /
                         self.ds[self.strat_frac_names[hyd]].values) / self.ds[self.p3_kws["in_cld_Ni_name"]].values,

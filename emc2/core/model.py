@@ -6,8 +6,11 @@ emc2.core.Model
 This module contains the Model class and example Models for your use.
 
 """
+import warnings
+
 import xarray as xr
 import numpy as np
+from netCDF4 import Dataset
 
 from scipy.special import gamma
 from scipy.interpolate import RegularGridInterpolator
@@ -18,7 +21,6 @@ except:
     print('Using act-atmos v1.5.3 or earlier. Please update to v2.0.0 or newer')
     from act.io.armfiles import read_netcdf
 from .instrument import ureg, quantity
-from netCDF4 import Dataset
 from ..scattering import brandes
 
 try:
@@ -183,6 +185,19 @@ class Model():
             except TypeError:
                 continue
             self.ds[variable].attrs = attrs
+
+    def _calc_air_density(self):
+        """
+        Calculates the air density and stores it in the dataset under the key "rho_a".
+        The calculation is based on the ideal gas law using temperature [K] and pressure [hPa] fields.
+
+        """
+        if np.all([self.T_field in self.ds.keys(), self.T_field in self.ds.keys()]):
+            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
+            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        else:
+            warnings.warn(f"Temperature and pressure field not provided in `Model` init; "
+                          f"this could introduce errors if the microphysics approach is applied", RuntimeWarning)
 
     def _crop_bounding_box(self, bounding_box):
         """
@@ -676,8 +691,7 @@ class ModelE(Model):
 
             # ModelE has pressure units in mb, but pint only supports hPa
             self.ds["p_3d"].attrs["units"] = "hPa"
-            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            self._calc_air_density()  # calculate air density with input T and p fields
 
         self.model_name = "ModelE3"
 
@@ -832,8 +846,7 @@ class E3SMv1(Model):
             self.ds["zeros_cf"] = xr.DataArray(np.zeros_like(self.ds[self.p_field].values),
                                                dims=self.ds[self.p_field].dims)
             self.ds["zeros_cf"].attrs["long_name"] = "An array of zeros as only strat output is used for this model"
-            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            self._calc_air_density()  # calculate air density with input T and p fields
             precip_classes = [x for x in self.hyd_types if x[0] == "p"]
             for hyd in self.hyd_types:
 
@@ -1271,8 +1284,7 @@ class WRF(Model):
         self.ds["pressure"].attrs["units"] = "hPa"
         self.ds["T"].attrs["units"] = "K"
         self.ds["Z"].attrs["units"] = "m"
-        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        self._calc_air_density()  # calculate air density with input T and p fields
         # Qn in kg-1 --> cm-3 * rho to get m-3 * 1e-6 for cm-3
         qn_conversion = self.ds["rho_a"].values * 1e-6
         W = getvar(wrfin, "wa", units="m s-1", timeidx=ALL_TIMES, squeeze=False)
@@ -1461,8 +1473,7 @@ class DHARMA(Model):
                 my_attrs = self.ds[variable].attrs
                 self.ds[variable] = self.ds[variable].astype('float64')
                 self.ds[variable].attrs = my_attrs
-            self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-            self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+            self._calc_air_density()  # calculate air density with input T and p fields
  
         if bounding_box is not None:
             super()._crop_bounding_box_x_y(bounding_box)
@@ -1567,8 +1578,7 @@ class TestModel(Model):
         self.ds = my_ds
         self.height_dim = "height"
         self.time_dim = "time"
-        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        self._calc_air_density()  # calculate air density with input T and p fields
         self.hyd_types = ["cl", "ci", "pl", "pi"]
 
 
@@ -1708,8 +1718,7 @@ class TestConvection(Model):
         self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
         self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
-        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        self._calc_air_density()  # calculate air density with input T and p fields
         self.height_dim = "height"
         self.time_dim = "time"
 
@@ -1852,8 +1861,7 @@ class TestAllStratiform(Model):
         self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
         self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
-        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        self._calc_air_density()  # calculate air density with input T and p fields
         self.height_dim = "height"
         self.time_dim = "time"
 
@@ -1976,7 +1984,6 @@ class TestHalfAndHalf(Model):
         self.mcphys_scheme = "MG2"  # required to prevent errors from being raised.
         self.rad_scheme_family = "ModelE"  # required to prevent errors from being raised.
         self.ds = my_ds
-        self.ds["rho_a"] = self.ds[self.p_field] * 1e2 / (self.consts["R_d"] * self.ds[self.T_field])
-        self.ds["rho_a"].attrs["units"] = "kg / m ** 3"
+        self._calc_air_density()  # calculate air density with input T and p fields
         self.height_dim = "height"
         self.time_dim = "time"

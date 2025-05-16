@@ -416,7 +416,7 @@ def set_precip_sub_col_frac(model, is_conv, N_columns=None, use_rad_logic=True,
     return model
 
 
-def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad_logic=True,
+def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=None, use_rad_logic=True,
             parallel=True, chunk=None, q_trunc_thresh=1e-18):
     """
 
@@ -437,6 +437,9 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
         and/or is_conv are True (both cases do not follow the Morrison scheme).
     inv_rel_var: float
         The inverse of the relative subgrid qc PDF variance in Morrison and Gettleman (2008)
+        Using the default value of 1 if the relative variance field exists in the `Model` object
+        dataset. In such a case where the relative variance field exists, setting:
+        `inv_rel_var = 1 / rel_var` where `rel_var` is the data field.
     use_rad_logic: bool
         When True using the cloud fraction utilized in a model radiative scheme and also implementing
         uniformly distributed qc (setting qc_flag to False) to maintain radiation scheme logic.
@@ -466,6 +469,9 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
     np.seterr(divide='ignore', invalid='ignore')
     if model.num_subcolumns == 0:
         raise RuntimeError("The number of subcolumns must be specified in the model!")
+
+    if inv_rel_var is None:
+        inv_rel_var = 1.0
 
     if np.logical_or(use_rad_logic, is_conv):
         qc_flag = False
@@ -514,6 +520,14 @@ def set_q_n(model, hyd_type, is_conv=True, qc_flag=False, inv_rel_var=1, use_rad
                                             dims=model.ds[frac_fieldname].dims)
     else:
         if qc_flag:
+
+            # First, set `inv_rel_var` if relative variance field is available in mode output (and relevant)
+            if model.strat_relvar_name in model.ds.keys():
+                print(f"Found relative variance field ({model.strat_relvar_name}) in dataset - using it!")
+                inv_rel_var = 1.0 / model.ds[model.strat_relvar_name].values
+            if isinstance(inv_rel_var, (float, int)):  # setting as array
+                inv_rel_var = np.full(q_array.shape, inv_rel_var)
+
             q_ic_mean = np.where(q_array > q_trunc_thresh, q_array / data_frac, 0)
             q_ic_mean = np.where(np.isnan(q_ic_mean), 0, q_ic_mean)
             tot_hyd_in_sub = sub_data_frac.sum(axis=0)
@@ -743,8 +757,8 @@ def _distribute_cl_q_n(tt, sub_data_frac, inv_rel_var, N_columns, tot_hyd_in_sub
         if tot_hyd_in_sub[tt, j] == 1:
             q_profs[hyd_in_sub_loc, j] = q_ic_mean[tt, j]
         elif tot_hyd_in_sub[tt, j] > 1:
-            alpha = inv_rel_var / q_ic_mean[tt, j]
-            a = inv_rel_var
+            alpha = inv_rel_var[tt, j] / q_ic_mean[tt, j]
+            a = inv_rel_var[tt, j]
             b = 1 / alpha
             randlocs = np.random.permutation(tot_hyd_in_sub[tt, j])
             rand_gamma_vals = np.random.gamma(a, b, tot_hyd_in_sub[tt, j])  # extra entry 2 prevent indexing issues

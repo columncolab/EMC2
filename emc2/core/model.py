@@ -85,6 +85,12 @@ class Model():
     strat_re_fields: dict
        A dictionary containing the names of the effective radii of each stratiform
        hydrometeor class
+    strat_relvar_name: str or None
+        name of the (strat) relative variance field in the model output, which is used for cloud water
+        SGS variability. A higher relative variance translates to a smaller inverse relative variance,
+        which serves as the shape parameter of the SGS q_c; hence, higher relative variance --> higher
+        SGS q_c variance.
+        Using default value (1) if None.
     asp_ratio_func: dict
        A dictionary that returns hydrometeor aspect ratios as a function of maximum dimension in mm.
     Vd_rhoa_scaling_ref: dict
@@ -150,6 +156,7 @@ class Model():
         self.variable_density = {}
         self.conv_re_fields = {}
         self.strat_re_fields = {}
+        self.strat_relvar_name = None
         self.mu_field = None
         self.lambda_field = None
         self.hyd_types = []
@@ -764,6 +771,7 @@ class E3SMv1(Model):
                                         'pl': 'FREQR', 'pi': 'FREQS'}
         self.conv_re_fields = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pi': 'zeros_cf', 'pl': 'zeros_cf'}
         self.strat_re_fields = {'cl': 'AREL', 'ci': 'AREI', 'pi': 'ADSNOW', 'pl': 'ADRAIN'}
+        self.strat_relvar_name = "RELVAR"
         self.q_names_convective = {'cl': 'zeros_cf', 'ci': 'zeros_cf', 'pl': 'zeros_cf', 'pi': 'zeros_cf'}
         self.q_names_stratiform = {'cl': 'CLDLIQ', 'ci': 'CLDICE', 'pl': 'RAINQM', 'pi': 'SNOWQM'}
         self.mu_field = {'cl': 'mu_cloud', 'ci': None, 'pl': None, 'pi': None}

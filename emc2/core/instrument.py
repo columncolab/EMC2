@@ -191,7 +191,7 @@ class Instrument(object):
         self.scat_table["p3_ice"] = xr.open_dataset(data_path + f"/emc2_p3_ice_lut_abrv_full_{inst}.nc")
         self.scat_table['p3_ice']["vt"] = self.scat_table['p3_ice']["vt"].where(
             lambda x: np.isfinite(x), np.nanmin(self.scat_table['p3_ice']["vt"].values)
-        )  # The MH2005 implementation cannot resolve diameters < 23 um. Filling those values with the min resolved
+        )  # The MH2005 implementation cannot resolve diameters < 21 um. Filling those values with the min resolved
         for key in ["beta_p", "alpha_p", "A", "A_tot_norm", "A_tot_Mie_norm",
                     "beta_p_eq_VdivA", "alpha_p_eq_VdivA", "A_tot_eq_VdivA_norm",
                     "beta_p_eq_V", "alpha_p_eq_V", "A_tot_eq_V_norm"]:

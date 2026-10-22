@@ -41,7 +41,7 @@ setup(
         'netCDF4',
     ],
     
-    python_requires='>=3.13,<3.15',
+    python_requires='>=3.13,<3.15.1',
 
     classifiers=[
         'Development Status :: 5 - Production/Stable',

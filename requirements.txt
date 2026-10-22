@@ -9,3 +9,4 @@ scipy
 dask
 tqdm
 netCDF4
+certifi>=2026.10.19
